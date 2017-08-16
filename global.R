@@ -1,0 +1,8 @@
+# variables <- colnames(input$data)
+library(shiny)
+library(shinythemes)
+library(ggplot2)
+library(plotly)
+library(doBy)
+library(reshape)
+library(plotrix)
