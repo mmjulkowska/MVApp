@@ -97,7 +97,7 @@ fluidPage(
         )
       ),
       
-      mainPanel(tableOutput("sum_data"))
+      mainPanel(dataTableOutput("sum_data"))
       # end of Tab#4
     ),
     

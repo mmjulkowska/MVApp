@@ -235,36 +235,15 @@ function(input, output) {
   #  - - - - - - - - - - >> SUMMARY STATISTICS IN 4th TAB <<- - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
-  # Table in Tab4 - main window - summary of the data based on the selected calculations
   sum_data <- eventReactive(input$Go_SummaryStat, {
-    melted_icecream <-
-      melt(
-        my_data(),
-        id = c(
-          input$SelectGeno,
-          input$SelectIV,
-          input$SelectID,
-          input$SelectTime
-        )
-      )
-    sum_my_data <- summaryBy(value ~ ., data = melted_icecream)
+    melted_icecream <- melt(my_data(), id=c(input$SelectIV,input$SelectID, input$SelectTime))
+    sum_my_data <- summaryBy(value ~., data=melted_icecream) 
     return(sum_my_data)
   })
   
-  cast_sum <- eventReactive(input$Go_SummaryStat, {
-    geno <- input$SelectGeno
-    treatment <- input$SelectIV
-    time <- input$SelectTime
-    cast_data1 <-
-      cast(sum_data(), geno ~ treatment + time + variable.mean)
-    
+  output$sum_data <- renderDataTable({
+    sum_data()
   })
-  
-  output$sum_data <- renderTable({
-    cast_sum()
-  })
-  
-  # To select
   
   
   ### Tab 6: correlation tab
