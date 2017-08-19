@@ -226,7 +226,7 @@ function(input, output) {
     things_to_model
   })
   
-  output$Model_data <- renderTable({
+  output$Model_data <- renderDataTable({
     Model_temp_data()
   })
   
@@ -332,8 +332,6 @@ function(input, output) {
       cor(my_data2[, beginCol:endCol]),
       type = "upper",
       tl.col  = "black",
-      Rowv = F,
-      Colv = F
     )
   })
   
