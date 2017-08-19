@@ -145,7 +145,7 @@ function(input, output) {
         selectizeInput(
           inputId = "ModelIV",
           label = "Select an independent variable for which you would like estimate kinetics",
-          choices = c(input$SelectIV),
+          choices = c(input$SelectIV, input$SelectGeno),
           multiple = F
         )
       )
@@ -160,7 +160,7 @@ function(input, output) {
         selectizeInput(
           inputId = "ModelSubIV",
           label = "Select an independent variable for which you would to subset",
-          choices = c(input$SelectIV),
+          choices = c(input$SelectIV, input$SelectGeno),
           multiple = F
         )
       )
