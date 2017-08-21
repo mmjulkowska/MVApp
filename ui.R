@@ -1,7 +1,7 @@
 fluidPage(
   theme = shinytheme("yeti"),
   navbarPage(
-    title = ">> MVApp_ss <<",
+    title = ">> MVApp_ss3 <<",
     tabPanel(
       "Background information",
       icon = icon("info"),
