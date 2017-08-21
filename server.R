@@ -39,7 +39,6 @@ function(input, output) {
       )
   })
   
-  
   output$CustomIndepVar <- renderUI({
     if (is.null(ItemList())) {
       return ()
@@ -189,6 +188,7 @@ function(input, output) {
       super_temp3 <-
         subset(super_temp2, super_temp2[, 3] == things_to_model[i, 3])
       
+    # modeling SelectTime to ModelPheno  
       if (input$model == "lin") {
         fit <- lm(super_temp3[, 4] ~ super_temp3[, 5])
         things_to_model[i, 4] <- coefficients(fit)[2]
@@ -236,7 +236,7 @@ function(input, output) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
   sum_data <- eventReactive(input$Go_SummaryStat, {
-    melted_icecream <- melt(my_data(), id=c(input$SelectIV,input$SelectID, input$SelectTime))
+    melted_icecream <- melt(my_data(), id=c(input$SelectIV,input$SelectGeno,input$SelectID, input$SelectTime))
     sum_my_data <- summaryBy(value ~., data=melted_icecream) 
     return(sum_my_data)
   })
@@ -264,9 +264,8 @@ function(input, output) {
         input$SelectID
       )) + length(input$SelectDV)
     
-    corrplot(
+    corrplot.mixed(
       cor(my_data()[, beginCol:endCol]),
-      type = "upper",
       order = "hclust",
       tl.col  = "black"
     )
@@ -328,9 +327,8 @@ function(input, output) {
     names(my_data) <- sub(input$CorIV_sub, "Cor_baby", names(my_data))
     my_data2 <- subset(my_data, Cor_baby == input$CorIV_val)
     my_data2 <- na.omit(my_data2)
-    corrplot(
+    corrplot.mixed(
       cor(my_data2[, beginCol:endCol]),
-      type = "upper",
       tl.col  = "black",
     )
   })
