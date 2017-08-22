@@ -235,16 +235,110 @@ function(input, output) {
   #  - - - - - - - - - - >> SUMMARY STATISTICS IN 4th TAB <<- - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
-  sum_data <- eventReactive(input$Go_SummaryStat, {
-    melted_icecream <- melt(my_data(), id=c(input$SelectIV,input$SelectID, input$SelectTime))
-    sum_my_data <- summaryBy(value ~., data=melted_icecream) 
-    return(sum_my_data)
+  # Table in Tab4 - main window - summary of the data based on the selected calculations
+  
+  
+  ## TESTING OMIT.NA     %% Mitch %%
+  my_data_nona <- eventReactive(input$Go_omitna, {
+    my_data_nona <- my_data()[complete.cases(my_data()),]
+    return(my_data_nona)
   })
   
-  output$sum_data <- renderDataTable({
+  na_row<-eventReactive(input$Go_omitna, {
+    sum_na<-nrow(my_data())-nrow(my_data_nona())
+    return(paste("Number of rows containing NAs that were removed: ", sum_na, ".", sep=""))
+  })
+  
+  output$total_na <- renderText({na_row()})
+  
+  
+  ## Added new input "$SelectSumm"  and output "$CustomSumm"  %% Mitch %%
+  output$CustomSumm <- renderUI({
+    if((is.null(ItemList()))){return ()
+    } else tagList(
+      selectizeInput(inputId = "SelectSumm", 
+                     label = "Select desired summary statistics", 
+                     choices=c("Mean", "Median", "StdDev", "StdErr", "Min", "Max"), multiple=T))
+  })
+  
+  
+  ## Added list of summary functions "summfuns"   %% Mitch %%
+  summfuns<-list(Mean = function(x) mean(x),
+                 Median = function(x) median(x),
+                 StdDev = function(x) sd(x),
+                 StdErr = function(x) std.error(x),
+                 Min = function(x) min(x),
+                 Max = function(x) max(x))
+  
+  sum_data <- eventReactive(input$Go_SummaryStat, {
+    melted_icecream <- melt(my_data_nona(), id=c(input$SelectIV, input$SelectID, input$SelectTime))
+    
+    ## Added call to selected summary stats functions "FUN=summfuns[input$SelectSumm]"     %% Mitch %%
+    sum_my_data<-summaryBy(value ~., data=melted_icecream, FUN=summfuns[input$SelectSumm])
+    
+    ## Label columns based on chosen summary stats     %% Mitch %%
+    colnames(sum_my_data)<-c(input$SelectIV, input$SelectID, "Dependent Variable", input$SelectSumm)
+    return(sum_my_data)
+    
+  })
+  
+  output$sum_data <- renderTable({
     sum_data()
   })
   
+  
+  output$HisIV <- renderUI({
+   if ((input$Go_Data == FALSE)) {
+    return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "HisIV_sub",
+          label = "Select the variable(s) for which you would like to subset your data.",
+          choices = c(
+            input$SelectIV,
+            input$SelectGeno,
+            input$SelectTime,
+            input$SelectID
+          ),
+          multiple = T
+        )
+      )
+  })
+  
+  
+  output$HisDV <- renderUI({
+    if ((input$Go_Data == FALSE)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "HisDV",
+          label = "Select the trait for which you would like to plot the histogram.",
+          choices = c(
+            input$SelectDV
+          ),
+          multiple = T
+        )
+      )
+  })
+  
+  
+  
+  
+  
+  Hiss<-eventReactive(input$Go_PlotHist, {
+    #melted_icecream <- melt(my_data_nona(), id=c(input$SelectIV, input$SelectID, input$SelectTime))
+    #newdata<-my_data()
+    #Hiss_plot <- ggplot(my_data_nona(), aes(x=input$SelectIV, y=input$SelectDV)) + geom_boxplot()
+    Hiss_plot <- ggplot(data=my_data(), aes(input$HisDV)) + geom_histogram()
+    #plot_ly(type = 'box') %>%
+    #add_boxplot(input$SelectDV ~ ) 
+    Hiss_plot
+  })
+  output$Hiss <- renderPlot({
+    Hiss()
+  })
   
   ### Tab 6: correlation tab
   
