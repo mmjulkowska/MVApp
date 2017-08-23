@@ -271,13 +271,13 @@ function(input, output) {
                  Max = function(x) max(x))
   
   sum_data <- eventReactive(input$Go_SummaryStat, {
-    melted_icecream <- melt(my_data_nona(), id=c(input$SelectIV, input$SelectID, input$SelectTime))
+    melted_icecream <- melt(my_data_nona(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
     
     ## Added call to selected summary stats functions "FUN=summfuns[input$SelectSumm]"     %% Mitch %%
     sum_my_data<-summaryBy(value ~., data=melted_icecream, FUN=summfuns[input$SelectSumm])
     
     ## Label columns based on chosen summary stats     %% Mitch %%
-    colnames(sum_my_data)<-c(input$SelectIV, input$SelectID, "Dependent Variable", input$SelectSumm)
+    colnames(sum_my_data)<-c(input$SelectGeno, input$SelectIV, input$SelectID, "Dependent Variable", input$SelectSumm)
     return(sum_my_data)
     
   })
@@ -293,7 +293,7 @@ function(input, output) {
     } else
       tagList(
         selectizeInput(
-          inputId = "HisIV_sub",
+          inputId = "HisIV",
           label = "Select the variable(s) for which you would like to subset your data.",
           choices = c(
             input$SelectIV,
@@ -328,12 +328,10 @@ function(input, output) {
   
   
   Hiss<-eventReactive(input$Go_PlotHist, {
-    #melted_icecream <- melt(my_data_nona(), id=c(input$SelectIV, input$SelectID, input$SelectTime))
-    #newdata<-my_data()
-    #Hiss_plot <- ggplot(my_data_nona(), aes(x=input$SelectIV, y=input$SelectDV)) + geom_boxplot()
-    Hiss_plot <- ggplot(data=my_data(), aes(input$HisDV)) + geom_histogram()
-    #plot_ly(type = 'box') %>%
-    #add_boxplot(input$SelectDV ~ ) 
+   my_hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
+ 
+   Hiss_plot <- ggplot(my_hisdata, aes(x=my_hisdata[,1], colour=my_hisdata[,2])) + geom_histogram() ##WORKEDDD but has to be 1 dependent variable and 1 independent only!!
+    
     Hiss_plot
   })
   output$Hiss <- renderPlot({
