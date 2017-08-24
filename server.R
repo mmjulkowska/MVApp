@@ -325,18 +325,31 @@ function(input, output) {
   
   
   
-  
-  
-  Hiss<-eventReactive(input$Go_PlotHist, {
-   my_hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
- 
-   Hiss_plot <- ggplot(my_hisdata, aes(x=my_hisdata[,1], colour=my_hisdata[,2])) + geom_histogram() ##WORKEDDD but has to be 1 dependent variable and 1 independent only!!
+  my_hisdata<-eventReactive(input$Go_PlotHist, {
+    hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
+  })
+    output$Hiss <- renderPlotly({
+      
+      histo <- ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + geom_histogram(size=0.6, alpha=0.3, col="black")
+      
+      ggplotly(histo)
+      
+    })
+
     
-    Hiss_plot
-  })
-  output$Hiss <- renderPlot({
-    Hiss()
-  })
+  #Hiss<-eventReactive(input$Go_PlotHist, {
+   
+    
+   # my_hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
+ 
+  # Hiss_plot <- ggplot(my_hisdata, aes(x=my_hisdata[,1], fill=my_hisdata[,2]))+ geom_histogram(size=0.6, alpha=0.3, col="black") 
+                       #+ facet_grid(.~my_hisdata[,2]))
+                       #+ scale_fill_manual(values = c('red','black'))
+     
+     ##WORKEDDD but has to be 1 dependent variable and 1 independent only!!
+    
+
+  
   
   ### Tab 6: correlation tab
   

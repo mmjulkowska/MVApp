@@ -110,7 +110,7 @@ fluidPage(
                           tableOutput("sum_data"),
                           textOutput("total_na")),
                  tabPanel("Histograms", icon=icon("magic"),
-                          plotOutput("Hiss"))))
+                          plotlyOutput("Hiss"))))
              
              
              # end of Tab#4
