@@ -314,7 +314,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "HisDV",
-          label = "Select the trait for which you would like to plot the histogram.",
+          label = "Select the trait for which you would like to plot the graphs.",
           choices = c(
             input$SelectDV
           ),
@@ -330,26 +330,45 @@ function(input, output) {
   })
     output$Hiss <- renderPlotly({
       
-      histo <- ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + geom_histogram(size=0.6, alpha=0.3, col="black")
+      histo <- ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1])) + geom_histogram(size=0.6, alpha=0.3, col="black")
       
       ggplotly(histo)
       
     })
-
-    
-  #Hiss<-eventReactive(input$Go_PlotHist, {
-   
-    
-   # my_hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
- 
-  # Hiss_plot <- ggplot(my_hisdata, aes(x=my_hisdata[,1], fill=my_hisdata[,2]))+ geom_histogram(size=0.6, alpha=0.3, col="black") 
-                       #+ facet_grid(.~my_hisdata[,2]))
-                       #+ scale_fill_manual(values = c('red','black'))
      
-     ##WORKEDDD but has to be 1 dependent variable and 1 independent only!!
+     ##WORKEDDD but has to be 1 dependent variable and 1 independent only!!. Also problem with group"day" because there are too many...
     
 
-  
+    my_hisdata2<-eventReactive(input$Go_Boxplot, {
+      hisdata2<-my_data()[,c(input$HisDV,input$HisIV)]
+    })
+    
+    output$Boxes <- renderPlotly({
+      
+      box_graph <- ggplot(my_hisdata2(), aes(x=my_hisdata2()[,2], y=my_hisdata2()[,1])) + xlab(names(my_hisdata2()[2])) + ylab(names(my_hisdata2()[1])) + geom_boxplot()
+      
+      ggplotly(box_graph)
+      
+    })
+    
+    
+    
+    Outlier_data <- eventReactive(input$Go_Outliers, {
+    hisdata3<-my_data()[,c(input$SelectID, input$HisDV,input$HisIV)]
+      
+     ag1<-aggregate(hisdata3[,2], by=list(hisdata3[,3]), FUN=mean)
+      ag2<- aggregate(hisdata3[,2], by=list(hisdata3[,3]), FUN=sd)
+      
+      for (i in 1:length(levels(hisdata3[,3]))){
+        doublesd<-2*(ag2[i,2]) #2*sd
+        lower<-ag1[i,2] - doublesd
+        upper<- ag1[i,2] + doublesd
+       outs<-subset(hisdata3, hisdata3[,3] == levels(hisdata3[,3])[i] & (hisdata3[,2] < lower | hisdata3[,2] > upper))
+      } 
+      return(outs)
+    })
+    
+    output$Outlier_data <- renderDataTable({Outlier_data}) 
   
   ### Tab 6: correlation tab
   

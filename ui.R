@@ -93,7 +93,9 @@ fluidPage(
                  
                  uiOutput("HisIV"),
                  uiOutput("HisDV"),
-                 actionButton("Go_PlotHist", label = "Plot histograms")
+                 actionButton("Go_PlotHist", label = "Plot histograms"),
+                 actionButton("Go_Boxplot", label = "Plot boxplots"),
+                 actionButton("Go_Outliers", label = "Table of outliers")
                  
                )),
              
@@ -110,7 +112,13 @@ fluidPage(
                           tableOutput("sum_data"),
                           textOutput("total_na")),
                  tabPanel("Histograms", icon=icon("magic"),
-                          plotlyOutput("Hiss"))))
+                          plotlyOutput("Hiss")),
+                 tabPanel("Boxplots", icon=icon("magic"),
+                          plotlyOutput("Boxes")),
+                  tabPanel("Table with outliers", icon=icon("magic"),
+                    tableOutput("Outlier_data")
+                 #         textOutput("total_outliers"))
+                          )))
              
              
              # end of Tab#4
