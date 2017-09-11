@@ -248,6 +248,59 @@ function(input, output) {
   
   ### Tab 6: correlation tab
   
+  output$Pheno1 <- renderUI({
+    if (is.null(input$SelectDV)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Pheno1",
+          label = "Select here your dependent variable 1 to be plotted",
+          choices = input$SelectDV,
+          multiple = F
+        )
+      )
+  })
+  
+  output$Pheno2 <- renderUI({
+    if (is.null(input$SelectDV)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Pheno2",
+          label = "Select here your dependent variable 2 to be plotted",
+          choices = input$SelectDV,
+          multiple = F
+        )
+      )
+  })
+  
+  output$colorby <- renderUI({
+    if ((is.null(input$SelectIV)) |
+        (input$SelectGeno == FALSE)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Color",
+          label = "Select here the color variable to be shown on the plot",
+          choices = c(input$SelectIV, input$SelectGeno),
+          multiple = F
+        )
+      )
+  })
+  
+  ############ plot to fix ##########
+
+  output$scatterplot <- renderPlotly({
+    my_data <- data.frame(my_data())
+    my_data %>% ggplot(aes_string(input$Pheno1, input$Pheno2)) + geom_point(aes_string(colour =input$Color))
+    ggplotly()
+  })
+  
+  ##################################
+  
   output$corrplot <- renderPlot({
     beginCol <-
       length(c(
@@ -322,14 +375,12 @@ function(input, output) {
         input$SelectID
       )) + length(input$SelectDV)
     my_data <- data.frame(my_data())
-    # selector <- as.character(input$CorIV_sub)
-    # my_data2 <- subset(my_data, input$CorIV_sub == input$CorIV_val)
+
     names(my_data) <- sub(input$CorIV_sub, "Cor_baby", names(my_data))
     my_data2 <- subset(my_data, Cor_baby == input$CorIV_val)
     my_data2 <- na.omit(my_data2)
     corrplot.mixed(
-      cor(my_data2[, beginCol:endCol]),
-      tl.col  = "black",
+      cor(my_data2[, beginCol:endCol]),tl.col  = "black"
     )
   })
   

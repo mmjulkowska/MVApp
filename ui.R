@@ -147,11 +147,10 @@ fluidPage(
         
         tabPanel(
           "Scatter plots",
-          sidebarPanel("Widgets shait"),
+          sidebarPanel(uiOutput("Pheno1"),uiOutput("Pheno2"),uiOutput("colorby")),
           mainPanel(
-            "R square value is XX and P value is XX",
-            br(),
-            "and here look at the correlation plot"
+            "The R square value is XX and P value is XX",
+            plotlyOutput("scatterplot")
           )
         )
       )
