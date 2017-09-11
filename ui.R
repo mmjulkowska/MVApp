@@ -116,7 +116,7 @@ fluidPage(
                  tabPanel("Boxplots", icon=icon("magic"),
                           plotlyOutput("Boxes")),
                   tabPanel("Table with outliers", icon=icon("magic"),
-                    tableOutput("Outlier_data")
+                    dataTableOutput("Outlier_data")
                  #         textOutput("total_outliers"))
                           )))
              
