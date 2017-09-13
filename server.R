@@ -351,21 +351,26 @@ function(input, output) {
       
     })
     
-   
-     #my_hisdata3<-eventReactive(input$Go_Outliers, {
-   # hisdata3<-my_data()[,c(input$SelectID, input$HisDV,input$HisIV)]
-   # })
     
     Outlier_data <- eventReactive(input$Go_Outliers, {
       hisdata3<-my_data()[,c(input$SelectID, input$HisDV,input$HisIV)]
      ag1<-aggregate(hisdata3[,2], by=list(hisdata3[,3]), FUN=mean)
       ag2<- aggregate(hisdata3[,2], by=list(hisdata3[,3]), FUN=sd)
-    #add 1st level do it outside the loop, then bind the output of other levels to this  
-      for (i in 1:length(levels(hisdata3[,3]))){
+    
+      #I am doing the 1st level outside the loop, then bind the output of other levels (>=2) to this  
+      
+      doublesd<-2*(ag2[1,2]) #2*sd
+      lower<-ag1[1,2] - doublesd
+      upper<- ag1[1,2] + doublesd
+      outs1<-subset(hisdata3, hisdata3[,3] == levels(hisdata3[,3])[1] & (hisdata3[,2] < lower | hisdata3[,2] > upper))
+      
+      
+      for (i in 2:length(levels(hisdata3[,3]))){
         doublesd<-2*(ag2[i,2]) #2*sd
         lower<-ag1[i,2] - doublesd
         upper<- ag1[i,2] + doublesd
        outs<-subset(hisdata3, hisdata3[,3] == levels(hisdata3[,3])[i] & (hisdata3[,2] < lower | hisdata3[,2] > upper))
+       outs<-rbind(outs1, outs)
       } 
      outs<-as.data.frame(outs)
     })
