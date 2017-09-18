@@ -1,7 +1,8 @@
 fluidPage(
   theme = shinytheme("yeti"),
   navbarPage(
-    title = ">> MVApp_GG <<",
+    title = ">> MVApp <<",
+
     tabPanel(
       "Background information",
       icon = icon("info"),
@@ -80,25 +81,48 @@ fluidPage(
     
     
     # Tab#4
-    tabPanel(
-      "Data curation",
-      icon = icon("check"),
-      sidebarPanel(
-        fluidRow(
-          helpText("Something helpfull"),
-          actionButton("omit_na", label = "omit n.a."),
-          selectizeInput(
-            "SummTest",
-            label = "Select what you want to calculate",
-            choices = c("Mean", "Median", "StdDev", "StdError", "Min", "Max"),
-            multiple = T
-          ),
-          actionButton("Go_SummaryStat", label = "unleash Summary Statistics")
-        )
-      ),
-      
-      mainPanel(dataTableOutput("sum_data"))
-      # end of Tab#4
+    tabPanel("Data curation", icon=icon("check"),
+             sidebarPanel(
+               fluidRow(
+                 helpText("Remove pesky NAs"),
+                 actionButton("Go_omitna", label = "Omit rows with NA"),
+                 #helpText("Restore pesky NAs"),
+                 #actionButton("Go_restorena", label = "Restore rows with NA"),
+                 uiOutput("CustomSumm"), ### <<< Added this,   Hashed out selectize  below       %% Mitch %%
+                 #selectizeInput("SummTest", label="Select what you want to calculate", choices=c("Mean", "Median", "StdDev", "StdError", "Min", "Max"), multiple=T),
+                 actionButton("Go_SummaryStat", label = "unleash Summary Statistics"),
+                 
+                 uiOutput("HisIV"),
+                 uiOutput("HisDV"),
+                 actionButton("Go_PlotHist", label = "Plot histograms"),
+                 actionButton("Go_Boxplot", label = "Plot boxplots"),
+                 actionButton("Go_Outliers", label = "Table of outliers")
+                 
+               )),
+             
+             
+             #mainPanel(
+             #tableOutput("sum_data"),
+             #textOutput("total_na"))
+             
+             
+             
+             mainPanel(
+               tabsetPanel(
+                 tabPanel("summary data", icon=icon("flask"),
+                          tableOutput("sum_data"),
+                          textOutput("total_na")),
+                 tabPanel("Histograms", icon=icon("magic"),
+                          plotlyOutput("Hiss")),
+                 tabPanel("Boxplots", icon=icon("magic"),
+                          plotlyOutput("Boxes")),
+                  tabPanel("Table with outliers", icon=icon("magic"),
+                    dataTableOutput("Outlier_data")
+                 #         textOutput("total_outliers"))
+                          )))
+             
+             
+             # end of Tab#4
     ),
     
     # Tab #5
