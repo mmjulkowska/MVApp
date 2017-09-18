@@ -39,7 +39,6 @@ function(input, output) {
       )
   })
   
-  
   output$CustomIndepVar <- renderUI({
     if (is.null(ItemList())) {
       return ()
@@ -189,6 +188,7 @@ function(input, output) {
       super_temp3 <-
         subset(super_temp2, super_temp2[, 3] == things_to_model[i, 3])
       
+    # modeling SelectTime to ModelPheno  
       if (input$model == "lin") {
         fit <- lm(super_temp3[, 4] ~ super_temp3[, 5])
         things_to_model[i, 4] <- coefficients(fit)[2]
@@ -226,7 +226,7 @@ function(input, output) {
     things_to_model
   })
   
-  output$Model_data <- renderTable({
+  output$Model_data <- renderDataTable({
     Model_temp_data()
   })
   
@@ -379,6 +379,59 @@ function(input, output) {
   
   ### Tab 6: correlation tab
   
+  output$Pheno1 <- renderUI({
+    if (is.null(input$SelectDV)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Pheno1",
+          label = "Select here your dependent variable 1 to be plotted",
+          choices = input$SelectDV,
+          multiple = F
+        )
+      )
+  })
+  
+  output$Pheno2 <- renderUI({
+    if (is.null(input$SelectDV)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Pheno2",
+          label = "Select here your dependent variable 2 to be plotted",
+          choices = input$SelectDV,
+          multiple = F
+        )
+      )
+  })
+  
+  output$colorby <- renderUI({
+    if ((is.null(input$SelectIV)) |
+        (input$SelectGeno == FALSE)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Color",
+          label = "Select here the color variable to be shown on the plot",
+          choices = c(input$SelectIV, input$SelectGeno),
+          multiple = F
+        )
+      )
+  })
+  
+  ############ plot to fix ##########
+
+  output$scatterplot <- renderPlotly({
+    my_data <- data.frame(my_data())
+    my_data %>% ggplot(aes_string(input$Pheno1, input$Pheno2)) + geom_point(aes_string(colour =input$Color))
+    ggplotly()
+  })
+  
+  ##################################
+  
   output$corrplot <- renderPlot({
     beginCol <-
       length(c(
@@ -395,9 +448,8 @@ function(input, output) {
         input$SelectID
       )) + length(input$SelectDV)
     
-    corrplot(
+    corrplot.mixed(
       cor(my_data()[, beginCol:endCol]),
-      type = "upper",
       order = "hclust",
       tl.col  = "black"
     )
@@ -454,17 +506,12 @@ function(input, output) {
         input$SelectID
       )) + length(input$SelectDV)
     my_data <- data.frame(my_data())
-    # selector <- as.character(input$CorIV_sub)
-    # my_data2 <- subset(my_data, input$CorIV_sub == input$CorIV_val)
+
     names(my_data) <- sub(input$CorIV_sub, "Cor_baby", names(my_data))
     my_data2 <- subset(my_data, Cor_baby == input$CorIV_val)
     my_data2 <- na.omit(my_data2)
-    corrplot(
-      cor(my_data2[, beginCol:endCol]),
-      type = "upper",
-      tl.col  = "black",
-      Rowv = F,
-      Colv = F
+    corrplot.mixed(
+      cor(my_data2[, beginCol:endCol]),tl.col  = "black"
     )
   })
   
