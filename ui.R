@@ -125,28 +125,8 @@ fluidPage(
              # end of Tab#4
     ),
     
+       
     # Tab #5
-    tabPanel(
-      "Variation Examination",
-      icon = icon("area-chart"),
-      sidebarPanel(fluidRow(
-        helpText("Something helpfull"),
-        "Widgets here"
-      )),
-      mainPanel(
-        "looking at the histograms",
-        br(),
-        "- test for normality",
-        br(),
-        "- test for equal variance",
-        br(),
-        "- first ANOVA? or other tests (like T-test)"
-      )
-      # end of Tab#5
-    ),
-    
-    
-    # Tab #6
     tabPanel(
       "Establish correlations between traits",
       icon = icon("compress"),
@@ -178,10 +158,10 @@ fluidPage(
           )
         )
       )
-      # end of Tab#6
+      # end of Tab#5
     ),
     
-    # Tab 7
+    # Tab 6
     tabPanel(
       "PCA",
       icon = icon("object-group"),
@@ -190,16 +170,16 @@ fluidPage(
         "widgets"
       )),
       mainPanel("PCA the crazy")
-      # end Tab 7
+      # end Tab 6
     ),
-    # Tab 8
+    # Tab 7
     tabPanel(
       "Clustering",
       icon = icon("sitemap"),
       sidebarPanel(fluidRow(helpText("Something usefull"),
                             "widgets")),
       mainPanel("Cluster the phenotypes in different groups")
-      # end of Tab #8
+      # end of Tab #7
     )
     # end of App - final brackets
   )
