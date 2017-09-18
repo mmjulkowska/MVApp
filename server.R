@@ -301,7 +301,7 @@ function(input, output) {
             input$SelectTime,
             input$SelectID
           ),
-          multiple = T
+          multiple = F
         )
       )
   })
@@ -318,7 +318,7 @@ function(input, output) {
           choices = c(
             input$SelectDV
           ),
-          multiple = T
+          multiple = F
         )
       )
   })
