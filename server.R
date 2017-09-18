@@ -235,16 +235,147 @@ function(input, output) {
   #  - - - - - - - - - - >> SUMMARY STATISTICS IN 4th TAB <<- - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
-  sum_data <- eventReactive(input$Go_SummaryStat, {
-    melted_icecream <- melt(my_data(), id=c(input$SelectIV,input$SelectID, input$SelectTime))
-    sum_my_data <- summaryBy(value ~., data=melted_icecream) 
-    return(sum_my_data)
+  # Table in Tab4 - main window - summary of the data based on the selected calculations
+  
+  
+  ## TESTING OMIT.NA     %% Mitch %%
+  my_data_nona <- eventReactive(input$Go_omitna, {
+    my_data_nona <- my_data()[complete.cases(my_data()),]
+    return(my_data_nona)
   })
   
-  output$sum_data <- renderDataTable({
+  na_row<-eventReactive(input$Go_omitna, {
+    sum_na<-nrow(my_data())-nrow(my_data_nona())
+    return(paste("Number of rows containing NAs that were removed: ", sum_na, ".", sep=""))
+  })
+  
+  output$total_na <- renderText({na_row()})
+  
+  
+  ## Added new input "$SelectSumm"  and output "$CustomSumm"  %% Mitch %%
+  output$CustomSumm <- renderUI({
+    if((is.null(ItemList()))){return ()
+    } else tagList(
+      selectizeInput(inputId = "SelectSumm", 
+                     label = "Select desired summary statistics", 
+                     choices=c("Mean", "Median", "StdDev", "StdErr", "Min", "Max"), multiple=T))
+  })
+  
+  
+  ## Added list of summary functions "summfuns"   %% Mitch %%
+  summfuns<-list(Mean = function(x) mean(x),
+                 Median = function(x) median(x),
+                 StdDev = function(x) sd(x),
+                 StdErr = function(x) std.error(x),
+                 Min = function(x) min(x),
+                 Max = function(x) max(x))
+  
+  sum_data <- eventReactive(input$Go_SummaryStat, {
+    melted_icecream <- melt(my_data_nona(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
+    
+    ## Added call to selected summary stats functions "FUN=summfuns[input$SelectSumm]"     %% Mitch %%
+    sum_my_data<-summaryBy(value ~., data=melted_icecream, FUN=summfuns[input$SelectSumm])
+    
+    ## Label columns based on chosen summary stats     %% Mitch %%
+    colnames(sum_my_data)<-c(input$SelectGeno, input$SelectIV, input$SelectID, "Dependent Variable", input$SelectSumm)
+    return(sum_my_data)
+    
+  })
+  
+  output$sum_data <- renderTable({
     sum_data()
   })
   
+  
+  output$HisIV <- renderUI({
+   if ((input$Go_Data == FALSE)) {
+    return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "HisIV",
+          label = "Select the variable(s) for which you would like to subset your data.",
+          choices = c(
+            input$SelectIV,
+            input$SelectGeno,
+            input$SelectTime,
+            input$SelectID
+          ),
+          multiple = T
+        )
+      )
+  })
+  
+  
+  output$HisDV <- renderUI({
+    if ((input$Go_Data == FALSE)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "HisDV",
+          label = "Select the trait for which you would like to plot the graphs.",
+          choices = c(
+            input$SelectDV
+          ),
+          multiple = T
+        )
+      )
+  })
+  
+  
+  
+  my_hisdata<-eventReactive(input$Go_PlotHist, {
+    hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
+  })
+    output$Hiss <- renderPlotly({
+      
+      histo <- ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1])) + geom_histogram(size=0.6, alpha=0.3, col="black")
+      
+      ggplotly(histo)
+      
+    })
+     
+     ##WORKEDDD but has to be 1 dependent variable and 1 independent only!!. Also problem with group"day" because there are too many...
+    
+
+    my_hisdata2<-eventReactive(input$Go_Boxplot, {
+      hisdata2<-my_data()[,c(input$HisDV,input$HisIV)]
+    })
+    
+    output$Boxes <- renderPlotly({
+      
+      box_graph <- ggplot(my_hisdata2(), aes(x=my_hisdata2()[,2], y=my_hisdata2()[,1])) + xlab(names(my_hisdata2()[2])) + ylab(names(my_hisdata2()[1])) + geom_boxplot()
+      
+      ggplotly(box_graph)
+      
+    })
+    
+    
+    Outlier_data <- eventReactive(input$Go_Outliers, {
+      hisdata3<-my_data()[,c(input$SelectID, input$HisDV,input$HisIV)]
+     ag1<-aggregate(hisdata3[,2], by=list(hisdata3[,3]), FUN=mean)
+      ag2<- aggregate(hisdata3[,2], by=list(hisdata3[,3]), FUN=sd)
+    
+      #I am doing the 1st level outside the loop, then bind the output of other levels (>=2) to this  
+      
+      doublesd<-2*(ag2[1,2]) #2*sd
+      lower<-ag1[1,2] - doublesd
+      upper<- ag1[1,2] + doublesd
+      outs1<-subset(hisdata3, hisdata3[,3] == levels(hisdata3[,3])[1] & (hisdata3[,2] < lower | hisdata3[,2] > upper))
+      
+      
+      for (i in 2:length(levels(hisdata3[,3]))){
+        doublesd<-2*(ag2[i,2]) #2*sd
+        lower<-ag1[i,2] - doublesd
+        upper<- ag1[i,2] + doublesd
+       outs<-subset(hisdata3, hisdata3[,3] == levels(hisdata3[,3])[i] & (hisdata3[,2] < lower | hisdata3[,2] > upper))
+       outs<-rbind(outs1, outs)
+      } 
+     outs<-as.data.frame(outs)
+    })
+    
+    output$Outlier_data <- renderDataTable({Outlier_data()}) 
   
   ### Tab 6: correlation tab
   
