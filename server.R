@@ -109,6 +109,7 @@ function(input, output) {
           input$SelectDV
         )
       )
+    my_data[, input$SelectTime] <- as.factor(my_data[,input$SelectTime])
     return(my_data)
   })
   
@@ -277,7 +278,7 @@ function(input, output) {
     sum_my_data<-summaryBy(value ~., data=melted_icecream, FUN=summfuns[input$SelectSumm])
     
     ## Label columns based on chosen summary stats     %% Mitch %%
-    colnames(sum_my_data)<-c(input$SelectGeno, input$SelectIV, input$SelectID, "Dependent Variable", input$SelectSumm)
+    colnames(sum_my_data)<-c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime, "Dependent_Variable", input$SelectSumm)
     return(sum_my_data)
     
   })
@@ -514,6 +515,47 @@ function(input, output) {
       cor(my_data2[, beginCol:endCol]),tl.col  = "black"
     )
   })
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - >> PCA IN 7th TAB <<- - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
+  output$PCA_Pheno_data <- renderUI({
+    if (is.null(my_data())) {
+    return()
+      }
+    else  
+      tagList(
+        selectizeInput(
+          inputId = "PCA_data",
+          label = "Select the dataset that you would like to use for PCA",
+          choices = c("original data", "data with NA removed", "summarized data"), multiple = F))
+  })  
+  
+# we need to put all possible datasets in the same format - let's melt it all!
+  
+  my_data_melt <- eventReactive(input$Go_PCAdata,{
+    my_melt <- melt(my_data(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
+    my_melt
+    })
+  
+ my_data_nona_melt <- eventReactive(input$Go_PCAdata,{
+    my_melt <- melt(my_data_nona(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
+    my_melt
+  })
+ 
+ sum_data_melt <- eventReactive(input$Go_PCAdata,{
+   my_melt <- melt(sum_data(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime, "Dependent_Variable"))
+   names(my_melt)[names(my_melt) == "variable"] <- "summary_stat"
+   my_melt$variable <- paste(my_melt$Dependent_Variable,"_",my_melt$summary_stat, separate="")
+   my_melt
+   
+ })
+ 
+ output$PCA_raw_table <- renderDataTable({
+   sum_data_melt()
+ })
+
+   
   # end of the script
 }
