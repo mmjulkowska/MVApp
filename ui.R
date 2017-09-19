@@ -90,13 +90,8 @@ fluidPage(
                  uiOutput("CustomSumm"), ### <<< Added this,   Hashed out selectize  below       %% Mitch %%
                  #selectizeInput("SummTest", label="Select what you want to calculate", choices=c("Mean", "Median", "StdDev", "StdError", "Min", "Max"), multiple=T),
                  actionButton("Go_SummaryStat", label = "unleash Summary Statistics"),
-                 
                  uiOutput("HisIV"),
-                 uiOutput("HisDV"),
-                 actionButton("Go_PlotHist", label = "Plot histograms"),
-                 actionButton("Go_Boxplot", label = "Plot boxplots"),
-                 actionButton("Go_Outliers", label = "Table of outliers")
-                 
+                 uiOutput("HisDV")
                )),
              
              
@@ -111,18 +106,38 @@ fluidPage(
                  tabPanel("summary data", icon=icon("flask"),
                           tableOutput("sum_data"),
                           textOutput("total_na")),
+                 
                  tabPanel("Histograms", icon=icon("magic"),
-                          plotlyOutput("Hiss")),
+                          #actionButton("Go_PlotHistCount", label = "Plot histograms with count"),
+                          #plotlyOutput("HissCount"),
+                          #actionButton("Go_PlotHistFrequency", label = "Plot histograms with frequency"),
+                          #plotlyOutput("HissDensity"),
+                          #radioButtons("Hiss", "Histogram type:",
+                                     #  c("Histogram with count" = "HistCount",
+                                        # "Histogram with frequency" = "HistFrequency")),
+                          #actionButton("Go_PlotHistType", label = "Choose histogram type"),
+                          uiOutput("HistType"),
+                          plotlyOutput("HistPlot")
+                                     
+                                    
+                          ),
+                 
                  tabPanel("Boxplots", icon=icon("magic"),
+                          actionButton("Go_Boxplot", label = "Plot boxplots"),
                           plotlyOutput("Boxes")),
                   tabPanel("Table with outliers", icon=icon("magic"),
+                           actionButton("Go_Outliers", label = "Table of outliers"),
                     dataTableOutput("Outlier_data")
+                  
                  #         textOutput("total_outliers"))
-                          )))
+                        )))
+    ),
              
              
              # end of Tab#4
-    ),
+  
+   
+               
     
     # Tab #5
     tabPanel(

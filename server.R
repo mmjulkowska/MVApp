@@ -240,7 +240,7 @@ function(input, output) {
   
   ## TESTING OMIT.NA     %% Mitch %%
   my_data_nona <- eventReactive(input$Go_omitna, {
-    my_data_nona <- my_data()[complete.cases(my_data()),]
+    my_data_nona <- my_data()[complete.cases(my_data()),] #use na.omit instead maybe?
     return(my_data_nona)
   })
   
@@ -272,6 +272,7 @@ function(input, output) {
   
   sum_data <- eventReactive(input$Go_SummaryStat, {
     melted_icecream <- melt(my_data_nona(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
+  #change day/time into factor becuase it is now numeric and does not show in melt.
     
     ## Added call to selected summary stats functions "FUN=summfuns[input$SelectSumm]"     %% Mitch %%
     sum_my_data<-summaryBy(value ~., data=melted_icecream, FUN=summfuns[input$SelectSumm])
@@ -294,14 +295,14 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "HisIV",
-          label = "Select the variable(s) for which you would like to subset your data.",
+          label = "Select the variable for which you would like to subset your data.",
           choices = c(
             input$SelectIV,
             input$SelectGeno,
             input$SelectTime,
             input$SelectID
           ),
-          multiple = T
+          multiple = F
         )
       )
   })
@@ -318,23 +319,72 @@ function(input, output) {
           choices = c(
             input$SelectDV
           ),
-          multiple = T
+          multiple = F
+        )
+      )
+  })
+  
+  
+  my_hisdata<-eventReactive(input$HisIV, {
+    hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
+  })
+  
+  
+  
+  output$HistType <- renderUI({
+    if ((input$Go_Data == FALSE)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "HistType",
+          label = "Select the plot type.",
+          choices = c("HistCount", "HistFrequency"),
+          selected = "HistCount",
+          multiple = F
         )
       )
   })
   
   
   
-  my_hisdata<-eventReactive(input$Go_PlotHist, {
-    hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
-  })
-    output$Hiss <- renderPlotly({
-      
-      histo <- ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1])) + geom_histogram(size=0.6, alpha=0.3, col="black")
-      
-      ggplotly(histo)
-      
-    })
+  output$HistPlot <- renderPlotly({
+    
+    my_his_data <- my_hisdata()
+    if (input$HistType == "HistCount") {
+       fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") 
+    }
+    if (input$HistType == "HistFrequency" ) { 
+      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density()
+    }
+    ggplotly(fit)
+     }) 
+  
+# output$HissPlot <- renderPlotly({
+ #  fit1 <- ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1])) + geom_histogram(size=0.6, alpha=0.3, col="black")
+  # fit2 <- ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1]))  + geom_density()
+  
+   #  if (input$Hiss == "HissCount") { 
+    #   ggplotly(fit1)
+     #}
+   #if (input$Hiss == "HissFrequency" ) { 
+    # ggplotly(fit2)
+     
+  # }
+  # }) 
+ 
+   
+   
+   
+   # Hiss <- switch(input$Hiss,
+    #            HissCount = ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") ,
+    #            HissFrequency = ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1]))  + geom_density(),
+                #HissCount = 
+     #           Print(HissCount)
+   # )
+    #ggplotly(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1])+ Hiss)
+  # ggplotly(Hiss)
+  #})
      
      ##WORKEDDD but has to be 1 dependent variable and 1 independent only!!. Also problem with group"day" because there are too many...
     
@@ -343,11 +393,13 @@ function(input, output) {
       hisdata2<-my_data()[,c(input$HisDV,input$HisIV)]
     })
     
+    ##try to do subset by multiple variables
     output$Boxes <- renderPlotly({
       
       box_graph <- ggplot(my_hisdata2(), aes(x=my_hisdata2()[,2], y=my_hisdata2()[,1])) + xlab(names(my_hisdata2()[2])) + ylab(names(my_hisdata2()[1])) + geom_boxplot()
       
       ggplotly(box_graph)
+      
       
     })
     
@@ -376,6 +428,8 @@ function(input, output) {
     })
     
     output$Outlier_data <- renderDataTable({Outlier_data()}) 
+    
+    
   
   ### Tab 6: correlation tab
   
