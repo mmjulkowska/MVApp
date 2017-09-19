@@ -165,11 +165,18 @@ fluidPage(
     tabPanel(
       "PCA",
       icon = icon("object-group"),
-      sidebarPanel(fluidRow(
-        helpText("Something helpfull"),
-        "widgets"
-      )),
-      mainPanel("PCA the crazy")
+      sidebarPanel(
+        fluidRow(
+          helpText("Please select which phenotype you would like to use for the PCA"),
+          uiOutput("PCA_Pheno_data"), # which phenotype data (summarized / na / original) selectize, multiple = F
+          actionButton("Go_PCAdata", label = "set the dataset"),
+          # uiOutput("PCA_Select_pheno"), # which traits would you like to use? selectize, multiple = T
+          # user esthetics to differentiate between different geno / treatment
+         # uiOutput("SelectGroup"), # How would you like to colour, selectize (input$SelectGeno, input$SelectDV, input$SelectTime, multiple = F)
+          actionButton("Go_PCA", label = "Unleash the PCA monster",icon = icon("play-circle"))
+        )),
+      mainPanel("PCA the crazy",
+                dataTableOutput("PCA_raw_table"))
       # end Tab 6
     ),
     # Tab 7
