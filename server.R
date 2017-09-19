@@ -39,7 +39,6 @@ function(input, output) {
       )
   })
   
-  
   output$CustomIndepVar <- renderUI({
     if (is.null(ItemList())) {
       return ()
@@ -110,6 +109,7 @@ function(input, output) {
           input$SelectDV
         )
       )
+    my_data[, input$SelectTime] <- as.factor(my_data[,input$SelectTime])
     return(my_data)
   })
   
@@ -189,6 +189,7 @@ function(input, output) {
       super_temp3 <-
         subset(super_temp2, super_temp2[, 3] == things_to_model[i, 3])
       
+    # modeling SelectTime to ModelPheno  
       if (input$model == "lin") {
         fit <- lm(super_temp3[, 4] ~ super_temp3[, 5])
         things_to_model[i, 4] <- coefficients(fit)[2]
@@ -226,7 +227,7 @@ function(input, output) {
     things_to_model
   })
   
-  output$Model_data <- renderTable({
+  output$Model_data <- renderDataTable({
     Model_temp_data()
   })
   
@@ -278,7 +279,7 @@ function(input, output) {
     sum_my_data<-summaryBy(value ~., data=melted_icecream, FUN=summfuns[input$SelectSumm])
     
     ## Label columns based on chosen summary stats     %% Mitch %%
-    colnames(sum_my_data)<-c(input$SelectGeno, input$SelectIV, input$SelectID, "Dependent Variable", input$SelectSumm)
+    colnames(sum_my_data)<-c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime, "Dependent_Variable", input$SelectSumm)
     return(sum_my_data)
     
   })
@@ -409,6 +410,59 @@ function(input, output) {
   
   ### Tab 6: correlation tab
   
+  output$Pheno1 <- renderUI({
+    if (is.null(input$SelectDV)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Pheno1",
+          label = "Select here your dependent variable 1 to be plotted",
+          choices = input$SelectDV,
+          multiple = F
+        )
+      )
+  })
+  
+  output$Pheno2 <- renderUI({
+    if (is.null(input$SelectDV)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Pheno2",
+          label = "Select here your dependent variable 2 to be plotted",
+          choices = input$SelectDV,
+          multiple = F
+        )
+      )
+  })
+  
+  output$colorby <- renderUI({
+    if ((is.null(input$SelectIV)) |
+        (input$SelectGeno == FALSE)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Color",
+          label = "Select here the color variable to be shown on the plot",
+          choices = c(input$SelectIV, input$SelectGeno),
+          multiple = F
+        )
+      )
+  })
+  
+  ############ plot to fix ##########
+
+  output$scatterplot <- renderPlotly({
+    my_data <- data.frame(my_data())
+    my_data %>% ggplot(aes_string(input$Pheno1, input$Pheno2)) + geom_point(aes_string(colour =input$Color))
+    ggplotly()
+  })
+  
+  ##################################
+  
   output$corrplot <- renderPlot({
     beginCol <-
       length(c(
@@ -425,9 +479,8 @@ function(input, output) {
         input$SelectID
       )) + length(input$SelectDV)
     
-    corrplot(
+    corrplot.mixed(
       cor(my_data()[, beginCol:endCol]),
-      type = "upper",
       order = "hclust",
       tl.col  = "black"
     )
@@ -484,19 +537,157 @@ function(input, output) {
         input$SelectID
       )) + length(input$SelectDV)
     my_data <- data.frame(my_data())
-    # selector <- as.character(input$CorIV_sub)
-    # my_data2 <- subset(my_data, input$CorIV_sub == input$CorIV_val)
+
     names(my_data) <- sub(input$CorIV_sub, "Cor_baby", names(my_data))
     my_data2 <- subset(my_data, Cor_baby == input$CorIV_val)
     my_data2 <- na.omit(my_data2)
-    corrplot(
-      cor(my_data2[, beginCol:endCol]),
-      type = "upper",
-      tl.col  = "black",
-      Rowv = F,
-      Colv = F
+    corrplot.mixed(
+      cor(my_data2[, beginCol:endCol]),tl.col  = "black"
     )
   })
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - >> PCA IN 7th TAB <<- - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
+  output$PCA_Pheno_data <- renderUI({
+    if (is.null(my_data())) {
+    return()
+      }
+    else  
+      tagList(
+        selectizeInput(
+          inputId = "PCA_data",
+          label = "Select the dataset that you would like to use for PCA",
+          choices = c("original data", "data with NA removed", "summarized data"), multiple = F))
+  })  
+  
+# we need to put all possible datasets in the same format - let's melt it all!
+  
+  my_data_melt <- eventReactive(input$Go_PCAdata,{
+    my_melt <- melt(my_data(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
+    my_melt
+    })
+  
+ my_data_nona_melt <- eventReactive(input$Go_PCAdata,{
+    my_melt <- melt(my_data_nona(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
+    my_melt
+  })
+ 
+ sum_data_melt <- eventReactive(input$Go_PCAdata,{
+   my_melt <- melt(sum_data(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime, "Dependent_Variable"))
+   names(my_melt)[names(my_melt) == "variable"] <- "summary_stat"
+   my_melt$variable <- paste(my_melt$Dependent_Variable,"_",my_melt$summary_stat, separate="")
+   my_melt
+   
+ })
+ 
+ PCA_data_type <- eventReactive(input$Go_PCAdata,{
+   if(input$PCA_data == "original data"){
+     PCA_data_type <- my_data_melt()
+   }
+   if(input$PCA_data == "data with NA removed"){
+     PCA_data_type <- my_data_nona_melt()
+   }
+   if(input$PCA_data == "summarized data"){
+     PCA_data_type <- sum_data_melt()
+   }
+   PCA_data_type
+ })
+ 
+ output$PCA_raw_table <- renderDataTable({
+   PCA_data_type()
+ })
+
+ output$PCA_Select_pheno <- renderUI({
+   if ((input$Go_PCAdata == FALSE)) {
+     return()
+   } else
+     names <- subset(PCA_data_type(), select = variable) %>% unique()
+   tagList(
+     selectizeInput(
+       inputId = "PCA_pheno",
+       label = "Select the phenotypes would you like to use for the PCA",
+       choices = c(names),
+       multiple = T
+     )
+   )
+ })
+ 
+ PCA_final_data <- eventReactive(input$Go_PCA,{
+   temp <- data.frame(PCA_data_type())
+   temp <- subset(temp, temp$variable == input$PCA_pheno)
+   temp <- temp[,c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime, "variable", "value")]
+   temp2 <- dcast(temp, formula = ... ~ variable, value.var = "value")
+   temp2
+   })
+
+ output$PCA_final_table <- renderDataTable({
+   PCA_final_data()
+ })
+   
+ PCA_eigen_data <- eventReactive(input$Go_PCA,{
+   beginCol <-
+     length(c(
+       input$SelectIV,
+       input$SelectGeno,
+       input$SelectTime,
+       input$SelectID
+     )) + 1
+   endCol <-ncol(PCA_final_data())
+   PCA_ready <- PCA_final_data()
+   PCA_ready <- PCA_ready[, beginCol : endCol]
+   res.pca <- PCA(PCA_ready, graph = FALSE)
+   eigenvalues <- res.pca$eig
+   eigenvalues
+ })
+ 
+ output$PCA_eigen_plot <- renderPlot({
+ eigenvalues <- PCA_eigen_data()
+ barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
+         main = "Variances",
+         xlab = "Principal Components",
+         ylab = "Percentage of variances",
+         col ="steelblue")
+ })
+ 
+ output$PCA_contribution_plot <- renderPlot({
+   beginCol <-
+     length(c(
+       input$SelectIV,
+       input$SelectGeno,
+       input$SelectTime,
+       input$SelectID
+     )) + 1
+   endCol <-ncol(PCA_final_data())
+   PCA_ready <- PCA_final_data()
+   PCA_ready <- PCA_ready[, beginCol : endCol]
+   res.pca <- PCA(PCA_ready, graph = FALSE)
+  # if possible - add the contribution labels as plotly labels - to show only when you scroll over the arrow with the mouse 
+   # ALSO - make user interactive - which PC to plot
+   fviz_pca_var(res.pca, axes = c(1,2), col.var="contrib", labelsize = 4, repel=T, addEllipses=F)+
+     scale_color_gradient2(low="grey", mid="purple", 
+                           high="red")+theme_bw()
+   
+ })
+ 
+ output$PCA_scatter_plot <- renderPlot({
+   beginCol <-
+     length(c(
+       input$SelectIV,
+       input$SelectGeno,
+       input$SelectTime,
+       input$SelectID
+     )) + 1
+   endCol <-ncol(PCA_final_data())
+   PCA_ready <- PCA_final_data()
+   PCA_ready <- PCA_ready[, beginCol : endCol]
+   res.pca <- PCA(PCA_ready, graph = FALSE)
+   fviz_pca_ind(res.pca, col.ind="cos2") +
+     scale_color_gradient2(low="grey", mid="purple", 
+                           high="red", midpoint=0.50)+
+     theme_minimal()
+ })
+ 
   # end of the script
 }
