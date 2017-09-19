@@ -108,18 +108,8 @@ fluidPage(
                           textOutput("total_na")),
                  
                  tabPanel("Histograms", icon=icon("magic"),
-                          #actionButton("Go_PlotHistCount", label = "Plot histograms with count"),
-                          #plotlyOutput("HissCount"),
-                          #actionButton("Go_PlotHistFrequency", label = "Plot histograms with frequency"),
-                          #plotlyOutput("HissDensity"),
-                          #radioButtons("Hiss", "Histogram type:",
-                                     #  c("Histogram with count" = "HistCount",
-                                        # "Histogram with frequency" = "HistFrequency")),
-                          #actionButton("Go_PlotHistType", label = "Choose histogram type"),
                           uiOutput("HistType"),
                           plotlyOutput("HistPlot")
-                                     
-                                    
                           ),
                  
                  tabPanel("Boxplots", icon=icon("magic"),

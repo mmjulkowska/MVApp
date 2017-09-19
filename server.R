@@ -339,7 +339,7 @@ function(input, output) {
         selectizeInput(
           inputId = "HistType",
           label = "Select the plot type.",
-          choices = c("HistCount", "HistFrequency"),
+          choices = c("HistCount", "HistDensity"),
           selected = "HistCount",
           multiple = F
         )
@@ -354,37 +354,13 @@ function(input, output) {
     if (input$HistType == "HistCount") {
        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") 
     }
-    if (input$HistType == "HistFrequency" ) { 
+    if (input$HistType == "HistDensity" ) { 
       fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density()
     }
     ggplotly(fit)
      }) 
   
-# output$HissPlot <- renderPlotly({
- #  fit1 <- ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1])) + geom_histogram(size=0.6, alpha=0.3, col="black")
-  # fit2 <- ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1]))  + geom_density()
-  
-   #  if (input$Hiss == "HissCount") { 
-    #   ggplotly(fit1)
-     #}
-   #if (input$Hiss == "HissFrequency" ) { 
-    # ggplotly(fit2)
-     
-  # }
-  # }) 
- 
-   
-   
-   
-   # Hiss <- switch(input$Hiss,
-    #            HissCount = ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") ,
-    #            HissFrequency = ggplot(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1]))  + geom_density(),
-                #HissCount = 
-     #           Print(HissCount)
-   # )
-    #ggplotly(my_hisdata(), aes(x=my_hisdata()[,1], fill=my_hisdata()[,2])) + xlab(names(my_hisdata()[1])+ Hiss)
-  # ggplotly(Hiss)
-  #})
+
      
      ##WORKEDDD but has to be 1 dependent variable and 1 independent only!!. Also problem with group"day" because there are too many...
     
