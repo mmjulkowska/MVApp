@@ -552,10 +552,112 @@ function(input, output) {
    
  })
  
+ PCA_data_type <- eventReactive(input$Go_PCAdata,{
+   if(input$PCA_data == "original data"){
+     PCA_data_type <- my_data_melt()
+   }
+   if(input$PCA_data == "data with NA removed"){
+     PCA_data_type <- my_data_nona_melt()
+   }
+   if(input$PCA_data == "summarized data"){
+     PCA_data_type <- sum_data_melt()
+   }
+   PCA_data_type
+ })
+ 
  output$PCA_raw_table <- renderDataTable({
-   sum_data_melt()
+   PCA_data_type()
  })
 
+ output$PCA_Select_pheno <- renderUI({
+   if ((input$Go_PCAdata == FALSE)) {
+     return()
+   } else
+     names <- subset(PCA_data_type(), select = variable) %>% unique()
+   tagList(
+     selectizeInput(
+       inputId = "PCA_pheno",
+       label = "Select the phenotypes would you like to use for the PCA",
+       choices = c(names),
+       multiple = T
+     )
+   )
+ })
+ 
+ PCA_final_data <- eventReactive(input$Go_PCA,{
+   temp <- data.frame(PCA_data_type())
+   temp <- subset(temp, temp$variable == input$PCA_pheno)
+   temp <- temp[,c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime, "variable", "value")]
+   temp2 <- dcast(temp, formula = ... ~ variable, value.var = "value")
+   temp2
+   })
+
+ output$PCA_final_table <- renderDataTable({
+   PCA_final_data()
+ })
    
+ PCA_eigen_data <- eventReactive(input$Go_PCA,{
+   beginCol <-
+     length(c(
+       input$SelectIV,
+       input$SelectGeno,
+       input$SelectTime,
+       input$SelectID
+     )) + 1
+   endCol <-ncol(PCA_final_data())
+   PCA_ready <- PCA_final_data()
+   PCA_ready <- PCA_ready[, beginCol : endCol]
+   res.pca <- PCA(PCA_ready, graph = FALSE)
+   eigenvalues <- res.pca$eig
+   eigenvalues
+ })
+ 
+ output$PCA_eigen_plot <- renderPlot({
+ eigenvalues <- PCA_eigen_data()
+ barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
+         main = "Variances",
+         xlab = "Principal Components",
+         ylab = "Percentage of variances",
+         col ="steelblue")
+ })
+ 
+ output$PCA_contribution_plot <- renderPlot({
+   beginCol <-
+     length(c(
+       input$SelectIV,
+       input$SelectGeno,
+       input$SelectTime,
+       input$SelectID
+     )) + 1
+   endCol <-ncol(PCA_final_data())
+   PCA_ready <- PCA_final_data()
+   PCA_ready <- PCA_ready[, beginCol : endCol]
+   res.pca <- PCA(PCA_ready, graph = FALSE)
+  # if possible - add the contribution labels as plotly labels - to show only when you scroll over the arrow with the mouse 
+   # ALSO - make user interactive - which PC to plot
+   fviz_pca_var(res.pca, axes = c(1,2), col.var="contrib", labelsize = 4, repel=T, addEllipses=F)+
+     scale_color_gradient2(low="grey", mid="purple", 
+                           high="red")+theme_bw()
+   
+ })
+ 
+ output$PCA_scatter_plot <- renderPlot({
+   beginCol <-
+     length(c(
+       input$SelectIV,
+       input$SelectGeno,
+       input$SelectTime,
+       input$SelectID
+     )) + 1
+   endCol <-ncol(PCA_final_data())
+   PCA_ready <- PCA_final_data()
+   PCA_ready <- PCA_ready[, beginCol : endCol]
+   res.pca <- PCA(PCA_ready, graph = FALSE)
+   fviz_pca_ind(res.pca, col.ind="cos2") +
+     scale_color_gradient2(low="grey", mid="purple", 
+                           high="red", midpoint=0.50)+
+     theme_minimal()
+ })
+ 
   # end of the script
 }
