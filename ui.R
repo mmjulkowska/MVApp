@@ -45,6 +45,7 @@ fluidPage(
       # enter main panel text here:
       # end of Tab2
     ),
+  
     # Tab#3
     tabPanel(
       "Fitting curves to the data",
@@ -71,10 +72,13 @@ fluidPage(
       ),
       # end of side Panel
       mainPanel(
-        "here we will have the goodness of fit values - such as r-squared and p-values for the chosen model",
-        br(),
-        "AND There will be a plot here",
-        dataTableOutput("Model_data")
+        navbarPage("",
+        tabPanel("Modelled data",
+                 dataTableOutput("Model_data")),
+        tabPanel("Fit-Plot",
+                 uiOutput("Select_modelPlot"),
+                 actionButton("Go_modelPlot", label = "Update the fit-plot"),
+                 plotOutput("Model_plot")))
       )
       # end of Tab3
     ),
@@ -197,12 +201,33 @@ fluidPage(
       # end Tab 6
     ),
     # Tab 7
-    tabPanel(
-      "Clustering",
+    tabPanel("Clustering",
       icon = icon("sitemap"),
-      sidebarPanel(fluidRow(helpText("Something usefull"),
-                            "widgets")),
-      mainPanel("Cluster the phenotypes in different groups")
+      sidebarPanel(fluidRow(
+        helpText("In here, you can perform a cluster analysis - group your data based on the phenotypic traits and validate the clusters"),
+        navbarPage(  
+          tabPanel("Select data",
+            uiOutput("Select_data_cluster"),
+            uiOutput("Select_phenotypes_cluster"),
+            uiOutput("Select_cluster_method"),
+            actionButton("Go_cluster", "Unleash cluster analysis")),
+          tabPanel("Chose the clusters",
+            helpText("Have a look at the dendrogram and chose the value at which you would like to split it into individual clusters"),
+            textInput("Split_cluster", "Enter the numeric value here")),
+          tabPanel("Validate your clusters",
+            helpText("Please chose the phenotype which you would like to examine for the cluster validation"),
+            uiOutput("Select_data_cluster_validation")
+          ))        
+        )),
+      mainPanel(
+      navbarPage("Cluster analysis",
+          tabPanel("Cluster HOT HOT Heatmap",
+                   "heatmap here"),
+          tabPanel("Cluster dendrogram",
+                   "dendrogram here"),
+          tabPanel("Cluster validation",
+                   "ANOVA charts here")
+          ))
       # end of Tab #7
     )
     # end of App - final brackets

@@ -109,8 +109,12 @@ function(input, output) {
           input$SelectDV
         )
       )
+    if(input$TimeCheck == T){
     my_data[, input$SelectTime] <- as.factor(my_data[,input$SelectTime])
-    return(my_data)
+    return(my_data)}
+    else{
+    return(my_data)  
+    }
   })
   
   output$my_data <- renderDataTable({
@@ -179,6 +183,7 @@ function(input, output) {
           input$ModelPheno
         )
       )
+    temp[,input$SelectTime] <- as.numeric(temp[,input$SelectTime])
     sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
     things_to_model <- unique(temp[sub_set])
     
@@ -221,15 +226,91 @@ function(input, output) {
         things_to_model[i, 6] <- summary(fit)$r.squared
       }
       
-      else{
-      }
     }
+    colnames(things_to_model)[4] <- "RGR"
+    colnames(things_to_model)[5] <- "START"
+    colnames(things_to_model)[6] <- "r_sqared"
     things_to_model
   })
   
   output$Model_data <- renderDataTable({
     Model_temp_data()
   })
+  
+  output$Select_modelPlot <- renderUI({
+    if ((is.null(input$ModelIV)) |
+        (input$TimeCheck == FALSE)) {
+      return ()
+    } else
+      
+      temp <- subset(my_data(), select = c(
+        input$ModelIV,
+        input$ModelSubIV,
+        input$SelectID,
+        input$SelectTime,
+        input$ModelPheno))
+      
+      temp$selection <- paste(temp[,input$ModelIV], temp[,input$ModelSubIV], temp[,input$SelectID], sep="_")
+      
+      sample_list <- unique(temp$selection)
+      
+      tagList(
+        selectizeInput(
+          inputId = "Model_graph_fit_select",
+          label = "Select a specific sample to display in Fit-Plot",
+          choices = sample_list,
+          multiple = F
+        )
+      )
+  })
+  
+  data_model_plot <- eventReactive(input$Go_modelPlot,{
+    temp <- subset(my_data(), select = c(
+      input$ModelIV,
+      input$ModelSubIV,
+      input$SelectID,
+      input$SelectTime,
+      input$ModelPheno))
+    temp[,input$SelectTime] <- as.numeric(temp[,input$SelectTime])
+    sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
+    things_to_model <- unique(temp[sub_set])
+    
+    # This isnt working!!! Why isnt it subsetting!
+    temp$selection <- paste(temp[,input$ModelIV], temp[,input$ModelSubIV], temp[,input$SelectID], sep="_")
+    docelowy <- subset(temp, temp$selection == input$Model_graph_fit_select)
+    docelowy
+  })
+  
+  output$Model_plot <- renderPlot({
+     
+     docelowy <- data_model_plot()
+
+      if(input$model == "lin"){
+        plot(docelowy[,input$ModelPheno] ~ docelowy[,input$SelectTime], main = input$Model_graph_fit_select)
+        abline(lm(docelowy[,input$ModelPheno] ~ docelowy[,input$SelectTime]))
+      }
+      
+      if (input$model == "quad") {
+        docelowy$helper <- sqrt(docelowy[, input$ModelPheno])
+        plot(docelowy$helper ~ docelowy[,input$SelectTime], main = input$Model_graph_fit_select)
+        abline(lm(docelowy$helper ~ docelowy[,input$SelectTime]))
+      }
+      
+      if (input$model == "exp") {
+        docelowy$helper <- log(docelowy[, input$ModelPheno])
+        plot(docelowy$helper ~ docelowy[,input$SelectTime], main = input$Model_graph_fit_select)
+        abline(lm(docelowy$helper ~ docelowy[,input$SelectTime]))
+      }
+      
+      if (input$model == "sqr") {
+        docelowy$helper <- (docelowy[, input$ModelPheno])^2
+        plot(docelowy$helper ~ docelowy[,input$SelectTime], main = input$Model_graph_fit_select)
+        abline(lm(docelowy$helper ~ docelowy[,input$SelectTime]))
+      }
+    })
+  
+  # Adding data to the existing table
+  
   
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
