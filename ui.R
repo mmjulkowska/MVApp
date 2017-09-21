@@ -56,6 +56,8 @@ fluidPage(
           uiOutput("Pheno_to_model"),
           uiOutput("IV_to_model"),
           uiOutput("IV_subset_model"),
+          helpText("Click on >>unleash model estimation<< for estimating which model is best for the Dependent Variable you selected"),
+          actionButton("Go_HelpModel", label = "Unleash model estimation"),
           helpText("Here we can select what kind of modeling you want to do"),
           selectInput(
             "model",
@@ -67,18 +69,24 @@ fluidPage(
               "square root" = "sqr"
             )
           ),
-          actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle"))
+          actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle")),
+          helpText("If you are satisfied with the results of the modeling, you can add them to the dataset that can be used for Data curation in the following tab"),
+          actionButton("Go_SaveModelData", label = "Save model data", icon = icon("play-circle"))
         )
       ),
       # end of side Panel
       mainPanel(
         navbarPage("",
+        tabPanel("Estimate best model",
+                 dataTableOutput("Model_estimation")),
         tabPanel("Modelled data",
                  dataTableOutput("Model_data")),
         tabPanel("Fit-Plot",
                  uiOutput("Select_modelPlot"),
                  actionButton("Go_modelPlot", label = "Update the fit-plot"),
-                 plotOutput("Model_plot")))
+                 plotOutput("Model_plot")),
+        tabPanel("Complete Modelled data",
+                 dataTableOutput("Complete_model_data")))
       )
       # end of Tab3
     ),
@@ -95,6 +103,7 @@ fluidPage(
                  uiOutput("CustomSumm"), ### <<< Added this,   Hashed out selectize  below       %% Mitch %%
                  #selectizeInput("SummTest", label="Select what you want to calculate", choices=c("Mean", "Median", "StdDev", "StdError", "Min", "Max"), multiple=T),
                  actionButton("Go_SummaryStat", label = "unleash Summary Statistics"),
+                 uiOutput("Sum_download_button"),
                  uiOutput("HisIV"),
                  uiOutput("HisDV")
                )),
@@ -109,7 +118,7 @@ fluidPage(
              mainPanel(
                tabsetPanel(
                  tabPanel("summary data", icon=icon("flask"),
-                          tableOutput("sum_data"),
+                          dataTableOutput("sum_data"),
                           textOutput("total_na")),
                  
                  tabPanel("Histograms", icon=icon("magic"),
