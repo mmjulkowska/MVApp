@@ -109,8 +109,12 @@ function(input, output) {
           input$SelectDV
         )
       )
+    if(input$TimeCheck == T){
     my_data[, input$SelectTime] <- as.factor(my_data[,input$SelectTime])
-    return(my_data)
+    return(my_data)}
+    else{
+    return(my_data)  
+    }
   })
   
   output$my_data <- renderDataTable({
@@ -144,7 +148,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "ModelIV",
-          label = "Select an independent variable for which you would like estimate kinetics",
+          label = "Select an independent variable for which you would like estimate kinetics (IndepVar)",
           choices = c(input$SelectIV, input$SelectGeno),
           multiple = F
         )
@@ -166,7 +170,65 @@ function(input, output) {
       )
   })
   
-  # Calculations for the model - temporary
+ # making advice on which model type to chose based on the r-square values
+  Model_est_data <- eventReactive(input$Go_HelpModel, {
+    temp <-
+      subset(
+        my_data(),
+        select = c(
+          input$ModelIV,
+          input$ModelSubIV,
+          input$SelectID,
+          input$SelectTime,
+          input$ModelPheno
+        )
+      )
+    temp[,input$SelectTime] <- as.numeric(temp[,input$SelectTime])
+    sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
+    things_to_model <- unique(temp[sub_set])
+    
+    for (i in 1:nrow(things_to_model)) {
+      super_temp <- subset(temp, temp[, 1] == things_to_model[i, 1])
+      super_temp2 <-
+        subset(super_temp, super_temp[, 2] == things_to_model[i, 2])
+      super_temp3 <-
+        subset(super_temp2, super_temp2[, 3] == things_to_model[i, 3])
+
+      # calculating r-squared for the linear model      
+        fit_lin <- lm(super_temp3[, 4] ~ super_temp3[, 5])
+        things_to_model[i, 4] <- summary(fit_lin)$r.squared
+      # calculating r-squared for the quadratic model
+        super_temp3$sqrt_transformed <- sqrt(super_temp3[, 5])
+        fit_sqrt <- lm(super_temp3[, 4] ~ super_temp3$sqrt_transformed)
+        things_to_model[i, 5] <- summary(fit_sqrt)$r.squared
+      # calculating r-squared for the exponential model 
+        super_temp3$log_transformed <- log(super_temp3[, 5])
+        fit_log <- lm(super_temp3[, 4] ~ super_temp3$log_transformed)
+        things_to_model[i, 6] <- summary(fit_log)$r.squared
+      # calculating r-squared for the square root model
+        super_temp3$quad_transformed <- (super_temp3[, 5]) ^ 2
+        quad_fit <- lm(super_temp3[, 4] ~ super_temp3$quad_transformed)
+        things_to_model[i, 7] <- summary(quad_fit)$r.squared
+      }
+      
+    colnames(things_to_model)[4] <- "Linear_model"
+    colnames(things_to_model)[5] <- "Quadratic_model"
+    colnames(things_to_model)[6] <- "Exponential_model"
+    colnames(things_to_model)[7] <- "Square_root_model"
+    colnames(things_to_model)[1] <- "IndepVar"
+    model_sum <- summaryBy(Linear_model + Quadratic_model + Exponential_model + Square_root_model ~ IndepVar, data = things_to_model)
+    model_sum
+  })
+  
+  output$Model_estimation <- renderDataTable({
+    Model_est_data()
+  })
+  
+  
+  # Calculations for the model 
+  # provides table with RGR / START and r-square
+  # PROBLEM IS this is temporary datafile that can be overwritten with the next modeling attempt
+  
   Model_temp_data <- eventReactive(input$Go_Model, {
     temp <-
       subset(
@@ -179,6 +241,7 @@ function(input, output) {
           input$ModelPheno
         )
       )
+    temp[,input$SelectTime] <- as.numeric(temp[,input$SelectTime])
     sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
     things_to_model <- unique(temp[sub_set])
     
@@ -189,7 +252,6 @@ function(input, output) {
       super_temp3 <-
         subset(super_temp2, super_temp2[, 3] == things_to_model[i, 3])
       
-    # modeling SelectTime to ModelPheno  
       if (input$model == "lin") {
         fit <- lm(super_temp3[, 4] ~ super_temp3[, 5])
         things_to_model[i, 4] <- coefficients(fit)[2]
@@ -221,9 +283,10 @@ function(input, output) {
         things_to_model[i, 6] <- summary(fit)$r.squared
       }
       
-      else{
-      }
     }
+    colnames(things_to_model)[4] <- "RGR"
+    colnames(things_to_model)[5] <- "START"
+    colnames(things_to_model)[6] <- "r_sqared"
     things_to_model
   })
   
@@ -231,6 +294,114 @@ function(input, output) {
     Model_temp_data()
   })
   
+  # Interactive user input for Fit-Plot - to select specific sample for fitness examination
+  output$Select_modelPlot <- renderUI({
+    if ((is.null(input$ModelIV)) |
+        (input$TimeCheck == FALSE)) {
+      return ()
+    } else
+      
+      temp <- subset(my_data(), select = c(
+        input$ModelIV,
+        input$ModelSubIV,
+        input$SelectID,
+        input$SelectTime,
+        input$ModelPheno))
+      
+      temp$selection <- paste(temp[,input$ModelIV], temp[,input$ModelSubIV], temp[,input$SelectID], sep="_")
+      
+      sample_list <- unique(temp$selection)
+      
+      tagList(
+        selectizeInput(
+          inputId = "Model_graph_fit_select",
+          label = "Select a specific sample to display in Fit-Plot",
+          choices = sample_list,
+          multiple = F
+        )
+      )
+  })
+  
+  # object saving the user-interactive plot for fitness (Fit-Plot)
+  data_model_plot <- eventReactive(input$Go_modelPlot,{
+    temp <- subset(my_data(), select = c(
+      input$ModelIV,
+      input$ModelSubIV,
+      input$SelectID,
+      input$SelectTime,
+      input$ModelPheno))
+    temp[,input$SelectTime] <- as.numeric(temp[,input$SelectTime])
+    sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
+    things_to_model <- unique(temp[sub_set])
+    
+    temp$selection <- paste(temp[,input$ModelIV], temp[,input$ModelSubIV], temp[,input$SelectID], sep="_")
+    docelowy <- subset(temp, temp$selection == input$Model_graph_fit_select)
+    docelowy
+  })
+  
+  # Fit-Plot
+  output$Model_plot <- renderPlot({
+     
+     docelowy <- data_model_plot()
+
+      if(input$model == "lin"){
+        pheno <- docelowy[,input$ModelPheno]
+        time <- docelowy[,input$SelectTime]
+        title <- unique(docelowy$selection)
+        plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
+        abline(lm(pheno ~ time), col="red")
+        }
+      
+      if (input$model == "quad") {
+        docelowy$helper <- sqrt(docelowy[, input$ModelPheno])
+        pheno <- docelowy$helper
+        time <- docelowy[,input$SelectTime]
+        title <- unique(docelowy$selection)
+        plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
+        abline(lm(pheno ~ time), col="red")
+      }
+      
+      if (input$model == "exp") {
+        docelowy$helper <- log(docelowy[, input$ModelPheno])
+        pheno <- docelowy$helper
+        time <- docelowy[,input$SelectTime]
+        title <- unique(docelowy$selection)
+        plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
+        abline(lm(pheno ~ time), col="red")
+      }
+      
+      if (input$model == "sqr") {
+        docelowy$helper <- (docelowy[, input$ModelPheno])^2
+        pheno <- docelowy$helper
+        time <- docelowy[,input$SelectTime]
+        title <- unique(docelowy$selection)
+        plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
+        abline(lm(pheno ~ time), col="red")
+      }
+    })
+  
+  # Adding data to the existing table
+  # this is not working, as I am adding the data to something that doesnt exist. 
+  Saved_model_data <- eventReactive(input$Go_SaveModelData,{
+      saved <- Model_temp_data()
+      saved <- subset(saved, select=c(1:4))
+      saved[,input$SelectTime] <- "RGR"
+      melted_model <- melt(saved, id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
+      melted_model$variable <- input$ModelPheno
+      melted_model
+      })
+  
+  output$Complete_model_data <- renderDataTable({
+    Saved_model_data()
+  })
+  
+  # Fusing the model data to the data that can be used for Summary Stats
+  Data_for_summ <- eventReactive(input$Go_SaveModelData,{
+    melted_icecream <- melt(my_data_nona(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
+    model <- Saved_model_data()
+    brain_fusion <- rbind(melted_icecream, model)
+    brain_fusion
+  })
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   #  - - - - - - - - - - >> SUMMARY STATISTICS IN 4th TAB <<- - - - - - - - - - - -
@@ -272,8 +443,11 @@ function(input, output) {
                  Max = function(x) max(x))
   
   sum_data <- eventReactive(input$Go_SummaryStat, {
+    if(input$Go_SaveModelData){
+      melted_icecream <- Data_for_summ()
+    }
+    else
     melted_icecream <- melt(my_data_nona(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
-  #change day/time into factor becuase it is now numeric and does not show in melt.
     
     ## Added call to selected summary stats functions "FUN=summfuns[input$SelectSumm]"     %% Mitch %%
     sum_my_data<-summaryBy(value ~., data=melted_icecream, FUN=summfuns[input$SelectSumm])
@@ -284,10 +458,22 @@ function(input, output) {
     
   })
   
-  output$sum_data <- renderTable({
+  output$sum_data <- renderDataTable({
     sum_data()
   })
   
+  output$Sum_download_button <- renderUI({
+    if(is.null(sum_data())){
+      return()}
+    else
+  downloadButton("data_sum", label="Download Summary Stats data")
+    })
+  
+  output$data_sum <- downloadHandler(
+    filename = "Summary_stats_MVApp.csv",
+   content <- function(file) {
+        write.csv(sum_data(), file)}
+  )
   
   output$HisIV <- renderUI({
    if ((input$Go_Data == FALSE)) {
