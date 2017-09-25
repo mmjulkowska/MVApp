@@ -1,7 +1,8 @@
 fluidPage(
   theme = shinytheme("yeti"),
   navbarPage(
-    title = ">> MVApp_ss4 <<",
+    title = ">> MVApp <<",
+
     tabPanel(
       "Background information",
       icon = icon("info"),
@@ -129,28 +130,8 @@ fluidPage(
    
                
     
+       
     # Tab #5
-    tabPanel(
-      "Variation Examination",
-      icon = icon("area-chart"),
-      sidebarPanel(fluidRow(
-        helpText("Something helpfull"),
-        "Widgets here"
-      )),
-      mainPanel(
-        "looking at the histograms",
-        br(),
-        "- test for normality",
-        br(),
-        "- test for equal variance",
-        br(),
-        "- first ANOVA? or other tests (like T-test)"
-      )
-      # end of Tab#5
-    ),
-    
-    
-    # Tab #6
     tabPanel(
       "Establish correlations between traits",
       icon = icon("compress"),
@@ -175,36 +156,54 @@ fluidPage(
         
         tabPanel(
           "Scatter plots",
-          sidebarPanel("Widgets shait"),
+          sidebarPanel(uiOutput("Pheno1"),uiOutput("Pheno2"),uiOutput("colorby")),
           mainPanel(
-            "R square value is XX and P value is XX",
-            br(),
-            "and here look at the correlation plot"
+            "The R square value is XX and P value is XX",
+            plotlyOutput("scatterplot")
           )
         )
       )
-      # end of Tab#6
+      # end of Tab#5
     ),
     
-    # Tab 7
+    # Tab 6
     tabPanel(
       "PCA",
       icon = icon("object-group"),
-      sidebarPanel(fluidRow(
-        helpText("Something helpfull"),
-        "widgets"
-      )),
-      mainPanel("PCA the crazy")
-      # end Tab 7
+      sidebarPanel(
+        fluidRow(
+          helpText("Please select which phenotype you would like to use for the PCA"),
+          uiOutput("PCA_Pheno_data"), # which phenotype data (summarized / na / original) selectize, multiple = F
+          actionButton("Go_PCAdata", label = "set the dataset"),
+          
+          uiOutput("PCA_Select_pheno"), # which traits would you like to use? selectize, multiple = T
+          # user esthetics to differentiate between different geno / treatment
+         # uiOutput("SelectGroup"), # How would you like to colour, selectize (input$SelectGeno, input$SelectDV, input$SelectTime, multiple = F)
+          actionButton("Go_PCA", label = "Unleash the PCA monster",icon = icon("play-circle"))
+        )),
+      mainPanel(
+        navbarPage("PCA the crazy",
+            tabPanel("Selected dataset",
+                dataTableOutput("PCA_raw_table")),
+            tabPanel("Final data for PCA",
+                     dataTableOutput("PCA_final_table")),
+            tabPanel("Eigen Plot",
+                    plotOutput("PCA_eigen_plot")),
+            tabPanel("Contribution Plot",
+                     plotOutput("PCA_contribution_plot")),
+            tabPanel("Scatter Plot",
+                     plotOutput("PCA_scatter_plot"))
+            ))
+      # end Tab 6
     ),
-    # Tab 8
+    # Tab 7
     tabPanel(
       "Clustering",
       icon = icon("sitemap"),
       sidebarPanel(fluidRow(helpText("Something usefull"),
                             "widgets")),
       mainPanel("Cluster the phenotypes in different groups")
-      # end of Tab #8
+      # end of Tab #7
     )
     # end of App - final brackets
   )
