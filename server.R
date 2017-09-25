@@ -17,7 +17,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "SelectID",
-          label = "Select here your sample ID",
+          label = "Select your sample ID",
           choices = ItemList(),
           multiple = F
         )
@@ -32,7 +32,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "SelectGeno",
-          label = "Select here your Genotype column",
+          label = "Select your Genotype column",
           choices = ItemList(),
           multiple = F
         )
@@ -46,7 +46,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "SelectIV",
-          label = "Select here your other independent variables (such as treatment, position et al.)",
+          label = "Select your independent variables (e.g. treatment, position)",
           choices = ItemList(),
           multiple = T
         )
@@ -62,7 +62,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "SelectTime",
-          label = "Select here column with time",
+          label = "Select your Time column",
           choices = ItemList(),
           multiple = F
         )
@@ -77,7 +77,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "SelectDV",
-          label = "Select here your dependent variables",
+          label = "Select your dependent variables (e.g. traits)",
           choices = ItemList(),
           multiple = T
         )
@@ -133,7 +133,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "ModelPheno",
-          label = "Select a phenotype for which you would like estimate kinetics",
+          label = "Select a phenotype for which you would like estimate the kinetics",
           choices = c(input$SelectDV),
           multiple = F
         )
@@ -148,7 +148,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "ModelIV",
-          label = "Select an independent variable for which you would like estimate kinetics (IndepVar)",
+          label = "Select an independent variable for which you would like estimate the kinetics (IndepVar)",
           choices = c(input$SelectIV, input$SelectGeno),
           multiple = F
         )
@@ -502,7 +502,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "HisDV",
-          label = "Select the trait for which you would like to plot the graphs.",
+          label = "Select the trait you would like to plot",
           choices = c(
             input$SelectDV
           ),
@@ -525,7 +525,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "HistType",
-          label = "Select the plot type.",
+          label = "Select a plot type",
           choices = c("HistCount", "HistDensity"),
           selected = "HistCount",
           multiple = F
@@ -603,7 +603,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Pheno1",
-          label = "Select here your dependent variable 1 to be plotted",
+          label = "Select the first dependent variable to be plotted",
           choices = input$SelectDV,
           multiple = F
         )
@@ -617,7 +617,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Pheno2",
-          label = "Select here your dependent variable 2 to be plotted",
+          label = "Select the second dependent variable to be plotted",
           choices = input$SelectDV,
           multiple = F
         )
@@ -632,7 +632,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Color",
-          label = "Select here the color variable to be shown on the plot",
+          label = "Select the color variable to be shown on the plot",
           choices = c(input$SelectIV, input$SelectGeno),
           multiple = F
         )
@@ -679,7 +679,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "CorIV_sub",
-          label = "Which IV do you want to subset the data?",
+          label = "By which independent variable do you want to subset the data?",
           choices = c(
             input$SelectIV,
             input$SelectGeno,
@@ -700,7 +700,7 @@ function(input, output) {
     tagList(
       selectizeInput(
         inputId = "CorIV_val",
-        label = "which values of IV would you like to examine for correlation?",
+        label = "Which values of the independent variable would you like to examine for correlation?",
         choices = c(names),
         multiple = F
       )

@@ -6,8 +6,8 @@ fluidPage(
     tabPanel(
       "Background information",
       icon = icon("info"),
-      h2("About the App"),
-      "Here we will put some helpfull and encouraging text later, refering to the paper that will be (by then) published in high impact and open access journal ;) For now, we leave this bit as is"
+      h2("About the MVApp"),
+      "Here we will put some helpful and encouraging text that is refering to the paper that will be (by then) published in a high impact and open-access journal ;) For now, we will leave this bit as is"
       # end of Tab1
     ),
     
@@ -16,7 +16,7 @@ fluidPage(
       icon = icon("table"),
       sidebarPanel(
         fluidRow(
-          helpText("Upload your data or chose one of the example datasets:"),
+          helpText("Upload your data or choose one of the example datasets:"),
           fileInput(
             "your_data",
             label = "Upload your file",
@@ -25,9 +25,9 @@ fluidPage(
           uiOutput("CustomGeno"),
           uiOutput("CustomIndepVar"),
           uiOutput("CustomPheno"),
-          checkboxInput("IdCheck", label = "Do you have a column with Sample ID", value = F),
+          checkboxInput("IdCheck", label = "Do you have a column with Sample ID?", value = F),
           uiOutput("CustomID"),
-          checkboxInput("TimeCheck", label = "Do you have a column with Time values", value = F),
+          checkboxInput("TimeCheck", label = "Do you have a column with Time values?", value = F),
           uiOutput("CustomTimepoint"),
           actionButton("Go_Data", label = "Click to set the data", icon = icon("play-circle"))
           
@@ -52,13 +52,13 @@ fluidPage(
       icon = icon("wrench"),
       sidebarPanel(
         fluidRow(
-          helpText("Please select which phenotype you would like to use for modeling"),
+          helpText("Please select which phenotype you would like to model"),
           uiOutput("Pheno_to_model"),
           uiOutput("IV_to_model"),
           uiOutput("IV_subset_model"),
-          helpText("Click on >>unleash model estimation<< for estimating which model is best for the Dependent Variable you selected"),
-          actionButton("Go_HelpModel", label = "Unleash model estimation"),
-          helpText("Here we can select what kind of modeling you want to do"),
+          helpText("Click on >>unleash the model estimation<< for estimating which model is the best for the Dependent Variable that you selected"),
+          actionButton("Go_HelpModel", label = "Unleash the model estimation"),
+          helpText("Here you can select which modeling type you'd like to do"),
           selectInput(
             "model",
             label = "Select method",
@@ -70,7 +70,7 @@ fluidPage(
             )
           ),
           actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle")),
-          helpText("If you are satisfied with the results of the modeling, you can add them to the dataset that can be used for Data curation in the following tab"),
+          helpText("If you are satisfied with the results of the modeling, you can add them to the dataset that can be used in the 'Data curation' tab"),
           actionButton("Go_SaveModelData", label = "Save model data", icon = icon("play-circle"))
         )
       ),
@@ -161,14 +161,14 @@ fluidPage(
             uiOutput("CorSpecIV_val")),
           
           mainPanel(
-            "Subset Correlations",
+            "Subset correlations",
             "here another plot for subset correlations",
             plotOutput("corrplot2")
           )
         ),
         
         tabPanel(
-          "Scatter plots",
+          "Scatterplots",
           sidebarPanel(uiOutput("Pheno1"),uiOutput("Pheno2"),uiOutput("colorby")),
           mainPanel(
             "The R square value is XX and P value is XX",
@@ -185,7 +185,7 @@ fluidPage(
       icon = icon("object-group"),
       sidebarPanel(
         fluidRow(
-          helpText("Please select which phenotype you would like to use for the PCA"),
+          helpText("Which phenotype you would like to use for the PCA?"),
           uiOutput("PCA_Pheno_data"), # which phenotype data (summarized / na / original) selectize, multiple = F
           actionButton("Go_PCAdata", label = "set the dataset"),
           uiOutput("PCA_Select_pheno"), # which traits would you like to use? selectize, multiple = T
@@ -216,7 +216,7 @@ fluidPage(
     tabPanel("Clustering",
       icon = icon("sitemap"),
       sidebarPanel(fluidRow(
-        helpText("In here, you can perform a cluster analysis - group your data based on the phenotypic traits and validate the clusters"),
+        helpText("In here, you can perform a cluster analysis by grouping your data based on the phenotypic traits and validating the clusters"),
         navbarPage(  
           tabPanel("Select data",
             uiOutput("Select_data_cluster"),
@@ -224,10 +224,10 @@ fluidPage(
             uiOutput("Select_cluster_method"),
             actionButton("Go_cluster", "Unleash cluster analysis")),
           tabPanel("Chose the clusters",
-            helpText("Have a look at the dendrogram and chose the value at which you would like to split it into individual clusters"),
+            helpText("Have a look at the dendrogram and choose the value at which you would like to split into individual clusters"),
             textInput("Split_cluster", "Enter the numeric value here")),
           tabPanel("Validate your clusters",
-            helpText("Please chose the phenotype which you would like to examine for the cluster validation"),
+            helpText("Please choose the phenotype which you would like to further examine for the cluster validation"),
             uiOutput("Select_data_cluster_validation")
           ))        
         )),
