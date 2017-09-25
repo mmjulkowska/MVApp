@@ -355,7 +355,7 @@ function(input, output) {
        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") 
     }
     if (input$HistType == "HistDensity" ) { 
-      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density()
+      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha=0.3)
     }
     ggplotly(fit)
      }) 
@@ -365,14 +365,46 @@ function(input, output) {
      ##WORKEDDD but has to be 1 dependent variable and 1 independent only!!. Also problem with group"day" because there are too many...
     
 
-    my_hisdata2<-eventReactive(input$Go_Boxplot, {
-      hisdata2<-my_data()[,c(input$HisDV,input$HisIV)]
-    })
+   # my_hisdata2<-eventReactive(input$Go_Boxplot, {
+    #  hisdata2<-my_data()[,c(input$HisDV,input$HisIV)]
+    #})
+    
+  
+ 
     
     ##try to do subset by multiple variables
     output$Boxes <- renderPlotly({
+      my_his_data <- my_hisdata()
       
-      box_graph <- ggplot(my_hisdata2(), aes(x=my_hisdata2()[,2], y=my_hisdata2()[,1])) + xlab(names(my_hisdata2()[2])) + ylab(names(my_hisdata2()[1])) + geom_boxplot()
+      #a <- aov(my_his_data[,1]~my_his_data[,2], data=my_his_data)
+      #tHSD <- TukeyHSD(a, ordered = FALSE, conf.level = 0.95)
+      
+      #generate_label_df <- function(HSD, flev){
+        # Extract labels and factor levels from Tukey post-hoc 
+       # Tukey.levels <- HSD[[flev]][,4]
+        #Tukey.labels <- multcompLetters(Tukey.levels)['Letters']
+        #plot.labels <- names(Tukey.labels[['Letters']])
+        
+        # Get highest quantile for Tukey's 5 number summary and add a bit of space to buffer between    
+        # upper quantile and label placement
+        #boxplot.df <- ddply(d, flev, function (x) max(fivenum(x$y)) + 0.2)
+        
+        # Create a data frame out of the factor levels and Tukey's homogenous group letters
+        #plot.levels <- data.frame(plot.labels, labels = Tukey.labels[['Letters']],
+                                 # stringsAsFactors = FALSE)
+        
+        # Merge it with the labels
+        #labels.df <- merge(plot.levels, boxplot.df, by.x = 'plot.labels', by.y = flev, sort = FALSE)
+        
+        #return(labels.df)
+      #}
+      
+      #box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+      #+ geom_text(data = generate_label_df(tHSD, 'my_his_data[,2]'), aes(x = plot.labels, y = V1, label = labels))
+      
+      
+      
+     box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
       
       ggplotly(box_graph)
       

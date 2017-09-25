@@ -113,7 +113,7 @@ fluidPage(
                           ),
                  
                  tabPanel("Boxplots", icon=icon("magic"),
-                          actionButton("Go_Boxplot", label = "Plot boxplots"),
+                          #actionButton("Go_Boxplot", label = "Plot boxplots"),
                           plotlyOutput("Boxes")),
                   tabPanel("Table with outliers", icon=icon("magic"),
                            actionButton("Go_Outliers", label = "Table of outliers"),
