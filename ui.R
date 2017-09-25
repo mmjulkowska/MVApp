@@ -188,12 +188,15 @@ fluidPage(
           helpText("Please select which phenotype you would like to use for the PCA"),
           uiOutput("PCA_Pheno_data"), # which phenotype data (summarized / na / original) selectize, multiple = F
           actionButton("Go_PCAdata", label = "set the dataset"),
-          
           uiOutput("PCA_Select_pheno"), # which traits would you like to use? selectize, multiple = T
-          # user esthetics to differentiate between different geno / treatment
          # uiOutput("SelectGroup"), # How would you like to colour, selectize (input$SelectGeno, input$SelectDV, input$SelectTime, multiple = F)
-          actionButton("Go_PCA", label = "Unleash the PCA monster",icon = icon("play-circle"))
-        )),
+         br(),
+         actionButton("Go_PCA", label = "Unleash the PCA monster",icon = icon("play-circle")),
+         
+         # selectInput("Select the principle components", "Select the principle components:",
+         radioButtons("radio", label = h6("Select the principle components to display"), 
+         choices = list("PC1 and PC2" = 1, "PC2 and PC3" = 2, "PC1 and PC3" = 3), selected = 1)
+          )),
       mainPanel(
         navbarPage("PCA the crazy",
             tabPanel("Selected dataset",
@@ -203,9 +206,9 @@ fluidPage(
             tabPanel("Eigen Plot",
                     plotOutput("PCA_eigen_plot")),
             tabPanel("Contribution Plot",
-                     plotOutput("PCA_contribution_plot")),
+                     plotlyOutput("PCA_contribution_plot")),
             tabPanel("Scatter Plot",
-                     plotOutput("PCA_scatter_plot"))
+                     plotlyOutput("PCA_scatter_plot"))
             ))
       # end Tab 6
     ),
