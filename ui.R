@@ -92,28 +92,50 @@ fluidPage(
     ),
     
     
-    # Tab#4
-    tabPanel("Data curation", icon=icon("check"),
+    # Tab#4 
+    tabPanel("Data curation", icon = icon("gavel"),
              sidebarPanel(
                fluidRow(
-                 helpText("Remove pesky NAs"),
-                 actionButton("Go_omitna", label = "Omit rows with NA"),
-                 #helpText("Restore pesky NAs"),
-                 #actionButton("Go_restorena", label = "Restore rows with NA"),
+                helpText("Here you can have a look at the data and remove the values that are odd or missing... 
+                         if we can fix some issues at least"),
+                         br(),
+                uiOutput("time_cast"),
+                actionButton("Go_outliers", label = "Unleash outlier selection tool"),  
+                br(),
+                br(),
+                
+                helpText("Select the outliers based on"),
+              # >>> Here should be a button for selecting the method of outlier selection
+              # We should include methods such as X * StDev, 1.5* IQR
+              # And also provide a table where the outliers are highlighted in a different colour
+               # selectizeInput("outlier_method", options = c("1xStDev from the median" = "1SD", "2xStDev from the median" = "2SD", "2.5xStDev from the median" = "2.5SD", "3xStDev from the median"="3SD", "1.5*IQR away from the mean" = "1.5IQ"))
+              br(),
+              br(),
+              helpText("Would you like to remove the rows containing missing values?"),
+              actionButton("Go_omitna", label = "Omit rows with NA")  
+              )),
+             mainPanel(
+               navbarPage("",
+                tabPanel("original data", icon=icon("folder"),
+                         dataTableOutput("Outlier_data_table")),
+                tabPanel("outliers", icon=icon("bug"),
+                         dataTableOutput("Outlier_data")),
+                tabPanel("outliers removed", icon=icon("birthday-cake"),
+                         "no outliers data here")
+             ))
+    # end of Tab#4         
+    ),
+    
+    #Tab#5
+    tabPanel("Data exploration", icon=icon("binoculars"),
+             sidebarPanel(
+               fluidRow(
                  uiOutput("CustomSumm"), ### <<< Added this,   Hashed out selectize  below       %% Mitch %%
-                 #selectizeInput("SummTest", label="Select what you want to calculate", choices=c("Mean", "Median", "StdDev", "StdError", "Min", "Max"), multiple=T),
                  actionButton("Go_SummaryStat", label = "unleash Summary Statistics"),
                  uiOutput("Sum_download_button"),
                  uiOutput("HisIV"),
                  uiOutput("HisDV")
                )),
-             
-             
-             #mainPanel(
-             #tableOutput("sum_data"),
-             #textOutput("total_na"))
-             
-             
              
              mainPanel(
                tabsetPanel(
@@ -121,30 +143,23 @@ fluidPage(
                           dataTableOutput("sum_data"),
                           textOutput("total_na")),
                  
-                 tabPanel("Histograms", icon=icon("magic"),
+                 tabPanel("Histograms", icon=icon("area-chart"),
                           uiOutput("HistType"),
                           plotlyOutput("HistPlot")
                           ),
                  
-                 tabPanel("Boxplots", icon=icon("magic"),
-                          actionButton("Go_Boxplot", label = "Plot boxplots"),
+                 tabPanel("Boxplots", icon=icon("sun-o"),
+                         # actionButton("Go_Boxplot", label = "Plot boxplots"),
                           plotlyOutput("Boxes")),
-                  tabPanel("Table with outliers", icon=icon("magic"),
-                           actionButton("Go_Outliers", label = "Table of outliers"),
-                    dataTableOutput("Outlier_data")
-                  
-                 #         textOutput("total_outliers"))
-                        )))
+                 
+                 tabPanel("ANOVA plots", icon=icon("snowflake-o")),
+                 tabPanel("Variance analysis")
+                  ))
+  # end of Tab#5
     ),
-             
-             
-             # end of Tab#4
-  
-   
-               
     
-       
-    # Tab #5
+     
+    # Tab #6
     tabPanel(
       "Establish correlations between traits",
       icon = icon("compress"),
@@ -176,10 +191,10 @@ fluidPage(
           )
         )
       )
-      # end of Tab#5
+      # end of Tab#6
     ),
     
-    # Tab 6
+    # Tab 7
     tabPanel(
       "PCA",
       icon = icon("object-group"),
@@ -207,9 +222,10 @@ fluidPage(
             tabPanel("Scatter Plot",
                      plotOutput("PCA_scatter_plot"))
             ))
-      # end Tab 6
+      # end Tab 7
     ),
-    # Tab 7
+    
+    # Tab 8
     tabPanel("Clustering",
       icon = icon("sitemap"),
       sidebarPanel(fluidRow(
@@ -237,7 +253,7 @@ fluidPage(
           tabPanel("Cluster validation",
                    "ANOVA charts here")
           ))
-      # end of Tab #7
+      # end of Tab #8
     )
     # end of App - final brackets
   )

@@ -511,13 +511,6 @@ function(input, output) {
       )
   })
   
-  
-  my_hisdata<-eventReactive(input$HisIV, {
-    hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
-  })
-  
-  
-  
   output$HistType <- renderUI({
     if ((input$Go_Data == FALSE)) {
       return ()
@@ -536,13 +529,13 @@ function(input, output) {
   
   
   output$HistPlot <- renderPlotly({
-    
-    my_his_data <- my_hisdata()
+    hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
+    my_his_data <- hisdata
     if (input$HistType == "HistCount") {
        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") 
     }
     if (input$HistType == "HistDensity" ) { 
-      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density()
+      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3)
     }
     ggplotly(fit)
      }) 
