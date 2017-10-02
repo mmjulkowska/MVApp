@@ -223,9 +223,9 @@ fluidPage(
          actionButton("Go_PCA", label = "Unleash the PCA monster",icon = icon("play-circle")),
          
          # selectInput("Select the principle components", "Select the principle components:",
-         radioButtons("radio", label = h6("Select the principle components to display"), 
-         choices = list("PC1 and PC2" = 1, "PC2 and PC3" = 2, "PC1 and PC3" = 3), selected = 1)
-          )),
+         uiOutput("PCA1_select"),
+         uiOutput("PCA2_select")
+         )),
       mainPanel(
         navbarPage("PCA the crazy",
             tabPanel("Selected dataset",
@@ -233,7 +233,7 @@ fluidPage(
             tabPanel("Final data for PCA",
                      dataTableOutput("PCA_final_table")),
             tabPanel("Eigen Plot",
-                    plotOutput("PCA_eigen_plot")),
+                    plotlyOutput("PCA_eigen_plot")),
             tabPanel("Contribution Plot",
                      plotlyOutput("PCA_contribution_plot")),
             tabPanel("Scatter Plot",

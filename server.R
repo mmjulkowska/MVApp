@@ -849,21 +849,6 @@ function(input, output) {
    )
  })
  
-# output$Select_PC_number <- renderUI({
-#   if ((input$Go_PCAdata == FALSE)) {
- #    return()
-#   } else
- #    names <- subset(PCA_data_type(), select = variable) %>% unique()
-#   tagList(
-  #   selectizeInput(
-#       inputId = "PC_number",
-#       label = "Select the number of PCs you would like to use for the PCA",
- #      choices = c(names),
- #      multiple = F
-#     )
- #  )
-# })
- 
  PCA_final_data <- eventReactive(input$Go_PCA,{
    temp <- data.frame(PCA_data_type())
    temp <- subset(temp, temp$variable == input$PCA_pheno)
@@ -875,15 +860,6 @@ function(input, output) {
  output$PCA_final_table <- renderDataTable({
    PCA_final_data()
  })
- 
- #output$PCs<-renderUI({
- #  if (is.null(input$files)) { return(NULL) }
-#   maxPCs<-ncol(input$files)
-#   numericInput("PCs", "Number of Principal Components", 
-#                2, min = 2, max = maxPCs)
-# })
-# https://gist.github.com/dgrapov/5846650
-# https://github.com/kylehamilton/PACA/blob/master/server.R
  
  PCA_eigen_data <- eventReactive(input$Go_PCA,{
    beginCol <-
@@ -901,31 +877,43 @@ function(input, output) {
    eigenvalues
  })
  
- output$PCA_eigen_plot <- renderPlot({
+ output$PCA_eigen_plot <- renderPlotly({
  eigenvalues <- PCA_eigen_data()
- #ggplot(data=eigenvalues[, 2], aes(x="Principal Components", y="Percentage of variances")) + geom_bar(stat="identity")
- barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
-         main = "Variances",
-         xlab = "Principal Components",
-         ylab = "Percentage of variances",
-         col ="steelblue")
-# ggplotly()
+ Y= (eigenvalues[, 2])
+ X= (names.arg=1:nrow(eigenvalues))
+ bar <-  ggplot(eigenvalues, aes(x=X, y=Y)) + geom_bar(stat="identity")+
+xlab("Principal Components") + ylab("Percentage of variances") +
+ggtitle("Variances")
+ ggplotly(bar)
  })
  
- #function(input, output) {
- #  output$value <- renderPrint({ input$radio })
-# }
- 
- output$Select_which_PC <- renderUI({
+ output$PCA1_select <- renderUI({
    if ((input$Go_PCAdata == FALSE)) {
      return()
    } else
-     names <- subset(PCA_data_type(), select = variable) %>% unique()
+     eigenvalues <- PCA_eigen_data()
+     list_avail_PCs <- unique(1:(nrow(eigenvalues)-2))
+     tagList(
+     selectizeInput(
+       inputId = "Which_PC1",
+       label = "Select which PCs you would like to plot on x-axis",
+       choices = list_avail_PCs,
+       multiple = F
+     )
+   )
+ })
+ 
+ output$PCA2_select <- renderUI({
+   if ((input$Go_PCAdata == FALSE)) {
+     return()
+   } else
+     eigenvalues <- PCA_eigen_data()
+   list_avail_PCs <- unique(1:(nrow(eigenvalues)-2))
    tagList(
      selectizeInput(
-       inputId = "Which_PC",
-       label = "Select which PCs you would like to plot",
-       choices = c(names),
+       inputId = "Which_PC2",
+       label = "Select which PCs you would like to plot on y-axis",
+       choices = list_avail_PCs,
        multiple = F
      )
    )
@@ -935,7 +923,7 @@ function(input, output) {
    beginCol <-
      length(c(
        input$SelectIV,
-       input$SelectGeno,
+      input$SelectGeno,
        input$SelectTime,
        input$SelectID
      )) + 1
@@ -943,38 +931,13 @@ function(input, output) {
    PCA_ready <- PCA_final_data()
    PCA_ready <- PCA_ready[, beginCol : endCol]
    res.pca <- PCA(PCA_ready, graph = FALSE)
-   PCs <- data.frame(res.pca$ind$contrib)
-   autoplot(prcomp(PCs))
-   #https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_pca.html
+  mid=median(res.pca$var$contrib)
+  fviz_pca_var(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.var="contrib", geom ="auto", labelsize = 4, repel=T, label="var", addlabels=T, invisible = "none") +
+   scale_color_gradient2(low="grey", mid="purple", 
+                         high="red", midpoint=mid)+theme_bw()
  })
  
-# output$PCA_contribution_plot <- renderPlot({
-  # beginCol <-
- #    length(c(
-   #    input$SelectIV,
-    #   input$SelectGeno,
-     #  input$SelectTime,
-      # input$SelectID
-  #   )) + 1
-  # endCol <-ncol(PCA_final_data())
-  # PCA_ready <- PCA_final_data()
-  # PCA_ready <- PCA_ready[, beginCol : endCol]
-  # res.pca <- PCA(PCA_ready, graph = FALSE)
-#  mid=median(res.pca$var$contrib)
- # fviz_pca_var(res.pca, axes = c(1,2), col.var="contrib", labelsize = 4, repel=T, addEllipses=F)+
-  # scale_color_gradient2(low="grey", mid="purple", 
-   #                        high="red", midpoint=mid)+theme_bw()
-# })
- 
- #PCA_graph <- ggplot(res.pca, aes(x=res.pca$var$contrib[,2], y=res.pca$var$contrib[,1])) + xlab(names(res.pca$var$contrib[,2])) + ylab(names(res.pca$var$contrib[,2])) + geom_boxplot()
- #ggplotly(PCA_graph)
- 
-#data <- data.frame(obsnames=row.names(PC$x), PC$x)
-#PCA_graph <- ggplot(res.pca$var$contrib, aes_string(x=x, y=y)) + geom_text(alpha=.4, size=3, aes(label=obsnames))
-#PCA_graph <- plot + geom_hline(aes(0), size=.2) + geom_vline(aes(0), size=.2)
- #ggplotly(PCA_graph)
- 
- output$PCA_scatter_plot <- renderPlot({
+ output$PCA_scatter_plot <- renderPlotly({
    beginCol <-
      length(c(
        input$SelectIV,
@@ -987,7 +950,7 @@ function(input, output) {
    PCA_ready <- PCA_ready[, beginCol : endCol]
    res.pca <- PCA(PCA_ready, graph = FALSE)
    mid1=median(res.pca$var$cos2)
-   fviz_pca_ind(res.pca, axes = c(1,2), col.ind="cos2") +
+   fviz_pca_ind(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.ind="cos2", repel=T) +
      scale_color_gradient2(low="grey", mid="purple", 
                            high="red", midpoint=mid1)+
      theme_minimal()
