@@ -632,12 +632,27 @@ function(input, output) {
       )
   })
   
-  ############ plot to fix ##########
+  ############ interactive scatter plot ##########
 
   output$scatterplot <- renderPlotly({
     my_data <- data.frame(my_data())
     my_data %>% ggplot(aes_string(input$Pheno1, input$Pheno2)) + geom_point(aes_string(colour =input$Color))
     ggplotly()
+  })
+  
+  ########## showing r square and p value ###########
+  output$corrsq <- renderText({
+    cor_data <- my_data()[,c(input$Pheno1,input$Pheno2)]
+    correl <- lm(cor_data[,1] ~ cor_data[,2])
+    r2 <- summary(correl)$r.squared
+    paste("The R square value of the linear regression is", signif(r2, 3))
+  })
+  
+  output$corpval <- renderText({
+    cor_data <- my_data()[,c(input$Pheno1,input$Pheno2)]
+    correl <- lm(cor_data[,1] ~ cor_data[,2])
+    pval <- summary(correl)$coefficients[8]
+    paste("The p-value is", signif(pval, 3))
   })
   
   ##################################
