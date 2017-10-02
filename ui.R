@@ -171,7 +171,8 @@ fluidPage(
           "Scatterplots",
           sidebarPanel(uiOutput("Pheno1"),uiOutput("Pheno2"),uiOutput("colorby")),
           mainPanel(
-            "The R square value is XX and P value is XX",
+            textOutput("corrsq"),
+            textOutput("corpval"),
             plotlyOutput("scatterplot")
           )
         )
