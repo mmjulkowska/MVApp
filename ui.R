@@ -3,15 +3,21 @@ fluidPage(
   navbarPage(
     title = ">> MVApp <<",
 
-    tabPanel(
+   # Tab 1 = = = = = = = = = = = = = = >> BACKGROUND INFORMATION << = = = = = = = = = = = = = = = = = = 
+   
+   tabPanel(
       "Background information",
       icon = icon("info"),
       h2("About the MVApp"),
+      "This App is a result of hard work of a KAUST team, originating from SaltLab, lead by Prof. Mark Tester.",
+      br(),
       "Here we will put some helpful and encouraging text that is refering to the paper that will be (by then) published in a high impact and open-access journal ;) For now, we will leave this bit as is"
       # end of Tab1
     ),
+   
+   # Tab 2 = = = = = = = = = = = = = = >> DATA UPLOAD << = = = = = = = = = = = = = = = = = =   
     
-    tabPanel(
+   tabPanel(
       "Upload your data",
       icon = icon("table"),
       sidebarPanel(
@@ -42,11 +48,11 @@ fluidPage(
         tabPanel("New data", icon = icon("magic"),
                  dataTableOutput("my_data"))
       ))
-      # enter main panel text here:
       # end of Tab2
     ),
   
-    # Tab#3
+   # Tab 3 = = = = = = = = = = = = = = >> MODELING DATA << = = = = = = = = = = = = = = = = = = 
+   
     tabPanel(
       "Fitting curves to the data",
       icon = icon("wrench"),
@@ -91,45 +97,52 @@ fluidPage(
       # end of Tab3
     ),
     
-    
-    # Tab#4 
+   # Tab 4 = = = = = = = = = = = = = = >> DATA CURATION << = = = = = = = = = = = = = = = = = =   
+  
     tabPanel("Data curation", icon = icon("gavel"),
              sidebarPanel(
                fluidRow(
                 helpText("Here you can have a look at the data and remove the values that are odd or missing... 
                          if we can fix some issues at least"),
                          br(),
-                uiOutput("time_cast"),
-                actionButton("Go_outliers", label = "Unleash outlier selection tool"),  
-                br(),
-                br(),
                 
-                helpText("Select the outliers based on"),
-              # >>> Here should be a button for selecting the method of outlier selection
-              # We should include methods such as X * StDev, 1.5* IQR
-              # And also provide a table where the outliers are highlighted in a different colour
-               # selectizeInput("outlier_method", options = c("1xStDev from the median" = "1SD", "2xStDev from the median" = "2SD", "2.5xStDev from the median" = "2.5SD", "3xStDev from the median"="3SD", "1.5*IQR away from the mean" = "1.5IQ"))
+              #selectizeInput("outlier_method", label="Select the method for the outlier selection", options = c("1xStDev from the median" = "1SD", "2xStDev from the median" = "2SD", "2.5xStDev from the median" = "2.5SD", "3xStDev from the median"="3SD", "1.5*IQR away from the mean" = "1.5IQ"), multiple = F),
+              uiOutput("DV_outliers_selection"),
+              actionButton("Go_outliers", label = "Unleash outlier highlight tool"),  
+              uiOutput("General_outlier_download"),  
+                br(),
+                br(),
+              helpText("Chose the phenotype that you would like to use to study the individual outliers"),
+              uiOutput("Pheno_outliers"),
+              uiOutput("Pheno_outlier_download"),
               br(),
               br(),
               helpText("Would you like to remove the rows containing missing values?"),
-              actionButton("Go_omitna", label = "Omit rows with NA")  
+              actionButton("Go_omitna", label = "Omit rows with NA"),
+              uiOutput("NA_omit_download")
               )),
              mainPanel(
                navbarPage("",
-                tabPanel("original data", icon=icon("folder"),
-                         dataTableOutput("Outlier_data_table")),
+                tabPanel("warning table for the outliers", icon=icon("folder"),
+                         dataTableOutput("Table_outlier_data")),
                 tabPanel("outliers", icon=icon("bug"),
                          dataTableOutput("Outlier_data")),
                 tabPanel("outliers removed", icon=icon("birthday-cake"),
-                         "no outliers data here")
+                         textOutput("total_na"),
+                         "no outliers data here"),
+                          dataTableOutput("Table_no_outliers"),
+                tabPanel("Trait specific outliers", icon = icon("pagelines"),
+                         dataTableOutput("Table_trait_specific_outliers"))
              ))
     # end of Tab#4         
     ),
-    
-    #Tab#5
+ 
+   # Tab 5 = = = = = = = = = = = = = = >> DATA EXPLORATION << = = = = = = = = = = = = = = = = = =    
+  
     tabPanel("Data exploration", icon=icon("binoculars"),
              sidebarPanel(
                fluidRow(
+                 uiOutput("DataSumm"), # Select the dataset to be used for Summary Stats - <3<3<3 MMJ <3<3<3
                  uiOutput("CustomSumm"), ### <<< Added this,   Hashed out selectize  below       %% Mitch %%
                  actionButton("Go_SummaryStat", label = "unleash Summary Statistics"),
                  uiOutput("Sum_download_button"),
@@ -140,8 +153,7 @@ fluidPage(
              mainPanel(
                tabsetPanel(
                  tabPanel("summary data", icon=icon("flask"),
-                          dataTableOutput("sum_data"),
-                          textOutput("total_na")),
+                          dataTableOutput("sum_data")),
                  
                  tabPanel("Histograms", icon=icon("area-chart"),
                           uiOutput("HistType"),
@@ -158,8 +170,8 @@ fluidPage(
   # end of Tab#5
     ),
     
-     
-    # Tab #6
+# Tab 6 = = = = = = = = = = = = = = >> CORRELATION ANALYSIS << = = = = = = = = = = = = = = = = = =      
+
     tabPanel(
       "Establish correlations between traits",
       icon = icon("compress"),
@@ -195,7 +207,8 @@ fluidPage(
       # end of Tab#6
     ),
     
-    # Tab 7
+# Tab 7 = = = = = = = = = = = = = = >> PCA ANALYSIS << = = = = = = = = = = = = = = = = = = 
+
     tabPanel(
       "PCA",
       icon = icon("object-group"),
@@ -229,25 +242,27 @@ fluidPage(
       # end Tab 7
     ),
     
-    # Tab 8
+# Tab 8 = = = = = = = = = = = = = = >> CLUSTERING ANALYSIS << = = = = = = = = = = = = = = = = = = 
+
     tabPanel("Clustering",
       icon = icon("sitemap"),
-      sidebarPanel(fluidRow(
-        helpText("In here, you can perform a cluster analysis by grouping your data based on the phenotypic traits and validating the clusters"),
-        navbarPage(  
+      sidebarPanel(
+        fluidRow(
+        navbarPage("",
           tabPanel("Select data",
+          helpText("In here, you can perform a cluster analysis by grouping your data based on the phenotypic traits and validating the clusters"),
             uiOutput("Select_data_cluster"),
             uiOutput("Select_phenotypes_cluster"),
             uiOutput("Select_cluster_method"),
             actionButton("Go_cluster", "Unleash cluster analysis")),
-          tabPanel("Chose the clusters",
+          tabPanel("Determine the clusters",
             helpText("Have a look at the dendrogram and choose the value at which you would like to split into individual clusters"),
             textInput("Split_cluster", "Enter the numeric value here")),
-          tabPanel("Validate your clusters",
+          tabPanel("Cluster validation",
             helpText("Please choose the phenotype which you would like to further examine for the cluster validation"),
-            uiOutput("Select_data_cluster_validation")
+            uiOutput("Select_data_cluster_validation"))
           ))        
-        )),
+        ),
       mainPanel(
       navbarPage("Cluster analysis",
           tabPanel("Cluster HOT HOT Heatmap",

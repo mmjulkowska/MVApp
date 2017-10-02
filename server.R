@@ -1,5 +1,8 @@
 function(input, output) {
-  #  - - - - - - - - - - >> GADGETS FOR 2nd TAB <<- - - - - - - - - - - - - - - - -
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - >> DATA UPLOAD IN 2nd TAB<< - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
   ItemList = reactive(if (is.null(input$your_data)) {
     return()
@@ -9,22 +12,8 @@ function(input, output) {
   })
   
   # - - - - - - - - - - - - - - - - - >> Reactive widgets << - - - - - - - - - - - -
-  # Select SampleID
-  output$CustomID <- renderUI({
-    if ((is.null(ItemList())) | (input$IdCheck == FALSE)) {
-      return ()
-    } else
-      tagList(
-        selectizeInput(
-          inputId = "SelectID",
-          label = "Select your sample ID",
-          choices = ItemList(),
-          multiple = F
-        )
-      )
-  })
-  
-  # Select Independent Variable (genotype, treatment et al.)
+
+# Select Genotype
   output$CustomGeno <- renderUI({
     if (is.null(ItemList())) {
       return ()
@@ -46,13 +35,42 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "SelectIV",
-          label = "Select your independent variables (e.g. treatment, position)",
+          label = "Select your independent variables (e.g. treatment, position) that are going to be used for grouping your phenotypes",
+          choices = ItemList(),
+          multiple = T
+        )
+      )
+  })
+ 
+  # Select Dependent Variables (phenotypes)
+  output$CustomPheno <- renderUI({
+    if (is.null(ItemList())) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "SelectDV",
+          label = "Select your dependent variables (phenotypes) that you would like to analyze",
           choices = ItemList(),
           multiple = T
         )
       )
   })
   
+  # Select SampleID
+  output$CustomID <- renderUI({
+    if ((is.null(ItemList())) | (input$IdCheck == FALSE)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "SelectID",
+          label = "Select your sample ID",
+          choices = ItemList(),
+          multiple = F
+        )
+      )
+  })
   
   # Select time column
   output$CustomTimepoint <- renderUI({
@@ -69,20 +87,6 @@ function(input, output) {
       )
   })
   
-  # Select Dependent Variables (phenotypes)
-  output$CustomPheno <- renderUI({
-    if (is.null(ItemList())) {
-      return ()
-    } else
-      tagList(
-        selectizeInput(
-          inputId = "SelectDV",
-          label = "Select your dependent variables (e.g. traits)",
-          choices = ItemList(),
-          multiple = T
-        )
-      )
-  })
   
   # - - - - - - - - - - - - - - - - - >> Tables output in Tab2 << - - - - - - - - - - - -
   
@@ -404,7 +408,7 @@ function(input, output) {
   })
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  #  - - - - - - - - - - >> SUMMARY STATISTICS IN 4th TAB <<- - - - - - - - - - - -
+  #  - - - - - - - - - - >> DATA CURATION IN 4th TAB <<- - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
   # Table in Tab4 - main window - summary of the data based on the selected calculations
@@ -423,14 +427,61 @@ function(input, output) {
   
   output$total_na <- renderText({na_row()})
   
+  Outlier_data <- eventReactive(input$Go_Outliers, {
+    hisdata3<-my_data()[,c(input$SelectID, input$OutDV,input$OutIV)]
+    ag1<-aggregate(hisdata3[,2], by=list(hisdata3[,3]), FUN=mean)
+    ag2<- aggregate(hisdata3[,2], by=list(hisdata3[,3]), FUN=sd)
+    
+    #I am doing the 1st level outside the loop, then bind the output of other levels (>=2) to this  
+    
+    doublesd<-2*(ag2[1,2]) #2*sd
+    lower<-ag1[1,2] - doublesd
+    upper<- ag1[1,2] + doublesd
+    outs1<-subset(hisdata3, hisdata3[,3] == levels(hisdata3[,3])[1] & (hisdata3[,2] < lower | hisdata3[,2] > upper))
+    
+    
+    for (i in 2:length(levels(hisdata3[,3]))){
+      doublesd<-2*(ag2[i,2]) #2*sd
+      lower<-ag1[i,2] - doublesd
+      upper<- ag1[i,2] + doublesd
+      outs<-subset(hisdata3, hisdata3[,3] == levels(hisdata3[,3])[i] & (hisdata3[,2] < lower | hisdata3[,2] > upper))
+      outs<-rbind(outs1, outs)
+    } 
+    outs<-as.data.frame(outs)
+    outs
+  })
+  
+  output$Outlier_data <- renderDataTable({Outlier_data()}) 
+  
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - >> DATA EXPLORATION IN 5th TAB << - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
   
   ## Added new input "$SelectSumm"  and output "$CustomSumm"  %% Mitch %%
+  
+  output$DataSumm <- renderUI({
+    if(is.null(ItemList())){return()}
+    else
+      data_list <- "raw data"
+    if(input$Go_SaveModelData){
+      data_list <- c(data_list,"modelled data")}
+    if(input$Go_outliers){
+      data_list <- c(data_list,"outliers removed")}
+    if(input$Go_omitna){
+      data_list <- c(data_list,"NA removed")}
+    tagList(
+      selectizeInput(inputId = "SelectDataSumm",
+                     label = "Select the dataset to be used for the summary stats",
+                     choices=data_list, multiple = F))
+  })
+  
   output$CustomSumm <- renderUI({
     if((is.null(ItemList()))){return ()
     } else tagList(
       selectizeInput(inputId = "SelectSumm", 
-                     label = "Select desired summary statistics", 
-                     choices=c("Mean", "Median", "StdDev", "StdErr", "Min", "Max"), multiple=T))
+                     label = "Select desired summary statistics calculations to be performed", 
+                     choices=c("Mean", "Median", "StdDev", "StdErr", "Min", "Max", "Sum"), multiple=T))
   })
   
   
@@ -440,22 +491,34 @@ function(input, output) {
                  StdDev = function(x) sd(x),
                  StdErr = function(x) std.error(x),
                  Min = function(x) min(x),
-                 Max = function(x) max(x))
+                 Max = function(x) max(x),
+                 Sum = function(x) sum(x))
   
   sum_data <- eventReactive(input$Go_SummaryStat, {
-    if(input$Go_SaveModelData){
+    if(input$SelectDataSumm == "raw data"){
+      melted_icecream <- my_data()
+      melted_icecream <- melt(my_data_nona(), id=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID))
+    }
+    if(input$SelectDataSumm == "modelled data"){
       melted_icecream <- Data_for_summ()
     }
-    else
-    melted_icecream <- melt(my_data_nona(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
+    if(input$SelectDataSumm == "outliers removed"){
+      melted_icecream <- data_no_outliers()
+    }
+    if(input$SelectDataSumm == "NA removed"){
+      melted_icecream <- my_data_nona()
+    }
+    
+    # TO DO:
+        # we need to get rid of the SelectID column before doing any Summary Stat on the data <3<3<3 MMJ <3<3<3
     
     ## Added call to selected summary stats functions "FUN=summfuns[input$SelectSumm]"     %% Mitch %%
     sum_my_data<-summaryBy(value ~., data=melted_icecream, FUN=summfuns[input$SelectSumm])
     
     ## Label columns based on chosen summary stats     %% Mitch %%
-    colnames(sum_my_data)<-c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime, "Dependent_Variable", input$SelectSumm)
-    return(sum_my_data)
+    colnames(sum_my_data)<-c(input$SelectGeno, input$SelectIV, input$SelectTime, "Dependent_Variable", input$SelectSumm)
     
+    return(sum_my_data)
   })
   
   output$sum_data <- renderDataTable({
@@ -542,53 +605,22 @@ function(input, output) {
   
 
      
-     ##WORKEDDD but has to be 1 dependent variable and 1 independent only!!. Also problem with group"day" because there are too many...
     
-
-    my_hisdata2<-eventReactive(input$Go_Boxplot, {
-      hisdata2<-my_data()[,c(input$HisDV,input$HisIV)]
-    })
-    
-    ##try to do subset by multiple variables
+    ##STILL TO DO:
+        #       try to do subset by multiple variables
     output$Boxes <- renderPlotly({
-      
-      box_graph <- ggplot(my_hisdata2(), aes(x=my_hisdata2()[,2], y=my_hisdata2()[,1])) + xlab(names(my_hisdata2()[2])) + ylab(names(my_hisdata2()[1])) + geom_boxplot()
-      
+      hisdata2<-my_data()[,c(input$SelectGeno, input$HisDV,input$HisIV)]
+      box_graph <- ggplot(hisdata2, aes(x=hisdata2[,3], y=hisdata2[,4])) + xlab(names(hisdata2[2])) + ylab(names(hisdata2[1])) + geom_boxplot()
       ggplotly(box_graph)
-      
-      
     })
     
     
-    Outlier_data <- eventReactive(input$Go_Outliers, {
-      hisdata3<-my_data()[,c(input$SelectID, input$HisDV,input$HisIV)]
-     ag1<-aggregate(hisdata3[,2], by=list(hisdata3[,3]), FUN=mean)
-      ag2<- aggregate(hisdata3[,2], by=list(hisdata3[,3]), FUN=sd)
-    
-      #I am doing the 1st level outside the loop, then bind the output of other levels (>=2) to this  
-      
-      doublesd<-2*(ag2[1,2]) #2*sd
-      lower<-ag1[1,2] - doublesd
-      upper<- ag1[1,2] + doublesd
-      outs1<-subset(hisdata3, hisdata3[,3] == levels(hisdata3[,3])[1] & (hisdata3[,2] < lower | hisdata3[,2] > upper))
-      
-      
-      for (i in 2:length(levels(hisdata3[,3]))){
-        doublesd<-2*(ag2[i,2]) #2*sd
-        lower<-ag1[i,2] - doublesd
-        upper<- ag1[i,2] + doublesd
-       outs<-subset(hisdata3, hisdata3[,3] == levels(hisdata3[,3])[i] & (hisdata3[,2] < lower | hisdata3[,2] > upper))
-       outs<-rbind(outs1, outs)
-      } 
-     outs<-as.data.frame(outs)
-    })
-    
-    output$Outlier_data <- renderDataTable({Outlier_data()}) 
-    
     
   
-  ### Tab 6: correlation tab
-  
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # - - - - - - - - - - - - >> DATA CORRELATION IN 6th TAB << - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
   output$Pheno1 <- renderUI({
     if (is.null(input$SelectDV)) {
       return ()
@@ -745,15 +777,21 @@ function(input, output) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
   output$PCA_Pheno_data <- renderUI({
-    if (is.null(my_data())) {
-    return()
+      if(is.null(ItemList())){return()}
+      else
+        data_list <- "raw data"
+      if(input$Go_outliers){
+        data_list <- c(data_list,"outliers removed")}
+      if(input$Go_omitna){
+        data_list <- c(data_list,"NA removed")}
+      if(input$Go_SummaryStat){
+        data_list <- c(data_list, "Summary Stats data")
       }
-    else  
       tagList(
         selectizeInput(
           inputId = "PCA_data",
           label = "Select the dataset that you would like to use for PCA",
-          choices = c("original data", "data with NA removed", "summarized data"), multiple = F))
+          choices = data_list, multiple = F))
   })  
   
 # we need to put all possible datasets in the same format - let's melt it all!
@@ -777,13 +815,16 @@ function(input, output) {
  })
  
  PCA_data_type <- eventReactive(input$Go_PCAdata,{
-   if(input$PCA_data == "original data"){
+   if(input$PCA_data == "raw data"){
      PCA_data_type <- my_data_melt()
    }
-   if(input$PCA_data == "data with NA removed"){
+   if(input$PCA_data == "NA removed"){
      PCA_data_type <- my_data_nona_melt()
    }
-   if(input$PCA_data == "summarized data"){
+   if(input$PCA_data == "outliers removed"){
+     PCA_data_type <- Data_no_outliers()
+   }
+   if(input$PCA_data == "Summary Stats data"){
      PCA_data_type <- sum_data_melt()
    }
    PCA_data_type
@@ -951,6 +992,11 @@ function(input, output) {
                            high="red", midpoint=mid1)+
      theme_minimal()
  })
+ 
+ # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ # - - - - - - - - - - - - >> CLUSTER ANALYSIS IN 8th TAB << - - - - - - - - - - -
+ # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ 
  
   # end of the script
 }
