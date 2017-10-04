@@ -176,6 +176,7 @@ function(input, output) {
   
  # making advice on which model type to chose based on the r-square values
   Model_est_data <- eventReactive(input$Go_HelpModel, {
+    
     temp <-
       subset(
         my_data(),
@@ -288,8 +289,8 @@ function(input, output) {
       }
       
     }
-    colnames(things_to_model)[4] <- "RGR"
-    colnames(things_to_model)[5] <- "START"
+    colnames(things_to_model)[4] <- "DELTA"
+    colnames(things_to_model)[5] <- "INTERCEPT"
     colnames(things_to_model)[6] <- "r_sqared"
     things_to_model
   })
@@ -389,7 +390,7 @@ function(input, output) {
   Saved_model_data <- eventReactive(input$Go_SaveModelData,{
       saved <- Model_temp_data()
       saved <- subset(saved, select=c(1:4))
-      saved[,input$SelectTime] <- "RGR"
+      saved[,input$SelectTime] <- "DELTA"
       melted_model <- melt(saved, id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
       melted_model$variable <- input$ModelPheno
       melted_model
@@ -399,6 +400,13 @@ function(input, output) {
     Saved_model_data()
   })
   
+  output$Model_download_button <- renderUI({
+      if(is.null(Model_temp_data())){
+        return()}
+      else
+        downloadButton("Complete_model_data", label="Download Fitted data")
+    })  
+    
   # Fusing the model data to the data that can be used for Summary Stats
   Data_for_summ <- eventReactive(input$Go_SaveModelData,{
     melted_icecream <- melt(my_data_nona(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
@@ -411,7 +419,182 @@ function(input, output) {
   #  - - - - - - - - - - >> DATA CURATION IN 4th TAB <<- - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
-  # Table in Tab4 - main window - summary of the data based on the selected calculations
+  # Select which grouping variables you would like to use for outliers
+  # NOT SURE whether this is neccessary
+    output$IV_outliers_selection <- renderUI({
+    if(is.null(ItemList())){return()}
+    else
+    tagList(
+      selectizeInput("IV_outliers",
+                     label = "Select the Depentent Variables for which you would like to group yor phenotypes for outlier selection",
+                     choices=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID),
+                     multiple=TRUE)
+   )})
+  
+  # Chose the phenotype based on which you want to select the outliers
+  
+  output$Pheno_outliers <- renderUI({
+    if(is.null(ItemList())){return()}
+    else
+      tagList(
+        selectizeInput("DV_outliers",
+                       label = "Select the phenotype for which you would like to determine the outliers",
+                       choices= input$SelectDV,
+                       multiple=F)
+      )})
+  
+  # Testing the outliers => produce the graph & table with outliers
+  
+  Outlier_data <- eventReactive(input$Go_outliers, {
+  
+        data_outl <- my_data()
+        outl <- subset(data_outl, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_outliers))
+        outl$id_test <- do.call(paste,c(outl[c(input$IV_outliers)], sep = "_"))
+        
+        outl$pheno <- outl[,input$DV_outliers]
+        
+    # outliers based on 1.5IQR
+    if(input$outlier_method == "1.5*IQR away from the mean"){
+       
+      bad_shit <- boxplot(outl$pheno ~ outl$id_test)$out
+        # Adding all the outliers as a column "outlier" with 1/0 values 
+        for(e in 1:nrow(outl)){
+          if(outl[,input$DV_outliers][e] %in% bad_shit){
+            outl$outlier[e] <- TRUE }
+          else{ 
+            outl$outlier[e] <- FALSE }
+        }
+      drops <- c("pheno", "id_test")
+      outl <- outl[ , !(names(outl) %in% drops)]
+    }
+    
+    # outliers based on Cooks distance
+        if(input$outlier_method == "Cook's Distance"){
+    
+          mod <- lm(outl$pheno ~ outl$id_test)
+          cooksd <- cooks.distance(mod)
+          outl$outlier <- cooksd > 4*mean(cooksd)
+          drops <- c("pheno", "id_test")
+          outl <- outl[ , !(names(outl) %in% drops)]
+        }
+        
+    # outliers based on car::outlierTest
+        if(input$outlier_method == "Bonferonni outlier test"){
+          
+          mod <- lm(outl$pheno ~ outl$id_test)
+          baddies <- car::outlierTest(mod)
+          bad_shit <- names(baddies[[1]])
+          bad_shit <- as.numeric(bad_shit)
+          outl$outlier <- FALSE
+          outl[bad_shit,]$outlier <- TRUE
+          drops <- c("pheno", "id_test")
+          outl <- outl[ , !(names(outl) %in% drops)]
+        }
+        
+    # outliers based on mean + SD  
+        
+        if(input$outlier_method == "1xStDev from the median"){
+          
+          out_sum <- summaryBy(pheno ~ id_test, data = outl, FUN=c(median, sd))
+          out_sum$min <- out_sum$pheno.median - 1*out_sum$pheno.sd
+          out_sum$max <- out_sum$pheno.median + 1*out_sum$pheno.sd
+          out_sum <- subset(out_sum, select=c("id_test", "min", "max"))
+          outl <- merge(outl, out_sum, by="id_test")
+          for(i in 1:nrow(outl)){
+            if(outl$pheno[i] > outl$max[i]){
+              outl$outlier[i] <- TRUE
+            }
+            if(outl$pheno[i] < outl$min[i]){
+              outl$outlier[i] <- TRUE
+            }
+            else{
+              outl$outlier[i] <- FALSE
+            }
+            drops <- c("min","max", "pheno", "id_test")
+            outl <- outl[ , !(names(outl) %in% drops)]
+            }
+          }
+          
+     return(outl)
+        
+  })
+  
+  output$Q_facet <- renderUI({
+    if(input$outlier_facet == T){
+      tagList(
+        selectInput("Facet_choice", "Select variable for which to facet",
+                    choices = c(input$SelectGeno, input$SelectIV, input$SelectTime))
+      )
+    }
+    else{
+      return()
+    }
+  })
+  
+  output$outlier_graph <- renderPlotly({
+    data_outl <- my_data()
+    outl <- subset(data_outl, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_outliers))
+    lista <- input$IV_outliers
+    
+    if(input$outlier_facet == T){
+    listb <- input$Facet_choice
+    outl$listb <- outl[,input$Facet_choice]
+    lista <- setdiff(lista, listb)}
+    phenotype <- input$DV_outliers
+    outl$pheno <- outl[,input$DV_outliers]
+    
+    outl$id_test <- do.call(paste,c(outl[lista], sep = "_"))
+    
+    if(input$outlier_graph_type == "bar plot"){
+      outl$pheno <- as.numeric(outl$pheno)
+      if(input$outlier_facet == T){
+        out_sum <- summaryBy(pheno ~ id_test + listb, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+      }
+      else{
+      out_sum <- summaryBy(pheno ~ id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })
+      }
+      taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))
+      taka <- taka + geom_bar(stat="identity")
+      taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.se, ymax=pheno.m+pheno.se))
+    }
+    
+    
+    if(input$outlier_graph_type == "box plot"){
+      taka <- ggplot(outl, aes(x = id_test, y= pheno))    
+      taka <- taka + geom_boxplot()}
+    
+    if(input$outlier_graph_type == "scatter plot"){
+      taka <- ggplot(outl, aes(x = id_test, y= pheno))
+      taka <- taka + geom_point()}
+    
+    if(input$outlier_facet == T){
+    taka <- taka + facet_wrap(~listb, ncol=3)}
+    
+    taka <- taka + theme(axis.title.x=element_blank(),
+                           axis.text.x = element_text(angle = 90, hjust = 1),
+                         axis.title.y = element_text(phenotype) )
+    
+    taka
+  })
+  
+  output$Table_outlier_data <- renderDataTable({
+    Outlier_data()
+    }) 
+  
+  output$Pheno_outlier_download <- renderUI({
+    if(is.null(Outlier_data())){
+      return()}
+    else{
+      downloadButton("data_out_single", label="Download data with marked outliers")}
+  })  
+  
+  output$data_out_single <- downloadHandler(
+    filename = paste("Outliers_based_on_",input$DV_outliers ,"_MVApp.csv"),
+    content <- function(file) {
+      write.csv(Table_outlier_data(), file)}
+  )
+  
+   # Table in Tab4 - main window - summary of the data based on the selected calculations
   
   
   ## TESTING OMIT.NA     %% Mitch %%
@@ -427,31 +610,7 @@ function(input, output) {
   
   output$total_na <- renderText({na_row()})
   
-  Outlier_data <- eventReactive(input$Go_Outliers, {
-    hisdata3<-my_data()[,c(input$SelectID, input$OutDV,input$OutIV)]
-    ag1<-aggregate(hisdata3[,2], by=list(hisdata3[,3]), FUN=mean)
-    ag2<- aggregate(hisdata3[,2], by=list(hisdata3[,3]), FUN=sd)
-    
-    #I am doing the 1st level outside the loop, then bind the output of other levels (>=2) to this  
-    
-    doublesd<-2*(ag2[1,2]) #2*sd
-    lower<-ag1[1,2] - doublesd
-    upper<- ag1[1,2] + doublesd
-    outs1<-subset(hisdata3, hisdata3[,3] == levels(hisdata3[,3])[1] & (hisdata3[,2] < lower | hisdata3[,2] > upper))
-    
-    
-    for (i in 2:length(levels(hisdata3[,3]))){
-      doublesd<-2*(ag2[i,2]) #2*sd
-      lower<-ag1[i,2] - doublesd
-      upper<- ag1[i,2] + doublesd
-      outs<-subset(hisdata3, hisdata3[,3] == levels(hisdata3[,3])[i] & (hisdata3[,2] < lower | hisdata3[,2] > upper))
-      outs<-rbind(outs1, outs)
-    } 
-    outs<-as.data.frame(outs)
-    outs
-  })
   
-  output$Outlier_data <- renderDataTable({Outlier_data()}) 
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> DATA EXPLORATION IN 5th TAB << - - - - - - - - - - -
