@@ -77,7 +77,7 @@ fluidPage(
           ),
           actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle")),
           helpText("If you are satisfied with the results of the modeling, you can add them to the dataset that can be used in the 'Data curation' tab"),
-          actionButton("Go_SaveModelData", label = "Save model data", icon = icon("play-circle"))
+          uiOutput("Model_download_button")
         )
       ),
       # end of side Panel
@@ -105,34 +105,40 @@ fluidPage(
                 helpText("Here you can have a look at the data and remove the values that are odd or missing... 
                          if we can fix some issues at least"),
                          br(),
-                
-              #selectizeInput("outlier_method", label="Select the method for the outlier selection", options = c("1xStDev from the median" = "1SD", "2xStDev from the median" = "2SD", "2.5xStDev from the median" = "2.5SD", "3xStDev from the median"="3SD", "1.5*IQR away from the mean" = "1.5IQ"), multiple = F),
-              uiOutput("DV_outliers_selection"),
+                uiOutput("IV_outliers_selection"),
+                uiOutput("Pheno_outliers"),
+                selectizeInput("outlier_method", label="Select the method for the outlier selection", 
+                             choices = list(
+                                        "1.5*IQR away from the mean",
+                                        "Cook's Distance",
+                                        "Bonferonni outlier test",
+                                        "1xStDev from the median", 
+                                        "2xStDev from the median", 
+                                        "2.5xStDev from the median", 
+                                        "3xStDev from the median" 
+                                      ), multiple = F),
+              
+              br(),
+              checkboxInput("outlier_facet", "would you like to facet the graph?"),
+              uiOutput("Q_facet"),
+              
               actionButton("Go_outliers", label = "Unleash outlier highlight tool"),  
-              uiOutput("General_outlier_download"),  
-                br(),
-                br(),
-              helpText("Chose the phenotype that you would like to use to study the individual outliers"),
-              uiOutput("Pheno_outliers"),
-              uiOutput("Pheno_outlier_download"),
-              br(),
-              br(),
-              helpText("Would you like to remove the rows containing missing values?"),
-              actionButton("Go_omitna", label = "Omit rows with NA"),
-              uiOutput("NA_omit_download")
+              
+              # uiOutput("General_outlier_download"),  
+              br(),br(),
+              uiOutput("Pheno_outlier_download")
               )),
              mainPanel(
                navbarPage("",
-                tabPanel("warning table for the outliers", icon=icon("folder"),
-                         dataTableOutput("Table_outlier_data")),
+                tabPanel("The outliers test", icon=icon("folder"),
+                         radioButtons("outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot")),
+                         plotlyOutput("outlier_graph")),
                 tabPanel("outliers", icon=icon("bug"),
-                         dataTableOutput("Outlier_data")),
+                         dataTableOutput("Table_outlier_data")),
                 tabPanel("outliers removed", icon=icon("birthday-cake"),
-                         textOutput("total_na"),
-                         "no outliers data here"),
-                          dataTableOutput("Table_no_outliers"),
-                tabPanel("Trait specific outliers", icon = icon("pagelines"),
-                         dataTableOutput("Table_trait_specific_outliers"))
+                         radioButtons("no_outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot")),
+                         plotlyOutput("no_outliers_graph"),
+                          dataTableOutput("Table_no_outliers"))
              ))
     # end of Tab#4         
     ),
