@@ -53,11 +53,11 @@ fluidPage(
   
    # Tab 3 = = = = = = = = = = = = = = >> MODELING DATA << = = = = = = = = = = = = = = = = = = 
    
-    tabPanel(
-      "Fitting curves to the data",
-      icon = icon("wrench"),
+    tabPanel("Fitting curves to the data",icon = icon("wrench"),
       sidebarPanel(
         fluidRow(
+          navbarPage("",
+          tabPanel("Modeling",
           helpText("Please select which phenotype you would like to model"),
           uiOutput("Pheno_to_model"),
           uiOutput("IV_to_model"),
@@ -65,21 +65,20 @@ fluidPage(
           helpText("Click on >>unleash the model estimation<< for estimating which model is the best for the Dependent Variable that you selected"),
           actionButton("Go_HelpModel", label = "Unleash the model estimation"),
           helpText("Here you can select which modeling type you'd like to do"),
-          selectInput(
-            "model",
+          selectInput("model",
             label = "Select method",
             choices = list(
               "linear" = "lin",
               "quadratic" = "quad",
               "exponential" = "exp",
-              "square root" = "sqr"
-            )
-          ),
+              "square root" = "sqr")),
           actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle")),
+          actionButton("Go_SaveModelData", label = "Lock this modelled data for use in next steps", icon=icon("hand-o-right")),
           helpText("If you are satisfied with the results of the modeling, you can add them to the dataset that can be used in the 'Data curation' tab"),
-          uiOutput("Model_download_button")
-        )
-      ),
+          uiOutput("Model_download_button")),
+          tabPanel("Fit Plot options",
+          "some gadgets?")   
+        ))),
       # end of side Panel
       mainPanel(
         navbarPage("",
@@ -89,19 +88,18 @@ fluidPage(
                  dataTableOutput("Model_data")),
         tabPanel("Fit-Plot",
                  uiOutput("Select_modelPlot"),
-                 actionButton("Go_modelPlot", label = "Update the fit-plot"),
-                 plotOutput("Model_plot")),
-        tabPanel("Complete Modelled data",
-                 dataTableOutput("Complete_model_data")))
-      )
+                 plotOutput("Model_plot"))
+      ))
       # end of Tab3
     ),
     
    # Tab 4 = = = = = = = = = = = = = = >> DATA CURATION << = = = = = = = = = = = = = = = = = =   
   
     tabPanel("Data curation", icon = icon("gavel"),
-             sidebarPanel(
+            sidebarPanel(
                fluidRow(
+               navbarPage("",
+              tabPanel("outlier selection",            
                 helpText("Here you can have a look at the data and remove the values that are odd or missing... 
                          if we can fix some issues at least"),
                          br(),
@@ -117,28 +115,30 @@ fluidPage(
                                         "2.5xStDev from the median", 
                                         "3xStDev from the median" 
                                       ), multiple = F),
+              br(),
               
+              actionButton("Go_outliers", label = "Unleash outlier highlight tool")),  
+              
+              
+            tabPanel("graph tweaks",
+              helpText("Which graph type would you like?"),
+              radioButtons("outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot", "line plot")),
               br(),
               checkboxInput("outlier_facet", "would you like to facet the graph?"),
-              uiOutput("Q_facet"),
-              
-              actionButton("Go_outliers", label = "Unleash outlier highlight tool"),  
-              
-              # uiOutput("General_outlier_download"),  
-              br(),br(),
-              uiOutput("Pheno_outlier_download")
-              )),
-             mainPanel(
-               navbarPage("",
-                tabPanel("The outliers test", icon=icon("folder"),
-                         radioButtons("outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot")),
-                         plotlyOutput("outlier_graph")),
-                tabPanel("outliers", icon=icon("bug"),
-                         dataTableOutput("Table_outlier_data")),
-                tabPanel("outliers removed", icon=icon("birthday-cake"),
-                         radioButtons("no_outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot")),
+              uiOutput("Q_facet"))
+                       ))),
+         mainPanel(
+               navbarPage("Get it out",
+                tabPanel("The outliers test", icon=icon("hand-pointer-o"),
+                         dataTableOutput("Outlier_overview_table")),
+               tabPanel("Meet your outliers", icon=icon("bug"),
+                         plotlyOutput("outlier_graph"),
+                          uiOutput("Pheno_outlier_download"),
+                         dataTableOutput("Outlier_only_table")),
+                tabPanel("The graphs with outliers removed", icon=icon("birthday-cake"),
+                         uiOutput("Pheno_outlier_free_download"),
                          plotlyOutput("no_outliers_graph"),
-                          dataTableOutput("Table_no_outliers"))
+                        dataTableOutput("Outlier_free_table"))
              ))
     # end of Tab#4         
     ),
@@ -148,7 +148,7 @@ fluidPage(
     tabPanel("Data exploration", icon=icon("binoculars"),
              sidebarPanel(
                fluidRow(
-                 uiOutput("DataSumm"), # Select the dataset to be used for Summary Stats - <3<3<3 MMJ <3<3<3
+                 uiOutput("Data_for_SummaryStats"), # Select the dataset to be used for Summary Stats - <3<3<3 MMJ <3<3<3
                  uiOutput("CustomSumm"), ### <<< Added this,   Hashed out selectize  below       %% Mitch %%
                  actionButton("Go_SummaryStat", label = "unleash Summary Statistics"),
                  uiOutput("Sum_download_button"),
@@ -171,7 +171,7 @@ fluidPage(
                           plotlyOutput("Boxes")),
                  
                  tabPanel("ANOVA plots", icon=icon("snowflake-o")),
-                 tabPanel("Variance analysis")
+                 tabPanel("Variance analysis", icon=icon("bar-chart-o"))
                   ))
   # end of Tab#5
     ),
