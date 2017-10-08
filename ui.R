@@ -73,8 +73,8 @@ fluidPage(
               "exponential" = "exp",
               "square root" = "sqr")),
           actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle")),
-          actionButton("Go_SaveModelData", label = "Lock this modelled data for use in next steps", icon=icon("hand-o-right")),
-          helpText("If you are satisfied with the results of the modeling, you can add them to the dataset that can be used in the 'Data curation' tab"),
+          # actionButton("Go_SaveModelData", label = "Lock this modelled data for use in next steps", icon=icon("hand-o-right")),
+          # helpText("If you are satisfied with the results of the modeling, you can add them to the dataset that can be used in the 'Data curation' tab"),
           uiOutput("Model_download_button")),
           tabPanel("Fit Plot options",
           "some gadgets?")   
@@ -104,7 +104,8 @@ fluidPage(
                          if we can fix some issues at least"),
                          br(),
                 uiOutput("IV_outliers_selection"),
-                uiOutput("Pheno_outliers"),
+                selectizeInput("Out_pheno_single_multi", label = "Would you like to select outliers based on", choices=c("All phenotypes", "Single phenotype"), multiple = F),
+                
                 selectizeInput("outlier_method", label="Select the method for the outlier selection", 
                              choices = list(
                                         "1.5*IQR away from the mean",
@@ -116,28 +117,36 @@ fluidPage(
                                         "3xStDev from the median" 
                                       ), multiple = F),
               br(),
+              uiOutput("Pheno_outliers"),
+              uiOutput("Outliers_selection_pheno"),
               
               actionButton("Go_outliers", label = "Unleash outlier highlight tool")),  
               
               
             tabPanel("graph tweaks",
-              helpText("Which graph type would you like?"),
-              radioButtons("outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot", "line plot")),
+              uiOutput("Pheno_graph_outliers"),
+              radioButtons("outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot", "violin plot")),
               br(),
               checkboxInput("outlier_facet", "would you like to facet the graph?"),
               uiOutput("Q_facet"))
                        ))),
          mainPanel(
-               navbarPage("Get it out",
+               navbarPage("Get it OUT",
                 tabPanel("The outliers test", icon=icon("hand-pointer-o"),
-                         dataTableOutput("Outlier_overview_table")),
+                         uiOutput("Full_outlier_download"),
+                         DT::dataTableOutput("Outlier_overview_table")),
                tabPanel("Meet your outliers", icon=icon("bug"),
                          plotlyOutput("outlier_graph"),
-                          uiOutput("Pheno_outlier_download"),
+                          br(),
+                        uiOutput("Pheno_outlier_download"),
+                        br(),
                          dataTableOutput("Outlier_only_table")),
+                          
                 tabPanel("The graphs with outliers removed", icon=icon("birthday-cake"),
-                         uiOutput("Pheno_outlier_free_download"),
                          plotlyOutput("no_outliers_graph"),
+                         br(),
+                         uiOutput("Pheno_outlier_free_download"),
+                         br(),
                         dataTableOutput("Outlier_free_table"))
              ))
     # end of Tab#4         

@@ -1,5 +1,5 @@
 # install the missing packages - this can last some time for the first time you run the App
-list.of.packages <- c("ggplot2", "shinythemes", "plotly", "doBy", "reshape", "reshape2", "plotrix", "corrplot", "tidyverse", "FactoMineR", "devtools", "factoextra", "missMDA", "dplyr")
+list.of.packages <- c("ggplot2", "DT", "shinythemes", "plotly", "doBy", "reshape", "reshape2", "plotrix", "corrplot", "tidyverse", "FactoMineR", "devtools", "factoextra", "missMDA", "dplyr")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 
@@ -20,3 +20,4 @@ library("devtools")
 library("factoextra")
 library("missMDA")
 library("dplyr")
+library("DT")

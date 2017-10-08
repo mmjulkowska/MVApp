@@ -415,12 +415,14 @@ function(input, output) {
     melted_icecream <- melt(my_data(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
     model <- Saved_model_data()
     brain_fusion <- rbind(melted_icecream, model)
-    brain_fusion
+    return(brain_fusion)
   })
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  #  - - - - - - - - - - >> DATA CURATION IN 4th TAB <<- - - - - - - - - - - -
+  #  - - - - - - - - - - >> DATA CURATION IN 4th TAB << - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
+  # - - - - - - - - - - - - - >>  Interactive inputs << - - - - - - - - - - - - - -
   
   # Select which grouping variables you would like to use for outliers
     output$IV_outliers_selection <- renderUI({
@@ -434,13 +436,24 @@ function(input, output) {
    )})
   
     output$Outliers_selection_pheno  <- renderUI({
-      
+      if(is.null(Outlier_overview())){
+        return()
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        return()
+      }
+      if(input$Out_pheno_single_multi == "All phenotypes"){
+        data <- Outlier_overview()
+        max_out <- max(data$Add_outliers)
+        min_out <- min(data$Add_outliers)
+      sliderInput("outlier_cutoff", "Remove the samples which are characterized as an outlier in at least x traits:", min_out, max_out, value = 2, step = 1)  
+      }
     })
     
   # Chose the phenotype based on which you want to select the outliers
   
   output$Pheno_outliers <- renderUI({
-    if(is.null(ItemList())){return()}
+    if(is.null(ItemList()) | (input$Out_pheno_single_multi == "All phenotypes")){return()}
     else
       tagList(
         selectizeInput("DV_outliers",
@@ -449,6 +462,34 @@ function(input, output) {
                        multiple=F)
       )})
   
+  # Chose the phenotype for the graphs
+  
+  output$Pheno_graph_outliers <- renderUI({
+    if(is.null(ItemList()))
+      {return()}
+    else
+      tagList(
+        selectizeInput("DV_graph_outliers",
+                       label = "Select the phenotype for which you would like to examine graphically",
+                       choices= input$SelectDV,
+                       selected = input$SelectDV[1],
+                       multiple=F)
+      )})
+  
+  
+  output$Q_facet <- renderUI({
+    if(input$outlier_facet == T){
+      tagList(
+        selectInput("Facet_choice", "Select variable for which to facet",
+                    choices = c(input$SelectGeno, input$SelectIV, input$SelectTime))
+      )
+    }
+    else{
+      return()
+    }
+  })
+  
+  # - - - - - - - - - - - - - >>  MAIN CALCULATIONS << - - - - - - - - - - - - - -
   
   # General outlier testing table => highlighting the plants with problems in multiple traits:
   
@@ -518,8 +559,85 @@ function(input, output) {
           else{
             faka_boom$outlier[e] <- FALSE
           }}
+        drops <- c("min", "max")
+        faka_boom <- faka_boom[, !(names(faka_boom) %in% drops)]
         colnames(faka_boom)[which(names(faka_boom) == "outlier")] <- paste("out", input$SelectDV[i], sep = "_")
-        }
+      }
+      
+      if(input$outlier_method == "2xStDev from the median"){
+        faka_laka <- subset(faka_boom, select=c("id_test", input$SelectDV[i]))
+        faka_laka$pheno <- faka_laka[,input$SelectDV[i]]
+        faka_sum <- summaryBy(pheno ~ id_test, data = faka_laka, FUN=function(x) {c(median = median(x), sd = sd(x))})
+        faka_sum$min <- (faka_sum$pheno.median - (2*faka_sum$pheno.sd))
+        faka_sum$max <- (faka_sum$pheno.median + (2*faka_sum$pheno.sd))
+        faka_sum <- subset(faka_sum, select=c("id_test", "min", "max"))
+        faka_laka <- merge(faka_laka, faka_sum, by="id_test")
+        
+        
+        for(e in 1:nrow(faka_laka)){
+          if(faka_laka$pheno[e] > faka_laka$max[e]){
+            faka_boom$outlier[e] <- TRUE
+          }
+          if(faka_laka$pheno[e] < faka_laka$min[e]){
+            faka_boom$outlier[e] <- TRUE
+          }
+          else{
+            faka_boom$outlier[e] <- FALSE
+          }}
+        drops <- c("min", "max")
+        faka_boom <- faka_boom[, !(names(faka_boom) %in% drops)]
+        colnames(faka_boom)[which(names(faka_boom) == "outlier")] <- paste("out", input$SelectDV[i], sep = "_")
+      }
+      
+      if(input$outlier_method == "2.5xStDev from the median"){
+        faka_laka <- subset(faka_boom, select=c("id_test", input$SelectDV[i]))
+        faka_laka$pheno <- faka_laka[,input$SelectDV[i]]
+        faka_sum <- summaryBy(pheno ~ id_test, data = faka_laka, FUN=function(x) {c(median = median(x), sd = sd(x))})
+        faka_sum$min <- (faka_sum$pheno.median - (2.5*faka_sum$pheno.sd))
+        faka_sum$max <- (faka_sum$pheno.median + (2.5*faka_sum$pheno.sd))
+        faka_sum <- subset(faka_sum, select=c("id_test", "min", "max"))
+        faka_laka <- merge(faka_laka, faka_sum, by="id_test")
+        
+        
+        for(e in 1:nrow(faka_laka)){
+          if(faka_laka$pheno[e] > faka_laka$max[e]){
+            faka_boom$outlier[e] <- TRUE
+          }
+          if(faka_laka$pheno[e] < faka_laka$min[e]){
+            faka_boom$outlier[e] <- TRUE
+          }
+          else{
+            faka_boom$outlier[e] <- FALSE
+          }}
+        drops <- c("min", "max")
+        faka_boom <- faka_boom[, !(names(faka_boom) %in% drops)]
+        colnames(faka_boom)[which(names(faka_boom) == "outlier")] <- paste("out", input$SelectDV[i], sep = "_")
+      }
+      
+      if(input$outlier_method == "3xStDev from the median"){
+        faka_laka <- subset(faka_boom, select=c("id_test", input$SelectDV[i]))
+        faka_laka$pheno <- faka_laka[,input$SelectDV[i]]
+        faka_sum <- summaryBy(pheno ~ id_test, data = faka_laka, FUN=function(x) {c(median = median(x), sd = sd(x))})
+        faka_sum$min <- (faka_sum$pheno.median - (3*faka_sum$pheno.sd))
+        faka_sum$max <- (faka_sum$pheno.median + (3*faka_sum$pheno.sd))
+        faka_sum <- subset(faka_sum, select=c("id_test", "min", "max"))
+        faka_laka <- merge(faka_laka, faka_sum, by="id_test")
+        
+        
+        for(e in 1:nrow(faka_laka)){
+          if(faka_laka$pheno[e] > faka_laka$max[e]){
+            faka_boom$outlier[e] <- TRUE
+          }
+          if(faka_laka$pheno[e] < faka_laka$min[e]){
+            faka_boom$outlier[e] <- TRUE
+          }
+          else{
+            faka_boom$outlier[e] <- FALSE
+          }}
+        drops <- c("min", "max")
+        faka_boom <- faka_boom[, !(names(faka_boom) %in% drops)]
+        colnames(faka_boom)[which(names(faka_boom) == "outlier")] <- paste("out", input$SelectDV[i], sep = "_")
+      }
     }
     
     drops <- ("id_test")
@@ -533,17 +651,11 @@ function(input, output) {
       faka_boom$Add_outliers[x] <- length(z[z==TRUE]) 
     }
     
-   
-    
     return(faka_boom)
   })
-        
-  output$Outlier_overview_table <- renderDataTable({
-    Outlier_overview()
-        })
-                
+      
   
-  # Testing the outliers => produce the graph & table with outliers
+  # Testing the outliers based on single phenotype
   
   Outlier_data <- eventReactive(input$Go_outliers, {
   
@@ -687,22 +799,56 @@ function(input, output) {
         
   })
   
-  # Table with outliers MARKED OUT
-  output$Table_outlier_data <- renderDataTable({
-    Outlier_data()
-  }) 
+  
+  Outliers_final_data <- eventReactive(input$Go_outliers,{
+  if(input$Out_pheno_single_multi == "All phenotypes"){
+    data_blob <- Outlier_overview()
+  }
+  if(input$Out_pheno_single_multi == "Single phenotype"){
+    data_blob <- Outlier_data()  
+  }
+    return(data_blob)
+  })
+  
+  
+  # - - - - - - - - - - - - - >>  OUTPUT TABLES / GRAPHS / DOWNLOAD BUTTONS << - - - - - - - - - - - - - -
+  
+  # Table with outliers marked out
+  # NOT YET DONE! WOULD BE NICE IF WE CAN FORMAT THIS TABLE BUT I DONOT KNOW YET HOW???
+  output$Outlier_overview_table <- DT::renderDataTable({
+    test <- Outliers_final_data()
+    datatable(test)%>% formatStyle(
+      "Add_outliers",
+      target = 'row',
+      backgroundColor = styleInterval((input$outlier_cutoff-1), c("white", "pink"))
+    )
+  })
+  
   
   # OUTLIER FREE
   Outlier_free_data <- eventReactive(input$Go_outliers,{
-    good_shit <- Outlier_data()
-    good_shit <- subset(good_shit, good_shit$outlier == FALSE)
-    return(good_shit)
+    if(input$Out_pheno_single_multi == "All phenotypes"){
+      good_shit <- Outliers_final_data()
+      good_shit2 <- subset(good_shit, good_shit$Add_outliers < input$outlier_cutoff)
+    }
+    if(input$Out_pheno_single_multi == "Single phenotype"){
+    good_shit <-  Outliers_final_data()
+    good_shit2 <- subset(good_shit, good_shit$outlier == FALSE)
+    }
+    return(good_shit2)
   })
   
   # OUTLIER ONLY
   Outlier_only_data <- eventReactive(input$Go_outliers,{
-    bad_shit <- Outlier_data()  
-    bad_shit2 <- subset(bad_shit, bad_shit$outlier == TRUE)
+    if(input$Out_pheno_single_multi == "All phenotypes"){
+      bad_shit <- Outliers_final_data() 
+      bad_shit2 <- subset(bad_shit, bad_shit$Add_outliers >= input$outlier_cutoff)
+    }
+    if(input$Out_pheno_single_multi == "Single phenotype"){
+      bad_shit <- Outliers_final_data() 
+      bad_shit2 <- subset(bad_shit, bad_shit$outlier == TRUE)
+    }
+    
     return(bad_shit2)
   })
   
@@ -716,17 +862,34 @@ function(input, output) {
     Outlier_only_data()
   })
   
-  # Download table with the outliers:
+ 
+  # Download table with and without the outliers:
   
-  output$Pheno_outlier_download <- renderUI({
-    if(is.null(Outlier_data())){
+  output$Full_outlier_download <- renderUI({
+    if(is.null(Outliers_final_data())){
       return()}
     else{
-      downloadButton("data_out_single", label="Download table containing the outlier values")}
+      downloadButton("full_data_outliers", label="Download table with indicated outliers")}
   })  
   
-  output$data_out_single <- downloadHandler(
-    filename = paste("Outliers_based_on_",input$DV_outliers ,"_identified_with_", input$outlier_method, "_MVApp.csv"),
+  output$full_data_outliers <- downloadHandler(
+    filename = paste("Marked_outliers_based_on_",input$Out_pheno_single_multi,"_", input$DV_outliers ,"_identified_with_", input$outlier_method, "_MVApp.csv"),
+    content <- function(file) {
+      write.csv(Outliers_final_data(), file)}
+  )
+  
+  
+   # Download table with the outliers:
+  
+  output$Pheno_outlier_download <- renderUI({
+    if(is.null(Outliers_final_data())){
+      return()}
+    else{
+      downloadButton("data_outliers", label="Download table containing the outlier values")}
+  })  
+  
+  output$data_outliers <- downloadHandler(
+    filename = paste("Outliers_based_on_",input$Out_pheno_single_multi,"_", input$DV_outliers ,"_identified_with_", input$outlier_method, "_MVApp.csv"),
     content <- function(file) {
       write.csv(Outlier_only_data(), file)}
   )
@@ -734,45 +897,37 @@ function(input, output) {
   # Download table free from the outliers:
   
   output$Pheno_outlier_free_download <- renderUI({
-    if(is.null(Outlier_data())){
+    if(is.null(Outliers_final_data())){
       return()}
     else{
-      downloadButton("data_clean_single", label="Download table clean of the outlier values")}
+      downloadButton("data_clean_final", label="Download table clean of the outlier values")}
   })  
   
-  output$data_clean_single <- downloadHandler(
-    filename = paste("Data_free_from_outliers_based_on",input$DV_outliers ,"_identified_with_", input$outlier_method, "_MVApp.csv"),
+  output$data_clean_final <- downloadHandler(
+    filename = paste("Data_free_from_outliers_based_on",input$Out_pheno_single_multi,"_", input$DV_outliers ,"_identified_with_", input$outlier_method, "_MVApp.csv"),
     content <- function(file) {
       write.csv(Outlier_free_data(), file)}
   )
   
   
-  output$Q_facet <- renderUI({
-    if(input$outlier_facet == T){
-      tagList(
-        selectInput("Facet_choice", "Select variable for which to facet",
-                    choices = c(input$SelectGeno, input$SelectIV, input$SelectTime))
-      )
-    }
-    else{
-      return()
-    }
-  })
   
   # = = = >> GRAPH CONTAINING ALL THE DATA << = = = 
   output$outlier_graph <- renderPlotly({
     data_outl <- my_data()
-    outl <- subset(data_outl, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_outliers))
+    outl <- subset(data_outl, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_graph_outliers))
     lista <- input$IV_outliers
     
     if(input$outlier_facet == T){
     listb <- input$Facet_choice
     outl$listb <- outl[,input$Facet_choice]
     lista <- setdiff(lista, listb)}
-    phenotype <- input$DV_outliers
-    outl$pheno <- outl[,input$DV_outliers]
+    phenotype <- input$DV_graph_outliers
+    outl$pheno <- outl[,input$DV_graph_outliers]
+    
+    listc <- c(lista, input$SelectID)
     
     outl$id_test <- do.call(paste,c(outl[lista], sep = "_"))
+    outl$id_test2 <- do.call(paste,c(outl[listc], sep = "_"))
     
     if(input$outlier_graph_type == "bar plot"){
       outl$pheno <- as.numeric(outl$pheno)
@@ -792,6 +947,10 @@ function(input, output) {
       taka <- ggplot(outl, aes(x = id_test, y= pheno))    
       taka <- taka + geom_boxplot()}
     
+    if(input$outlier_graph_type == "violin plot"){
+      taka <- ggplot(outl, aes(x = id_test, y= pheno))    
+      taka <- taka + geom_violin(trim=FALSE)}
+    
     if(input$outlier_graph_type == "scatter plot"){
       taka <- ggplot(outl, aes(x = id_test, y= pheno))
       taka <- taka + geom_point()}
@@ -801,10 +960,8 @@ function(input, output) {
     
     taka <- taka + theme(axis.title.x=element_blank(),
                            axis.text.x = element_text(angle = 90, hjust = 1),
-                         axis.title.y = element_text(input$DV_outliers))
+                         axis.title.y = element_text(input$DV_graph_outliers))
     
-    taka <- taka + scale_fill_gradient( low = "red",
-                             high = "yellow")
     
     taka
   })
@@ -814,15 +971,15 @@ function(input, output) {
   
   output$no_outliers_graph <- renderPlotly({
       data <- Outlier_free_data()
-      clean_data <- subset(data, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_outliers))
+      clean_data <- subset(data, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_graph_outliers))
       lista <- input$IV_outliers
       
       if(input$outlier_facet == T){
         listb <- input$Facet_choice
         clean_data$listb <- clean_data[,input$Facet_choice]
         lista <- setdiff(lista, listb)}
-      phenotype <- input$DV_outliers
-      clean_data$pheno <- clean_data[,input$DV_outliers]
+      phenotype <- input$DV_graph_outliers
+      clean_data$pheno <- clean_data[,input$DV_graph_outliers]
       
       clean_data$id_test <- do.call(paste,c(clean_data[lista], sep = "_"))
       
@@ -844,6 +1001,10 @@ function(input, output) {
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))    
         jaka <- jaka + geom_boxplot()}
       
+      if(input$outlier_graph_type == "violin plot"){
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))    
+        jaka <- jaka + geom_violin(trim=FALSE)}
+      
       if(input$outlier_graph_type == "scatter plot"){
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))
         jaka <- jaka + geom_point()}
@@ -853,10 +1014,8 @@ function(input, output) {
       
       jaka <- jaka + theme(axis.title.x=element_blank(),
                            axis.text.x = element_text(angle = 90, hjust = 1),
-                           axis.title.y = element_text(input$DV_outliers))
+                           axis.title.y = element_text(input$DV_graph_outliers))
       
-      jaka <- jaka + scale_fill_gradient( low = "red",
-                                          high = "yellow")
       
       jaka
     })
