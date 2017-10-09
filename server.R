@@ -99,6 +99,30 @@ function(input, output) {
     }
   })
   
+  output$uploaded_data_report <- renderText({
+    if(is.null(input$your_data)) {
+      return(NULL)}
+    else{
+     sraka <- read.csv(input$your_data$datapath)
+     sraka_nona <- sraka[complete.cases(sraka),]
+     na_numbers <- nrow(sraka) - nrow(sraka_nona)
+     sentence <- paste("Your uploaded data contains ", dim(sraka)[1], " rows and ", dim(sraka)[2], " columns. There are ", na_numbers, " rows containins missing values.")
+     return(sentence)
+    }
+  })
+  
+  output$selected_data_report <- renderText({
+    if(is.null(my_data())) {
+      return(NULL)}
+    else{
+      sraka <- my_data()
+      sraka_nona <- sraka[complete.cases(sraka),]
+      na_numbers <- nrow(sraka) - nrow(sraka_nona)
+      sentence <- paste("Your selected data contains ", dim(sraka)[1], " rows and ", dim(sraka)[2], " columns. There are ", na_numbers, " rows containins missing values.")
+      return(sentence)
+    }
+  })
+  
   # Table in the Tab2 - main window - selected variables by the user
   my_data <- eventReactive(input$Go_Data, {
     d2 = read.csv(input$your_data$datapath)
@@ -228,6 +252,27 @@ function(input, output) {
   output$Model_estimation <- renderDataTable({
     Model_est_data()
   })
+  
+  output$best_model_advice <- renderText({
+    fraka <- Model_est_data()
+    fraka1 <- colnames(fraka)[apply(fraka,1,which.max)]
+    sentence <- paste("The model with the highest estimation is ", fraka1[1])
+    return(sentence)
+  })
+  
+  output$model_warning <- renderText({
+    if(is.null(Model_temp_data())){
+      return()}
+    else
+      
+    frajka <- Model_temp_data()
+    frajka_boom <- subset(frajka, frajka$r_squared < 0.7)
+    how_much <- ncol(frajka_boom)
+    
+    sentence <- paste("There are ", how_much, " samples with r-square value below 0.7. You should consider checking them.")
+    return(sentence)
+  })
+  
   
   
   # Calculations for the model 
@@ -489,12 +534,63 @@ function(input, output) {
     }
   })
   
+  output$Q_colour <- renderUI({
+    if(input$outlier_colour == T){
+      tagList(
+        selectInput("Colour_choice", "Select variable for which to colour code",
+                    choices = c(input$SelectGeno, input$SelectIV, input$SelectTime))
+      )
+    }
+    else{
+      return()
+    }
+  })
+  
+  output$Facet_user_input_columns <- renderUI({
+    if(input$outlier_facet == F){
+      return()
+    }  
+    if(input$outlier_facet == T){
+      sliderInput(
+        "out_graph_facet_col",
+        label = "How many columns would you like to use for facetting?",
+        1, 9, 3
+      )
+    }
+  })
+  
+  output$Facet_outlier_scale <- renderUI({
+    if(input$outlier_facet == F){
+      return()
+    }  
+    if(input$outlier_facet == T){
+      selectizeInput(
+        "out_facet_scale",
+        label = "The scale of the graphs is",
+        choices=c("fixed", "free", "free_x", "free_y")
+      )
+      
+    }
+  })
+  
   # - - - - - - - - - - - - - >>  MAIN CALCULATIONS << - - - - - - - - - - - - - -
   
   # General outlier testing table => highlighting the plants with problems in multiple traits:
   
+  ## TESTING OMIT.NA     %% Mitch %%
+  my_data_nona <- eventReactive(input$Go_omitna == T, {
+    my_data_nona <- my_data()[complete.cases(my_data()),] #use na.omit instead maybe?
+    return(my_data_nona)
+  })
+  
+  
   Outlier_overview <- eventReactive(input$Go_outliers,{
+    if(input$Go_omitna == T){
+    faka_boom <- my_data_nona()  
+    }
+    if(input$Go_omitna == F){
     faka_boom <- my_data()
+    }
     faka_boom$id_test <- do.call(paste,c(faka_boom[c(input$IV_outliers)], sep = "_"))
 
     for(i in 1:length(input$SelectDV)){
@@ -659,7 +755,13 @@ function(input, output) {
   
   Outlier_data <- eventReactive(input$Go_outliers, {
   
-        data_outl <- my_data()
+    if(input$Go_omitna == T){
+      data_outl <- my_data_nona()  
+    }
+    if(input$Go_omitna == F){
+      data_outl <- my_data()
+    }
+        
         outl <- subset(data_outl, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_outliers))
         outl$id_test <- do.call(paste,c(outl[c(input$IV_outliers)], sep = "_"))
         
@@ -814,18 +916,40 @@ function(input, output) {
   # - - - - - - - - - - - - - >>  OUTPUT TABLES / GRAPHS / DOWNLOAD BUTTONS << - - - - - - - - - - - - - -
   
   # Table with outliers marked out
-  # NOT YET DONE! WOULD BE NICE IF WE CAN FORMAT THIS TABLE BUT I DONOT KNOW YET HOW???
   output$Outlier_overview_table <- DT::renderDataTable({
     test <- Outliers_final_data()
-    datatable(test)%>% formatStyle(
-      "Add_outliers",
+   # WE NEED TO MAKE CONDITIONAL FORMATING OF THIS!!!
+    # right now the table doesnt show when you do SINGLE PHENOTYPE because the formating is for ALL PHENOTYPES
+    # I tried to include if() statements in this position, but then it doesnt work (formating - but the table still shows up)
+    # not sure how to proceed.... aiaiai :(((
+    
+    datatable(test) %>% formatStyle( "Add_outliers",
       target = 'row',
-      backgroundColor = styleInterval((input$outlier_cutoff-1), c("white", "pink"))
-    )
+      backgroundColor = styleInterval((input$outlier_cutoff-1), c("white", "pink")))
   })
   
+  # Outlier report
+  output$Outlier_report <- renderText({
+    
+    tescior <- Outliers_final_data()
+    if(input$Out_pheno_single_multi == "All phenotypes"){
+        number0 <- subset(tescior, tescior$Add_outliers >= input$outlier_cutoff)
+        number <- nrow(number0)
+        pheno <- paste(input$Out_pheno_single_multi)
+        method <- paste(input$outlier_method, ". The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits")
+       }
+    
+    if(input$Out_pheno_single_multi == "Single phenotype"){
+        number0 <- subset(tescior, tescior$outlier == "TRUE")
+        number <- nrow(number0)
+        pheno <-paste(input$DV_outliers)
+        method <- paste(input$outlier_method)
+        }
+    sentence <- paste("There are ", number," outliers identified based on", pheno, "using", method)
+    return(sentence)
+  })
   
-  # OUTLIER FREE
+  # Outlier free data (and table)
   Outlier_free_data <- eventReactive(input$Go_outliers,{
     if(input$Out_pheno_single_multi == "All phenotypes"){
       good_shit <- Outliers_final_data()
@@ -838,7 +962,7 @@ function(input, output) {
     return(good_shit2)
   })
   
-  # OUTLIER ONLY
+  # Outlier only data (and table)
   Outlier_only_data <- eventReactive(input$Go_outliers,{
     if(input$Out_pheno_single_multi == "All phenotypes"){
       bad_shit <- Outliers_final_data() 
@@ -909,11 +1033,30 @@ function(input, output) {
       write.csv(Outlier_free_data(), file)}
   )
   
+  # Lock the no-outlier data for further analysis:
+  output$Outliers_save <- renderUI({
+    if(is.null(Outliers_final_data())){
+      return()
+    }
+    else{
+      actionButton("lock_outliers", label = "Lock this outlier-free data for further analysis")
+    }
+  })
   
+  no_outliers <- eventReactive(input$lock_outliers,{
+    tratata <- Outlier_free_data()
+    return(tratata)
+  })
   
   # = = = >> GRAPH CONTAINING ALL THE DATA << = = = 
   output$outlier_graph <- renderPlotly({
-    data_outl <- my_data()
+    if(input$Go_omitna == T){
+      data_outl <- my_data_nona()  
+    }
+    if(input$Go_omitna == F){
+      data_outl <- my_data()
+    }
+    
     outl <- subset(data_outl, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_graph_outliers))
     lista <- input$IV_outliers
     
@@ -921,52 +1064,89 @@ function(input, output) {
     listb <- input$Facet_choice
     outl$listb <- outl[,input$Facet_choice]
     lista <- setdiff(lista, listb)}
+    
+    if(input$outlier_colour == T){
+      listx <- input$Colour_choice
+      outl$listx <- outl[,input$Colour_choice]
+      #lista <- setdiff(lista, listx)
+      }
+    
     phenotype <- input$DV_graph_outliers
     outl$pheno <- outl[,input$DV_graph_outliers]
     
     listc <- c(lista, input$SelectID)
+    
     
     outl$id_test <- do.call(paste,c(outl[lista], sep = "_"))
     outl$id_test2 <- do.call(paste,c(outl[listc], sep = "_"))
     
     if(input$outlier_graph_type == "bar plot"){
       outl$pheno <- as.numeric(outl$pheno)
-      if(input$outlier_facet == T){
+      if(input$outlier_colour == T & input$outlier_facet == F){
+        out_sum <- summaryBy(pheno ~ id_test + listx, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+      }
+      
+      if(input$outlier_facet == T & input$outlier_colour == F){
         out_sum <- summaryBy(pheno ~ id_test + listb, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
       }
+      
+      if(input$outlier_colour == T & input$outlier_facet == T){
+        out_sum <- summaryBy(pheno ~ id_test2 + listb + listx, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+      }
+      
       else{
       out_sum <- summaryBy(pheno ~ id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })
       }
-      taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))
-      taka <- taka + geom_bar(stat="identity")
-      taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.se, ymax=pheno.m+pheno.se))
+      
+      if(input$outlier_colour == T){
+        taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+        taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
+      }
+      else{
+        taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))
+      }
+      
+      taka <- taka + geom_bar(stat="identity", position=position_dodge(1))
+      taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.se, ymax=pheno.m+pheno.se), position=position_dodge(1))
     }
     
     
     if(input$outlier_graph_type == "box plot"){
-      taka <- ggplot(outl, aes(x = id_test, y= pheno))    
-      taka <- taka + geom_boxplot()}
-    
-    if(input$outlier_graph_type == "violin plot"){
-      taka <- ggplot(outl, aes(x = id_test, y= pheno))    
-      taka <- taka + geom_violin(trim=FALSE)}
+      if(input$outlier_colour == T){
+        taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))
+        taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
+        }
+      else{
+        taka <- ggplot(outl, aes(x = id_test, y= pheno))   
+      }
+         
+      taka <- taka + geom_boxplot(position="dodge")}
     
     if(input$outlier_graph_type == "scatter plot"){
-      taka <- ggplot(outl, aes(x = id_test, y= pheno))
-      taka <- taka + geom_point()}
+      
+      if(input$outlier_colour == T){
+        taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))    
+        taka <- taka + guides(fill=guide_legend(title= input$outlier_colour))
+      }
+      else{
+        taka <- ggplot(outl, aes(x = id_test, y= pheno))      
+      }
+      
+      taka <- taka + geom_point(position=position_dodge(1))}
+    
+    
     
     if(input$outlier_facet == T){
-    taka <- taka + facet_wrap(~listb, ncol=3)}
-    
-    taka <- taka + theme(axis.title.x=element_blank(),
-                           axis.text.x = element_text(angle = 90, hjust = 1),
-                         axis.title.y = element_text(input$DV_graph_outliers))
-    
+      
+    taka <- taka + facet_wrap(~listb, ncol=input$out_graph_facet_col, scale = input$out_facet_scale)}
+    taka <- taka
+    taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    taka <- taka + xlab(lista)
+    taka <- taka + ylab(input$DV_graph_outliers)
     
     taka
   })
   
- 
   # = = = >> GRAPH WITH NO OUTLIERS << = = = 
   
   output$no_outliers_graph <- renderPlotly({
@@ -978,6 +1158,13 @@ function(input, output) {
         listb <- input$Facet_choice
         clean_data$listb <- clean_data[,input$Facet_choice]
         lista <- setdiff(lista, listb)}
+      
+      if(input$outlier_colour == T){
+        listx <- input$Colour_choice
+        clean_data$listx <- clean_data[,input$Colour_choice]
+        #lista <- setdiff(lista, listx)
+        }
+      
       phenotype <- input$DV_graph_outliers
       clean_data$pheno <- clean_data[,input$DV_graph_outliers]
       
@@ -985,56 +1172,78 @@ function(input, output) {
       
       if(input$outlier_graph_type == "bar plot"){
         clean_data$pheno <- as.numeric(clean_data$pheno)
-        if(input$outlier_facet == T){
+        
+        if(input$outlier_facet == F & input$outlier_colour == T){
+          clean_sum <- summaryBy(pheno ~ id_test + listx, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+        }
+        
+        if(input$outlier_facet == T & input$outlier_colour == F){
           clean_sum <- summaryBy(pheno ~ id_test + listb, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
         }
+        
+        if(input$outlier_facet == T & input$outlier_colour == T){
+          clean_sum <- summaryBy(pheno ~ id_test + listb + listx, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+        }
+        
         else{
           clean_sum <- summaryBy(pheno ~ id_test, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })
         }
-        jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m))
-        jaka <- jaka + geom_bar(stat="identity")
-        jaka <- jaka + geom_errorbar(aes(ymin=pheno.m-pheno.se, ymax=pheno.m+pheno.se))
+        
+        if(input$outlier_colour == T){
+          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, fill = listx))
+          jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
+        }
+        else{
+          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m))  
+        }
+        
+        jaka <- jaka + geom_bar(stat="identity", position=position_dodge(1))
+        jaka <- jaka + geom_errorbar(aes(ymin=pheno.m-pheno.se, ymax=pheno.m+pheno.se), position=position_dodge(1))
       }
       
       
       if(input$outlier_graph_type == "box plot"){
-        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))    
-        jaka <- jaka + geom_boxplot()}
-      
-      if(input$outlier_graph_type == "violin plot"){
-        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))    
-        jaka <- jaka + geom_violin(trim=FALSE)}
+        if(input$outlier_colour == T){
+          jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+          jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
+        }
+        else{
+          jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
+        }
+           
+        jaka <- jaka + geom_boxplot(position="dodge")}
       
       if(input$outlier_graph_type == "scatter plot"){
-        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))
-        jaka <- jaka + geom_point()}
+        if(input$outlier_colour == T){
+          jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+          jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
+        }
+        else{
+          jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
+        }
+        jaka <- jaka + geom_point(position=position_dodge(1))
+        }
       
       if(input$outlier_facet == T){
-        jaka <- jaka + facet_wrap(~listb, ncol=3)}
+        jaka <- jaka + facet_wrap(~listb, ncol=3, scale = input$out_facet_scale)}
       
-      jaka <- jaka + theme(axis.title.x=element_blank(),
-                           axis.text.x = element_text(angle = 90, hjust = 1),
-                           axis.title.y = element_text(input$DV_graph_outliers))
-      
+      jaka <- jaka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      jaka <- jaka + xlab(lista)
+      jaka <- jaka + ylab(input$DV_graph_outliers)
       
       jaka
     })
   
-   # Table in Tab4 - main window - summary of the data based on the selected calculations
   
-  
-  ## TESTING OMIT.NA     %% Mitch %%
-  my_data_nona <- eventReactive(input$Go_omitna, {
-    my_data_nona <- my_data()[complete.cases(my_data()),] #use na.omit instead maybe?
-    return(my_data_nona)
-  })
-  
-  na_row<-eventReactive(input$Go_omitna, {
-    sum_na<-nrow(my_data())-nrow(my_data_nona())
-    return(paste("Number of rows containing NAs that were removed: ", sum_na, ".", sep=""))
-  })
-  
-  output$total_na <- renderText({na_row()})
+  output$na_report <- renderText({
+    if(input$Go_omitna == F){
+      return()
+    }
+    else{
+      sum_na<-nrow(my_data())-nrow(my_data_nona())
+      return(paste(sum_na, " rows containing NAs that were removed.")) 
+    }
+    })
   
   
   
