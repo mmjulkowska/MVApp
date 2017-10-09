@@ -288,6 +288,31 @@ function(input, output) {
     sum_data()
   })
   
+  output$my_chosen_data <- renderUI({
+    if (is.null(my_data())) {
+      return()
+    }
+    else  
+      tagList(
+        selectizeInput(
+          inputId = "my_chosen_data",
+          label = "Select the dataset you would like to use for the plots",
+          choices = c("original data", "data with NA removed", "summarized data"), multiple = F))
+  }) 
+  
+  
+  my_chosen_data <- eventReactive(input$chose_data_for_sum_plot,{
+    if(chose_data_for_sum_plot == "original data"){
+      my_data <- my_data()
+    }
+    if(chose_data_for_sum_plot == "data with NA removed"){
+      my_data <-  my_data_nona() 
+    }
+    if(chose_data_for_sum_plot == "summarized data"){
+      my_data <-sum_data()   
+    } 
+    my_data
+  })
   
   output$HisIV <- renderUI({
    if ((input$Go_Data == FALSE)) {
@@ -326,12 +351,6 @@ function(input, output) {
   })
   
   
-  my_hisdata<-eventReactive(input$HisIV, {
-    hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
-  })
-  
-  
-  
   output$HistType <- renderUI({
     if ((input$Go_Data == FALSE)) {
       return ()
@@ -347,11 +366,13 @@ function(input, output) {
       )
   })
   
+ 
   
+
   
   output$HistPlot <- renderPlotly({
-    
-    my_his_data <- my_hisdata()
+    hisdata<-my_chosen_data()[,c(input$HisDV,input$HisIV)]
+    my_his_data <- hisdata
     if (input$HistType == "HistCount") {
        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") 
     }
@@ -375,7 +396,8 @@ function(input, output) {
     
     ##try to do subset by multiple variables
     output$Boxes <- renderPlotly({
-      my_his_data <- my_hisdata()
+      hisdata<-my_chosen_data()[,c(input$HisDV,input$HisIV)]
+      my_his_data <- hisdata
       
       #a <- aov(my_his_data[,1]~my_his_data[,2], data=my_his_data)
       #tHSD <- TukeyHSD(a, ordered = FALSE, conf.level = 0.95)
@@ -605,6 +627,8 @@ function(input, output) {
     my_melt <- melt(my_data_nona(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
     my_melt
   })
+ 
+ 
  
  sum_data_melt <- eventReactive(input$Go_PCAdata,{
    my_melt <- melt(sum_data(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime, "Dependent_Variable"))
