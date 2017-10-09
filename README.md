@@ -27,3 +27,4 @@ Additionally, if you would like to perform fitting the curves to your data, you 
 
 The Example dataset would look like this:
 
+![screenshot 2017-10-04 18 41 49](https://user-images.githubusercontent.com/14832460/31326897-f3cd90e4-acd3-11e7-9cbf-06da5e9ccc02.png)
