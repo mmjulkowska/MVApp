@@ -161,8 +161,11 @@ fluidPage(
                  uiOutput("CustomSumm"), ### <<< Added this,   Hashed out selectize  below       %% Mitch %%
                  actionButton("Go_SummaryStat", label = "unleash Summary Statistics"),
                  uiOutput("Sum_download_button"),
+                 uiOutput("Data_for_plots"),
                  uiOutput("HisIV"),
-                 uiOutput("HisDV")
+                 uiOutput("HisDV"),
+                 checkboxInput("Facet_check", "would you like to facet the graph?"),
+                 uiOutput("Plot_facet")
                )),
              
              mainPanel(

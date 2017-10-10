@@ -1119,6 +1119,19 @@ function(input, output) {
         write.csv(sum_data(), file)}
   )
   
+  
+  output$Data_for_plots <- renderUI({
+    if(is.null(ItemList())){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "Data_plot",
+          label = "Select the dataset that you would like to use for plots",
+          choices = c("raw data", "NA removed", "outliers removed", "Summary Stats data"), multiple = F))
+  })  
+  
+  
+  
   output$HisIV <- renderUI({
    if ((input$Go_Data == FALSE)) {
     return ()
@@ -1154,6 +1167,20 @@ function(input, output) {
         )
       )
   })
+ 
+  
+  output$Plot_facet <- renderUI({
+    if(input$Facet_check == T){
+      tagList(
+        selectizeInput("Plotfacet_choice", "Select variable for which to facet",
+                    choices = c(setdiff(list(input$SelectGeno, input$SelectIV, input$SelectTime), input$HisIV)), 
+                    multiple = F)
+      )
+    }
+    else{
+      return()
+    }
+  })
   
   output$HistType <- renderUI({
     if ((input$Go_Data == FALSE)) {
@@ -1173,27 +1200,58 @@ function(input, output) {
   
   
   output$HistPlot <- renderPlotly({
-    hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
-    my_his_data <- hisdata
+    my_his_data<-my_data()[,c(input$HisDV,input$HisIV, input$Plotfacet_choice)]
+    if (input$Facet_check == T){
+     listPlot<-input$Plotfacet_choice
+    my_his_data$listPlot <- my_his_data[,input$Plotfacet_choice]
     if (input$HistType == "HistCount") {
-       fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") 
+     fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") +  labs(fill=names(my_his_data[2]))
+        fit<-fit +  facet_wrap(~ listPlot)
     }
-    if (input$HistType == "HistDensity" ) { 
-      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3)
+      if (input$HistType == "HistDensity") { 
+        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) +  labs(fill=names(my_his_data[2]))
+        fit<-fit +  facet_wrap(~listPlot)
+      }
     }
+    
+    if (input$Facet_check == F){
+       if (input$HistType == "HistCount") {
+          fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") +  labs(fill=names(my_his_data[2]))
+           }
+   if (input$HistType == "HistDensity" ) { 
+   fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) +  labs(fill=names(my_his_data[2]))
+    
+    }
+      }
     ggplotly(fit)
      }) 
   
 
      
     
+  
+  output$Boxes <- renderPlotly({
+    my_his_data<-my_data()[,c(input$HisDV,input$HisIV, input$Plotfacet_choice)]
+    if (input$Facet_check == T){
+      listPlot<-input$Plotfacet_choice
+      my_his_data$listPlot <- my_his_data[,input$Plotfacet_choice]
+      
+      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot() 
+      box_graph<-  box_graph + facet_wrap(~listPlot)
+      ggplotly(box_graph)
+    }
+    else{
+      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+      ggplotly(box_graph)
+    }
+  })
     ##STILL TO DO:
         #       try to do subset by multiple variables
-    output$Boxes <- renderPlotly({
-      hisdata2<-my_data()[,c(input$SelectGeno, input$HisDV,input$HisIV)]
-      box_graph <- ggplot(hisdata2, aes(x=hisdata2[,3], y=hisdata2[,4])) + xlab(names(hisdata2[2])) + ylab(names(hisdata2[1])) + geom_boxplot()
-      ggplotly(box_graph)
-    })
+   # output$Boxes <- renderPlotly({
+      
+     # box_graph <- ggplot(hisdata2, aes(x=hisdata2[,3], y=hisdata2[,4])) + xlab(names(hisdata2[2])) + ylab(names(hisdata2[1])) + geom_boxplot()
+    #  ggplotly(box_graph)
+    #})
     
     
     
