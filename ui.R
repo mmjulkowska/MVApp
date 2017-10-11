@@ -179,7 +179,7 @@ fluidPage(
                  uiOutput("HisIV"),
                  uiOutput("HisDV"),
                  checkboxInput("plot_facet", "Would you like to facet the graph?"),
-                 uiOutput("Plot_facet")
+                 uiOutput("Plotfacets")
                )),
              
              mainPanel(

@@ -1161,7 +1161,7 @@ function(input, output) {
   })
   
   
-  output$Plot_facet <- renderUI({
+  output$Plotfacets <- renderUI({
     if(input$plot_facet == T){
       tagList(
         selectInput("Plotfacet_choice", "Select variable for which to facet",
@@ -1191,17 +1191,17 @@ function(input, output) {
   
   output$HistPlot <- renderPlotly({
     my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-    groupIV<-input$HisIV
+    #groupIV<-input$HisIV
     
     if(input$plot_facet ==T){
       facetIV<-input$Plotfacet_choice
       my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
-      groupIV<-setdiff(groupIV, facetIV)}
+      #groupIV<-setdiff(groupIV, facetIV)}
     
-      plotDV<-input$HisDV
-      my_his_data$plotDV<-my_his_data[,input$HisDV]
+      #plotDV<-input$HisDV
+      #my_his_data$plotDV<-my_his_data[,input$HisDV]
       
-      my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
+      #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
       
 ### These hashed out lines are trying to work in groupID (equivalent to Magda's id_test) which allows grouping by multiple IVs
 ### Should eventually replace lines 1219 - 1230      
@@ -1213,19 +1213,28 @@ function(input, output) {
 #        fit <- ggplot(my_his_data, aes(x=groupID, y=plotDV)) + xlab(names(my_his_data$groupID)) + geom_density(alpha = 0.3)
 #      }
       
-  
     if (input$HistType == "HistCount") {
-       fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") 
+       fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
+       fit <- fit + facet_wrap(~facetIV, ncol=3)
     }
     if (input$HistType == "HistDensity" ) { 
-      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3)
+      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
+      fit <- fit + facet_wrap(~facetIV, ncol=3)
+    }
     }
     
-    if(input$plot_facet ==T){
-      fit <- fit + facet_wrap(~facetIV, ncol=3)}
+  
+  if(input$plot_facet ==F){
+    if (input$HistType == "HistCount") {
+      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
+    }
+    if (input$HistType == "HistDensity" ) { 
+      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
+    }
+  }
     ggplotly(fit)
-    
-     }) 
+  
+  }) 
   
   
 
@@ -1233,8 +1242,20 @@ function(input, output) {
     ##STILL TO DO:
         #       try to do subset by multiple variables
     output$Boxes <- renderPlotly({
-      hisdata2<-my_data()[,c(input$SelectGeno, input$HisDV,input$HisIV)]
-      box_graph <- ggplot(hisdata2, aes(x=hisdata2[,3], y=hisdata2[,4])) + xlab(names(hisdata2[2])) + ylab(names(hisdata2[1])) + geom_boxplot()
+      my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      #groupIV<-input$HisIV
+      
+      if(input$plot_facet ==T){
+        facetIV<-input$Plotfacet_choice
+        my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
+        
+      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+      box_graph<- box_graph + facet_wrap(~facetIV)
+      }
+      else{
+        box_graph <- ggplot(my_his_data, aes(x=my_his_data[,3], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+        
+      }
       ggplotly(box_graph)
     })
     
