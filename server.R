@@ -1165,8 +1165,8 @@ function(input, output) {
     if(input$plot_facet == T){
       tagList(
         selectInput("Plotfacet_choice", "Select variable for which to facet",
-                    choices = c(input$SelectGeno, input$SelectIV, input$SelectTime))
-      )
+                    choices = c(setdiff(list(input$SelectGeno, input$SelectIV, input$SelectTime),input$HisIV)))
+        )
     }
     else{
       return()
