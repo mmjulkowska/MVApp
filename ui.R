@@ -44,8 +44,10 @@ fluidPage(
       mainPanel(navbarPage(
         ">> Data Magic <<",
         tabPanel("Original data", icon = icon("flask"),
+                 verbatimTextOutput("uploaded_data_report"),
                  dataTableOutput("Data_tabl")),
         tabPanel("New data", icon = icon("magic"),
+                 verbatimTextOutput("selected_data_report"),
                  dataTableOutput("my_data"))
       ))
       # end of Tab2
@@ -83,8 +85,10 @@ fluidPage(
       mainPanel(
         navbarPage("",
         tabPanel("Estimate best model",
+                 verbatimTextOutput("best_model_advice"),
                  dataTableOutput("Model_estimation")),
         tabPanel("Modelled data",
+                 verbatimTextOutput("model_warning"),
                  dataTableOutput("Model_data")),
         tabPanel("Fit-Plot",
                  uiOutput("Select_modelPlot"),
@@ -100,9 +104,8 @@ fluidPage(
                fluidRow(
                navbarPage("",
               tabPanel("outlier selection",            
-                helpText("Here you can have a look at the data and remove the values that are odd or missing... 
-                         if we can fix some issues at least"),
-                         br(),
+                checkboxInput("Go_omitna", label = "Remove rows containing missing data prior to outlier selection"),
+                                br(),
                 uiOutput("IV_outliers_selection"),
                 selectizeInput("Out_pheno_single_multi", label = "Would you like to select outliers based on", choices=c("All phenotypes", "Single phenotype"), multiple = F),
                 
@@ -119,21 +122,33 @@ fluidPage(
               br(),
               uiOutput("Pheno_outliers"),
               uiOutput("Outliers_selection_pheno"),
+              br(),
+              actionButton("Go_outliers", label = "Unleash outlier highlight tool"),  
+              br(),
+              uiOutput("Outliers_save")),
               
-              actionButton("Go_outliers", label = "Unleash outlier highlight tool")),  
               
               
             tabPanel("graph tweaks",
               uiOutput("Pheno_graph_outliers"),
-              radioButtons("outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot", "violin plot")),
+              radioButtons("outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot")),
+              sliderInput("out_plot_length", label = "increase the plot length", 200, 2000, 400),
               br(),
+              checkboxInput("outlier_colour", "would you like to colour-code one of your Indepentent Variables in the graph?"),
+              uiOutput("Q_colour"),
               checkboxInput("outlier_facet", "would you like to facet the graph?"),
-              uiOutput("Q_facet"))
+              uiOutput("Q_facet"),
+              uiOutput("Facet_user_input_columns"),
+              uiOutput("Facet_outlier_scale"))
                        ))),
          mainPanel(
                navbarPage("Get it OUT",
                 tabPanel("The outliers test", icon=icon("hand-pointer-o"),
+                         verbatimTextOutput("na_report"),
+                         verbatimTextOutput("Outlier_report"),
+                         br(),
                          uiOutput("Full_outlier_download"),
+                         br(),
                          DT::dataTableOutput("Outlier_overview_table")),
                tabPanel("Meet your outliers", icon=icon("bug"),
                          plotlyOutput("outlier_graph"),
