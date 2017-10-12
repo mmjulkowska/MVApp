@@ -196,7 +196,8 @@ fluidPage(
                          # actionButton("Go_Boxplot", label = "Plot boxplots"),
                           plotlyOutput("Boxes")),
                  
-                 tabPanel("ANOVA plots", icon=icon("snowflake-o")),
+                 tabPanel("ANOVA plots", icon=icon("snowflake-o"),
+                          verbatimTextOutput("ANOVAtest")),
                  tabPanel("Variance analysis", icon=icon("bar-chart-o"))
                   ))
   # end of Tab#5

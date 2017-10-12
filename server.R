@@ -1253,14 +1253,35 @@ function(input, output) {
       box_graph<- box_graph + facet_wrap(~facetIV)
       }
       else{
-        box_graph <- ggplot(my_his_data, aes(x=my_his_data[,3], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+        box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
         
       }
       ggplotly(box_graph)
     })
     
-    
-    
+    ###ANOVA summary table output
+    output$ANOVAtest <- renderPrint({
+    if(input$plot_facet ==T){
+      my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+       for (i in unique(my_his_data[,3])){
+        print(i)
+        fit_anova<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
+        #print(fit_anova)
+        #print(summary(fit_anova))
+        pvalue<-summary(fit_anova)[[1]][[1,"Pr(>F)"]] #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
+        print(paste("The p-value of the ANOVA test is", pvalue))
+        }
+      
+    }
+    if(input$plot_facet ==F){ 
+    fit_anova <- aov(my_his_data[,1] ~ as.factor(my_his_data[,2]), data = my_his_data)
+    #print(fit_anova)
+    #br()
+    #print(summary(fit_anova))
+    pvalue<-summary(fit_anova)[[1]][[1,"Pr(>F)"]]
+    print(paste("The p-value of the ANOVA test is", pvalue))
+    }
+    })
   
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # - - - - - - - - - - - - >> DATA CORRELATION IN 6th TAB << - - - - - - - - - - -
