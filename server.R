@@ -1215,11 +1215,11 @@ function(input, output) {
       
     if (input$HistType == "HistCount") {
        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
-       fit <- fit + facet_wrap(~facetIV, ncol=3)
+       fit <- fit + facet_wrap(~facetIV)
     }
     if (input$HistType == "HistDensity" ) { 
       fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
-      fit <- fit + facet_wrap(~facetIV, ncol=3)
+      fit <- fit + facet_wrap(~facetIV)
     }
     }
     
@@ -1264,16 +1264,22 @@ function(input, output) {
       my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
       my_his_data[,2]<-as.factor(my_his_data[,2])
     if(input$plot_facet ==T){
+      n_rows<-length(levels(my_his_data[,3]))
+      facetting<-rep(NA,n_rows)
+      p_values<-rep(NA,n_rows)
        for (i in unique(my_his_data[,3])){
         subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
-        print(i)
+        facetting[i]<-i
         fit_anova<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
         #print(fit_anova)
         #print(summary(fit_anova))
-        pvalue<-summary(fit_anova)[[1]][[1,"Pr(>F)"]] #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
-        print(paste("The p-value of the ANOVA test is", pvalue))
+        p_values[i]<-summary(fit_anova)[[1]][[1,"Pr(>F)"]] #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
+        #print(paste("The p-value of the ANOVA test is", pvalue))
+        temp_anova<-as.data.frame(cbind(facetting, p_values))
         }
-      
+      temp_anova<-na.omit(temp_anova)
+      colnames(temp_anova) <- c("Facetting variable", "p_value")
+      print(temp_anova, row.names=FALSE)
     }
     if(input$plot_facet ==F){ 
     fit_anova <- aov(my_his_data[,1] ~ as.factor(my_his_data[,2]), data = my_his_data)
@@ -1285,23 +1291,29 @@ function(input, output) {
     }
     })
   
-    ##Barlett test
+    ##Bartlett test
     
     output$Bartlett <- renderPrint({
       my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
       my_his_data[,2]<-as.factor(my_his_data[,2])
       if(input$plot_facet ==T){
+        n_rows<-length(levels(my_his_data[,3]))
+        facetting <-rep(NA,n_rows)
+        pvalue_bartlett<-rep(NA,n_rows)
         for (i in unique(my_his_data[,3])){
-          print(i)
+          facetting[i]<-i
           subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
           fit_bartlett<-bartlett.test(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
           #print(fit_bartlett)
           #model_bartlett<-fit_bartlett[[4]] #result of bartlett is a list with 4th element the description of model
-          pvalue_bartlett<-fit_bartlett[[3]] #result of bartlett is a list with 3rd element the p-value
-          print(paste("The p-value of the Bartlett test of homogeneity of variances is", pvalue_bartlett))
+          pvalue_bartlett[i]<-fit_bartlett[[3]] #result of bartlett is a list with 3rd element the p-value
+          temp_bartlett<-as.data.frame(cbind(facetting, pvalue_bartlett))
+        }
+        temp_bartlett<-na.omit(temp_bartlett)
+        colnames(temp_bartlett) <- c("Facetting variable", "p_value")
+        print(temp_bartlett, row.names=FALSE)
         }
         
-      }
       if(input$plot_facet ==F){ 
         fit_bartlett<-bartlett.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
         #print(fit_bartlett)

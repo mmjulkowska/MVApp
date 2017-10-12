@@ -192,16 +192,18 @@ fluidPage(
                           plotlyOutput("HistPlot")
                           ),
                  
+                 tabPanel("Variance analysis", icon=icon("bar-chart-o"),
+                          verbatimTextOutput("Bartlett")
+                          #verbatimTextOutput("Levene")
+                 ),
+                 
                  tabPanel("Boxplots", icon=icon("sun-o"),
                          # actionButton("Go_Boxplot", label = "Plot boxplots"),
                           plotlyOutput("Boxes")),
                  
                  tabPanel("ANOVA plots", icon=icon("snowflake-o"),
-                          verbatimTextOutput("ANOVAtest")),
-                 tabPanel("Variance analysis", icon=icon("bar-chart-o"),
-                          verbatimTextOutput("Bartlett")#,
-                          #verbatimTextOutput("Levene")
-                          )
+                          verbatimTextOutput("ANOVAtest"))
+                 
                   ))
   # end of Tab#5
     ),
