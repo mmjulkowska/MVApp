@@ -198,7 +198,10 @@ fluidPage(
                  
                  tabPanel("ANOVA plots", icon=icon("snowflake-o"),
                           verbatimTextOutput("ANOVAtest")),
-                 tabPanel("Variance analysis", icon=icon("bar-chart-o"))
+                 tabPanel("Variance analysis", icon=icon("bar-chart-o"),
+                          verbatimTextOutput("Bartlett")#,
+                          #verbatimTextOutput("Levene")
+                          )
                   ))
   # end of Tab#5
     ),
