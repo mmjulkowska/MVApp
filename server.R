@@ -923,9 +923,9 @@ function(input, output) {
     # I tried to include if() statements in this position, but then it doesnt work (formating - but the table still shows up)
     # not sure how to proceed.... aiaiai :(((
     
-    datatable(test) %>% formatStyle( "Add_outliers",
-      target = 'row',
-      backgroundColor = styleInterval((input$outlier_cutoff-1), c("white", "pink")))
+  # datatable(test) %>% formatStyle( "Add_outliers",
+  #    target = 'row',
+  #    backgroundColor = styleInterval((input$outlier_cutoff-1), c("white", "pink")))
   })
   
   # Outlier report
@@ -954,11 +954,19 @@ function(input, output) {
     if(input$Out_pheno_single_multi == "All phenotypes"){
       good_shit <- Outliers_final_data()
       good_shit2 <- subset(good_shit, good_shit$Add_outliers < input$outlier_cutoff)
+      to_trash <- paste("out", input$SelectDV[1], sep = "_")
+      for(i in 2:length(input$SelectDV)){
+        new_trash <- paste("out", input$SelectDV[i], sep = "_")
+        to_trash <- c(to_trash, new_trash)
+      }
+      to_trash <- c(to_trash, "Add_outliers")
     }
     if(input$Out_pheno_single_multi == "Single phenotype"){
-    good_shit <-  Outliers_final_data()
-    good_shit2 <- subset(good_shit, good_shit$outlier == FALSE)
+      good_shit <-  Outliers_final_data()
+      good_shit2 <- subset(good_shit, good_shit$outlier == FALSE)
+      to_trash <- "outlier"
     }
+    good_shit2 <- good_shit2[, !(names(good_shit2)) %in% to_trash]
     return(good_shit2)
   })
   
@@ -1747,6 +1755,199 @@ ggtitle("Variances")
  # - - - - - - - - - - - - >> CLUSTER ANALYSIS IN 8th TAB << - - - - - - - - - - -
  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  
+ # =  = = = = = = = = >> INPUT GADGETS << = = = = = = = = = = = = = 
+ output$Select_data_cluster <- renderUI({
+   if(is.null(ItemList())){return()}
+     else
+       tagList(
+         selectizeInput(
+           inputId = "Cluster_data",
+           label = "Select the dataset that you would like to use for clustering analysis",
+           choices = c("raw data", "NA removed", "outliers removed", "Summary Stats data"), multiple = F))
+})
+
+ output$Select_cluster_method <- renderUI({
+    if(is.null(ItemList())){
+        return()}
+    else
+      tagList(
+        selectizeInput(
+        inputId = "Cluster_cor_method",
+        label = "Select the correlation method for clustering",
+        choices = c("pearson", "kendall", "spearman"), multiple = F))
+})
+
  
+output$Select_clustering_method <- renderUI({
+   if(is.null(ItemList())){return()}
+   else
+     tagList(
+       selectizeInput(
+         inputId = "Cluster_method",
+         label = "Select the method for calculating clusters",
+         choices = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"), multiple = F))
+ })   
+
+output$Select_data_cluster_validation <- renderUI({
+  if(is.null(input$Split_cluster)){
+    return()
+  }
+  else{
+    tagList(
+      selectizeInput(
+        "Clust_test",
+        label = "Which phenotypes would you like to test for significant differences between clusters",
+        choices = input$SelectDV
+      )
+    )
+  }
+})
+
+Data_for_cluster <- eventReactive(exists(input$Cluster_data),{
+  if(input$Cluster_data == "raw data"){
+    cluster_data <- my_data()
+  }  
+  if(input$Cluster_data == "NA removed"){
+    cluster_data <- my_data_nona()
+  }
+  if(input$Cluster_data == "outliers removed"){
+    cluster_data <- Outlier_free_data()
+  }
+  return(cluster_data)
+})
+
+output$Data_cluster_table <- renderDataTable({
+  Data_for_cluster()
+})
+
+output$Select_phenotypes_cluster <- renderUI({
+  if(is.null(Data_for_cluster())){return()}
+ else
+   {
+    tagList(
+      selectizeInput(
+        inputId = "Cluster_pheno", 
+        label = "Select the phenotypes you would like to use for clustering analysis",
+        choices=c(input$SelectDV),
+        multiple = T))}
+})
+
+
+Final_data_cluster <- eventReactive(input$Go_cluster,{
+  temp <- Data_for_cluster()
+  if(input$Cluster_pre_calc == F){
+  temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+  temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+  }
+  if(input$Cluster_pre_calc == T){
+  temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+  temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+  temp2 <- summaryBy(.~ id, data=temp2)  
+  }  
+  return(temp2)
+})
+
+output$Final_cluster_table <- renderDataTable({
+  Final_data_cluster()
+})
+ 
+
+output$ClusterTree <- renderPlot({
+  clust_temp <- Final_data_cluster()
+  clust_temp <- na.omit(clust_temp)
+  clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+  row.names(clust_matrix) <- clust_temp$id
+  clust_matrix = as.matrix(clust_matrix)
+  clust_t_matrix = t(clust_matrix)
+  clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+  clust_t_dist = dist(clust_t_cor)
+  clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+  
+  plot(as.dendrogram(clust_t_clust), horiz=T)
+  
+})
+
+output$HotHeatMap <- renderPlot({
+  clust_temp <- Final_data_cluster()
+  clust_temp <- na.omit(clust_temp)
+  clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+  row.names(clust_matrix) <- clust_temp$id
+  clust_matrix = as.matrix(clust_matrix)
+  clust_t_matrix = t(clust_matrix)
+  clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+  clust_t_dist = dist(clust_t_cor)
+  clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+  heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
+})
+
+output$Dendro_sentence <- renderText({
+  if(is.null(input$Split_cluster)){
+    return()
+  }
+  else{
+  clust_temp <- Final_data_cluster()
+  clust_temp <- na.omit(clust_temp)
+  clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+  row.names(clust_matrix) <- clust_temp$id
+  clust_matrix = as.matrix(clust_matrix)
+  clust_t_matrix = t(clust_matrix)
+  clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+  clust_t_dist = dist(clust_t_cor)
+  clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+  cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
+  names(cluster)[1] <- "cluster"
+  clust_number <- length(unique(cluster$cluster))
+  
+  sentence <- paste("Cutting the dengrodram at ", input$Split_cluster, " will result in ", clust_number, " clusters. Please be aware that clustering your data into too many clusters might not be informative.")
+  return(sentence)
+  }
+})
+
+
+output$HotANOVA <- renderPlot({
+  clust_temp <- Final_data_cluster()
+  clust_temp <- na.omit(clust_temp)
+  clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+  row.names(clust_matrix) <- clust_temp$id
+  clust_matrix = as.matrix(clust_matrix)
+  clust_t_matrix = t(clust_matrix)
+  clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+  clust_t_dist = dist(clust_t_cor)
+  clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+  
+  # cut_tree at $tree_cut value (but first make it numeric)
+  
+  cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
+  names(cluster)[1] <- "cluster"
+  
+  temp <- Data_for_cluster()
+  if(input$Cluster_pre_calc == F){
+    temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+    temp2 <- subset(temp, select = c("id", input$SelectDV))
+  }
+  if(input$Cluster_pre_calc == T){
+    temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+    temp2 <- subset(temp, select = c("id", input$SelectDV))
+    temp2 <- summaryBy(.~ id, data=temp2) 
+    colnames(temp2) = gsub(pattern = ".mean", replacement = "", x = colnames(temp2))
+  }  
+  
+  row.names(temp2) <- temp2$id
+  
+  new_shait <- merge(cluster, temp2, by = "row.names")
+  
+  to_test <- new_shait[,c("id","cluster",input$Clust_test)]
+  
+  names(to_test)[3] <- "phenotype"
+  to_test$cluster <- as.factor(to_test$cluster)
+  amod <- aov(phenotype ~ cluster, data = to_test)
+  tuk <- glht(amod, linfct = mcp(cluster = "Tukey"))
+  tuk.cld <- cld(tuk)   
+  old.par <- par( mai=c(1,1,1.25,1))
+  shaka_laka <- plot(tuk.cld, las=1, col="#dd1c77", ylab=input$Clust_test)
+  shaka_laka
+})
+
+
   # end of the script
 }
