@@ -1832,9 +1832,74 @@ output$Select_phenotypes_cluster <- renderUI({
         multiple = T))}
 })
 
+output$Cluster_subset_trait <- renderUI({
+  if(input$Cluster_subset_Q == F){
+    return()
+  }
+  else{
+    tagList(
+      selectizeInput(
+        inputId = "Cluster_subset_T",
+        label = "Select Indepdentend Variables for which you would like to subset",
+        choices=c(input$SelectGeno, input$SelectIV, input$SelectTime),
+        multiple=T
+      ))}
+})
+
+lista_cluster <- eventReactive(input$Cluster_subset_t,{
+  subset_lista <- input$Cluster_subset_T
+  id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+  id_lista2 <- setdiff(id_lista, subset_lista)
+  temp <- Data_for_cluster()
+  temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+  the_list <- unique(temp$subset_id)
+  the_list
+})
+
+output$Cluster_subset_specific <- renderUI({
+  if(is.null(input$Cluster_subset_T)){
+    return()
+  }
+  else{
+    subset_lista <- input$Cluster_subset_T
+    id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+    id_lista2 <- setdiff(id_lista, subset_lista)
+    temp <- Data_for_cluster()
+    temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+    the_list <- unique(temp$subset_id)
+    
+    tagList(
+      selectizeInput(
+        inputId = "Cluster_subset_S",
+        label = "Select specific subset for which you would like to subset",
+        choices=c(the_list),
+        multiple=F
+      ))}
+})
+
+# = = = = = = = = = = = >> MAIN CALCULATIONS AND TABLES << = = = = = = = = = = = = = = = 
 
 Final_data_cluster <- eventReactive(input$Go_cluster,{
   temp <- Data_for_cluster()
+  if(input$Cluster_subset_Q == T){
+    subset_lista <- input$Cluster_subset_T
+    if(input$Cluster_pre_calc == F){
+    id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)
+    id_lista2 <- setdiff(id_lista, subset_lista)
+    temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+    temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+    temp2 <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+    temp2 <- subset(temp2, select = c("id", input$Cluster_pheno))}
+    if(input$Cluster_pre_calc == T){
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      id_lista2 <- setdiff(id_lista, subset_lista)
+      temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+      temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+      temp <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+      temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+      temp2 <- summaryBy(.~ id, data=temp2)}
+  }
+  if(input$Cluster_subset_Q == F){
   if(input$Cluster_pre_calc == F){
   temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
   temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
@@ -1843,14 +1908,15 @@ Final_data_cluster <- eventReactive(input$Go_cluster,{
   temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
   temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
   temp2 <- summaryBy(.~ id, data=temp2)  
-  }  
+  }}
   return(temp2)
 })
 
 output$Final_cluster_table <- renderDataTable({
   Final_data_cluster()
 })
- 
+
+# = = = = = = = = = >> OUTPUT PLOTS AND SENTENCES << = = = = = = = = = = = = = = 
 
 output$ClusterTree <- renderPlot({
   clust_temp <- Final_data_cluster()
@@ -1901,6 +1967,68 @@ output$Dendro_sentence <- renderText({
   sentence <- paste("Cutting the dengrodram at ", input$Split_cluster, " will result in ", clust_number, " clusters. Please be aware that clustering your data into too many clusters might not be informative.")
   return(sentence)
   }
+})
+
+output$HotAnovaNews <- renderText({
+  clust_temp <- Final_data_cluster()
+  clust_temp <- na.omit(clust_temp)
+  clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+  row.names(clust_matrix) <- clust_temp$id
+  clust_matrix = as.matrix(clust_matrix)
+  clust_t_matrix = t(clust_matrix)
+  clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+  clust_t_dist = dist(clust_t_cor)
+  clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+  
+  # cut_tree at $tree_cut value (but first make it numeric)
+  
+  cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
+  names(cluster)[1] <- "cluster"
+  clust_number <- length(unique(cluster$cluster))
+  
+  temp <- Data_for_cluster()
+  if(input$Cluster_pre_calc == F){
+    temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+    temp2 <- subset(temp, select = c("id", input$SelectDV))
+  }
+  if(input$Cluster_pre_calc == T){
+    temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+    temp2 <- subset(temp, select = c("id", input$SelectDV))
+    temp2 <- summaryBy(.~ id, data=temp2) 
+    colnames(temp2) = gsub(pattern = ".mean", replacement = "", x = colnames(temp2))
+  }  
+  
+  row.names(temp2) <- temp2$id
+  
+  new_shait <- merge(cluster, temp2, by = "row.names")
+  
+  to_test <- new_shait[,c("id","cluster",input$SelectDV[1])]
+  names(to_test)[3] <- "phenotype"
+  to_test$cluster <- as.factor(to_test$cluster)
+  amod <- aov(phenotype ~ cluster, data = to_test)
+  
+  if(summary(amod)[[1]][["Pr(>F)"]] < 0.05){
+    sig_listxxx <- input$SelectDV[1]
+  } 
+  
+  
+  for(i in 2:length(input$SelectDV)){
+    to_test <- new_shait[,c("id","cluster",input$SelectDV[i])]
+    names(to_test)[3] <- "phenotype"
+    to_test$cluster <- as.factor(to_test$cluster)
+    amod <- aov(phenotype ~ cluster, data = to_test)
+    
+    if(summary(amod)[[1]][["Pr(>F)"]] < 0.05){
+      significantna_lista <- input$SelectDV[i]
+    } 
+    sig_listxxx <- c(sig_listxxx, significantna_lista)
+  }
+  
+  lista_cudow <- unique(sig_listxxx)
+  #sentence <- paste("significant effect of clustering was observed for ", lista_cudow, <font color=\"#FF0000\"><b>)
+  paste("<font color=\"#008080\"><b>", lista_cudow, "</b></font>", sep=", ")
+  
+  
 })
 
 

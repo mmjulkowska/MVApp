@@ -286,6 +286,9 @@ fluidPage(
             uiOutput("Select_data_cluster"),
             uiOutput("Select_phenotypes_cluster"),
             checkboxInput("Cluster_pre_calc", label = "Check if you would like to perform cluster analysis on mean values"),
+            checkboxInput("Cluster_subset_Q", label = "Check if you would like to subset the data before cluster analysis"),
+            uiOutput("Cluster_subset_trait"),
+            uiOutput("Cluster_subset_specific"),
             uiOutput("Select_cluster_method"),
             uiOutput("Select_clustering_method"),
             actionButton("Go_cluster", "Unleash cluster analysis")),
@@ -305,11 +308,11 @@ fluidPage(
                    plotOutput("HotHeatMap")),
           tabPanel("Cluster dendrogram",
                    verbatimTextOutput("Dendro_sentence"),
-                   plotOutput("ClusterTree"),
-                   "dendrogram here"),
+                   plotOutput("ClusterTree")),
           tabPanel("Cluster validation",
-                   plotOutput("HotANOVA"),
-                   "ANOVA charts here")
+                   helpText("Significant effect of clusters was observed on the followind traits:"),
+                   htmlOutput("HotAnovaNews"),
+                   plotOutput("HotANOVA"))
           ))
       # end of Tab #8
     )
