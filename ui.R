@@ -139,12 +139,16 @@ fluidPage(
               checkboxInput("outlier_facet", "would you like to facet the graph?"),
               uiOutput("Q_facet"),
               uiOutput("Facet_user_input_columns"),
+<<<<<<< HEAD
               uiOutput("Facet_outlier_scale")),
             tabPanel("summary statistics",
               uiOutput("Data_for_SummaryStats"), # Select the dataset to be used for Summary Stats - <3<3<3 MMJ <3<3<3
               uiOutput("CustomSumm"), ### <<< Added this,   Hashed out selectize  below       %% Mitch %%
               actionButton("Go_SummaryStat", label = "unleash Summary Statistics")
             )
+=======
+              uiOutput("Facet_outlier_scale"))
+>>>>>>> SummaryStats_Stephanie
                        ))),
          mainPanel(
                navbarPage("Get it OUT",
@@ -167,9 +171,13 @@ fluidPage(
                          br(),
                          uiOutput("Pheno_outlier_free_download"),
                          br(),
+<<<<<<< HEAD
                         dataTableOutput("Outlier_free_table")),
                  tabPanel("summary data", icon=icon("flask"),
                           dataTableOutput("sum_data"))
+=======
+                        dataTableOutput("Outlier_free_table"))
+>>>>>>> SummaryStats_Stephanie
              ))
     # end of Tab#4         
     ),
@@ -179,25 +187,55 @@ fluidPage(
     tabPanel("Data exploration", icon=icon("binoculars"),
              sidebarPanel(
                fluidRow(
+<<<<<<< HEAD
                   uiOutput("Sum_download_button"),
+=======
+                 uiOutput("Data_for_SummaryStats"), # Select the dataset to be used for Summary Stats - <3<3<3 MMJ <3<3<3
+                 uiOutput("CustomSumm"), ### <<< Added this,   Hashed out selectize  below       %% Mitch %%
+                 actionButton("Go_SummaryStat", label = "unleash Summary Statistics"),
+                 uiOutput("Sum_download_button"),
+>>>>>>> SummaryStats_Stephanie
                  uiOutput("HisIV"),
-                 uiOutput("HisDV")
+                 uiOutput("HisDV"),
+                 checkboxInput("plot_facet", "Would you like to facet the graph?"),
+                 uiOutput("Plotfacets")
                )),
              
              mainPanel(
+<<<<<<< HEAD
                
               tabsetPanel("",
+=======
+               tabsetPanel(
+                 tabPanel("summary data", icon=icon("flask"),
+                          dataTableOutput("sum_data")),
+                 
+>>>>>>> SummaryStats_Stephanie
                  tabPanel("Histograms", icon=icon("area-chart"),
                           uiOutput("HistType"),
                           plotlyOutput("HistPlot")
                           ),
                  
+<<<<<<< HEAD
+=======
+                 tabPanel("Variance analysis", icon=icon("bar-chart-o"),
+                          verbatimTextOutput("Bartlett")
+                          #verbatimTextOutput("Levene")
+                 ),
+                 
+>>>>>>> SummaryStats_Stephanie
                  tabPanel("Boxplots", icon=icon("sun-o"),
                          # actionButton("Go_Boxplot", label = "Plot boxplots"),
                           plotlyOutput("Boxes")),
                  
+<<<<<<< HEAD
                  tabPanel("ANOVA plots", icon=icon("snowflake-o")),
                  tabPanel("Variance analysis", icon=icon("bar-chart-o"))
+=======
+                 tabPanel("ANOVA plots", icon=icon("snowflake-o"),
+                          verbatimTextOutput("ANOVAtest"))
+                 
+>>>>>>> SummaryStats_Stephanie
                   ))
   # end of Tab#5
     ),
@@ -285,12 +323,16 @@ fluidPage(
           helpText("In here, you can perform a cluster analysis by grouping your data based on the phenotypic traits and validating the clusters"),
             uiOutput("Select_data_cluster"),
             uiOutput("Select_phenotypes_cluster"),
+<<<<<<< HEAD
             checkboxInput("Cluster_pre_calc", label = "Check if you would like to perform cluster analysis on mean values"),
             checkboxInput("Cluster_subset_Q", label = "Check if you would like to subset the data before cluster analysis"),
             uiOutput("Cluster_subset_trait"),
             uiOutput("Cluster_subset_specific"),
             uiOutput("Select_cluster_method"),
             uiOutput("Select_clustering_method"),
+=======
+            uiOutput("Select_cluster_method"),
+>>>>>>> SummaryStats_Stephanie
             actionButton("Go_cluster", "Unleash cluster analysis")),
           tabPanel("Determine the clusters",
             helpText("Have a look at the dendrogram and choose the value at which you would like to split into individual clusters"),
@@ -303,6 +345,7 @@ fluidPage(
       mainPanel(
       navbarPage("Cluster analysis",
           tabPanel("Cluster HOT HOT Heatmap",
+<<<<<<< HEAD
                    dataTableOutput("Data_cluster_table"),
                    dataTableOutput("Final_cluster_table"),
                    plotOutput("HotHeatMap")),
@@ -313,6 +356,13 @@ fluidPage(
                    helpText("Significant effect of clusters was observed on the followind traits:"),
                    htmlOutput("HotAnovaNews"),
                    plotOutput("HotANOVA"))
+=======
+                   "heatmap here"),
+          tabPanel("Cluster dendrogram",
+                   "dendrogram here"),
+          tabPanel("Cluster validation",
+                   "ANOVA charts here")
+>>>>>>> SummaryStats_Stephanie
           ))
       # end of Tab #8
     )
