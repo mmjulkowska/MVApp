@@ -253,7 +253,6 @@ function(input, output) {
     Model_est_data()
   })
   
-<<<<<<< HEAD
   output$best_model_advice <- renderText({
     fraka <- Model_est_data()
     fraka1 <- colnames(fraka)[apply(fraka,1,which.max)]
@@ -273,10 +272,6 @@ function(input, output) {
     sentence <- paste("There are ", how_much, " samples with r-square value below 0.7. You should consider checking them.")
     return(sentence)
   })
-  
-  
-=======
->>>>>>> SummaryStats_Stephanie
   
   # Calculations for the model 
   # provides table with RGR / START and r-square
@@ -478,11 +473,7 @@ function(input, output) {
     else
     tagList(
       selectizeInput("IV_outliers",
-<<<<<<< HEAD
-                     label = "Select the Depentent Variables for which you would like to group yor phenotypes for outlier selection",
-=======
                      label = "Select the Indepentent Variables for which you would like to group yor phenotypes for outlier selection",
->>>>>>> SummaryStats_Stephanie
                      choices=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID),
                      multiple=TRUE)
    )})
@@ -541,7 +532,6 @@ function(input, output) {
     }
   })
   
-<<<<<<< HEAD
   output$Q_colour <- renderUI({
     if(input$outlier_colour == T){
       tagList(
@@ -581,8 +571,6 @@ function(input, output) {
     }
   })
   
-  # - - - - - - - - - - - - - >>  MAIN CALCULATIONS << - - - - - - - - - - - - - -
-=======
   # - - - - - - - - - - - - - >>  MAIN CALCULATIONS << - - - - - - - - - - - - - -
   
   # General outlier testing table => highlighting the plants with problems in multiple traits:
@@ -1113,11 +1101,6 @@ function(input, output) {
       
       jaka
     })
-  
-   # Table in Tab4 - main window - summary of the data based on the selected calculations
->>>>>>> SummaryStats_Stephanie
-  
-  # General outlier testing table => highlighting the plants with problems in multiple traits:
   
   ## TESTING OMIT.NA     %% Mitch %%
   my_data_nona <- eventReactive(input$Go_omitna == T, {
@@ -1795,32 +1778,17 @@ function(input, output) {
     }
     })
   
-  
-  
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # - - - - - - - - - - - - >> DATA EXPLORATION IN 5th TAB << - - - - - - - - - - -
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  
-  
-  
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # - - - - - - - - - - - - >> DATA EXPLORATION IN 5th TAB << - - - - - - - - - - -
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  
+  # = = = = = = >> SUMMARY STATS - MOVED FROM 5th TAB << = = = = = = = = = 
   
   ## Added new input "$SelectSumm"  and output "$CustomSumm"  %% Mitch %%
   
   output$Data_for_SummaryStats <- renderUI({
-<<<<<<< HEAD
-    if((is.null(ItemList()))){return ()
-=======
     if(is.null(ItemList())){return ()
->>>>>>> SummaryStats_Stephanie
     } else tagList(
       selectizeInput(inputId = "SelectDataSumm",
                      label = "Select the dataset to be used for the summary stats",
                      choices= c("raw data", "modelled data", "outliers removed"), selected="raw data", multiple = F))
-    })
+  })
   
   output$CustomSumm <- renderUI({
     if((is.null(ItemList()))){return ()
@@ -1858,9 +1826,9 @@ function(input, output) {
       melted_icecream <- melted_icecream[ , !(names(melted_icecream)%in% drops)]
       melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))
     }
-
+    
     # TO DO:
-        # we need to get rid of the SelectID column before doing any Summary Stat on the data <3<3<3 MMJ <3<3<3
+    # we need to get rid of the SelectID column before doing any Summary Stat on the data <3<3<3 MMJ <3<3<3
     
     ## Added call to selected summary stats functions "FUN=summfuns[input$SelectSumm]"     %% Mitch %%
     sum_my_data<-summaryBy(value ~., data=melted_icecream, FUN=summfuns[input$SelectSumm])
@@ -1879,258 +1847,21 @@ function(input, output) {
     if(is.null(sum_data())){
       return()}
     else
-  downloadButton("data_sum", label="Download Summary Stats data")
-    })
+      downloadButton("data_sum", label="Download Summary Stats data")
+  })
   
   output$data_sum <- downloadHandler(
     filename = "Summary_stats_MVApp.csv",
-   content <- function(file) {
-        write.csv(sum_data(), file)}
+    content <- function(file) {
+      write.csv(sum_data(), file)}
   )
-<<<<<<< HEAD
-=======
   
-  
-
-  
-#### HISTOGRAMS  
->>>>>>> SummaryStats_Stephanie
-  
-  output$HisIV <- renderUI({
-   if ((input$Go_Data == FALSE)) {
-    return ()
-    } else
-      tagList(
-        selectizeInput(
-          inputId = "HisIV",
-          label = "Select the variable for which you would like to subset your data.",
-          choices = c(
-            input$SelectIV,
-            input$SelectGeno,
-            input$SelectTime,
-            input$SelectID
-          ),
-          multiple = F
-        )
-      )
-  })
-  
-  
-  output$HisDV <- renderUI({
-    if ((input$Go_Data == FALSE)) {
-      return ()
-    } else
-      tagList(
-        selectizeInput(
-          inputId = "HisDV",
-          label = "Select the trait you would like to plot",
-          choices = c(
-            input$SelectDV
-          ),
-          multiple = F
-        )
-      )
-  })
-  
-<<<<<<< HEAD
-=======
-  
-  output$Plotfacets <- renderUI({
-    if(input$plot_facet == T){
-      tagList(
-        selectInput("Plotfacet_choice", "Select variable for which to facet",
-                    choices = c(setdiff(list(input$SelectGeno, input$SelectIV, input$SelectTime),input$HisIV)))
-        )
-    }
-    else{
-      return()
-    }
-  })
-  
->>>>>>> SummaryStats_Stephanie
-  output$HistType <- renderUI({
-    if ((input$Go_Data == FALSE)) {
-      return ()
-    } else
-      tagList(
-        selectizeInput(
-          inputId = "HistType",
-          label = "Select a plot type",
-          choices = c("HistCount", "HistDensity"),
-          selected = "HistCount",
-          multiple = F
-        )
-      )
-  })
-  
-  
-  output$HistPlot <- renderPlotly({
-<<<<<<< HEAD
-    hisdata<-my_data()[,c(input$HisDV,input$HisIV)]
-    my_his_data <- hisdata
-=======
-    my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-    #groupIV<-input$HisIV
-    
-    if(input$plot_facet ==T){
-      facetIV<-input$Plotfacet_choice
-      my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
-      #groupIV<-setdiff(groupIV, facetIV)}
-    
-      #plotDV<-input$HisDV
-      #my_his_data$plotDV<-my_his_data[,input$HisDV]
-      
-      #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
-      
-### These hashed out lines are trying to work in groupID (equivalent to Magda's id_test) which allows grouping by multiple IVs
-### Should eventually replace lines 1219 - 1230      
-            
-#      if (input$HistType == "HistCount") {
-#         fit <- ggplot(my_his_data, aes(x=groupID, y=plotDV)) + xlab(names(my_his_data$groupID)) + geom_histogram(size=0.6, alpha=0.3, col="black") 
-#      }
-#      if (input$HistType == "HistDensity" ) { 
-#        fit <- ggplot(my_his_data, aes(x=groupID, y=plotDV)) + xlab(names(my_his_data$groupID)) + geom_density(alpha = 0.3)
-#      }
-      
->>>>>>> SummaryStats_Stephanie
-    if (input$HistType == "HistCount") {
-       fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
-       fit <- fit + facet_wrap(~facetIV)
-    }
-    if (input$HistType == "HistDensity" ) { 
-<<<<<<< HEAD
-      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3)
-=======
-      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
-      fit <- fit + facet_wrap(~facetIV)
-    }
-    }
-    
-  
-  if(input$plot_facet ==F){
-    if (input$HistType == "HistCount") {
-      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
->>>>>>> SummaryStats_Stephanie
-    }
-    if (input$HistType == "HistDensity" ) { 
-      fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
-    }
-  }
-    ggplotly(fit)
-  
-  }) 
-  
-  
-
-<<<<<<< HEAD
-     
-    
-    ##STILL TO DO:
-        #       try to do subset by multiple variables
-    output$Boxes <- renderPlotly({
-      hisdata2<-my_data()[,c(input$SelectGeno, input$HisDV,input$HisIV)]
-      box_graph <- ggplot(hisdata2, aes(x=hisdata2[,3], y=hisdata2[,4])) + xlab(names(hisdata2[2])) + ylab(names(hisdata2[1])) + geom_boxplot()
-      ggplotly(box_graph)
-=======
-   
-    ##STILL TO DO:
-        #       try to do subset by multiple variables
-    output$Boxes <- renderPlotly({
-      my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-      #groupIV<-input$HisIV
-      
-      if(input$plot_facet ==T){
-        facetIV<-input$Plotfacet_choice
-        my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
-        
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
-      box_graph<- box_graph + facet_wrap(~facetIV)
-      }
-      else{
-        box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
-        
-      }
-      ggplotly(box_graph)
-    })
-    
-    ###ANOVA summary table output
-    output$ANOVAtest <- renderPrint({
-      my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-      my_his_data[,2]<-as.factor(my_his_data[,2])
-    if(input$plot_facet ==T){
-      n_rows<-length(levels(my_his_data[,3]))
-      facetting<-rep(NA,n_rows)
-      p_values<-rep(NA,n_rows)
-       for (i in unique(my_his_data[,3])){
-        subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
-        facetting[i]<-i
-        fit_anova<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
-        #print(fit_anova)
-        #print(summary(fit_anova))
-        p_values[i]<-summary(fit_anova)[[1]][[1,"Pr(>F)"]] #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
-        #print(paste("The p-value of the ANOVA test is", pvalue))
-        temp_anova<-as.data.frame(cbind(facetting, p_values))
-        }
-      temp_anova<-na.omit(temp_anova)
-      colnames(temp_anova) <- c("Facetting variable", "p_value")
-      print(temp_anova, row.names=FALSE)
-    }
-    if(input$plot_facet ==F){ 
-    fit_anova <- aov(my_his_data[,1] ~ as.factor(my_his_data[,2]), data = my_his_data)
-    #print(fit_anova)
-    #br()
-    #print(summary(fit_anova))
-    pvalue_ANOVA<-summary(fit_anova)[[1]][[1,"Pr(>F)"]]
-    print(paste("The p-value of the ANOVA test is", pvalue_ANOVA))
-    }
-    })
-  
-    ##Bartlett test
-    
-    output$Bartlett <- renderPrint({
-      my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-      my_his_data[,2]<-as.factor(my_his_data[,2])
-      if(input$plot_facet ==T){
-        n_rows<-length(levels(my_his_data[,3]))
-        facetting <-rep(NA,n_rows)
-        pvalue_bartlett<-rep(NA,n_rows)
-        for (i in unique(my_his_data[,3])){
-          facetting[i]<-i
-          subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
-          fit_bartlett<-bartlett.test(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
-          #print(fit_bartlett)
-          #model_bartlett<-fit_bartlett[[4]] #result of bartlett is a list with 4th element the description of model
-          pvalue_bartlett[i]<-fit_bartlett[[3]] #result of bartlett is a list with 3rd element the p-value
-          temp_bartlett<-as.data.frame(cbind(facetting, pvalue_bartlett))
-        }
-        temp_bartlett<-na.omit(temp_bartlett)
-        colnames(temp_bartlett) <- c("Facetting variable", "p_value")
-        print(temp_bartlett, row.names=FALSE)
-        }
-        
-      if(input$plot_facet ==F){ 
-        fit_bartlett<-bartlett.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
-        #print(fit_bartlett)
-        #model_bartlett<-fit_bartlett[[4]] #result of bartlett is a list with 4th element the description of model
-        pvalue_bartlett<-fit_bartlett[[3]] #result of bartlett is a list with 3rd element the p-value
-        print(paste("The p-value of the Bartlett test of homogeneity of variances is",  pvalue_bartlett))
-      }
->>>>>>> SummaryStats_Stephanie
-    })
-    
+ 
     
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # - - - - - - - - - - - - >> DATA CORRELATION IN 6th TAB << - - - - - - - - - - -
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    
-<<<<<<< HEAD
-  
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    # - - - - - - - - - - - - >> DATA CORRELATION IN 6th TAB << - - - - - - - - - - -
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    
-=======
->>>>>>> SummaryStats_Stephanie
+
   output$Pheno1 <- renderUI({
     if (is.null(input$SelectDV)) {
       return ()
@@ -2408,7 +2139,6 @@ ggtitle("Variances")
        multiple = F
      )
    )
-<<<<<<< HEAD
  })
  
  output$PCA2_select <- renderUI({
@@ -2426,27 +2156,7 @@ ggtitle("Variances")
      )
    )
  })
- 
-=======
- })
- 
- output$PCA2_select <- renderUI({
-   if ((input$Go_PCAdata == FALSE)) {
-     return()
-   } else
-     eigenvalues <- PCA_eigen_data()
-   list_avail_PCs <- unique(1:(nrow(eigenvalues)-2))
-   tagList(
-     selectizeInput(
-       inputId = "Which_PC2",
-       label = "Select which PCs you would like to plot on y-axis",
-       choices = list_avail_PCs,
-       multiple = F
-     )
-   )
- })
- 
->>>>>>> SummaryStats_Stephanie
+
  output$PCA_contribution_plot <- renderPlotly({
    beginCol <-
      length(c(
@@ -2488,7 +2198,6 @@ ggtitle("Variances")
  # - - - - - - - - - - - - >> CLUSTER ANALYSIS IN 8th TAB << - - - - - - - - - - -
  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  
-<<<<<<< HEAD
  # =  = = = = = = = = >> INPUT GADGETS << = = = = = = = = = = = = = 
  output$Select_data_cluster <- renderUI({
    if(is.null(ItemList())){return()}
@@ -2795,11 +2504,8 @@ output$HotANOVA <- renderPlot({
   }  
   
   row.names(temp2) <- temp2$id
-  
   new_shait <- merge(cluster, temp2, by = "row.names")
-  
   to_test <- new_shait[,c("id","cluster",input$Clust_test)]
-  
   names(to_test)[3] <- "phenotype"
   to_test$cluster <- as.factor(to_test$cluster)
   amod <- aov(phenotype ~ cluster, data = to_test)
@@ -2810,9 +2516,5 @@ output$HotANOVA <- renderPlot({
   shaka_laka
 })
 
-
-=======
- 
->>>>>>> SummaryStats_Stephanie
   # end of the script
 }
