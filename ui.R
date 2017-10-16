@@ -181,16 +181,18 @@ fluidPage(
          )),
       mainPanel(
         navbarPage("PCA the crazy",
-            tabPanel("Selected dataset",
-                dataTableOutput("PCA_raw_table")),
-            tabPanel("Final data for PCA",
-                     dataTableOutput("PCA_final_table")),
-            tabPanel("Eigen Plot",
-                    plotlyOutput("PCA_eigen_plot")),
-            tabPanel("Contribution Plot",
-                     plotlyOutput("PCA_contribution_plot")),
-            tabPanel("Scatter Plot",
-                     plotlyOutput("PCA_scatter_plot"))
+                   tabPanel("Selected dataset",
+                            dataTableOutput("PCA_raw_table")),
+                   tabPanel("Final data for PCA",
+                            dataTableOutput("PCA_final_table")),
+                   tabPanel("Eigen Plot",
+                            plotlyOutput("PCA_eigen_plot"),
+                            dataTableOutput("PCA_contribution_table"),
+                            plotOutput("PCA_trait_contribution")),
+                   tabPanel("Contribution Plot",
+                            plotOutput("PCA_contribution_plot")),
+                   tabPanel("Scatter Plot",
+                            plotOutput("PCA_scatter_plot"))
             ))
       # end Tab 6
     ),

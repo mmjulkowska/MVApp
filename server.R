@@ -654,11 +654,47 @@ ggtitle("Variances")
    )
  })
  
- output$PCA_contribution_plot <- renderPlotly({
+ output$PCA_contribution_table <- renderDataTable({
    beginCol <-
      length(c(
        input$SelectIV,
-      input$SelectGeno,
+       input$SelectGeno,
+       input$SelectTime,
+       input$SelectID
+     )) + 1
+   endCol <-ncol(PCA_final_data())
+   
+   PCA_ready <- PCA_final_data()
+   PCA_ready <- PCA_ready[, beginCol : endCol]
+   res.pca <- PCA(PCA_ready, graph = FALSE)
+   test <- as.data.frame(res.pca$var$contrib)
+   test$summary_trait <- rowSums(test, na.rm = FALSE, dims = 1)
+   test
+ })
+ 
+ PCA_trait_contribution <- eventReactive(input$Go_PCA,{
+   beginCol <-
+     length(c(
+       input$SelectIV,
+       input$SelectGeno,
+       input$SelectTime,
+       input$SelectID
+     )) + 1
+   endCol <-ncol(PCA_final_data())
+   
+   PCA_ready <- PCA_final_data()
+   PCA_ready <- PCA_ready[, beginCol : endCol]
+   res.pca <- PCA(PCA_ready, graph = FALSE)
+   test <- res.pca$var$contrib
+   test$summary_trait <- sum(test[2:ncol(test)])
+   test$trait <- row.names(test)
+ })
+ 
+ output$PCA_contribution_plot <- renderPlot({
+   beginCol <-
+     length(c(
+       input$SelectIV,
+       input$SelectGeno,
        input$SelectTime,
        input$SelectID
      )) + 1
@@ -666,13 +702,13 @@ ggtitle("Variances")
    PCA_ready <- PCA_final_data()
    PCA_ready <- PCA_ready[, beginCol : endCol]
    res.pca <- PCA(PCA_ready, graph = FALSE)
-  mid=median(res.pca$var$contrib)
-  fviz_pca_var(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.var="contrib", geom ="auto", labelsize = 4, repel=T, label="var", addlabels=T, invisible = "none") +
-   scale_color_gradient2(low="grey", mid="purple", 
-                         high="red", midpoint=mid)+theme_bw()
+   mid=median(res.pca$var$contrib)
+   fviz_pca_var(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.var="contrib", geom ="auto", labelsize = 4, repel=T, label="var", addlabels=T, invisible = "none") +
+     scale_color_gradient2(low="grey", mid="purple", 
+                           high="red", midpoint=mid)+theme_bw()
  })
  
- output$PCA_scatter_plot <- renderPlotly({
+ output$PCA_scatter_plot <- renderPlot({
    beginCol <-
      length(c(
        input$SelectIV,
