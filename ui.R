@@ -213,9 +213,20 @@ tabPanel(
   icon = icon("compress"),
   navbarPage("",
     tabPanel("General Correlations",
+             sidebarPanel(
              selectInput("corMethod", "Correlation Method",eval(formals(cor)$method)),
-             plotOutput("corrplot")),
-    tabPanel(
+             selectInput("corrplotMethod", "Plot Method",eval(formals(corrplot)$method)),
+             selectInput("corType", "Plot Type",eval(formals(corrplot)$type)),
+             selectInput("corOrder", "Order of the lable",eval(formals(corrplot)$order))
+             ),
+             
+             
+            mainPanel(
+            plotOutput("corrplot")
+            )
+    ),
+    
+   tabPanel(
       "Subsetted correlations",
       sidebarPanel(# select which IV do they want to subset the data? especially if there are more IVs
         uiOutput("CorSpecIV"),

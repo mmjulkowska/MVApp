@@ -2206,10 +2206,11 @@ function(input, output) {
         input$SelectID
       )) + length(input$SelectDV)
     
-    corrplot.mixed(
-      cor(my_data()[, beginCol:endCol],
-      method = input$corMethod
-    ))
+    corrplot(
+      cor(my_data()[, beginCol:endCol], method = input$corMethod),
+      method=input$corrplotMethod,
+      type=input$corType,
+      order=input$corOrder)
   })
   
   
