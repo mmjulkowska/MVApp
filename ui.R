@@ -185,6 +185,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
              uiOutput("Histo_Pheno_data"),
              uiOutput("HisIV"),
              uiOutput("HisDV"),
+             uiOutput("Chosenthreshold"),
              checkboxInput("plot_facet", "Would you like to facet the graph?"),
              uiOutput("Plotfacets")
            )),

@@ -1965,7 +1965,6 @@ function(input, output) {
   })
   
   
-  
   output$HisDV <- renderUI({
     if ((input$Go_Data == FALSE)) {
       return ()
@@ -1977,6 +1976,21 @@ function(input, output) {
           choices = c(
             input$SelectDV
           ),
+          multiple = F
+        )
+      )
+  })
+  
+  output$Chosenthreshold <- renderUI({
+    if ((input$Go_Data == FALSE)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Chosenthreshold",
+          label = "Select the p-value threshold to apply for tests of normality, homogeneity of variance and ANOVA:",
+          choices = c(0.00001, 0.01, 0.05, 0.1),
+          selected = 0.05,
           multiple = F
         )
       )
@@ -1994,6 +2008,7 @@ function(input, output) {
     }
   })
   
+  
   output$HistType <- renderUI({
     if ((input$Go_Data == FALSE)) {
       return ()
@@ -2008,6 +2023,8 @@ function(input, output) {
         )
       )
   })
+  
+  
   
   
   output$HistPlot <- renderPlotly({
@@ -2113,36 +2130,51 @@ function(input, output) {
   })
   
   ##Bartlett test
-  
   output$Bartlett <- renderPrint({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     my_his_data[,2]<-as.factor(my_his_data[,2])
+    
     if(input$plot_facet ==T){
       n_rows<-length(levels(my_his_data[,3]))
       facetting <-rep(NA,n_rows)
       pvalue_bartlett<-rep(NA,n_rows)
+      interpret<-rep(NA,n_rows)
       for (i in unique(my_his_data[,3])){
         facetting[i]<-i
         subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
         fit_bartlett<-bartlett.test(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
         #print(fit_bartlett)
         #model_bartlett<-fit_bartlett[[4]] #result of bartlett is a list with 4th element the description of model
-        pvalue_bartlett[i]<-fit_bartlett[[3]] #result of bartlett is a list with 3rd element the p-value
-        temp_bartlett<-as.data.frame(cbind(facetting, pvalue_bartlett))
+        pvalue_bartlett[i]<-signif(fit_bartlett[[3]], 5) #result of bartlett is a list with 3rd element the p-value
+        
+        if (fit_bartlett[[3]] < as.numeric(input$Chosenthreshold) ) {
+          interpret[i]<-"Not equal"
+        } else {
+          interpret[i]<-"Equal"
+          }
+        
+        temp_bartlett<-as.data.frame(cbind(facetting, pvalue_bartlett, interpret))
       }
       temp_bartlett<-na.omit(temp_bartlett)
-      colnames(temp_bartlett) <- c("", "p_value")
+      colnames(temp_bartlett) <- c("", "p_value", paste("The variances between ", input$HisIV, " groups are:", sep=""))
       cat(paste("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
       print(temp_bartlett, row.names=FALSE)
     }
     
     if(input$plot_facet ==F){ 
+      
       fit_bartlett<-bartlett.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
       #print(fit_bartlett)
       #model_bartlett<-fit_bartlett[[4]] #result of bartlett is a list with 4th element the description of model
-      pvalue_bartlett<-fit_bartlett[[3]] #result of bartlett is a list with 3rd element the p-value
-      cat("VARIANCE ANALYSIS", "\n")
-      cat(paste("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, "S is ", pvalue_bartlett, sep=""))
+      pvalue_bartlett<-signif(fit_bartlett[[3]],5) #result of bartlett is a list with 3rd element the p-value
+      cat("HOMOGENEITY OF VARIANCE ANALYSIS", "\n")
+      cat("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, "S is ", pvalue_bartlett, ".", "\n", sep="")
+      
+      if (pvalue_bartlett < as.numeric(input$Chosenthreshold) ) {
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are equal.", sep="")
+      } else {
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are not equal.", sep="")
+      }
     }
   })
   
