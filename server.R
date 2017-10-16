@@ -2207,11 +2207,12 @@ function(input, output) {
       )) + length(input$SelectDV)
     
     corrplot.mixed(
-      cor(my_data()[, beginCol:endCol]),
-      order = "hclust",
-      tl.col  = "black"
-    )
+      cor(my_data()[, beginCol:endCol],
+      method = input$corMethod
+    ))
   })
+  
+  
   
   output$CorSpecIV <- renderUI({
     if ((input$Go_Data == FALSE)) {

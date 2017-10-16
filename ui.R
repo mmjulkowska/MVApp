@@ -211,9 +211,9 @@ tabPanel("Data exploration", icon=icon("binoculars"),
 tabPanel(
   "Establish correlations between traits",
   icon = icon("compress"),
-  
   navbarPage("",
     tabPanel("General Correlations",
+             selectInput("corMethod", "Correlation Method",eval(formals(cor)$method)),
              plotOutput("corrplot")),
     tabPanel(
       "Subsetted correlations",
