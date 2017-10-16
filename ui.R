@@ -189,7 +189,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
            )),
          
          mainPanel(
-           tabsetPanel("",
+           navbarPage("",
                        tabPanel("Histograms", icon=icon("area-chart"),
                                 uiOutput("HistType"),
                                 plotlyOutput("HistPlot")
