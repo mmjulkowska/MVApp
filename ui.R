@@ -74,10 +74,10 @@ fluidPage(
                                                   "quadratic" = "quad",
                                                   "exponential" = "exp",
                                                   "square root" = "sqr")),
-                                    actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle")),
+                                    actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle"))
                                     # actionButton("Go_SaveModelData", label = "Lock this modelled data for use in next steps", icon=icon("hand-o-right")),
                                     # helpText("If you are satisfied with the results of the modeling, you can add them to the dataset that can be used in the 'Data curation' tab"),
-                                    uiOutput("Model_download_button")),
+                                    ),
                            tabPanel("Fit Plot options",
                                     "some gadgets?")   
                 ))),
@@ -89,6 +89,7 @@ fluidPage(
                                   dataTableOutput("Model_estimation")),
                          tabPanel("Modelled data",
                                   verbatimTextOutput("model_warning"),
+                                  uiOutput("Model_download_button"),
                                   dataTableOutput("Model_data")),
                          tabPanel("Fit-Plot",
                                   uiOutput("Select_modelPlot"),
@@ -252,6 +253,10 @@ tabPanel(
     fluidRow(
       helpText("Which phenotype you would like to use for the PCA?"),
       uiOutput("PCA_Pheno_data"), # which phenotype data (summarized / na / original) selectize, multiple = F
+      checkboxInput("PCA_data_avg", label = "Check if you would like to perform PCA on mean values per genotype / IVs / time"),
+      checkboxInput("PCA_data_subset", label = "Check if you would like to perform PCA on specific subset of your data"),
+      uiOutput("PCA_subset_trait"),
+      uiOutput("PCA_subset_specific"),
       actionButton("Go_PCAdata", label = "set the dataset"),
       uiOutput("PCA_Select_pheno"), # which traits would you like to use? selectize, multiple = T
       # uiOutput("SelectGroup"), # How would you like to colour, selectize (input$SelectGeno, input$SelectDV, input$SelectTime, multiple = F)
@@ -307,12 +312,16 @@ tabPanel("Clustering",
          mainPanel(
            navbarPage("Cluster analysis",
                       tabPanel("Cluster HOT HOT Heatmap",
-                               dataTableOutput("Data_cluster_table"),
-                               dataTableOutput("Final_cluster_table"),
+                               #dataTableOutput("Data_cluster_table"),
+                               #dataTableOutput("Final_cluster_table"),
                                plotOutput("HotHeatMap")),
                       tabPanel("Cluster dendrogram",
                                verbatimTextOutput("Dendro_sentence"),
-                               plotOutput("ClusterTree")),
+                               plotOutput("ClusterTree"),
+                               uiOutput("Cluster_download_button"),
+                               br(),
+                               dataTableOutput("Cluster_table")
+                               ),
                       tabPanel("Cluster validation",
                                helpText("Significant effect of clusters was observed on the followind traits:"),
                                htmlOutput("HotAnovaNews"),

@@ -428,6 +428,63 @@ function(input, output) {
     }
   })
   
+  ## == >> Having a go at the dynamic ploting thing << == ##
+  
+  output$Model_graph_fit_select_multi_input <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()}
+    else{
+      tagList(
+        selectizeInput(
+          Model_graph_fit_select,
+          label = "Plot the fit-plots for",
+          choices = c("All", "10 lowest r-square values", "10 highest r-square values", "10 highest DELTA values", "10 lowest DELTA values", "10 highest INTERCEPT values", "10 lowest INTERCEPT values")
+        ))}
+  })
+  
+  list_to_fitplot <- eventReactive(input$Model_graph_fit_select,{
+    test <- Model_temp_data()
+    if(input$Model_graph_fit_select == "All"){
+      test2 <- test
+    }
+    if(input$Model_graph_fit_select == "10 lowest r-square values"){
+      test2 <- test %>% top_n(n = 10, wt = -r_sqared)
+    }
+    if(input$Model_graph_fit_select == "10 highest r-square values"){
+      test2 <- test %>% top_n(n = 10, wt = r_sqared)
+    }
+    if(input$Model_graph_fit_select == "10 highest DELTA values"){
+      test2 <- test %>% top_n(n = 10, wt = DELTA)
+    }
+    if(input$Model_graph_fit_select == "10 lowest DELTA values"){
+      test2 <- test %>% top_n(n = 10, wt = -DELTA)
+    }
+    if(input$Model_graph_fit_select == "10 highest INTERCEPT values"){
+      test2 <- test %>% top_n(n = 10, wt = INTERCEPT)
+    }
+    if(input$Model_graph_fit_select == "10 lowest INTERCEPT values"){
+      test2 <- test %>% top_n(n = 10, wt = -INTERCEPT)
+    }
+  })
+  
+  Fit_plotski_id <- eventReactive( input$Go_Model,{
+  temp <- subset(my_data(), select = c(
+    input$ModelIV,
+    input$ModelSubIV,
+    input$SelectID,
+    input$SelectTime,
+    input$ModelPheno))
+  temp[,input$SelectTime] <- as.numeric(temp[,input$SelectTime])
+  sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
+  things_to_model <- unique(temp[sub_set])
+  
+  temp$selection <- paste(temp[,input$ModelIV], temp[,input$ModelSubIV], temp[,input$SelectID], sep="_")
+  docelowy <- subset(temp, temp$selection == input$Model_graph_fit_select_multi)
+  
+  })
+  
+  
+  
   # Adding data to the existing table
   # this is not working, as I am adding the data to something that doesnt exist. 
   Saved_model_data <- eventReactive(input$Go_Model,{
@@ -453,6 +510,7 @@ function(input, output) {
       write.csv(Model_temp_data(), file)}
   )
   
+  # I dont think we should be using this - can only lead to problems!!!
   # Fusing the model data to the data that can be used for Summary Stats
   Full_set_from_modeling <- eventReactive(input$Go_SaveModelData,{
     melted_icecream <- melt(my_data(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
@@ -1572,7 +1630,7 @@ function(input, output) {
       return()
     }
     else{
-      actionButton("lock_outliers", label = "Lock this outlier-free data for further analysis")
+      actionButton("lock_outliers", icon=icon("thumbs-o-up"), label = "Lock this outlier-free data for further analysis")
     }
   })
   
@@ -1787,7 +1845,7 @@ function(input, output) {
     } else tagList(
       selectizeInput(inputId = "SelectDataSumm",
                      label = "Select the dataset to be used for the summary stats",
-                     choices= c("raw data", "modelled data", "outliers removed"), selected="raw data", multiple = F))
+                     choices= c("raw data", "NA removed", "outliers removed"), selected="raw data", multiple = F))
   })
   
   output$CustomSumm <- renderUI({
@@ -1815,10 +1873,11 @@ function(input, output) {
       melted_icecream <- melted_icecream[ , !(names(melted_icecream)%in% drops)]
       melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))
     }
-    if(input$SelectDataSumm == "modelled data"){
-      melted_icecream <- Full_set_from_modeling()
+    if(input$SelectDataSumm == "Na_removed"){
+      melted_icecream <- my_data_nona()
       drops <-input$SelectID
       melted_icecream <- melted_icecream[ , !(names(melted_icecream)%in% drops)]
+      melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))
     }
     if(input$SelectDataSumm == "outliers removed"){
       melted_icecream <- Outlier_free_data()
@@ -2225,46 +2284,18 @@ function(input, output) {
         selectizeInput(
           inputId = "PCA_data",
           label = "Select the dataset that you would like to use for PCA",
-          choices = c("raw data", "NA removed", "outliers removed", "Summary Stats data"), multiple = F))
+          choices = c("raw data", "NA removed", "outliers removed"), multiple = F))
   })  
-  
-  # we need to put all possible datasets in the same format - let's melt it all!
-  
-  my_data_melt <- eventReactive(input$Go_PCAdata,{
-    my_melt <- melt(my_data(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
-    my_melt
-  })
-  
-  my_data_no_outl_melt <- eventReactive(input$Go_PCAdata,{
-    my_melt <- melt(Outlier_free_data(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
-    my_melt
-  })
-  
-  my_data_nona_melt <- eventReactive(input$Go_PCAdata,{
-    my_melt <- melt(NA_free_data(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
-    my_melt
-  })
-  
-  sum_data_melt <- eventReactive(input$Go_PCAdata,{
-    my_melt <- melt(sum_data(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime, "Dependent_Variable"))
-    names(my_melt)[names(my_melt) == "variable"] <- "summary_stat"
-    my_melt$variable <- paste(my_melt$Dependent_Variable,"_",my_melt$summary_stat, separate="")
-    my_melt
-    
-  })
-  
+ 
   PCA_data_type <- eventReactive(input$Go_PCAdata,{
     if(input$PCA_data == "raw data"){
-      PCA_data_type <- my_data_melt()
+      PCA_data_type <- my_data()
     }
     if(input$PCA_data == "NA removed"){
-      PCA_data_type <- my_data_nona_melt()
+      PCA_data_type <- my_data_nona()
     }
     if(input$PCA_data == "outliers removed"){
       PCA_data_type <- Outlier_free_data()
-    }
-    if(input$PCA_data == "Summary Stats data"){
-      PCA_data_type <- sum_data_melt()
     }
     PCA_data_type
   })
@@ -2277,23 +2308,97 @@ function(input, output) {
     if ((input$Go_PCAdata == FALSE)) {
       return()
     } else
-      names <- subset(PCA_data_type(), select = variable) %>% unique()
     tagList(
       selectizeInput(
         inputId = "PCA_pheno",
         label = "Select the phenotypes would you like to use for the PCA",
-        choices = c(names),
+        choices = c(input$SelectDV),
         multiple = T
       )
     )
   })
+  output$PCA_subset_trait <- renderUI({
+    if(input$PCA_data_subset == F){
+      return()
+    }
+    else{
+      tagList(
+        selectizeInput(
+          inputId = "PCA_subset_T",
+          label = "Select Indepdentend Variables for which you would like to subset",
+          choices=c(input$SelectGeno, input$SelectIV, input$SelectTime),
+          multiple=T
+        ))}
+  })
+  
+  lista_PCA <- eventReactive(input$PCA_subset_T,{
+    subset_lista <- input$PCA_subset_T
+    id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+    id_lista2 <- setdiff(id_lista, subset_lista)
+    temp <- PCA_data_type()
+    temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+    the_list <- unique(temp$subset_id)
+    the_list
+  })
+  
+  output$PCA_subset_specific <- renderUI({
+    if(is.null(input$PCA_subset_T)){
+      return()
+    }
+    else{
+      subset_lista <- input$PCA_subset_T
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      id_lista2 <- setdiff(id_lista, subset_lista)
+      temp <- PCA_data_type()
+      temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+      the_list <- unique(temp$subset_id)
+      
+      tagList(
+        selectizeInput(
+          inputId = "PCA_subset_S",
+          label = "Select specific subset for which you would like to subset",
+          choices=c(the_list),
+          multiple=F
+        ))}
+  })
   
   PCA_final_data <- eventReactive(input$Go_PCA,{
     temp <- data.frame(PCA_data_type())
-    temp <- subset(temp, temp$variable == input$PCA_pheno)
-    temp <- temp[,c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime, "variable", "value")]
-    temp2 <- dcast(temp, formula = ... ~ variable, value.var = "value")
-    temp2
+    temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
+    
+  if(input$PCA_data_subset == T){
+    subset_lista <- input$PCA_subset_T
+    if(input$PCA_data_avg == F){
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)
+      id_lista2 <- setdiff(id_lista, subset_lista)
+      temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+      temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+      temp2 <- subset(temp, temp$sub_id == input$PCA_subset_S)
+      temp2 <- subset(temp2, select = c("id", input$PCA_pheno))
+      }
+    if(input$PCA_data_avg == T){
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      id_lista2 <- setdiff(id_lista, subset_lista)
+      temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+      temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+      temp <- subset(temp, temp$sub_id == input$PCA_subset_S)
+      temp <- subset(temp, select = c("id", input$PCA_pheno))
+      temp2 <- summaryBy(. ~ id, data=temp)
+      # Add remove .mean from column names 
+      }}
+  if(input$PCA_data_subset == F){
+    if(input$PCA_data_avg == F){
+      temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+      temp2 <- subset(temp, select = c("id", input$PCA_pheno))
+    }
+    if(input$PCA_data_avg == T){
+      temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
+      temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+      temp <- subset(temp, select = c("id", input$PCA_pheno))
+      temp2 <- summaryBy(. ~ id, data=temp)  
+    }}
+    
+  return(temp2)
   })
   
   output$PCA_final_table <- renderDataTable({
@@ -2301,13 +2406,7 @@ function(input, output) {
   })
   
   PCA_eigen_data <- eventReactive(input$Go_PCA,{
-    beginCol <-
-      length(c(
-        input$SelectIV,
-        input$SelectGeno,
-        input$SelectTime,
-        input$SelectID
-      )) + 1
+    beginCol <-2
     endCol <-ncol(PCA_final_data())
     PCA_ready <- PCA_final_data()
     PCA_ready <- PCA_ready[, beginCol : endCol]
@@ -2717,5 +2816,87 @@ function(input, output) {
     shaka_laka
   })
   
+  
+ 
+  output$Cluster_table <- renderDataTable({
+  clust_temp <- Final_data_cluster()
+  clust_temp <- na.omit(clust_temp)
+  clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+  row.names(clust_matrix) <- clust_temp$id
+  clust_matrix = as.matrix(clust_matrix)
+  clust_t_matrix = t(clust_matrix)
+  clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+  clust_t_dist = dist(clust_t_cor)
+  clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+  
+  # cut_tree at $tree_cut value (but first make it numeric)
+  
+  cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
+  names(cluster)[1] <- "cluster"
+  clust_number <- length(unique(cluster$cluster))
+  
+  temp <- Data_for_cluster()
+  if(input$Cluster_pre_calc == F){
+    temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+    temp2 <- subset(temp, select = c("id", input$SelectDV))
+  }
+  if(input$Cluster_pre_calc == T){
+    temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+    temp2 <- subset(temp, select = c("id", input$SelectDV))
+    temp2 <- summaryBy(.~ id, data=temp2) 
+    colnames(temp2) = gsub(pattern = ".mean", replacement = "", x = colnames(temp2))
+  }  
+  
+  row.names(temp2) <- temp2$id
+  
+  new_shait <- merge(cluster, temp2, by = "row.names")
+  return(new_shait)})
+  
+  output$Cluster_download_button <- renderUI({
+    if(is.null(input$Split_cluster)){
+      return()}
+    else
+      downloadButton("data_clustered", label="Download Cluster data")
+  })
+  
+  output$data_clustered <- downloadHandler(
+    filename = paste("Cluster analysis_based_on_", input$Cluster_pheno, "_with_split_at_", input$Split_cluster, "_MVApp.csv"),
+    content <- function(file) {
+      
+      clust_temp <- Final_data_cluster()
+      clust_temp <- na.omit(clust_temp)
+      clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+      row.names(clust_matrix) <- clust_temp$id
+      clust_matrix = as.matrix(clust_matrix)
+      clust_t_matrix = t(clust_matrix)
+      clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+      clust_t_dist = dist(clust_t_cor)
+      clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+      
+      # cut_tree at $tree_cut value (but first make it numeric)
+      
+      cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
+      names(cluster)[1] <- "cluster"
+      clust_number <- length(unique(cluster$cluster))
+      
+      temp <- Data_for_cluster()
+      if(input$Cluster_pre_calc == F){
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+        temp2 <- subset(temp, select = c("id", input$SelectDV))
+      }
+      if(input$Cluster_pre_calc == T){
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+        temp2 <- subset(temp, select = c("id", input$SelectDV))
+        temp2 <- summaryBy(.~ id, data=temp2) 
+        colnames(temp2) = gsub(pattern = ".mean", replacement = "", x = colnames(temp2))
+      }  
+      
+      row.names(temp2) <- temp2$id
+      
+      new_shait <- merge(cluster, temp2, by = "row.names")
+      
+      write.csv(new_shait, file)}
+  )
+    
   # end of the script
 }
