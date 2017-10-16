@@ -251,14 +251,14 @@ tabPanel(
   icon = icon("object-group"),
   sidebarPanel(
     fluidRow(
-      helpText("Which phenotype you would like to use for the PCA?"),
       uiOutput("PCA_Pheno_data"), # which phenotype data (summarized / na / original) selectize, multiple = F
-      checkboxInput("PCA_data_avg", label = "Check if you would like to perform PCA on mean values per genotype / IVs / time"),
-      checkboxInput("PCA_data_subset", label = "Check if you would like to perform PCA on specific subset of your data"),
-      uiOutput("PCA_subset_trait"),
-      uiOutput("PCA_subset_specific"),
       actionButton("Go_PCAdata", label = "set the dataset"),
       uiOutput("PCA_Select_pheno"), # which traits would you like to use? selectize, multiple = T
+      selectizeInput("PCA_data_avg", label = "Perform PCA on", choices=c("individual values", "average values per genotype / IVs / time")),
+      selectizeInput("PCA_data_subset", label = "Would like to perform PCA on", choices=c("full dataset", "subsetted dataset")),
+      uiOutput("PCA_subset_trait"),
+      uiOutput("PCA_subset_specific"),
+      
       # uiOutput("SelectGroup"), # How would you like to colour, selectize (input$SelectGeno, input$SelectDV, input$SelectTime, multiple = F)
       br(),
       actionButton("Go_PCA", label = "Unleash the PCA monster",icon = icon("play-circle")),
@@ -274,10 +274,14 @@ tabPanel(
                tabPanel("Final data for PCA",
                         dataTableOutput("PCA_final_table")),
                tabPanel("Eigen Plot",
-                        plotlyOutput("PCA_eigen_plot")),
+                        plotOutput("PCA_eigen_plot"),
+                        uiOutput("Eigen_download_button"),
+                        dataTableOutput("Eigen_data_table")),
                tabPanel("Contribution Plot",
-                        plotlyOutput("PCA_contribution_plot")),
-               tabPanel("Scatter Plot",
+                        plotOutput("PCA_contribution_plot"),
+                        uiOutput("Contrib_download_button"),
+                        dataTableOutput("PCA_contribution_table")),
+               tabPanel("Scatterplot",
                         plotlyOutput("PCA_scatter_plot"))
     ))
   # end Tab 7

@@ -2318,14 +2318,14 @@ function(input, output) {
     )
   })
   output$PCA_subset_trait <- renderUI({
-    if(input$PCA_data_subset == F){
+    if(input$PCA_data_subset == "full dataset"){
       return()
     }
     else{
       tagList(
         selectizeInput(
           inputId = "PCA_subset_T",
-          label = "Select Indepdentend Variables for which you would like to subset",
+          label = "Select the Independent Variables that you would like to subset",
           choices=c(input$SelectGeno, input$SelectIV, input$SelectTime),
           multiple=T
         ))}
@@ -2366,9 +2366,9 @@ function(input, output) {
     temp <- data.frame(PCA_data_type())
     temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
     
-  if(input$PCA_data_subset == T){
+  if(input$PCA_data_subset == "subsetted dataset"){
     subset_lista <- input$PCA_subset_T
-    if(input$PCA_data_avg == F){
+    if(input$PCA_data_avg == "individual values"){
       id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)
       id_lista2 <- setdiff(id_lista, subset_lista)
       temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
@@ -2376,7 +2376,7 @@ function(input, output) {
       temp2 <- subset(temp, temp$sub_id == input$PCA_subset_S)
       temp2 <- subset(temp2, select = c("id", input$PCA_pheno))
       }
-    if(input$PCA_data_avg == T){
+    if(input$PCA_data_avg == "average values per genotype / IVs / time"){
       id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
       id_lista2 <- setdiff(id_lista, subset_lista)
       temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
@@ -2386,12 +2386,12 @@ function(input, output) {
       temp2 <- summaryBy(. ~ id, data=temp)
       # Add remove .mean from column names 
       }}
-  if(input$PCA_data_subset == F){
-    if(input$PCA_data_avg == F){
+  if(input$PCA_data_subset == "full dataset"){
+    if(input$PCA_data_avg == "individual values"){
       temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
       temp2 <- subset(temp, select = c("id", input$PCA_pheno))
     }
-    if(input$PCA_data_avg == T){
+    if(input$PCA_data_avg == "average values per genotype / IVs / time"){
       temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
       temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
       temp <- subset(temp, select = c("id", input$PCA_pheno))
@@ -2415,22 +2415,42 @@ function(input, output) {
     eigenvalues
   })
   
-  output$PCA_eigen_plot <- renderPlotly({
+  
+  output$PCA_eigen_plot <- renderPlot({
     eigenvalues <- PCA_eigen_data()
-    Y= (eigenvalues[, 2])
-    X= (names.arg=1:nrow(eigenvalues))
-    bar <-  ggplot(eigenvalues, aes(x=X, y=Y)) + geom_bar(stat="identity")+
-      xlab("Principal Components") + ylab("Percentage of variances") +
-      ggtitle("Variances")
-    ggplotly(bar)
+    barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
+          main = "Variances",
+          xlab = "Principal Components",
+          ylab = "Percentage of variances",
+          col ="steelblue")
+  lines(x = 1:nrow(eigenvalues), eigenvalues[, 2], 
+          type="b", pch=19, col = "red")
   })
+  
+  output$Eigen_download_button <- renderUI({
+    if(is.null(PCA_eigen_data())){
+      return()}
+    else
+      downloadButton("Eigen_data", label="Download Eigen values")
+  })
+  
+  output$Eigen_data <- downloadHandler(
+    filename = "Eigen_values_MVApp.csv",
+    content <- function(file) {
+      write.csv(PCA_eigen_data(), file)}
+  )
+  
+  output$Eigen_data_table <- renderDataTable({
+    PCA_eigen_data()
+  })
+  
   
   output$PCA1_select <- renderUI({
     if ((input$Go_PCAdata == FALSE)) {
       return()
     } else
       eigenvalues <- PCA_eigen_data()
-    list_avail_PCs <- unique(1:(nrow(eigenvalues)-2))
+    list_avail_PCs <- unique(1:(nrow(eigenvalues)))
     tagList(
       selectizeInput(
         inputId = "Which_PC1",
@@ -2446,7 +2466,7 @@ function(input, output) {
       return()
     } else
       eigenvalues <- PCA_eigen_data()
-    list_avail_PCs <- unique(1:(nrow(eigenvalues)-2))
+    list_avail_PCs <- unique(2:(nrow(eigenvalues)))
     tagList(
       selectizeInput(
         inputId = "Which_PC2",
@@ -2457,7 +2477,34 @@ function(input, output) {
     )
   })
   
-  output$PCA_contribution_plot <- renderPlotly({
+  PCA_contrib_data <- eventReactive(input$Go_PCA,{
+    beginCol <-2
+    endCol <-ncol(PCA_final_data())
+    PCA_ready <- PCA_final_data()
+    PCA_ready <- PCA_ready[, beginCol : endCol]
+    res.pca <- PCA(PCA_ready, graph = FALSE)
+    contrib_data <- res.pca$var$contrib
+    contrib_data
+  })
+  
+  output$PCA_contribution_table <- renderDataTable({
+    PCA_contrib_data()
+  })
+  
+  output$Contrib_download_button <- renderUI({
+    if(is.null(PCA_final_data())){
+      return()}
+    else
+      downloadButton("contrib_data", label="Download PCA contribution data")
+  })
+  
+  output$contrib_data <- downloadHandler(
+    filename = "PCA_contrib_MVApp.csv",
+    content <- function(file) {
+      write.csv(PCA_final_data(), file)}
+  )
+  
+  output$PCA_contribution_plot <- renderPlot({
     beginCol <-
       length(c(
         input$SelectIV,
@@ -2487,12 +2534,13 @@ function(input, output) {
     PCA_ready <- PCA_final_data()
     PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
-    mid1=median(res.pca$var$cos2)
-    fviz_pca_ind(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.ind="cos2", repel=T) +
+    mid1=median(res.pca$ind$coord)
+    fviz_pca_ind(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.ind="coord", repel=T, addlabels=F) +
       scale_color_gradient2(low="grey", mid="purple", 
                             high="red", midpoint=mid1)+
       theme_minimal()
   })
+  
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> CLUSTER ANALYSIS IN 8th TAB << - - - - - - - - - - -
