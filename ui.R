@@ -212,32 +212,23 @@ tabPanel(
   "Establish correlations between traits",
   icon = icon("compress"),
   navbarPage("",
-    tabPanel("General Correlations",
+    tabPanel("Correlation Plot",
+             
              sidebarPanel(
-             selectInput("corMethod", "Correlation Method",eval(formals(cor)$method)),
-             selectInput("corrplotMethod", "Plot Method",eval(formals(corrplot)$method)),
-             selectInput("corType", "Plot Type",eval(formals(corrplot)$type)),
-             selectInput("corOrder", "Order of the lable",eval(formals(corrplot)$order))
+              uiOutput("cor_Pheno_data"), # which data set to use (summarized / na / original) selectize, multiple = F
+              checkboxInput("cor_data_subset", label = "Calculate correlation on specific subset of your data"),
+              uiOutput("cor_subset"),
+              uiOutput("CorSpecIV_val"),
+              selectInput("corMethod", "Correlation Method",eval(formals(cor)$method)),
+              selectInput("corrplotMethod", "Plot Method",eval(formals(corrplot)$method)),
+              selectInput("corType", "Plot Type",eval(formals(corrplot)$type)),
+              selectInput("corOrder", "Order of the lable",eval(formals(corrplot)$order))
              ),
              
              
             mainPanel(
             plotOutput("corrplot")
             )
-    ),
-    
-   tabPanel(
-      "Subsetted correlations",
-      sidebarPanel(# select which IV do they want to subset the data? especially if there are more IVs
-        uiOutput("CorSpecIV"),
-        # select what value(s) of IV1 to display (control or salt?)
-        uiOutput("CorSpecIV_val")),
-      
-      mainPanel(
-        "Subset correlations",
-        "here another plot for subset correlations",
-        plotOutput("corrplot2")
-      )
     ),
     
     tabPanel(
