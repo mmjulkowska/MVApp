@@ -1919,6 +1919,29 @@ function(input, output) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> DATA EXPLORATION IN 5th TAB << - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##select dataset
+  output$Histo_Pheno_data <- renderUI({
+    if(is.null(ItemList())){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "Histo_data",
+          label = "Select the dataset that you would like to explore",
+          choices = c("raw data", "NA removed", "outliers removed"), multiple = F))
+  })  
+  
+  Histo_data_type <- eventReactive(exists(input$Histo_data),{
+    if(input$Histo_data == "raw data"){
+      Histo_data_type <- my_data()
+    }
+    if(input$Histo_data == "NA removed"){
+      Histo_data_type <- my_data_nona()
+    }
+    if(input$Histo_data == "outliers removed"){
+      Histo_data_type <- Outlier_free_data()
+    }
+    Histo_data_type
+  })
   
   #### HISTOGRAMS  
   
@@ -1940,6 +1963,7 @@ function(input, output) {
         )
       )
   })
+  
   
   
   output$HisDV <- renderUI({
@@ -1988,7 +2012,7 @@ function(input, output) {
   
   output$HistPlot <- renderPlotly({
     
-    my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     #groupIV<-input$HisIV
     
     if(input$plot_facet ==T){
@@ -2037,7 +2061,7 @@ function(input, output) {
   ##STILL TO DO:
   #       try to do subset by multiple variables
   output$Boxes <- renderPlotly({
-    my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     #groupIV<-input$HisIV
     
     if(input$plot_facet ==T){
@@ -2056,7 +2080,7 @@ function(input, output) {
   
   ###ANOVA summary table output
   output$ANOVAtest <- renderPrint({
-    my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     my_his_data[,2]<-as.factor(my_his_data[,2])
     if(input$plot_facet ==T){
       n_rows<-length(levels(my_his_data[,3]))
@@ -2091,7 +2115,7 @@ function(input, output) {
   ##Bartlett test
   
   output$Bartlett <- renderPrint({
-    my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     my_his_data[,2]<-as.factor(my_his_data[,2])
     if(input$plot_facet ==T){
       n_rows<-length(levels(my_his_data[,3]))
