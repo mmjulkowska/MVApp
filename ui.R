@@ -182,6 +182,7 @@ tabPanel("Data curation", icon = icon("gavel"),
 tabPanel("Data exploration", icon=icon("binoculars"),
          sidebarPanel(
            fluidRow(
+             uiOutput("Histo_Pheno_data"),
              uiOutput("HisIV"),
              uiOutput("HisDV"),
              checkboxInput("plot_facet", "Would you like to facet the graph?"),
