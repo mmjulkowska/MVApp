@@ -2191,7 +2191,7 @@ function(input, output) {
     if (input$cor_data_subset) {
       df <- df[df[input$CorIV_sub] == input$CorIV_val,]
     }
-    
+  
     beginCol <-
       length(c(
         input$SelectIV,
@@ -2207,6 +2207,7 @@ function(input, output) {
         input$SelectID
       )) + length(input$SelectDV)
     
+     
     corrplot(
       cor(df[, beginCol:endCol], method = input$corMethod),
       method=input$corrplotMethod,
@@ -2214,6 +2215,48 @@ function(input, output) {
       order=input$corOrder,
       tl.col ='black')
   })
+  
+  ################ cor_table output###################
+  
+  my_table <- eventReactive(input$Go_table, {
+    beginCol <-
+      length(c(
+        input$SelectIV,
+        input$SelectGeno,
+        input$SelectTime,
+        input$SelectID
+      )) + 1
+    
+    endCol <-
+      length(c(
+        input$SelectIV,
+        input$SelectGeno,
+        input$SelectTime,
+        input$SelectID
+      )) + length(input$SelectDV)
+    
+    df <- cor_data_type()
+    if (input$cor_data_subset) {df <- df[df[input$CorIV_sub] == input$CorIV_val,]}
+    
+    res <- rcorr(as.matrix(df[,beginCol:endCol]),type = input$corMethod)
+    
+    flattenCorrMatrix <- function(cormat, pmat) {
+      ut <- upper.tri(cormat)
+      data.frame(
+        row = rownames(cormat)[row(cormat)[ut]],
+        column = rownames(cormat)[col(cormat)[ut]],
+        cor  =(cormat)[ut],
+        p = pmat[ut]
+      )
+    }
+    
+    result <- flattenCorrMatrix(res$r, res$P)
+    return(result)  
+    })
+  
+    output$cor_table<- renderDataTable({
+      my_table()
+      })
   
   ############ interactive scatter plot ##########
   
@@ -2280,7 +2323,6 @@ function(input, output) {
     pval <- summary(correl)$coefficients[8]
     paste("The p-value is", signif(pval, 3))
   })
-  
   
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

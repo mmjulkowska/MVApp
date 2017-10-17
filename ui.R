@@ -219,15 +219,17 @@ tabPanel(
               checkboxInput("cor_data_subset", label = "Calculate correlation on specific subset of your data"),
               uiOutput("cor_subset"),
               uiOutput("CorSpecIV_val"),
-              selectInput("corMethod", "Correlation Method",eval(formals(cor)$method)),
+              selectInput("corMethod", "Correlation Method",eval(formals(rcorr)$type)),
               selectInput("corrplotMethod", "Plot Method",eval(formals(corrplot)$method)),
               selectInput("corType", "Plot Type",eval(formals(corrplot)$type)),
-              selectInput("corOrder", "Order of the lable",eval(formals(corrplot)$order))
+              selectInput("corOrder", "Order of the lable",eval(formals(corrplot)$order)),
+              actionButton("Go_table", label = "Click to see the correlation table with p value", icon = icon("play-circle"))
              ),
              
              
             mainPanel(
-            plotOutput("corrplot")
+            plotOutput("corrplot"),
+            dataTableOutput('cor_table')
             )
     ),
     
