@@ -1996,6 +1996,23 @@ function(input, output) {
       )
   })
   
+  
+  ###to choose the method to correct for multiple testing
+  #output$Chosenmultipletest <- renderUI({
+   # if ((input$Go_Data == FALSE)) {
+    #  return ()
+    #} else
+     # tagList(
+      #  selectizeInput(
+       #   inputId = "Chosenmultipletesting",
+        #  label = "Select the method to correct p-values for multiple testing",
+         # choices = c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"),
+          #selected = "bonferroni",
+          #multiple = F
+        #)
+      #)
+  #})
+  
   output$Plotfacets <- renderUI({
     if(input$plot_facet == T){
       tagList(
@@ -2075,6 +2092,9 @@ function(input, output) {
     
   }) 
   
+ 
+  
+  
   ##STILL TO DO:
   #       try to do subset by multiple variables
   output$Boxes <- renderPlotly({
@@ -2095,6 +2115,14 @@ function(input, output) {
     ggplotly(box_graph)
   })
   
+
+  
+  
+  ####We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
+  # p.adjust.methods
+  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
+  #   "fdr", "none")
+  #OR maybe use anova(lm(~))?
   ###ANOVA summary table output
   output$ANOVAtest <- renderPrint({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
@@ -2102,19 +2130,23 @@ function(input, output) {
     if(input$plot_facet ==T){
       n_rows<-length(levels(my_his_data[,3]))
       facetting<-rep(NA,n_rows)
-      p_values<-rep(NA,n_rows)
+      p_values_anova<-rep(NA,n_rows)
+     # p_values_anovacorr<-rep(NA,n_rows)
       for (i in unique(my_his_data[,3])){
         subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
         facetting[i]<-i
         fit_anova<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
         #print(fit_anova)
         #print(summary(fit_anova))
-        p_values[i]<-summary(fit_anova)[[1]][[1,"Pr(>F)"]] #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
+        p_values_anova[i]<-summary(fit_anova)[[1]][[1,"Pr(>F)"]] #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
+        #p_values_anovacorr[i]<-p.adjust(p, method = Chosenmultipletesting)
         #print(paste("The p-value of the ANOVA test is", pvalue))
-        temp_anova<-as.data.frame(cbind(facetting, p_values))
+        #temp_anova<-as.data.frame(cbind(facetting, p_values_anova, p_values_anovacorr))
+        temp_anova<-as.data.frame(cbind(facetting, p_values_anova))
       }
       temp_anova<-na.omit(temp_anova)
       colnames(temp_anova) <- c("", "p_value")
+      #colnames(temp_anova) <- c("", "p_value", "p_value corrected")
       cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
       print(temp_anova, row.names=FALSE)
     }
@@ -2129,6 +2161,51 @@ function(input, output) {
     }
   })
   
+  
+  output$Shapiro<- renderPrint({
+    if(input$plot_facet ==T){
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+     groupedIV<-input$HisIV
+     groupedFacet<-input$Plotfacet_choice
+    my_his_data$combinedTID<-paste(my_his_data$groupedIV, my_his_data$groupedFacet, sep="_")
+    #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
+    m_rowsT<-length(levels(my_his_data$combinedTID))
+    facetting_shapiro<-rep(NA, m_rowsT)
+    shapiro_pvalue<-rep(NA,m_rowsT)
+    for (i in unique(my_his_data$combinedTID)){
+      subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==i)
+      facetting_shapiro[i]<-i
+      shapirotest<-shapiro.test(my_his_data[,1])
+      shapiro_pvalue[i]<-shapirotest$p.value
+      temp_shapiro<-cbind(facetting_shapiro,shapiro_pvalue)
+    }
+      colnames(temp_shapiro)<-c("Group", "p_value")
+      print(temp_shapiro)
+    }
+    
+    if(input$plot_facet ==F){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
+      shapiroIV<-input$HisIV
+      m_Frows<-length(levels(my_his_data$shapiroIV))
+      facetting_shapiro<-rep(NA, m_Frows)
+      shapiro_pvalue<-rep(NA,m_Frows)
+      for (i in unique(my_his_data$shapiroIV)){
+        facetting_shapiro[i]<-i
+        shapirotest<-shapiro.test(my_his_data[,1])
+        shapiro_pvalue[i]<-shapirotest$p.value
+      }
+      temp_shapiro<-cbind(facetting_shapiro,shapiro_pvalue)
+      print(temp_shapiro)
+    }
+  })
+  
+  
+  
+  ####We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
+ # p.adjust.methods
+  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
+  #   "fdr", "none")
+  
   ##Bartlett test
   output$Bartlett <- renderPrint({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
@@ -2138,7 +2215,7 @@ function(input, output) {
       n_rows<-length(levels(my_his_data[,3]))
       facetting <-rep(NA,n_rows)
       pvalue_bartlett<-rep(NA,n_rows)
-      interpret<-rep(NA,n_rows)
+      interpret_bartlett<-rep(NA,n_rows)
       for (i in unique(my_his_data[,3])){
         facetting[i]<-i
         subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
@@ -2148,12 +2225,12 @@ function(input, output) {
         pvalue_bartlett[i]<-signif(fit_bartlett[[3]], 5) #result of bartlett is a list with 3rd element the p-value
         
         if (fit_bartlett[[3]] < as.numeric(input$Chosenthreshold) ) {
-          interpret[i]<-"Not equal"
+          interpret_bartlett[i]<-"Not equal"
         } else {
-          interpret[i]<-"Equal"
+          interpret_bartlett[i]<-"Equal"
           }
         
-        temp_bartlett<-as.data.frame(cbind(facetting, pvalue_bartlett, interpret))
+        temp_bartlett<-as.data.frame(cbind(facetting, pvalue_bartlett, interpret_bartlett))
       }
       temp_bartlett<-na.omit(temp_bartlett)
       colnames(temp_bartlett) <- c("", "p_value", paste("The variances between ", input$HisIV, " groups are:", sep=""))
@@ -2178,6 +2255,59 @@ function(input, output) {
     }
   })
   
+  
+  
+  #######We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
+  # p.adjust.methods
+  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
+  #   "fdr", "none")
+  
+  ##Levene test
+  output$Levene <- renderPrint({
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data[,2]<-as.factor(my_his_data[,2])
+    
+    if(input$plot_facet ==T){
+      n_rows<-length(levels(my_his_data[,3]))
+      facetting <-rep(NA,n_rows)
+      pvalue_levene<-rep(NA,n_rows)
+      interpret_levene<-rep(NA,n_rows)
+      for (i in unique(my_his_data[,3])){
+        facetting[i]<-i
+        subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
+        fit_levene<-leveneTest(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+        
+        pvalue_levene[i]<-signif(fit_levene[[3]][[1]], 5) #result of levene is a list with 1st element of 3rd element the p-value
+        
+        if (fit_levene[[3]][[1]] < as.numeric(input$Chosenthreshold) ) {
+          interpret_levene[i]<-"Not equal"
+        } else {
+          interpret_levene[i]<-"Equal"
+        }
+        
+        temp_levene<-as.data.frame(cbind(facetting, pvalue_levene, interpret_levene))
+      }
+      temp_levene<-na.omit(temp_levene)
+      colnames(temp_levene) <- c("", "p_value", paste("The variances between ", input$HisIV, " groups are:", sep=""))
+      cat(paste("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
+      print(temp_levene, row.names=FALSE)
+    }
+    
+    if(input$plot_facet ==F){ 
+      
+      fit_levene<-leveneTest(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
+      #print(fit_levene)
+      pvalue_levene<-signif(fit_levene[[3]][[1]],5) #result of levene is a list with 1st element of 3rd element the p-value
+      cat("HOMOGENEITY OF VARIANCE ANALYSIS", "\n")
+      cat("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "S is ", pvalue_levene, ".", "\n", sep="")
+      
+      if (pvalue_levene < as.numeric(input$Chosenthreshold) ) {
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are equal.", sep="")
+      } else {
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are not equal.", sep="")
+      }
+    }
+  })
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> DATA CORRELATION IN 6th TAB << - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

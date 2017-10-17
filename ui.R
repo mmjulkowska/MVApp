@@ -186,6 +186,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
              uiOutput("HisIV"),
              uiOutput("HisDV"),
              uiOutput("Chosenthreshold"),
+             #uiOutput("Chosenmultipletest"),
              checkboxInput("plot_facet", "Would you like to facet the graph?"),
              uiOutput("Plotfacets")
            )),
@@ -195,6 +196,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                        tabPanel("Histograms", icon=icon("area-chart"),
                                uiOutput("HistType"),
                                verbatimTextOutput("Bartlett"),
+                               verbatimTextOutput("Levene"),
                                plotlyOutput("HistPlot")
                        ),
                        
@@ -205,6 +207,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                        
                        tabPanel("Boxplots", icon=icon("sun-o"),
                                 # actionButton("Go_Boxplot", label = "Plot boxplots"),
+                                uiOutput("Shapiro"),
                                 verbatimTextOutput("ANOVAtest"),
                                 plotlyOutput("Boxes"))
                       
