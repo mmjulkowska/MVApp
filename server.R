@@ -2093,10 +2093,103 @@ function(input, output) {
   }) 
   
  
+  output$Shapiro<- renderPrint({
+    if(input$plot_facet ==T){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      groupedIV<-input$HisIV
+      groupedFacet<-input$Plotfacet_choice
+      my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
+      #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
+      my_his_data$combinedTID<-as.factor(my_his_data$combinedTID)
+      m_Trows<-length(levels(my_his_data$combinedTID))
+      facetting_shapiro<-rep(NA, m_Trows)
+      interpret_shapiro<-rep(NA,m_Trows)
+      shapiro_pvalue<-rep(NA,m_Trows)
+      for (i in unique(my_his_data$combinedTID)){
+        subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==i)
+        facetting_shapiro[i]<-i
+        shapirotest<-shapiro.test(subsetted_shapiro[,1])
+        shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
+        if (shapirotest$p.value < as.numeric(input$Chosenthreshold) ) {
+          interpret_shapiro[i]<-"Data not normally distributed"
+        } else {
+          interpret_shapiro[i]<-"Cannot reject H0"
+        }
+        
+        temp_shapiro<-as.data.frame(cbind(facetting_shapiro,shapiro_pvalue, interpret_shapiro))
+      }
+      colnames(temp_shapiro)<-c("Group", "p_value", "")
+      temp_shapiro<-na.omit(temp_shapiro)
+      cat(paste("The p-value of the Shapiro-Wilk test of normality for ", input$HisDV, " for each selected group is:", "\n", "\n", sep=""))
+      print(temp_shapiro, row.names=FALSE)
+    }
+    
+    if(input$plot_facet ==F){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
+      shapiroIV<-input$HisIV
+      m_Frows<-length(levels(as.factor(my_his_data[,shapiroIV])))
+      interpret_shapiro<-rep(NA,m_Frows)
+      facetting_shapiro<-rep(NA, m_Frows)
+      shapiro_pvalue<-rep(NA,m_Frows)
+      for (i in unique(my_his_data[,shapiroIV])){
+        subsetted_shapiro<-subset(my_his_data, my_his_data[,shapiroIV]==i)
+        facetting_shapiro[i]<-i
+        shapirotest<-shapiro.test(subsetted_shapiro[,1])
+        shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
+        if (shapirotest$p.value < as.numeric(input$Chosenthreshold) ) {
+          interpret_shapiro[i]<-"Data not normally distributed"
+        } else {
+          interpret_shapiro[i]<-"Cannot reject H0"
+        }
+        temp_shapiro<-as.data.frame(cbind(facetting_shapiro,shapiro_pvalue, interpret_shapiro))
+      }
+      colnames(temp_shapiro)<-c("", "p_value", "")
+      temp_shapiro<-na.omit(temp_shapiro)
+      cat(paste("The p-value of the Shapiro-Wilk test of normality for ", input$HisDV, " for each selected group is:", "\n", "\n", sep=""))
+      print(temp_shapiro, row.names=FALSE)
+    }
+    
+  })
+  
+  
+  output$QQPlot <- renderPlot({
+    
+    if(input$plot_facet ==T){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      groupedIV<-input$HisIV
+      groupedFacet<-input$Plotfacet_choice
+      my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
+      #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
+      my_his_data$combinedTID<-as.factor(my_his_data$combinedTID)
+      
+      for (i in unique(my_his_data$combinedTID)){
+        subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==i)
+        QQplot<-qqnorm(subsetted_shapiro[,1], main=paste("Normal QQ plot of ", input$HisDV, "for ", i))
+        QQline<-qqline(subsetted_shapiro[,1])
+        QQplot
+        QQline
+      }
+    }
+    
+    if(input$plot_facet ==F){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
+      shapiroIV<-input$HisIV
+      for (i in unique(my_his_data[,shapiroIV])){
+        subsetted_shapiro<-subset(my_his_data, my_his_data[,shapiroIV]==i)
+        QQplot<-qqnorm(subsetted_shapiro[,1], main=paste("Normal QQ plot of ", input$HisDV, "for ", i))
+        QQline<-qqline(subsetted_shapiro[,1])
+        QQplot
+        QQline
+      }
+      }
+    
+  })
+  
   
   
   ##STILL TO DO:
   #       try to do subset by multiple variables
+  #the margin needs to be fixed to be able to see the y-lab
   output$Boxes <- renderPlotly({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     #groupIV<-input$HisIV
@@ -2131,6 +2224,7 @@ function(input, output) {
       n_rows<-length(levels(my_his_data[,3]))
       facetting<-rep(NA,n_rows)
       p_values_anova<-rep(NA,n_rows)
+      interpret_anova<-rep(NA,n_rows)
      # p_values_anovacorr<-rep(NA,n_rows)
       for (i in unique(my_his_data[,3])){
         subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
@@ -2138,14 +2232,19 @@ function(input, output) {
         fit_anova<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
         #print(fit_anova)
         #print(summary(fit_anova))
-        p_values_anova[i]<-summary(fit_anova)[[1]][[1,"Pr(>F)"]] #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
+        p_values_anova[i]<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5) #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
         #p_values_anovacorr[i]<-p.adjust(p, method = Chosenmultipletesting)
         #print(paste("The p-value of the ANOVA test is", pvalue))
         #temp_anova<-as.data.frame(cbind(facetting, p_values_anova, p_values_anovacorr))
-        temp_anova<-as.data.frame(cbind(facetting, p_values_anova))
+        if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(input$Chosenthreshold) ) {
+          interpret_anova[i]<-"Significant difference in means"
+        } else {
+          interpret_anova[i]<-"Cannot reject H0"
+        }
+        temp_anova<-as.data.frame(cbind(facetting, p_values_anova,interpret_anova))
       }
       temp_anova<-na.omit(temp_anova)
-      colnames(temp_anova) <- c("", "p_value")
+      colnames(temp_anova) <- c("", "p_value","")
       #colnames(temp_anova) <- c("", "p_value", "p_value corrected")
       cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
       print(temp_anova, row.names=FALSE)
@@ -2155,49 +2254,18 @@ function(input, output) {
       #print(fit_anova)
       #br()
       #print(summary(fit_anova))
-      pvalue_ANOVA<-summary(fit_anova)[[1]][[1,"Pr(>F)"]]
+      pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
       cat("ANOVA", "\n")
-      cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA, sep=""))
-    }
-  })
-  
-  
-  output$Shapiro<- renderPrint({
-    if(input$plot_facet ==T){
-    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-     groupedIV<-input$HisIV
-     groupedFacet<-input$Plotfacet_choice
-    my_his_data$combinedTID<-paste(my_his_data$groupedIV, my_his_data$groupedFacet, sep="_")
-    #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
-    m_rowsT<-length(levels(my_his_data$combinedTID))
-    facetting_shapiro<-rep(NA, m_rowsT)
-    shapiro_pvalue<-rep(NA,m_rowsT)
-    for (i in unique(my_his_data$combinedTID)){
-      subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==i)
-      facetting_shapiro[i]<-i
-      shapirotest<-shapiro.test(my_his_data[,1])
-      shapiro_pvalue[i]<-shapirotest$p.value
-      temp_shapiro<-cbind(facetting_shapiro,shapiro_pvalue)
-    }
-      colnames(temp_shapiro)<-c("Group", "p_value")
-      print(temp_shapiro)
-    }
-    
-    if(input$plot_facet ==F){
-      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
-      shapiroIV<-input$HisIV
-      m_Frows<-length(levels(my_his_data$shapiroIV))
-      facetting_shapiro<-rep(NA, m_Frows)
-      shapiro_pvalue<-rep(NA,m_Frows)
-      for (i in unique(my_his_data$shapiroIV)){
-        facetting_shapiro[i]<-i
-        shapirotest<-shapiro.test(my_his_data[,1])
-        shapiro_pvalue[i]<-shapirotest$p.value
+      cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA,"\n", "\n", sep=""))
+      
+      if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(input$Chosenthreshold) ) {
+        cat("Significant difference in means")
+      } else {
+        cat("Cannot reject H0")
       }
-      temp_shapiro<-cbind(facetting_shapiro,shapiro_pvalue)
-      print(temp_shapiro)
     }
   })
+  
   
   
   

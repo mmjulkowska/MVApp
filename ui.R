@@ -193,11 +193,17 @@ tabPanel("Data exploration", icon=icon("binoculars"),
          
          mainPanel(
            navbarPage("",
-                       tabPanel("Histograms", icon=icon("area-chart"),
+                      tabPanel("Normality test", icon=icon("area-chart"),
+                               verbatimTextOutput("Shapiro"),
+                               plotOutput("QQplot"),
                                uiOutput("HistType"),
-                               verbatimTextOutput("Bartlett"),
-                               verbatimTextOutput("Levene"),
                                plotlyOutput("HistPlot")
+                      ), 
+                      
+                      tabPanel("Variance test", icon=icon("area-chart"),
+                               verbatimTextOutput("Bartlett"),
+                               verbatimTextOutput("Levene")
+                               
                        ),
                        
                        #tabPanel("Variance analysis", icon=icon("bar-chart-o"),
@@ -207,7 +213,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                        
                        tabPanel("Boxplots", icon=icon("sun-o"),
                                 # actionButton("Go_Boxplot", label = "Plot boxplots"),
-                                uiOutput("Shapiro"),
+                                
                                 verbatimTextOutput("ANOVAtest"),
                                 plotlyOutput("Boxes"))
                       
