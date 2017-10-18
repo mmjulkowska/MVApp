@@ -2152,7 +2152,7 @@ function(input, output) {
   })
   
   
-  output$QQPlot <- renderPlot({
+  output$QQPlot <- renderPlotly({
     
     if(input$plot_facet ==T){
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
@@ -2164,10 +2164,13 @@ function(input, output) {
       
       for (i in unique(my_his_data$combinedTID)){
         subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==i)
-        QQplot<-qqnorm(subsetted_shapiro[,1], main=paste("Normal QQ plot of ", input$HisDV, "for ", i))
-        QQline<-qqline(subsetted_shapiro[,1])
-        QQplot
-        QQline
+        QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) + 
+          geom_point() + geom_smooth(method="lm", se=FALSE)
+        
+        #QQplot<-qqnorm(subsetted_shapiro[,1], main=paste("Normal QQ plot of ", input$HisDV, "for ", i))
+        #QQline<-qqline(subsetted_shapiro[,1])
+        #plot(QQplot)
+        #plot(QQline)
       }
     }
     
@@ -2176,13 +2179,15 @@ function(input, output) {
       shapiroIV<-input$HisIV
       for (i in unique(my_his_data[,shapiroIV])){
         subsetted_shapiro<-subset(my_his_data, my_his_data[,shapiroIV]==i)
-        QQplot<-qqnorm(subsetted_shapiro[,1], main=paste("Normal QQ plot of ", input$HisDV, "for ", i))
-        QQline<-qqline(subsetted_shapiro[,1])
-        QQplot
-        QQline
+        QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) + 
+          geom_point() + geom_smooth(method="lm", se=FALSE)
+        #QQplot<-qqnorm(subsetted_shapiro[,1], main=paste("Normal QQ plot of ", input$HisDV, "for ", i))
+        #QQline<-qqline(subsetted_shapiro[,1])
+        #plot(QQplot)
+        #plot(QQline)
       }
       }
-    
+    ggplotly(QQ)
   })
   
   
