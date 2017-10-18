@@ -75,26 +75,28 @@ fluidPage(
                                                   "exponential" = "exp",
                                                   "square root" = "sqr")),
                                     actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle"))
-                                    # actionButton("Go_SaveModelData", label = "Lock this modelled data for use in next steps", icon=icon("hand-o-right")),
-                                    # helpText("If you are satisfied with the results of the modeling, you can add them to the dataset that can be used in the 'Data curation' tab"),
-                                    ),
-                           tabPanel("Fit Plot options",
-                                    "some gadgets?")   
+                                    )
+                            
                 ))),
             # end of side Panel
             mainPanel(
               navbarPage("",
-                         tabPanel("Estimate best model",
-                                  verbatimTextOutput("best_model_advice"),
-                                  dataTableOutput("Model_estimation")),
                          tabPanel("Modelled data",
+                                  verbatimTextOutput("best_model_advice"),
+                                  dataTableOutput("Model_estimation"), 
                                   verbatimTextOutput("model_warning"),
                                   uiOutput("Model_download_button"),
                                   dataTableOutput("Model_data")),
                          tabPanel("Fit-Plot",
-                                  uiOutput("Select_modelPlot"),
-                                  plotOutput("Model_plot"))
-              ))
+                                  column(3, uiOutput("Select_model_plot_type")),
+                                  column(3, uiOutput("Select_modelPlot")),
+                                  column(3, uiOutput("Model_graph_fit_select_multi_input")),
+                                  column(3, uiOutput("Fit_plot_slider_input")),
+                                  uiOutput("Go_fitplot_model"),
+                                  plotOutput("Fit_plot_only_graph",height = 750)
+                                  
+                                  #plotOutput("Fit_plot_multi_graphs",  width = 1000))
+              )))
             # end of Tab3
    ),
 
