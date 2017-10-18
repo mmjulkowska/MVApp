@@ -212,7 +212,7 @@ function(input, output) {
           input$ModelPheno
         )
       )
-    temp[,input$SelectTime] <- as.numeric(temp[,input$SelectTime])
+    temp[,input$SelectTime] <- as.numeric(as.character(temp[,input$SelectTime]))
     sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
     things_to_model <- unique(temp[sub_set])
     
@@ -289,7 +289,7 @@ function(input, output) {
           input$ModelPheno
         )
       )
-    temp[,input$SelectTime] <- as.numeric(temp[,input$SelectTime])
+    temp[,input$SelectTime] <- as.numeric(as.character(temp[,input$SelectTime]))
     sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
     things_to_model <- unique(temp[sub_set])
     
@@ -334,7 +334,7 @@ function(input, output) {
     }
     colnames(things_to_model)[4] <- "DELTA"
     colnames(things_to_model)[5] <- "INTERCEPT"
-    colnames(things_to_model)[6] <- "r_sqared"
+    colnames(things_to_model)[6] <- "r_squared"
     things_to_model
   })
   
@@ -342,10 +342,25 @@ function(input, output) {
     Model_temp_data()
   })
   
+  # Let's allow users to chose beteween one and multiple plot display
+  
+  output$Select_model_plot_type <- renderUI({
+    if(is.null(Model_temp_data()))
+      return()
+    else
+      tagList(
+        selectizeInput(
+          inputId = "Select_model_type_plot",
+          label = "Select how you would like to view the fit-plots",
+          choices = c("single plot", "multiple plots")
+        )
+      )
+  })
+  
+  
   # Interactive user input for Fit-Plot - to select specific sample for fitness examination
   output$Select_modelPlot <- renderUI({
-    if ((is.null(input$ModelIV)) |
-        (input$TimeCheck == FALSE)) {
+    if (input$Select_model_type_plot == "multiple plots") {
       return ()
     } else
       
@@ -378,7 +393,7 @@ function(input, output) {
       input$SelectID,
       input$SelectTime,
       input$ModelPheno))
-    temp[,input$SelectTime] <- as.numeric(temp[,input$SelectTime])
+    temp[,input$SelectTime] <- as.numeric(as.character(temp[,input$SelectTime]))
     sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
     things_to_model <- unique(temp[sub_set])
     
@@ -387,9 +402,26 @@ function(input, output) {
     docelowy
   })
   
-  # Fit-Plot
-  output$Model_plot <- renderPlot({
+  # Fit-Plot - select specific sample to look at
+  Fit_plotski_id <- eventReactive( input$Go_Model,{
+    temp <- subset(my_data(), select = c(
+      input$ModelIV,
+      input$ModelSubIV,
+      input$SelectID,
+      input$SelectTime,
+      input$ModelPheno))
+    temp[,input$SelectTime] <- as.numeric(as.character(temp[,input$SelectTime]))
+    sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
+    things_to_model <- unique(temp[sub_set])
     
+    temp$selection <- paste(temp[,input$ModelIV], temp[,input$ModelSubIV], temp[,input$SelectID], sep="_")
+    docelowy <- subset(temp, temp$selection == input$Model_graph_fit_select_multi)
+  })
+  
+  
+  
+  # Fit-plots graph - single 
+  Model_plot_single <- eventReactive(input$Model_graph_fit_select,{
     docelowy <- data_model_plot()
     
     if(input$model == "lin"){
@@ -431,74 +463,135 @@ function(input, output) {
   ## == >> Having a go at the dynamic ploting thing << == ##
   
   output$Model_graph_fit_select_multi_input <- renderUI({
-    if(is.null(Model_temp_data())){
+    if(input$Select_model_type_plot == "single plot"){
       return()}
     else{
       tagList(
         selectizeInput(
-          Model_graph_fit_select,
+          inputId = "Model_graph_fit_select_multi",
           label = "Plot the fit-plots for",
-          choices = c("All", "10 lowest r-square values", "10 highest r-square values", "10 highest DELTA values", "10 lowest DELTA values", "10 highest INTERCEPT values", "10 lowest INTERCEPT values")
+          choices = c("r-square values (low to high)", 
+                      "r-square values (high to low)", 
+                      "DELTA values (low to high)", 
+                      "DELTA values (high to low)", 
+                      "INTERCEPT values (low to high)", 
+                      "INTERCEPT values (high to low)")
         ))}
   })
   
-  list_to_fitplot <- eventReactive(input$Model_graph_fit_select,{
-    test <- Model_temp_data()
-    if(input$Model_graph_fit_select == "All"){
-      test2 <- test
+  output$Go_fitplot_model <- renderUI({
+    if(input$Select_model_type_plot == "single plot"){
+      return()
     }
-    if(input$Model_graph_fit_select == "10 lowest r-square values"){
-      test2 <- test %>% top_n(n = 10, wt = -r_sqared)
-    }
-    if(input$Model_graph_fit_select == "10 highest r-square values"){
-      test2 <- test %>% top_n(n = 10, wt = r_sqared)
-    }
-    if(input$Model_graph_fit_select == "10 highest DELTA values"){
-      test2 <- test %>% top_n(n = 10, wt = DELTA)
-    }
-    if(input$Model_graph_fit_select == "10 lowest DELTA values"){
-      test2 <- test %>% top_n(n = 10, wt = -DELTA)
-    }
-    if(input$Model_graph_fit_select == "10 highest INTERCEPT values"){
-      test2 <- test %>% top_n(n = 10, wt = INTERCEPT)
-    }
-    if(input$Model_graph_fit_select == "10 lowest INTERCEPT values"){
-      test2 <- test %>% top_n(n = 10, wt = -INTERCEPT)
+    else{
+      actionButton(inputId = "Go_fitplot", icon=icon("magic"), label="unleash multiple fit plots galery")
     }
   })
   
-  Fit_plotski_id <- eventReactive( input$Go_Model,{
-  temp <- subset(my_data(), select = c(
-    input$ModelIV,
-    input$ModelSubIV,
-    input$SelectID,
-    input$SelectTime,
-    input$ModelPheno))
-  temp[,input$SelectTime] <- as.numeric(temp[,input$SelectTime])
-  sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
-  things_to_model <- unique(temp[sub_set])
-  
-  temp$selection <- paste(temp[,input$ModelIV], temp[,input$ModelSubIV], temp[,input$SelectID], sep="_")
-  docelowy <- subset(temp, temp$selection == input$Model_graph_fit_select_multi)
-  
+  output$Fit_plot_slider_input <- renderUI({
+    if(input$Select_model_type_plot == "single plot"){
+      return()
+    }
+    else{
+      maxi <- nrow(Model_temp_data())-19
+      sliderInput(inputId = "Fit_plot_slider", label = "Select starting slice of the samples you would like to view", min=1, max=maxi, value=1, step=20)
+    }
   })
   
-  
-  
-  # Adding data to the existing table
-  # this is not working, as I am adding the data to something that doesnt exist. 
-  Saved_model_data <- eventReactive(input$Go_Model,{
-    saved <- Model_temp_data()
-    saved <- subset(saved, select=c(1:4))
-    saved[,input$SelectTime] <- "DELTA"
-    melted_model <- melt(saved, id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
-    melted_model$variable <- input$ModelPheno
-    melted_model
+  example_model <- eventReactive(input$Go_fitplot,{
+    test <- as.data.frame(Model_temp_data())
+    
+    if(input$Model_graph_fit_select_multi == "r-square values (low to high)"){
+      test2 <- test[order(test$r_squared),]}
+    if(input$Model_graph_fit_select_multi == "r-square values (high to low)"){
+      test2 <- test[order(-test$r_squared),]}
+    if(input$Model_graph_fit_select_multi == "DELTA values (low to high)"){
+      test2 <- test[order(test$DELTA),]}
+    if(input$Model_graph_fit_select_multi == "DELTA values (high to low)"){
+      test2 <- test[order(-test$DELTA),]}
+    if(input$Model_graph_fit_select_multi == "INTERCEPT values (low to high)"){
+      test2 <- test[order(test$INTERCEPT),]}
+    if(input$Model_graph_fit_select_multi == "INTERCEPT values (high to low)"){
+      test2 <- test[order(-test$INTERCEPT),]}
+    test3 <- test2[input$Fit_plot_slider:(input$Fit_plot_slider+19),]
+    test3
+    
+    test3$lista <- do.call(paste,c(test3[c(input$ModelIV, input$ModelSubIV, input$SelectID)], sep = "_"))
+    real_list <- unique(test3$lista)
+    
+    temp <- subset(my_data(), select = c(
+      input$ModelIV,
+      input$ModelSubIV,
+      input$SelectID,
+      input$SelectTime,
+      input$ModelPheno))
+    temp[,input$SelectTime] <- as.numeric(as.character(temp[,input$SelectTime]))
+    temp$lista <- do.call(paste,c(temp[c(input$ModelIV, input$ModelSubIV, input$SelectID)], sep = "_"))
+    temp
+    temp2 <- temp[temp$lista %in% real_list,]
+    temp2
   })
   
+  Fit_plot_multi_graphs <- eventReactive(input$Go_fitplot,{
+    
+    docelowy <- example_model()
+    real_list <- unique(docelowy$lista)
+    
+    par(mfrow=c(4,5))
+    
+    
+      for(i in 1:length(real_list)){
+      super_temp <- subset(docelowy, docelowy$lista == real_list[i])  
+      
+      # The graph instruction from single plot - so should work :P
+      if(input$model == "lin"){
+        pheno <- super_temp[,input$ModelPheno]
+        time <- super_temp[,input$SelectTime]
+        title <- real_list[i]
+        plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
+        abline(lm(pheno ~ time), col="red")
+      }
+      
+      if (input$model == "quad") {
+        super_temp$helper <- sqrt(super_temp[, input$ModelPheno])
+        pheno <- super_temp$helper
+        time <- super_temp[,input$SelectTime]
+        title <- real_list[i]
+        plot(pheno ~ time, main = title, ylab = paste("sqrt(",input$ModelPheno,")"), xlab = input$SelectTime)
+        abline(lm(pheno ~ time), col="red")
+      }
+      
+      if (input$model == "exp") {
+        super_temp$helper <- log(super_temp[, input$ModelPheno])
+        pheno <- super_temp$helper
+        time <- super_temp[,input$SelectTime]
+        title <- real_list[i]
+        plot(pheno ~ time, main = title, ylab = paste("log(",input$ModelPheno,")"), xlab = input$SelectTime)
+        abline(lm(pheno ~ time), col="red")
+      }
+      
+      if (input$model == "sqr") {
+        super_temp$helper <- (super_temp[, input$ModelPheno])^2
+        pheno <- super_temp$helper
+        time <- super_temp[,input$SelectTime]
+        title <- real_list[i]
+        plot(pheno ~ time, main = title, ylab = paste(input$ModelPheno, "^2"), xlab = input$SelectTime)
+        abline(lm(pheno ~ time), col="red")
+      }
+    }
+  })
+  
+  output$Fit_plot_only_graph <- renderPlot({
+    if(input$Select_model_type_plot == "single plot"){
+      Model_plot_single()
+    }
+    if(input$Select_model_type_plot == "multiple plots"){
+      Fit_plot_multi_graphs()
+    }
+  })
   
   output$Model_download_button <- renderUI({
-    if(is.null(Saved_model_data())){
+    if(is.null(Model_temp_data())){
       return()}
     else
       downloadButton("Download_model_data", label="Download Fitted data")
