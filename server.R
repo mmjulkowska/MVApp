@@ -1746,14 +1746,16 @@ function(input, output) {
     ggplotly()
   })
   
-  ########## showing r square and p value ###########
+  # r2 and p-value ----------------------------------------------------------
+  
   output$corrsq <- renderText({
     cor_data <- my_data()[,c(input$Pheno1,input$Pheno2)]
     correl <- lm(cor_data[,1] ~ cor_data[,2])
     r2 <- summary(correl)$r.squared
     paste("The R square value of the linear regression is", signif(r2, 3))
   })
-  
+
+
   output$corpval <- renderText({
     cor_data <- my_data()[,c(input$Pheno1,input$Pheno2)]
     correl <- lm(cor_data[,1] ~ cor_data[,2])
@@ -1761,8 +1763,9 @@ function(input, output) {
     paste("The p-value is", signif(pval, 3))
   })
   
-  ##################################
-  
+
+# make downloadButton for corplot -----------------------------------------
+
   output$corrplot <- renderPlot({
     beginCol <-
       length(c(
@@ -1785,6 +1788,36 @@ function(input, output) {
       tl.col  = "black"
     )
   })
+  
+  output$downloadCorrplot <- downloadHandler(
+    filename = function() {
+      paste0('corrplot-', Sys.Date(), '.png')
+    },
+    content = function(con) {
+      beginCol <-
+        length(c(
+          input$SelectIV,
+          input$SelectGeno,
+          input$SelectTime,
+          input$SelectID
+        )) + 1
+      endCol <-
+        length(c(
+          input$SelectIV,
+          input$SelectGeno,
+          input$SelectTime,
+          input$SelectID
+        )) + length(input$SelectDV)
+      
+      png(con)
+      corrplot.mixed(
+        cor(my_data()[, beginCol:endCol]),
+        order = "hclust",
+        tl.col  = "black"
+      )
+      dev.off()
+    }
+  )
   
   output$CorSpecIV <- renderUI({
     if ((input$Go_Data == FALSE)) {

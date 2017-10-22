@@ -226,7 +226,7 @@ tabPanel(
         uiOutput("CorSpecIV"),
         # select what value(s) of IV1 to display (control or salt?)
         uiOutput("CorSpecIV_val")),
-      
+      downloadLink('downloadCorrplot', 'Download Plot (png)'),
       mainPanel(
         "Subset correlations",
         "here another plot for subset correlations",
