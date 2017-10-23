@@ -195,7 +195,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
            navbarPage("",
                       tabPanel("Normality test", icon=icon("area-chart"),
                                verbatimTextOutput("Shapiro"),
-                               plotlyOutput("QQplot"),
+                               plotOutput("QQplot"),
                                uiOutput("HistType"),
                                plotlyOutput("HistPlot")
                       ), 
