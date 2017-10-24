@@ -305,6 +305,9 @@ function(input, output) {
         things_to_model[i, 4] <- coefficients(fit)[2]
         things_to_model[i, 5] <- coefficients(fit)[1]
         things_to_model[i, 6] <- summary(fit)$r.squared
+        colnames(things_to_model)[4] <- "DELTA"
+        colnames(things_to_model)[5] <- "INTERCEPT"
+        colnames(things_to_model)[6] <- "r_squared"
       }
       
       if (input$model == "quad") {
@@ -313,6 +316,9 @@ function(input, output) {
         things_to_model[i, 4] <- (coefficients(fit)[2]) ^ 2
         things_to_model[i, 5] <- (coefficients(fit)[1]) ^ 2
         things_to_model[i, 6] <- summary(fit)$r.squared
+        colnames(things_to_model)[4] <- "DELTA"
+        colnames(things_to_model)[5] <- "INTERCEPT"
+        colnames(things_to_model)[6] <- "r_squared"
       }
       
       if (input$model == "exp") {
@@ -321,6 +327,9 @@ function(input, output) {
         things_to_model[i, 4] <- log(coefficients(fit)[2])
         things_to_model[i, 5] <- coefficients(fit)[1]
         things_to_model[i, 6] <- summary(fit)$r.squared
+        colnames(things_to_model)[4] <- "DELTA"
+        colnames(things_to_model)[5] <- "INTERCEPT"
+        colnames(things_to_model)[6] <- "r_squared"
       }
       
       if (input$model == "sqr") {
@@ -329,12 +338,36 @@ function(input, output) {
         things_to_model[i, 4] <- sqrt(coefficients(fit)[2])
         things_to_model[i, 5] <- sqrt(coefficients(fit)[1])
         things_to_model[i, 6] <- summary(fit)$r.squared
+        colnames(things_to_model)[4] <- "DELTA"
+        colnames(things_to_model)[5] <- "INTERCEPT"
+        colnames(things_to_model)[6] <- "r_squared"
       }
+      if (input$model == "cubic") {
+        #knoty <- input$cubic_knots
+        super_temp3 <- as.data.frame(super_temp3)
+        pheno <- super_temp3[, 5]
+        time <- super_temp3[,4]
+        fit <- lm(pheno ~ bs(time, knots = 2))
+        for(e in 1:length(fit$coef)){
+          things_to_model[i,(3+e)] <- fit$coef[[e]]
+        }
+        colnames(things_to_model)[4] <- "INTERCEPT"
+        for(f in 2:length(fit$coef)){
+          colnames(things_to_model)[3+f] <- paste("Coef",f,sep="_")
+        }
+        }
       
+      if(input$model == "smooth"){
+        fit<- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], cv=T)
+        for(e in 1:length(fit$fit$coef)){
+          things_to_model[i,(3+e)] <- fit$fit$coef[e]
+        }
+      }
+      for(f in 1:length(fit$fit$coef)){
+      colnames(things_to_model)[3+f] <- paste("Coef",f,sep="_")
+      }
     }
-    colnames(things_to_model)[4] <- "DELTA"
-    colnames(things_to_model)[5] <- "INTERCEPT"
-    colnames(things_to_model)[6] <- "r_squared"
+    
     things_to_model
   })
   
