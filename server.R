@@ -367,7 +367,6 @@ function(input, output) {
       colnames(things_to_model)[3+f] <- paste("Coef",f,sep="_")
       }
     }
-    
     things_to_model
   })
   
