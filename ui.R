@@ -91,10 +91,12 @@ fluidPage(
                                   uiOutput("Model_download_button"),
                                   dataTableOutput("Model_data")),
                          tabPanel("Fit-Plot",
+
                                   column(4, uiOutput("Select_model_plot_type")),
                                   column(4, uiOutput("Select_modelPlot")),
                                   column(4, uiOutput("Model_graph_fit_select_multi_input")),
                                   column(4, uiOutput("Fit_plot_slider_input")),
+
                                   uiOutput("Go_fitplot_model"),
                                   plotOutput("Fit_plot_only_graph",height = 750)),
                          tabPanel("Examine differences",
