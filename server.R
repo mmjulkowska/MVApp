@@ -198,6 +198,19 @@ function(input, output) {
       )
   })
   
+  output$if_cubic_knots <- renderUI({
+    if(input$model == "cubic"){
+      textInput(
+        inputId = "cubic_knots",
+        label = "Enter the time value at which you would like to split the spline. Use dot (.) as decimal point. If you which to use more than one knots, separate them using comma (,)."
+      )
+    }
+    else{
+      return()
+    }
+  })
+  # - - - - - - - - -  >> PRE-calculations << - - - - - - - - - - 
+  
   # making advice on which model type to chose based on the r-square values
   Model_est_data <- eventReactive(input$Go_HelpModel, {
     
@@ -260,18 +273,6 @@ function(input, output) {
     return(sentence)
   })
   
-  output$model_warning <- renderText({
-    if(is.null(Model_temp_data())){
-      return()}
-    else
-      
-      frajka <- Model_temp_data()
-    frajka_boom <- subset(frajka, frajka$r_squared < 0.7)
-    how_much <- ncol(frajka_boom)
-    
-    sentence <- paste("There are ", how_much, " samples with r-square value below 0.7. You should consider checking them.")
-    return(sentence)
-  })
   
   # Calculations for the model 
   # provides table with RGR / START and r-square
@@ -289,6 +290,7 @@ function(input, output) {
           input$ModelPheno
         )
       )
+    
     temp[,input$SelectTime] <- as.numeric(as.character(temp[,input$SelectTime]))
     sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
     things_to_model <- unique(temp[sub_set])
@@ -301,10 +303,10 @@ function(input, output) {
         subset(super_temp2, super_temp2[, 3] == things_to_model[i, 3])
       
       if (input$model == "lin") {
-        fit <- lm(super_temp3[, 4] ~ super_temp3[, 5])
-        things_to_model[i, 4] <- coefficients(fit)[2]
-        things_to_model[i, 5] <- coefficients(fit)[1]
-        things_to_model[i, 6] <- summary(fit)$r.squared
+        fit_lin <- lm(super_temp3[, 4] ~ super_temp3[, 5])
+        things_to_model[i, 4] <- coefficients(fit_lin)[2]
+        things_to_model[i, 5] <- coefficients(fit_lin)[1]
+        things_to_model[i, 6] <- summary(fit_lin)$r.squared
         colnames(things_to_model)[4] <- "DELTA"
         colnames(things_to_model)[5] <- "INTERCEPT"
         colnames(things_to_model)[6] <- "r_squared"
@@ -312,10 +314,10 @@ function(input, output) {
       
       if (input$model == "quad") {
         super_temp3$transformed <- sqrt(super_temp3[, 5])
-        fit <- lm(super_temp3[, 4] ~ super_temp3$transformed)
-        things_to_model[i, 4] <- (coefficients(fit)[2]) ^ 2
-        things_to_model[i, 5] <- (coefficients(fit)[1]) ^ 2
-        things_to_model[i, 6] <- summary(fit)$r.squared
+        fit_quad <- lm(super_temp3[, 4] ~ super_temp3$transformed)
+        things_to_model[i, 4] <- (coefficients(fit_quad)[2]) ^ 2
+        things_to_model[i, 5] <- (coefficients(fit_quad)[1]) ^ 2
+        things_to_model[i, 6] <- summary(fit_quad)$r.squared
         colnames(things_to_model)[4] <- "DELTA"
         colnames(things_to_model)[5] <- "INTERCEPT"
         colnames(things_to_model)[6] <- "r_squared"
@@ -323,10 +325,10 @@ function(input, output) {
       
       if (input$model == "exp") {
         super_temp3$transformed <- log(super_temp3[, 5])
-        fit <- lm(super_temp3[, 4] ~ super_temp3$transformed)
-        things_to_model[i, 4] <- log(coefficients(fit)[2])
-        things_to_model[i, 5] <- coefficients(fit)[1]
-        things_to_model[i, 6] <- summary(fit)$r.squared
+        fit_exp <- lm(super_temp3[, 4] ~ super_temp3$transformed)
+        things_to_model[i, 4] <- log(coefficients(fit_exp)[2])
+        things_to_model[i, 5] <- coefficients(fit_exp)[1]
+        things_to_model[i, 6] <- summary(fit_exp)$r.squared
         colnames(things_to_model)[4] <- "DELTA"
         colnames(things_to_model)[5] <- "INTERCEPT"
         colnames(things_to_model)[6] <- "r_squared"
@@ -334,42 +336,72 @@ function(input, output) {
       
       if (input$model == "sqr") {
         super_temp3$transformed <- (super_temp3[, 5]) ^ 2
-        fit <- lm(super_temp3[, 4] ~ super_temp3$transformed)
-        things_to_model[i, 4] <- sqrt(coefficients(fit)[2])
-        things_to_model[i, 5] <- sqrt(coefficients(fit)[1])
-        things_to_model[i, 6] <- summary(fit)$r.squared
+        fit_sq <- lm(super_temp3[, 4] ~ super_temp3$transformed)
+        things_to_model[i, 4] <- sqrt(coefficients(fit_sq)[2])
+        things_to_model[i, 5] <- sqrt(coefficients(fit_sq)[1])
+        things_to_model[i, 6] <- summary(fit_sq)$r.squared
         colnames(things_to_model)[4] <- "DELTA"
         colnames(things_to_model)[5] <- "INTERCEPT"
         colnames(things_to_model)[6] <- "r_squared"
       }
       if (input$model == "cubic") {
-        #knoty <- input$cubic_knots
-        super_temp3 <- as.data.frame(super_temp3)
-        pheno <- super_temp3[, 5]
-        time <- super_temp3[,4]
-        fit <- lm(pheno ~ bs(time, knots = 2))
-        for(e in 1:length(fit$coef)){
-          things_to_model[i,(3+e)] <- fit$coef[[e]]
+        knoty <- input$cubic_knots
+        colnames(super_temp3)[4] <- "time"
+        colnames(super_temp3)[5] <- "phenotype"
+        fit_cub <- lm(phenotype ~ bs(time, knots=knoty), data=super_temp3)
+      
+        for(e in 1:length(fit_cub$coef)){
+          things_to_model[i,(3+e)] <- fit_cub$coef[[e]]
         }
+        things_to_model[i,(4+length(fit_cub$coef))] <- summary(fit_cub)$r.squared
+        
         colnames(things_to_model)[4] <- "INTERCEPT"
-        for(f in 2:length(fit$coef)){
+        for(f in 2:length(fit_cub$coef)){
           colnames(things_to_model)[3+f] <- paste("Coef",f,sep="_")
         }
+        colnames(things_to_model)[(4+length(fit_cub$coef))] <- "r_squared"
         }
       
       if(input$model == "smooth"){
-        fit<- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], cv=T)
-        for(e in 1:length(fit$fit$coef)){
-          things_to_model[i,(3+e)] <- fit$fit$coef[e]
+        fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], cv=T)
+        for(e in 1:length(fit_smooth$fit$coef)){
+          things_to_model[i,(3+e)] <- fit_smooth$fit$coef[e]
         }
-      }
-      for(f in 1:length(fit$fit$coef)){
-      colnames(things_to_model)[3+f] <- paste("Coef",f,sep="_")
-      }
+        
+        for(g in 1:length(unique(super_temp3[,4]))){
+          super_temp3[g,6] <- predict(fit_smooth, unique(super_temp3[,4])[g])$y
+        }
+        
+        x <- super_temp3[,6]
+        y <- super_temp3[,5]
+        test <- data.frame(x,y)
+        rsq <- cor(test,method="pearson")[1,2]^2
+        things_to_model[i,(4 + e)] <- rsq
+        colnames(things_to_model)[4 + e] <- "r_squared"
+        
+        super_temp$predict  
+        for(f in 1:length(fit_smooth$fit$coef)){
+          colnames(things_to_model)[3+f] <- paste("Coef",f,sep="_")
+      }}
     }
     
     things_to_model
   })
+  
+  output$model_warning <- renderText({
+    if(is.null(Model_temp_data())){
+      return()}
+    else {
+    frajka <- Model_temp_data()
+    frajka_boom <- subset(frajka, select=c("r_squared"))
+    frajka_boom <- subset(frajka_boom, frajka_boom$r_squared < 0.7)                      
+    how_much <- nrow(frajka_boom)
+    
+    sentence <- paste("There are ", how_much, " samples with r-square value below 0.7. You should consider checking them.")
+    return(sentence)
+    }
+  })
+  
   
   output$Model_data <- renderDataTable({
     Model_temp_data()
@@ -427,8 +459,6 @@ function(input, output) {
       input$SelectTime,
       input$ModelPheno))
     temp[,input$SelectTime] <- as.numeric(as.character(temp[,input$SelectTime]))
-    sub_set <- c(input$ModelIV, input$ModelSubIV, input$SelectID)
-    things_to_model <- unique(temp[sub_set])
     
     temp$selection <- paste(temp[,input$ModelIV], temp[,input$ModelSubIV], temp[,input$SelectID], sep="_")
     docelowy <- subset(temp, temp$selection == input$Model_graph_fit_select)
@@ -491,6 +521,27 @@ function(input, output) {
       plot(pheno ~ time, main = title, ylab = paste(input$ModelPheno, "^2"), xlab = input$SelectTime)
       abline(lm(pheno ~ time), col="red")
     }
+    
+    if(input$model == "cubic"){
+      pheno <- docelowy[,input$ModelPheno]
+      time <- docelowy[,input$SelectTime]
+      fit_cub <- lm(pheno ~ bs(time, knots = input$cubic_knots))
+      title <- unique(docelowy$selection)
+      timelims <- range(time)
+      time.grid <- seq(from = timelims[1], to = timelims[2])
+      plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
+      points(time.grid, predict(fit_cub, newdata=list(time = time.grid)), col = "darkgreen")
+      abline(v=c(input$cubic_knots), lty=2, col="darkgreen")
+    }
+    
+    if(input$model == "smooth"){
+      fit_smooth <- smooth.spline(x = docelowy[,4], y = docelowy[,5], cv=T)
+      pheno <- docelowy[,input$ModelPheno]
+      time <- docelowy[,input$SelectTime]
+      title <- unique(docelowy$selection)
+      plot(docelowy[,5] ~ docelowy[,4], main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
+      lines(fit_smooth, col="purple", lwd=2)
+    }
   })
   
   ## == >> Having a go at the dynamic ploting thing << == ##
@@ -504,11 +555,7 @@ function(input, output) {
           inputId = "Model_graph_fit_select_multi",
           label = "Plot the fit-plots for",
           choices = c("r-square values (low to high)", 
-                      "r-square values (high to low)", 
-                      "DELTA values (low to high)", 
-                      "DELTA values (high to low)", 
-                      "INTERCEPT values (low to high)", 
-                      "INTERCEPT values (high to low)")
+                      "r-square values (high to low)")
         ))}
   })
   
@@ -538,14 +585,6 @@ function(input, output) {
       test2 <- test[order(test$r_squared),]}
     if(input$Model_graph_fit_select_multi == "r-square values (high to low)"){
       test2 <- test[order(-test$r_squared),]}
-    if(input$Model_graph_fit_select_multi == "DELTA values (low to high)"){
-      test2 <- test[order(test$DELTA),]}
-    if(input$Model_graph_fit_select_multi == "DELTA values (high to low)"){
-      test2 <- test[order(-test$DELTA),]}
-    if(input$Model_graph_fit_select_multi == "INTERCEPT values (low to high)"){
-      test2 <- test[order(test$INTERCEPT),]}
-    if(input$Model_graph_fit_select_multi == "INTERCEPT values (high to low)"){
-      test2 <- test[order(-test$INTERCEPT),]}
     test3 <- test2[input$Fit_plot_slider:(input$Fit_plot_slider+19),]
     test3
     
@@ -611,6 +650,27 @@ function(input, output) {
         plot(pheno ~ time, main = title, ylab = paste(input$ModelPheno, "^2"), xlab = input$SelectTime)
         abline(lm(pheno ~ time), col="red")
       }
+      
+      if(input$model == "cubic"){
+        pheno <- super_temp[,input$ModelPheno]
+        time <- super_temp[,input$SelectTime]
+        fit_cub <- lm(pheno ~ bs(time, knots = input$cubic_knots))
+        title <- real_list[i]
+        timelims <- range(time)
+        time.grid <- seq(from = timelims[1], to = timelims[2])
+        plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
+        points(time.grid, predict(fit_cub, newdata=list(time = time.grid)), col = "darkgreen")
+        abline(v=c(input$cubic_knots), lty=2, col="darkgreen")
+      }
+      
+      if(input$model == "smooth"){
+        fit_smooth <- smooth.spline(x = super_temp[,4], y = super_temp[,5], cv=T)
+        pheno <- super_temp[,input$ModelPheno]
+        time <- super_temp[,input$SelectTime]
+        title <- real_list[i]
+        plot(super_temp[,5] ~ super_temp[,4], main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
+        lines(fit_smooth, col="purple", lwd=2)
+      }
     }
   })
   
@@ -636,14 +696,152 @@ function(input, output) {
       write.csv(Model_temp_data(), file)}
   )
   
-  # I dont think we should be using this - can only lead to problems!!!
-  # Fusing the model data to the data that can be used for Summary Stats
-  Full_set_from_modeling <- eventReactive(input$Go_SaveModelData,{
-    melted_icecream <- melt(my_data(), id=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime))
-    model <- Saved_model_data()
-    brain_fusion <- rbind(melted_icecream, model)
-    return(brain_fusion)
+  
+  # - - - - - - - - - - - - >> SUMMARY STATS ON MODELING DATA << - - - - - - - - - - - - - - - 
+  
+  # - - - - - - - - - - - - >> input gizmos << - -  - - - - - - - - - - - - - - - 
+  output$Select_model_trait_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+    return()}
+    else{
+      taka <- Model_temp_data()  
+      list <- colnames(taka)
+      listek <- c(input$ModelIV,input$ModelSubIV,input$SelectID)
+      lista <- setdiff(list, listek)
+      
+      tagList(
+        selectizeInput(
+          inputId = "model_trait_plot",
+          label = "Select trait to plot",
+          choices = lista,
+          multiple = F
+        ))}
   })
+  
+  output$Select_model_graph_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    else{
+      tagList(
+        selectizeInput(
+          inputId = "model_graph_plot",
+          label = "Select graph type to plot",
+          choices = c("box plot", "scatter plot", "bar graph"),
+          multiple=F
+          ))}
+  })
+  
+  output$Select_model_error_bar_to_plot <- renderUI({
+    if(input$model_graph_plot == "bar graph"){
+      tagList(
+        selectizeInput(
+          inputId = "model_error_plot",
+          label = "The error bars represent",
+          choices = c("Standard Error", "Standard Deviation"),
+          multiple = F
+        ))}
+  })
+  
+  output$Select_model_color_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    else{
+      tagList(
+        selectizeInput(
+          inputId = "model_color_plot",
+          label = "colour the graph by",
+          choices = c(input$ModelIV,input$ModelSubIV,input$SelectID),
+          multiple = F,
+          selected= input$ModelSubIV))}
+  })
+  
+  output$Select_model_facet_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    else{
+      tagList(
+        selectizeInput(
+          inputId = "model_facet_plot",
+          label = "facet the graph by",
+          choices = c(input$ModelIV,input$ModelSubIV,input$SelectID),
+          multiple = F,
+          selected= input$ModelIV))}
+  })
+  
+  output$Go_model_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    else{
+      actionButton(
+        inputId = "Go_model_plot",
+        label = "Unleash model plot"
+      )
+    }
+  })
+  
+  # - - - - - - - >> CALCULATIONS <<- - - - - - - - - - - - 
+  
+  output$model_comparison_summary <- renderDataTable({
+    temp <- Model_temp_data()
+    temp[,input$SelectID] <- NULL
+    temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
+    temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
+    temp_sum
+  })
+  
+  # - - - - - - - >> GRAPHS <<- - - - - - - - - - - - 
+  
+  output$model_comparison_plotski <- renderPlotly({
+  temp <- Model_temp_data()
+  temp[,input$SelectID] <- NULL
+  
+  if(input$model_graph_plot == "bar graph"){
+    
+    temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
+    temp_melt <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
+    temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
+    temp_sum$color <- temp_sum[,input$model_color_plot]
+    temp_sum$facet <- temp_sum[,input$model_facet_plot]
+    benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, fill = color))
+    benc <- benc + geom_bar(stat = "identity", position=position_dodge(1))
+    if(input$model_error_plot == "Standard Error"){
+      benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))
+    }
+    if(input$model_error_plot == "Standard Deviation"){
+      benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
+    }
+    benc <- benc + facet_wrap(~facet) 
+  }
+  
+  temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
+  melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
+  melt_sub$id <- paste(melt_sub[,input$ModelIV], melt_sub[,input$ModelSubIV], sep="_")
+  melt_sub$color <- melt_sub[,input$model_color_plot]
+  melt_sub$facet <- melt_sub[,input$model_facet_plot]
+  no <- c(input$ModelIV, input$ModelSubIV)
+  no_fac <- setdiff(no, input$model_facet_plot)
+  melt_sub$no_facet <- paste(melt_sub[,no_fac], sep="_")
+  
+  if(input$model_graph_plot == "box plot"){
+        benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
+        benc <- benc + geom_boxplot()
+        benc <- benc + facet_wrap(~facet) 
+      }
+  
+  if(input$model_graph_plot == "scatter plot"){
+    benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
+    benc <- benc + geom_point()
+    benc <- benc + facet_wrap(~ facet)
+  }
+  
+  benc
+  })
+  
+  # - - - - - - - >> DOWNLOAD BUTTONS <<- - - - - - - - - - - - 
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   #  - - - - - - - - - - >> DATA CURATION IN 4th TAB << - - - - - - - - - - - - - -
