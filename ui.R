@@ -76,6 +76,7 @@ fluidPage(
                                                   "square root" = "sqr",
                                                   "cubic spline" = "cubic",
                                                   "smoothed spline" = "smooth")),
+                                    uiOutput("if_cubic_knots"),
                                     actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle"))
                                     )
                             
@@ -97,10 +98,21 @@ fluidPage(
                                   column(4, uiOutput("Fit_plot_slider_input")),
 
                                   uiOutput("Go_fitplot_model"),
-                                  plotOutput("Fit_plot_only_graph",height = 750)
+                                  plotOutput("Fit_plot_only_graph",height = 750)),
+                         tabPanel("Examine differences",
+                                  plotlyOutput("model_comparison_plotski"),
+                                  hr(),
+                                  column(4, uiOutput("Select_model_trait_to_plot"), 
+                                            uiOutput("Select_model_graph_to_plot")),
+                                  column(4, uiOutput("Select_model_color_to_plot"),
+                                            uiOutput("Select_model_facet_to_plot")),
+                                  column(4, uiOutput("Select_model_error_bar_to_plot")),
+                                  hr(),
+                                  dataTableOutput("model_comparison_summary")
+                                  )
                                   
                                   #plotOutput("Fit_plot_multi_graphs",  width = 1000))
-              )))
+              ))
             # end of Tab3
    ),
 
