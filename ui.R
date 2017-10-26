@@ -8,10 +8,42 @@ fluidPage(
    tabPanel(
       "Background information",
       icon = icon("info"),
+      sidebarPanel(
+        h2("About us"),
+        "This App is a result of hard work of a KAUST team, originating from ",a("The Salt Lab", href="https://cda.kaust.edu.sa/pages/Salt%20Lab.aspx", target = "_blank"), "lead by ", a("Prof. Mark Tester.", href="https://scholar.google.com/citations?user=FTvzOtkAAAAJ&hl=en", target= "_blank") ,  br(),
+        br(),
+        "This app is meant to streamline the data analysis that is common in many biological studies - especially when screaning large populations such as diversity panels or comparing multiple mutant lines to wild type.", 
+        "Our background is plant biology - so you know where our bias is ;).",br(),br(),
+        "If you have any problems / questions / ", span("suggestions how we can improve this APP so that YOU can do your analysis smoother", style="color:red") ,"- or simply you would like to tell us how amazing the App is - please contact ",span("Magdalena.Julkowska@kaust.edu.sa", style="color:blue")
+      ),
+      mainPanel(
       h2("About the MVApp"),
-      "This App is a result of hard work of a KAUST team, originating from SaltLab, lead by Prof. Mark Tester.",
       br(),
-      "Here we will put some helpful and encouraging text that is refering to the paper that will be (by then) published in a high impact and open-access journal ;) For now, we will leave this bit as is"
+      "We are aiming streamline the analysis of experiments containing multiple phenotypical measurements of the same sample, but you can easily use the app even if you have one phenotype.",
+      
+      h3("Our App empowers you to easily perform:"),
+      br(),
+      h4("1. Fitting the curves using simple functions (linear, quadratic, exponential and square root) as well as by fitting cubic and smoothed splines"),
+      br(),
+      h4("2. Automatically detect the outliers based on all traits or single trait"),
+      br(),
+      h4("3. Perform summary statistics on the data with / without the outliers"),
+      br(),
+      h4("4. Automatically determine whether your data is normally distributed and the variances between your samples are equal"),
+      br(),
+      h4("5. Examine your data for significant effects of the Genotype, Treatment or any other independent variable you wish"),
+      br(),
+      h4("6. Examine the correlations for all traits as well as for subsets of your data and easily determine the correlations that are changing depending on the Genotype, Treatment or any other selected independent variable."),
+      br(),
+      h4("7. Perform PCA analysis, examine which traits are contributing significantly to the most informative PCs and retrieve the coordinates of your samples."),
+      br(),
+      h4("8. Cluster your samples based on the selected traits and perform cluster validation analysis."),
+      br(),
+      br(),
+      "Although our App is super cool and everything is now just ONE click away from you, please remember that the final output will depend on your data - as a great philosopher once said", tags$b(">> bullshit in - bullshit out <<"),
+      br(),
+      br(),
+      img(src="bullshit_out.jpg", align="center"))
       # end of Tab1
     ),
    
@@ -58,15 +90,12 @@ fluidPage(
    tabPanel("Fitting curves to the data",icon = icon("wrench"),
             sidebarPanel(
               fluidRow(
-                navbarPage("",
-                           tabPanel("Modeling",
                                     helpText("Please select which phenotype you would like to model"),
                                     uiOutput("Pheno_to_model"),
                                     uiOutput("IV_to_model"),
                                     uiOutput("IV_subset_model"),
-                                    helpText("Click on >>unleash the model estimation<< for estimating which model is the best for the Dependent Variable that you selected"),
                                     actionButton("Go_HelpModel", label = "Unleash the model estimation"),
-                                    helpText("Here you can select which modeling type you'd like to do"),
+                                    helpText("If you have more than 10 time points it is worthwhile to consider fitting the polynomial functions to your data",br(),"Cubical splines where you determine the breakpoints yourself.", br()," By using smoothed splines - the breakpoints are determined automatically."),
                                     selectInput("model",
                                                 label = "Select method",
                                                 choices = list(
@@ -78,9 +107,7 @@ fluidPage(
                                                   "smoothed spline" = "smooth")),
                                     uiOutput("if_cubic_knots"),
                                     actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle"))
-                                    )
-                            
-                ))),
+                                    )),
             # end of side Panel
             mainPanel(
               navbarPage("",
@@ -100,6 +127,7 @@ fluidPage(
                                   uiOutput("Go_fitplot_model"),
                                   plotOutput("Fit_plot_only_graph",height = 750)),
                          tabPanel("Examine differences",
+                                  verbatimTextOutput("model_comparison_report"),
                                   plotlyOutput("model_comparison_plotski"),
                                   hr(),
                                   column(4, uiOutput("Select_model_trait_to_plot"), 
@@ -108,6 +136,7 @@ fluidPage(
                                             uiOutput("Select_model_facet_to_plot")),
                                   column(4, uiOutput("Select_model_error_bar_to_plot")),
                                   hr(),
+                                  uiOutput("Model_summ_download_button"),
                                   dataTableOutput("model_comparison_summary")
                                   )
                                   

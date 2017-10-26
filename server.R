@@ -251,6 +251,8 @@ function(input, output) {
       super_temp3$quad_transformed <- (super_temp3[, 5]) ^ 2
       quad_fit <- lm(super_temp3[, 4] ~ super_temp3$quad_transformed)
       things_to_model[i, 7] <- summary(quad_fit)$r.squared
+      # calculating r-squared for the cubic spline with one knot at the middle
+      # calculating r-squared for the smoothed
     }
     
     colnames(things_to_model)[4] <- "Linear_model"
@@ -259,6 +261,12 @@ function(input, output) {
     colnames(things_to_model)[7] <- "Square_root_model"
     colnames(things_to_model)[1] <- "IndepVar"
     model_sum <- summaryBy(Linear_model + Quadratic_model + Exponential_model + Square_root_model ~ IndepVar, data = things_to_model)
+    
+    colnames(model_sum)[1] <- "IndepVar"
+    colnames(model_sum)[2] <- "Linear_model"
+    colnames(model_sum)[3] <- "Quadratic_model"
+    colnames(model_sum)[4] <- "Exponential_model"
+    colnames(model_sum)[5] <- "Square_root_model"
     model_sum
   })
   
@@ -791,6 +799,37 @@ function(input, output) {
     temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
     temp_sum
   })
+  
+  # Add download button here
+  
+  output$Model_summ_download_button <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()}
+    else
+      downloadButton("Download_summ_model_data", label="Download summary statistics of fitted data")
+  })  
+  
+  output$Download_summ_model_data <- downloadHandler(
+    filename = paste("Summary Statistics of data Modelled_",input$ModelPheno, "_with_", input$model ,"_MVApp.csv"),
+    content <- function(file) {
+      temp <- Model_temp_data()
+      temp[,input$SelectID] <- NULL
+      temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
+      temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
+      write.csv(temp_sum, file)}
+  )
+  
+  
+  output$model_comparison_report <- renderText({
+    temp <- Model_temp_data()  
+    temp$facet <- as.factor(temp[,input$model_facet_plot])
+    temp$color <- as.factor(temp[,input$model_color_plot])
+    temp$phenotype <- as.numeric(temp[,input$model_trait_plot])
+    
+    amod <- aov(phenotype ~ facet + color, data = temp)
+    print(summary(amod))
+
+    })
   
   # - - - - - - - >> GRAPHS <<- - - - - - - - - - - - 
   
