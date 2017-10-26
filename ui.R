@@ -204,8 +204,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                                checkboxInput("showShapirotest", "Would you like to see detailed Shapiro-Wilk test and QQplots?"),
                                br(),
                                uiOutput("QQplot_slider"),
-                               br(),
-                               plotOutput("QQplot")
+                               plotOutput("QQplot", height=1000)
                       ), 
                       
                       tabPanel("Variance test", icon=icon("area-chart"),
