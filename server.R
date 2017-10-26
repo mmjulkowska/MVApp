@@ -2019,12 +2019,13 @@ function(input, output) {
         selectInput("Plotfacet_choice", "Select variable for which to facet",
                     choices = c(setdiff(list(input$SelectGeno, input$SelectIV, input$SelectTime),input$HisIV)))
       )
-    }
+      }
     else{
       return()
     }
   })
   
+
   
   output$HistType <- renderUI({
     if ((input$Go_Data == FALSE)) {
@@ -2123,7 +2124,10 @@ function(input, output) {
       
       sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(as.character(input$Chosenthreshold)))
       list_sig_shapiro<- as.vector(sig_shapiro[,1])
-      cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "do not have a normal distribution?!")
+      cat("The following groups do not have a normal distribution for",input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice)
+      cat("\n")
+      cat(list_sig_shapiro, sep=", ")
+      #cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "do not have a normal distribution?!")
       
       if(input$showShapirotest==T){
       cat("\n")
@@ -2156,7 +2160,7 @@ function(input, output) {
       temp_shapiro<-na.omit(temp_shapiro)
       
       sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(as.character(input$Chosenthreshold)))
-      list_sig_shapiro<- as.character(sig_shapiro[,1])
+      list_sig_shapiro<- as.vector(sig_shapiro[,1])
       #list_sha <- unique(list_sig_shapiro)
       #paste("<font color=\"#008080\"><b>",list_sha, "</b></font>")
       #print(colore)
@@ -2172,6 +2176,19 @@ function(input, output) {
     
   })
   
+  output$QQplot_slider <- renderUI({
+    if(input$showShapirotest == T){
+      sliderInput(
+        "QQplots_graph_col",
+        label = "How many columns would you like to use for displaying the QQ plots?",
+        1, 9, 3
+      )
+    }
+    else{
+      return()
+    }
+  })
+  
   
   output$QQplot <- renderPlot({
     if(input$showShapirotest==T){
@@ -2182,7 +2199,8 @@ function(input, output) {
       my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
       #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
       my_his_data$combinedTID<-as.factor(my_his_data$combinedTID)
-      par(mfrow=c(4,5))
+      par(mfrow=c(4,input$QQplots_graph_col))
+     # par(mfrow=c(4,5))
       for (i in unique(my_his_data$combinedTID)){
         subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==i)
         #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) +  geom_point() + geom_smooth(method="lm", se=FALSE)

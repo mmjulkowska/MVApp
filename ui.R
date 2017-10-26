@@ -189,6 +189,8 @@ tabPanel("Data exploration", icon=icon("binoculars"),
              #uiOutput("Chosenmultipletest"),
              checkboxInput("plot_facet", "Would you like to facet the graph?"),
              uiOutput("Plotfacets")
+             
+             
            )),
          
          mainPanel(
@@ -198,7 +200,10 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                                plotlyOutput("HistPlot"),
                                br(),
                                verbatimTextOutput("Shapiro"),
+                               br(),
                                checkboxInput("showShapirotest", "Would you like to see detailed Shapiro-Wilk test and QQplots?"),
+                               br(),
+                               uiOutput("QQplot_slider"),
                                plotOutput("QQplot", height=1000)
                       ), 
                       
