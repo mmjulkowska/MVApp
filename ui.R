@@ -194,10 +194,12 @@ tabPanel("Data exploration", icon=icon("binoculars"),
          mainPanel(
            navbarPage("",
                       tabPanel("Normality test", icon=icon("area-chart"),
-                               verbatimTextOutput("Shapiro"),
-                               plotOutput("QQplot", height=1000),
                                uiOutput("HistType"),
-                               plotlyOutput("HistPlot")
+                               plotlyOutput("HistPlot"),
+                               br(),
+                               verbatimTextOutput("Shapiro"),
+                               checkboxInput("showShapirotest", "Would you like to see detailed Shapiro-Wilk test and QQplots?"),
+                               plotOutput("QQplot", height=1000)
                       ), 
                       
                       tabPanel("Variance test", icon=icon("area-chart"),

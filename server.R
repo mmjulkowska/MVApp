@@ -2120,9 +2120,18 @@ function(input, output) {
       }
       colnames(temp_shapiro)<-c("Group", "p_value", "")
       temp_shapiro<-na.omit(temp_shapiro)
+      
+      sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(input$Chosenthreshold))
+      list_sig_shapiro<- as.vector(sig_shapiro[,1])
+      cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "do not have a normal distribution?!")
+      
+      if(input$showShapirotest==T){
+      cat("\n")
       cat(paste("The p-value of the Shapiro-Wilk test of normality for ", input$HisDV, " for each selected group is:", "\n", "\n", sep=""))
       print(temp_shapiro, row.names=FALSE)
     }
+    }
+    
     
     if(input$plot_facet ==F){
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
@@ -2145,15 +2154,25 @@ function(input, output) {
       }
       colnames(temp_shapiro)<-c("", "p_value", "")
       temp_shapiro<-na.omit(temp_shapiro)
-      cat(paste("The p-value of the Shapiro-Wilk test of normality for ", input$HisDV, " for each selected group is:", "\n", "\n", sep=""))
+      
+      sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(input$Chosenthreshold))
+      list_sig_shapiro<- as.vector(sig_shapiro[,1])
+      #paste("<font color=\"#008080\"><b>",list_sig_shapiro) #, "</b></font>")
+      #print(colore)
+     cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "do not have a normal distribution?!")
+      
+      if(input$showShapirotest==T){
+       cat("\n")
+        cat(paste("The p-value of the Shapiro-Wilk test of normality for ", input$HisDV, " for each selected group is:", "\n", "\n", sep=""))
       print(temp_shapiro, row.names=FALSE)
+      }
     }
     
   })
   
   
   output$QQplot <- renderPlot({
-    
+    if(input$showShapirotest==T){
     if(input$plot_facet ==T){
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
       groupedIV<-input$HisIV
@@ -2188,6 +2207,8 @@ function(input, output) {
         QQline
       }
     }
+    }
+      else{}
     #ggplotly(QQ)
   })
   
@@ -2263,6 +2284,7 @@ function(input, output) {
       pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
       cat("ANOVA", "\n")
       cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA,"\n", "\n", sep=""))
+      
       
       if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(input$Chosenthreshold) ) {
         cat("Significant difference in means")
