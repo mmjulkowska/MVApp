@@ -2035,8 +2035,8 @@ function(input, output) {
         selectizeInput(
           inputId = "HistType",
           label = "Select a plot type",
-          choices = c("HistCount", "HistDensity"),
-          selected = "HistCount",
+          choices = c("Histogram with counts on y-axis", "Histogram with density on y-axis"),
+          selected = "Histogram with counts on y-axis",
           multiple = F
         )
       )
@@ -2070,11 +2070,11 @@ function(input, output) {
       #        fit <- ggplot(my_his_data, aes(x=groupID, y=plotDV)) + xlab(names(my_his_data$groupID)) + geom_density(alpha = 0.3)
       #      }
       
-      if (input$HistType == "HistCount") {
+      if (input$HistType == "Histogram with counts on y-axis") {
         fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
         fit <- fit + facet_wrap(~facetIV)
       }
-      if (input$HistType == "HistDensity" ) { 
+      if (input$HistType == "Histogram with density on y-axis" ) { 
         fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
         fit <- fit + facet_wrap(~facetIV)
       }
@@ -2082,10 +2082,10 @@ function(input, output) {
     
     
     if(input$plot_facet ==F){
-      if (input$HistType == "HistCount") {
+      if (input$HistType == "Histogram with counts on y-axis") {
         fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
       }
-      if (input$HistType == "HistDensity" ) { 
+      if (input$HistType == "Histogram with density on y-axis" ) { 
         fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
       }
     }
