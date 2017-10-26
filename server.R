@@ -2133,7 +2133,7 @@ function(input, output) {
     }
     
     
-    if(input$plot_facet ==F){
+    if(input$plot_facet == F){
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
       shapiroIV<-input$HisIV
       m_Frows<-length(levels(as.factor(my_his_data[,shapiroIV])))
@@ -2156,11 +2156,13 @@ function(input, output) {
       temp_shapiro<-na.omit(temp_shapiro)
       
       sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(as.character(input$Chosenthreshold)))
-      list_sig_shapiro<- as.vector(sig_shapiro[,1])
-      #paste("<font color=\"#008080\"><b>",list_sig_shapiro) #, "</b></font>")
+      list_sig_shapiro<- as.character(sig_shapiro[,1])
+      #list_sha <- unique(list_sig_shapiro)
+      #paste("<font color=\"#008080\"><b>",list_sha, "</b></font>")
       #print(colore)
      cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "do not have a normal distribution?!")
-      
+      #paste(type='text/css', 'list_sig_shapiro, {color = "red"}')
+     
       if(input$showShapirotest==T){
        cat("\n")
         cat(paste("The p-value of the Shapiro-Wilk test of normality for ", input$HisDV, " for each selected group is:", "\n", "\n", sep=""))
@@ -2263,7 +2265,7 @@ function(input, output) {
         #p_values_anovacorr[i]<-p.adjust(p, method = Chosenmultipletesting)
         #print(paste("The p-value of the ANOVA test is", pvalue))
         #temp_anova<-as.data.frame(cbind(facetting, p_values_anova, p_values_anovacorr))
-        if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(input$Chosenthreshold) ) {
+        if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
           interpret_anova[i]<-"Significant difference in means"
         } else {
           interpret_anova[i]<-"Cannot reject H0"
@@ -2286,7 +2288,7 @@ function(input, output) {
       cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA,"\n", "\n", sep=""))
       
       
-      if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(input$Chosenthreshold) ) {
+      if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
         cat("Significant difference in means")
       } else {
         cat("Cannot reject H0")
@@ -2320,7 +2322,7 @@ function(input, output) {
         #model_bartlett<-fit_bartlett[[4]] #result of bartlett is a list with 4th element the description of model
         pvalue_bartlett[i]<-signif(fit_bartlett[[3]], 5) #result of bartlett is a list with 3rd element the p-value
         
-        if (fit_bartlett[[3]] < as.numeric(input$Chosenthreshold) ) {
+        if (fit_bartlett[[3]] < as.numeric(as.character(input$Chosenthreshold)) ) {
           interpret_bartlett[i]<-"Not equal"
         } else {
           interpret_bartlett[i]<-"Equal"
@@ -2343,7 +2345,7 @@ function(input, output) {
       cat("HOMOGENEITY OF VARIANCE ANALYSIS", "\n")
       cat("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, "S is ", pvalue_bartlett, ".", "\n", sep="")
       
-      if (pvalue_bartlett < as.numeric(input$Chosenthreshold) ) {
+      if (pvalue_bartlett < as.numeric(as.character(input$Chosenthreshold) )) {
         cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are equal.", sep="")
       } else {
         cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are not equal.", sep="")
@@ -2375,7 +2377,7 @@ function(input, output) {
         
         pvalue_levene[i]<-signif(fit_levene[[3]][[1]], 5) #result of levene is a list with 1st element of 3rd element the p-value
         
-        if (fit_levene[[3]][[1]] < as.numeric(input$Chosenthreshold) ) {
+        if (fit_levene[[3]][[1]] < as.numeric(as.character(input$Chosenthreshold)) ) {
           interpret_levene[i]<-"Not equal"
         } else {
           interpret_levene[i]<-"Equal"
@@ -2397,7 +2399,7 @@ function(input, output) {
       cat("HOMOGENEITY OF VARIANCE ANALYSIS", "\n")
       cat("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "S is ", pvalue_levene, ".", "\n", sep="")
       
-      if (pvalue_levene < as.numeric(input$Chosenthreshold) ) {
+      if (pvalue_levene < as.numeric(as.character(input$Chosenthreshold))) {
         cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are equal.", sep="")
       } else {
         cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are not equal.", sep="")
