@@ -2110,7 +2110,7 @@ function(input, output) {
         facetting_shapiro[i]<-i
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
-        if (shapirotest$p.value < as.numeric(input$Chosenthreshold) ) {
+        if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
           interpret_shapiro[i]<-"Data not normally distributed"
         } else {
           interpret_shapiro[i]<-"Cannot reject H0"
@@ -2121,7 +2121,7 @@ function(input, output) {
       colnames(temp_shapiro)<-c("Group", "p_value", "")
       temp_shapiro<-na.omit(temp_shapiro)
       
-      sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(input$Chosenthreshold))
+      sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(as.character(input$Chosenthreshold)))
       list_sig_shapiro<- as.vector(sig_shapiro[,1])
       cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "do not have a normal distribution?!")
       
@@ -2145,7 +2145,7 @@ function(input, output) {
         facetting_shapiro[i]<-i
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
-        if (shapirotest$p.value < as.numeric(input$Chosenthreshold) ) {
+        if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
           interpret_shapiro[i]<-"Data not normally distributed"
         } else {
           interpret_shapiro[i]<-"Cannot reject H0"
@@ -2155,7 +2155,7 @@ function(input, output) {
       colnames(temp_shapiro)<-c("", "p_value", "")
       temp_shapiro<-na.omit(temp_shapiro)
       
-      sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(input$Chosenthreshold))
+      sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(as.character(input$Chosenthreshold)))
       list_sig_shapiro<- as.vector(sig_shapiro[,1])
       #paste("<font color=\"#008080\"><b>",list_sig_shapiro) #, "</b></font>")
       #print(colore)
