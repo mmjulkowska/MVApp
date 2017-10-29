@@ -28,4 +28,5 @@ library("gplots")
 library("multcompView")
 library("car")
 
-library("agricolae")
+library("agricolae") #for HSD.test for Tukey in case we want to use it
+library("wesanderson") #for nice palette colors 
