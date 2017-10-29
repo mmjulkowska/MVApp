@@ -1761,6 +1761,29 @@ function(input, output) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> DATA EXPLORATION IN 5th TAB << - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##select dataset
+  output$Histo_Pheno_data <- renderUI({
+    if(is.null(ItemList())){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "Histo_data",
+          label = "Select the dataset that you would like to explore",
+          choices = c("raw data", "NA removed", "outliers removed"), multiple = F))
+  })  
+  
+  Histo_data_type <- eventReactive(exists(input$Histo_data),{
+    if(input$Histo_data == "raw data"){
+      Histo_data_type <- my_data()
+    }
+    if(input$Histo_data == "NA removed"){
+      Histo_data_type <- my_data_nona()
+    }
+    if(input$Histo_data == "outliers removed"){
+      Histo_data_type <- Outlier_free_data()
+    }
+    Histo_data_type
+  })
   
   #### HISTOGRAMS  
   
@@ -1800,6 +1823,38 @@ function(input, output) {
       )
   })
   
+  output$Chosenthreshold <- renderUI({
+    if ((input$Go_Data == FALSE)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Chosenthreshold",
+          label = "Select the p-value threshold to apply for tests of normality, homogeneity of variance and ANOVA:",
+          choices = c(0.00001, 0.01, 0.05, 0.1),
+          selected = 0.05,
+          multiple = F
+        )
+      )
+  })
+  
+  
+  ###to choose the method to correct for multiple testing
+  #output$Chosenmultipletest <- renderUI({
+  # if ((input$Go_Data == FALSE)) {
+  #  return ()
+  #} else
+  # tagList(
+  #  selectizeInput(
+  #   inputId = "Chosenmultipletesting",
+  #  label = "Select the method to correct p-values for multiple testing",
+  # choices = c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"),
+  #selected = "bonferroni",
+  #multiple = F
+  #)
+  #)
+  #})
+  
   output$Plotfacets <- renderUI({
     if(input$plot_facet == T){
       tagList(
@@ -1812,6 +1867,8 @@ function(input, output) {
     }
   })
   
+  
+  
   output$HistType <- renderUI({
     if ((input$Go_Data == FALSE)) {
       return ()
@@ -1820,17 +1877,19 @@ function(input, output) {
         selectizeInput(
           inputId = "HistType",
           label = "Select a plot type",
-          choices = c("HistCount", "HistDensity"),
-          selected = "HistCount",
+          choices = c("Histogram with counts on y-axis", "Histogram with density on y-axis"),
+          selected = "Histogram with counts on y-axis",
           multiple = F
         )
       )
   })
   
   
+  
+  
   output$HistPlot <- renderPlotly({
     
-    my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     #groupIV<-input$HisIV
     
     if(input$plot_facet ==T){
@@ -1853,11 +1912,11 @@ function(input, output) {
       #        fit <- ggplot(my_his_data, aes(x=groupID, y=plotDV)) + xlab(names(my_his_data$groupID)) + geom_density(alpha = 0.3)
       #      }
       
-      if (input$HistType == "HistCount") {
+      if (input$HistType == "Histogram with counts on y-axis") {
         fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
         fit <- fit + facet_wrap(~facetIV)
       }
-      if (input$HistType == "HistDensity" ) { 
+      if (input$HistType == "Histogram with density on y-axis" ) { 
         fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
         fit <- fit + facet_wrap(~facetIV)
       }
@@ -1865,10 +1924,10 @@ function(input, output) {
     
     
     if(input$plot_facet ==F){
-      if (input$HistType == "HistCount") {
+      if (input$HistType == "Histogram with counts on y-axis") {
         fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
       }
-      if (input$HistType == "HistDensity" ) { 
+      if (input$HistType == "Histogram with density on y-axis" ) { 
         fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
       }
     }
@@ -1876,46 +1935,257 @@ function(input, output) {
     
   }) 
   
+  
+  output$Shapiro<- renderPrint({
+    if(input$plot_facet ==T){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      groupedIV<-input$HisIV
+      groupedFacet<-input$Plotfacet_choice
+      my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
+      #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
+      my_his_data$combinedTID<-as.factor(my_his_data$combinedTID)
+      m_Trows<-length(levels(my_his_data$combinedTID))
+      facetting_shapiro<-rep(NA, m_Trows)
+      interpret_shapiro<-rep(NA,m_Trows)
+      shapiro_pvalue<-rep(NA,m_Trows)
+      for (i in unique(my_his_data$combinedTID)){
+        subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==i)
+        facetting_shapiro[i]<-i
+        shapirotest<-shapiro.test(subsetted_shapiro[,1])
+        shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
+        if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
+          interpret_shapiro[i]<-"Data not normally distributed"
+        } else {
+          interpret_shapiro[i]<-"Cannot reject H0"
+        }
+        
+        temp_shapiro<-as.data.frame(cbind(facetting_shapiro,shapiro_pvalue, interpret_shapiro))
+      }
+      colnames(temp_shapiro)<-c("Group", "p_value", "")
+      temp_shapiro<-na.omit(temp_shapiro)
+      
+      sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(as.character(input$Chosenthreshold)))
+      list_sig_shapiro<- as.vector(sig_shapiro[,1])
+      cat("The following groups do not have a normal distribution for",input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice)
+      cat("\n")
+      cat(list_sig_shapiro, sep=", ")
+      #cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "do not have a normal distribution?!")
+      
+      if(input$showShapirotest==T){
+        cat("\n")
+        cat(paste("The p-value of the Shapiro-Wilk test of normality for ", input$HisDV, " for each selected group is:", "\n", "\n", sep=""))
+        print(temp_shapiro, row.names=FALSE)
+      }
+    }
+    
+    
+    if(input$plot_facet == F){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
+      shapiroIV<-input$HisIV
+      m_Frows<-length(levels(as.factor(my_his_data[,shapiroIV])))
+      interpret_shapiro<-rep(NA,m_Frows)
+      facetting_shapiro<-rep(NA, m_Frows)
+      shapiro_pvalue<-rep(NA,m_Frows)
+      for (i in unique(my_his_data[,shapiroIV])){
+        subsetted_shapiro<-subset(my_his_data, my_his_data[,shapiroIV]==i)
+        facetting_shapiro[i]<-i
+        shapirotest<-shapiro.test(subsetted_shapiro[,1])
+        shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
+        if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
+          interpret_shapiro[i]<-"Data not normally distributed"
+        } else {
+          interpret_shapiro[i]<-"Cannot reject H0"
+        }
+        temp_shapiro<-as.data.frame(cbind(facetting_shapiro,shapiro_pvalue, interpret_shapiro))
+      }
+      colnames(temp_shapiro)<-c("", "p_value", "")
+      temp_shapiro<-na.omit(temp_shapiro)
+      
+      sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(as.character(input$Chosenthreshold)))
+      list_sig_shapiro<- as.vector(sig_shapiro[,1])
+      #list_sha <- unique(list_sig_shapiro)
+      #paste("<font color=\"#008080\"><b>",list_sha, "</b></font>")
+      #print(colore)
+      cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "do not have a normal distribution?!")
+      #paste(type='text/css', 'list_sig_shapiro, {color = "red"}')
+      
+      if(input$showShapirotest==T){
+        cat("\n")
+        cat(paste("The p-value of the Shapiro-Wilk test of normality for ", input$HisDV, " for each selected group is:", "\n", "\n", sep=""))
+        print(temp_shapiro, row.names=FALSE)
+      }
+    }
+    
+  })
+  
+  output$QQplot_slider <- renderUI({
+    if(input$showShapirotest == T){
+      sliderInput(
+        "QQplots_graph_col",
+        label = "How many columns would you like to use for displaying the QQ plots?",
+        1, 9, 3
+      )
+    }
+    else{
+      return()
+    }
+  })
+  
+  
+  output$QQplot <- renderPlot({
+    if(input$showShapirotest==T){
+      if(input$plot_facet ==T){
+        my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+        groupedIV<-input$HisIV
+        groupedFacet<-input$Plotfacet_choice
+        my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
+        #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
+        my_his_data$combinedTID<-as.factor(my_his_data$combinedTID)
+        par(mfrow=c(4,input$QQplots_graph_col))
+        # par(mfrow=c(4,5))
+        for (i in unique(my_his_data$combinedTID)){
+          subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==i)
+          #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) +  geom_point() + geom_smooth(method="lm", se=FALSE)
+          #QQ<-QQ + facet_wrap(~combinedTID)
+          QQplot<-qqnorm(subsetted_shapiro[,1], main=paste(input$HisDV, "for ", i))
+          QQline<-qqline(subsetted_shapiro[,1], col = 2)
+          QQplot
+          QQline
+        }
+      }
+      
+      if(input$plot_facet ==F){
+        my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
+        shapiroIV<-input$HisIV
+        my_his_data$shapiroIV<-my_his_data[,input$HisIV]
+        par(mfrow=c(4,5))
+        for (i in unique(my_his_data[,shapiroIV])){
+          subsetted_shapiro<-subset(my_his_data, my_his_data$shapiroIV==i)
+          #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) + geom_point() + geom_smooth(method="lm", se=FALSE)
+          #QQ<-QQ + facet_wrap(~shapiroIV)
+          QQplot<-qqnorm(subsetted_shapiro[,1], main=paste(input$HisDV, "for ", i))
+          QQline<-qqline(subsetted_shapiro[,1], col = 2)
+          QQplot
+          QQline
+        }
+      }
+    }
+    else{}
+    #ggplotly(QQ)
+  })
+  
+  
+  output$BoxesTukey <- renderPlot({
+    
+    #groupIV<-input$HisIV
+    
+    if(input$plot_facet ==T){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      my_his_data[,2]<-as.factor(my_his_data[,2])
+      groupedIV<-input$HisIV
+      groupedFacet<-input$Plotfacet_choice
+      groupedDV<-input$HisDV
+      
+      par(mfrow=c(4,3))
+      for (i in unique(my_his_data[,groupedFacet])){
+        subsetted_data<- subset(my_his_data, my_his_data[,groupedFacet]==i)
+        fit_graph<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+        #out<-HSD.test(fit_graph, "subsetted_data[, 2]", group=TRUE) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+        #plot(out, main=paste(names(subsetted_data[1]), "~", names(subsetted_data[2]), "for", i))
+        tuk <- glht(fit_graph, linfct = mcp("subsetted_data[, 2]" = "Tukey"))
+        tuk.cld <- cld(tuk)
+        old.par <- par( mai=c(1,1,2,1))
+        #plot(tuk.cld, las=1, ylab="Yield", xlab="Genotype for BOPA2_12_30822", main="Yield within family 1 under control conditions", col=c("royalblue2","pink"))
+        #type = "continuous" is needed to extrapolate between colors when the number of levels exceeds the number of colors available in palette
+        #plot(tuk.cld, las=1, ylab=names(subsetted_data[1]), xlab=names(subsetted_data[2]), main=i, col=wes_palette(n=length(unique(my_his_data[,2])), name="GrandBudapest", type = "continuous"))
+        plot(tuk.cld, las=1, ylab=names(subsetted_data[1]), xlab=names(subsetted_data[2]), main=i, col=rainbow(n=length(unique(my_his_data[,2]))))
+        par(old.par)
+      }
+    }
+    if(input$plot_facet ==F){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      my_his_data[,2]<-as.factor(my_his_data[,2])
+      fit_graph<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
+      #out<-HSD.test(fit_graph, "my_his_data[, 2]", group=TRUE)##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+      #plot(out, main=paste(names(my_his_data[1]), "~", names(my_his_data[2])))
+      #plot(out, main=paste(names(my_his_data[1]), "~", names(my_his_data[2])))
+      
+      tuk <- glht(fit_graph, linfct = mcp("my_his_data[, 2]" = "Tukey"))
+      tuk.cld <- cld(tuk)
+      old.par <- par(mai=c(1,1,2,1))
+      
+      #plot(tuk.cld, las=1, ylab="Yield", xlab="Genotype for BOPA2_12_30822", main="Yield within family 1 under control conditions", col=c("royalblue2","pink"))
+      #plot(tuk.cld, las=1, ylab=names(my_his_data[1]), xlab=names(my_his_data[2]), col=wes_palette(n=length(unique(my_his_data[,2])), name="GrandBudapest", type = "continuous"))
+      plot(tuk.cld, las=1, ylab=names(my_his_data[1]), xlab=names(my_his_data[2]), col=rainbow(n=length(unique(my_his_data[,2]))))
+      par(old.par)
+      
+      par(old.par)
+    }
+    
+  })
+  
+  
+  
   ##STILL TO DO:
   #       try to do subset by multiple variables
+  #the margin needs to be fixed to be able to see the y-lab
   output$Boxes <- renderPlotly({
-    my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     #groupIV<-input$HisIV
     
     if(input$plot_facet ==T){
       facetIV<-input$Plotfacet_choice
       my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
       
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
-      box_graph<- box_graph + facet_wrap(~facetIV)
+      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+      box_graph<- box_graph + facet_wrap(~facetIV) + scale_fill_discrete(names(my_his_data[2]))
     }
     else{
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
-      
+      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+      box_graph<- box_graph + scale_fill_discrete(names(my_his_data[2]))
     }
     ggplotly(box_graph)
   })
   
+  
+  
+  
+  ####We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
+  # p.adjust.methods
+  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
+  #   "fdr", "none")
+  #OR maybe use anova(lm(~))?
   ###ANOVA summary table output
   output$ANOVAtest <- renderPrint({
-    my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     my_his_data[,2]<-as.factor(my_his_data[,2])
     if(input$plot_facet ==T){
       n_rows<-length(levels(my_his_data[,3]))
       facetting<-rep(NA,n_rows)
-      p_values<-rep(NA,n_rows)
+      p_values_anova<-rep(NA,n_rows)
+      interpret_anova<-rep(NA,n_rows)
+      # p_values_anovacorr<-rep(NA,n_rows)
       for (i in unique(my_his_data[,3])){
         subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
         facetting[i]<-i
         fit_anova<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
         #print(fit_anova)
         #print(summary(fit_anova))
-        p_values[i]<-summary(fit_anova)[[1]][[1,"Pr(>F)"]] #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
+        p_values_anova[i]<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5) #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
+        #p_values_anovacorr[i]<-p.adjust(p, method = Chosenmultipletesting)
         #print(paste("The p-value of the ANOVA test is", pvalue))
-        temp_anova<-as.data.frame(cbind(facetting, p_values))
+        #temp_anova<-as.data.frame(cbind(facetting, p_values_anova, p_values_anovacorr))
+        if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
+          interpret_anova[i]<-"Significant difference in means"
+        } else {
+          interpret_anova[i]<-"Cannot reject H0"
+        }
+        temp_anova<-as.data.frame(cbind(facetting, p_values_anova,interpret_anova))
       }
       temp_anova<-na.omit(temp_anova)
-      colnames(temp_anova) <- c("Facetting variable", "p_value")
+      colnames(temp_anova) <- c("", "p_value","")
+      #colnames(temp_anova) <- c("", "p_value", "p_value corrected")
+      cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
       print(temp_anova, row.names=FALSE)
     }
     if(input$plot_facet ==F){ 
@@ -1923,40 +2193,127 @@ function(input, output) {
       #print(fit_anova)
       #br()
       #print(summary(fit_anova))
-      pvalue_ANOVA<-summary(fit_anova)[[1]][[1,"Pr(>F)"]]
-      print(paste("The p-value of the ANOVA test is", pvalue_ANOVA))
+      pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
+      cat("ANOVA", "\n")
+      cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA,"\n", "\n", sep=""))
+      
+      
+      if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
+        cat("Significant difference in means")
+      } else {
+        cat("Cannot reject H0")
+      }
     }
   })
   
-  ##Bartlett test
   
+  
+  
+  ####We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
+  # p.adjust.methods
+  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
+  #   "fdr", "none")
+  
+  ##Bartlett test
   output$Bartlett <- renderPrint({
-    my_his_data<-my_data()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     my_his_data[,2]<-as.factor(my_his_data[,2])
+    
     if(input$plot_facet ==T){
       n_rows<-length(levels(my_his_data[,3]))
       facetting <-rep(NA,n_rows)
       pvalue_bartlett<-rep(NA,n_rows)
+      interpret_bartlett<-rep(NA,n_rows)
       for (i in unique(my_his_data[,3])){
         facetting[i]<-i
         subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
         fit_bartlett<-bartlett.test(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
         #print(fit_bartlett)
         #model_bartlett<-fit_bartlett[[4]] #result of bartlett is a list with 4th element the description of model
-        pvalue_bartlett[i]<-fit_bartlett[[3]] #result of bartlett is a list with 3rd element the p-value
-        temp_bartlett<-as.data.frame(cbind(facetting, pvalue_bartlett))
+        pvalue_bartlett[i]<-signif(fit_bartlett[[3]], 5) #result of bartlett is a list with 3rd element the p-value
+        
+        if (fit_bartlett[[3]] < as.numeric(as.character(input$Chosenthreshold)) ) {
+          interpret_bartlett[i]<-"Not equal"
+        } else {
+          interpret_bartlett[i]<-"Equal"
+        }
+        
+        temp_bartlett<-as.data.frame(cbind(facetting, pvalue_bartlett, interpret_bartlett))
       }
       temp_bartlett<-na.omit(temp_bartlett)
-      colnames(temp_bartlett) <- c("Facetting variable", "p_value")
+      colnames(temp_bartlett) <- c("", "p_value", paste("The variances between ", input$HisIV, " groups are:", sep=""))
+      cat(paste("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
       print(temp_bartlett, row.names=FALSE)
     }
     
     if(input$plot_facet ==F){ 
+      
       fit_bartlett<-bartlett.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
       #print(fit_bartlett)
       #model_bartlett<-fit_bartlett[[4]] #result of bartlett is a list with 4th element the description of model
-      pvalue_bartlett<-fit_bartlett[[3]] #result of bartlett is a list with 3rd element the p-value
-      print(paste("The p-value of the Bartlett test of homogeneity of variances is",  pvalue_bartlett))
+      pvalue_bartlett<-signif(fit_bartlett[[3]],5) #result of bartlett is a list with 3rd element the p-value
+      cat("HOMOGENEITY OF VARIANCE ANALYSIS", "\n")
+      cat("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, "S is ", pvalue_bartlett, ".", "\n", sep="")
+      
+      if (pvalue_bartlett < as.numeric(as.character(input$Chosenthreshold) )) {
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are equal.", sep="")
+      } else {
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are not equal.", sep="")
+      }
+    }
+  })
+  
+  
+  
+  #######We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
+  # p.adjust.methods
+  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
+  #   "fdr", "none")
+  
+  ##Levene test
+  output$Levene <- renderPrint({
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data[,2]<-as.factor(my_his_data[,2])
+    
+    if(input$plot_facet ==T){
+      n_rows<-length(levels(my_his_data[,3]))
+      facetting <-rep(NA,n_rows)
+      pvalue_levene<-rep(NA,n_rows)
+      interpret_levene<-rep(NA,n_rows)
+      for (i in unique(my_his_data[,3])){
+        facetting[i]<-i
+        subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
+        fit_levene<-leveneTest(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+        
+        pvalue_levene[i]<-signif(fit_levene[[3]][[1]], 5) #result of levene is a list with 1st element of 3rd element the p-value
+        
+        if (fit_levene[[3]][[1]] < as.numeric(as.character(input$Chosenthreshold)) ) {
+          interpret_levene[i]<-"Not equal"
+        } else {
+          interpret_levene[i]<-"Equal"
+        }
+        
+        temp_levene<-as.data.frame(cbind(facetting, pvalue_levene, interpret_levene))
+      }
+      temp_levene<-na.omit(temp_levene)
+      colnames(temp_levene) <- c("", "p_value", paste("The variances between ", input$HisIV, " groups are:", sep=""))
+      cat(paste("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
+      print(temp_levene, row.names=FALSE)
+    }
+    
+    if(input$plot_facet ==F){ 
+      
+      fit_levene<-leveneTest(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
+      #print(fit_levene)
+      pvalue_levene<-signif(fit_levene[[3]][[1]],5) #result of levene is a list with 1st element of 3rd element the p-value
+      cat("HOMOGENEITY OF VARIANCE ANALYSIS", "\n")
+      cat("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "S is ", pvalue_levene, ".", "\n", sep="")
+      
+      if (pvalue_levene < as.numeric(as.character(input$Chosenthreshold))) {
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are equal.", sep="")
+      } else {
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are not equal.", sep="")
+      }
     }
   })
   
