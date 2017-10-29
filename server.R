@@ -2415,7 +2415,6 @@ function(input, output) {
     eigenvalues
   })
   
-  
   output$PCA_eigen_plot <- renderPlot({
     eigenvalues <- PCA_eigen_data()
     barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
@@ -2477,33 +2476,6 @@ function(input, output) {
     )
   })
   
-  PCA_contrib_data <- eventReactive(input$Go_PCA,{
-    beginCol <-2
-    endCol <-ncol(PCA_final_data())
-    PCA_ready <- PCA_final_data()
-    PCA_ready <- PCA_ready[, beginCol : endCol]
-    res.pca <- PCA(PCA_ready, graph = FALSE)
-    contrib_data <- res.pca$var$contrib
-    contrib_data
-  })
-  
-  output$PCA_contribution_table <- renderDataTable({
-    PCA_contrib_data()
-  })
-  
-  output$Contrib_download_button <- renderUI({
-    if(is.null(PCA_final_data())){
-      return()}
-    else
-      downloadButton("contrib_data", label="Download PCA contribution data")
-  })
-  
-  output$contrib_data <- downloadHandler(
-    filename = "PCA_contrib_MVApp.csv",
-    content <- function(file) {
-      write.csv(PCA_final_data(), file)}
-  )
-  
   output$PCA_contribution_plot <- renderPlot({
     beginCol <-
       length(c(
@@ -2511,7 +2483,7 @@ function(input, output) {
         input$SelectGeno,
         input$SelectTime,
         input$SelectID
-      )) + 1
+      )) 
     endCol <-ncol(PCA_final_data())
     PCA_ready <- PCA_final_data()
     PCA_ready <- PCA_ready[, beginCol : endCol]
@@ -2522,7 +2494,84 @@ function(input, output) {
                             high="red", midpoint=mid)+theme_bw()
   })
   
-  output$PCA_scatter_plot <- renderPlotly({
+  output$PCA_contrib_select <- renderUI({
+    if ((input$Go_PCAdata == FALSE)) {
+      return()
+    } else
+      eigenvalues <- PCA_eigen_data()
+    list_avail_PCs <- unique(1:(nrow(eigenvalues)))
+    tagList(
+      selectizeInput(
+        inputId = "Which_PC_contrib",
+        label = "Select which PC you would like to view",
+        choices = list_avail_PCs,
+        multiple = F
+      )
+    )
+  })
+  
+  output$Contrib_trait_plot <- renderPlot({
+        beginCol <-
+        length(c(
+        input$SelectIV,
+        input$SelectGeno,
+        input$SelectTime,
+        input$SelectID
+      )) 
+    endCol <-ncol(PCA_final_data())
+    PCA_ready <- PCA_final_data()
+    PCA_ready <- PCA_ready[, beginCol : endCol]
+    res.pca <- PCA(PCA_ready, graph = FALSE)
+    fviz_contrib(res.pca, choice = 'var', axes = c(as.numeric(input$Which_PC_contrib)), xtickslab.rt = 90)
+  })
+
+  PCA_contrib_var <- eventReactive(input$Go_PCA,{
+    beginCol <-2
+    endCol <-ncol(PCA_final_data())
+    PCA_ready <- PCA_final_data()
+    PCA_ready <- PCA_ready[, beginCol : endCol]
+    res.pca <- PCA(PCA_ready, graph = FALSE)
+    #for_labels <- PCA_final_data()
+    #for_labels <- for_labels[1:beginCol-1]
+    #new_stuff <- cbind(for_labels, res.pca$ind$contrib)
+    #plot(input$Which_PC1 ~ input$Which_PC2, data = new_stuff, fill = input$SelectIV)
+    #color <- input$SelectIV
+    contrib_var <- res.pca$var$contrib
+    contrib_var
+  })
+  
+  output$PCA_contribution_var <- renderDataTable({
+    PCA_contrib_var()
+  })
+  
+  output$Contrib_download_var <- renderUI({
+    if(is.null(PCA_final_data())){
+      return()}
+    else
+      downloadButton("contrib_var", label="Download PCA contribution by variable")
+  })
+  
+  output$contrib_var <- downloadHandler(
+    filename = "PCA_contrib_var_MVApp.csv",
+    content <- function(file) {
+      write.csv(PCA_final_data(), file)}
+  )
+  
+  output$PCA_colorby <- renderUI({
+    if(is.null(PCA_final_data())){
+      return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "PCA_Color",
+          label = "Select the color variable to be shown on the plot",
+          choices = c(input$SelectIV, input$SelectGeno), ### Need to change this input to reflect the PCA_final_data
+          multiple = F
+        )
+      )
+  })
+  
+  output$PCA_scatterplot <- renderPlotly({
     beginCol <-
       length(c(
         input$SelectIV,
@@ -2534,13 +2583,47 @@ function(input, output) {
     PCA_ready <- PCA_final_data()
     PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
-    mid1=median(res.pca$ind$coord)
-    fviz_pca_ind(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.ind="coord", repel=T, addlabels=F) +
-      scale_color_gradient2(low="grey", mid="purple", 
-                            high="red", midpoint=mid1)+
-      theme_minimal()
+    mid1=median(res.pca$ind$contrib)
+    fviz_pca_ind(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.ind= input$PCA_Color, repel=T, addlabels=F) +
+    scale_color_gradient2(low="grey", mid="purple", 
+                           high="red", midpoint=mid1)+
+     theme_minimal()
+    
+   # G <- as.data.frame(res.pca$ind$contrib)
+   # ggplot(aes_string(G) + geom_point(aes_string(colour =input$PCA_Color)))
+   # ggplotly()
+    
+   # plotly_IMAGE(res.pca, format = "png", out_file = "PCA_scatterplot_MVApp.png")
   })
   
+
+  PCA_contrib_ind <- eventReactive(input$Go_PCA,{
+    beginCol <-2
+    endCol <-ncol(PCA_final_data())
+    PCA_ready <- PCA_final_data()
+    PCA_ready <- PCA_ready[, beginCol : endCol]
+    res.pca <- PCA(PCA_ready, graph = FALSE)
+    contrib_ind <- res.pca$ind$contrib ### need to add the ID column from PCA_final_data and also separate Accession from Treatment
+    contrib_ind
+    
+  })
+  
+  output$PCA_contribution_ind <- renderDataTable({
+    PCA_contrib_ind()
+  })
+  
+  output$Contrib_ind_download <- renderUI({
+    if(is.null(PCA_final_data())){
+      return()}
+    else
+      downloadButton("contrib_ind", label="Download PCA contribution by indiviuals")
+  })
+  
+  output$contrib_ind <- downloadHandler(
+    filename = "PCA_contrib_ind_MVApp.csv",
+    content <- function(file) {
+      write.csv(PCA_final_data(), file)}
+  )
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> CLUSTER ANALYSIS IN 8th TAB << - - - - - - - - - - -

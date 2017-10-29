@@ -261,11 +261,7 @@ tabPanel(
       
       # uiOutput("SelectGroup"), # How would you like to colour, selectize (input$SelectGeno, input$SelectDV, input$SelectTime, multiple = F)
       br(),
-      actionButton("Go_PCA", label = "Unleash the PCA monster",icon = icon("play-circle")),
-      
-      # selectInput("Select the principle components", "Select the principle components:",
-      uiOutput("PCA1_select"),
-      uiOutput("PCA2_select")
+      actionButton("Go_PCA", label = "Unleash the PCA monster",icon = icon("play-circle"))
     )),
   mainPanel(
     navbarPage("PCA the crazy",
@@ -273,16 +269,24 @@ tabPanel(
                         dataTableOutput("PCA_raw_table")),
                tabPanel("Final data for PCA",
                         dataTableOutput("PCA_final_table")),
-               tabPanel("Eigen Plot",
+               tabPanel("Eigenvalues",
                         plotOutput("PCA_eigen_plot"),
                         uiOutput("Eigen_download_button"),
                         dataTableOutput("Eigen_data_table")),
-               tabPanel("Contribution Plot",
-                        plotOutput("PCA_contribution_plot"),
-                        uiOutput("Contrib_download_button"),
-                        dataTableOutput("PCA_contribution_table")),
-               tabPanel("Scatterplot",
-                        plotlyOutput("PCA_scatter_plot"))
+               tabPanel("Contribution of variables",
+                        uiOutput("PCA1_select"),
+                        uiOutput("PCA2_select"),
+                        plotOutput("PCA_contribution_plot")),
+               tabPanel("Scatterplot of individuals",
+                        uiOutput("PCA_colorby"),
+                        plotlyOutput("PCA_scatterplot"),
+                        uiOutput("Contrib_download_ind"),
+                        dataTableOutput("PCA_contribution_ind")),
+               tabPanel("Contribution per PC",
+                        uiOutput("PCA_contrib_select"),
+                        plotOutput("Contrib_trait_plot"),
+                        uiOutput("Contrib_download_var"),
+                        dataTableOutput("PCA_contribution_var"))
     ))
   # end Tab 7
 ),
