@@ -222,7 +222,9 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                                 # actionButton("Go_Boxplot", label = "Plot boxplots"),
                                 
                                 verbatimTextOutput("ANOVAtest"),
-                                plotlyOutput("Boxes"))
+                                plotlyOutput("Boxes"),
+                                plotOutput("BoxesTukey", height=1000)
+                                )
                       
                        #tabPanel("ANOVA plots", icon=icon("snowflake-o"),
                        #        verbatimTextOutput("ANOVAtest"))

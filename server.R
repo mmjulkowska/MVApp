@@ -2233,6 +2233,53 @@ function(input, output) {
   })
   
   
+  output$BoxesTukey <- renderPlot({
+   
+    #groupIV<-input$HisIV
+    
+    if(input$plot_facet ==T){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      my_his_data[,2]<-as.factor(my_his_data[,2])
+      groupedIV<-input$HisIV
+      groupedFacet<-input$Plotfacet_choice
+      groupedDV<-input$HisDV
+      
+      par(mfrow=c(4,3))
+      for (i in unique(my_his_data[,groupedFacet])){
+        subsetted_data<- subset(my_his_data, my_his_data[,groupedFacet]==i)
+        fit_graph<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+        #out<-HSD.test(fit_graph, "subsetted_data[, 2]", group=TRUE) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+        #plot(out, main=paste(names(subsetted_data[1]), "~", names(subsetted_data[2]), "for", i))
+        tuk <- glht(fit_graph, linfct = mcp("subsetted_data[, 2]" = "Tukey"))
+        tuk.cld <- cld(tuk)
+        old.par <- par( mai=c(1,1,2,1))
+        #plot(tuk.cld, las=1, ylab="Yield", xlab="Genotype for BOPA2_12_30822", main="Yield within family 1 under control conditions", col=c("royalblue2","pink"))
+        plot(tuk.cld, las=1, ylab=names(subsetted_data[1]), xlab=names(subsetted_data[2]), main=i)
+        
+        par(old.par)
+      }
+    }
+    if(input$plot_facet ==F){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      my_his_data[,2]<-as.factor(my_his_data[,2])
+      fit_graph<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
+      #out<-HSD.test(fit_graph, "my_his_data[, 2]", group=TRUE)##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+      #plot(out, main=paste(names(my_his_data[1]), "~", names(my_his_data[2])))
+      #plot(out, main=paste(names(my_his_data[1]), "~", names(my_his_data[2])))
+      
+      tuk <- glht(fit_graph, linfct = mcp("my_his_data[, 2]" = "Tukey"))
+      tuk.cld <- cld(tuk)
+      old.par <- par(mai=c(1,1,2,1))
+      
+      #plot(tuk.cld, las=1, ylab="Yield", xlab="Genotype for BOPA2_12_30822", main="Yield within family 1 under control conditions", col=c("royalblue2","pink"))
+      plot(tuk.cld, las=1, ylab=names(my_his_data[1]), xlab=names(my_his_data[2]))
+      
+      par(old.par)
+    }
+    
+  })
+  
+  
   
   ##STILL TO DO:
   #       try to do subset by multiple variables
@@ -2255,7 +2302,7 @@ function(input, output) {
     ggplotly(box_graph)
   })
   
-
+  
   
   
   ####We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
