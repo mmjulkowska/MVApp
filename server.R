@@ -2254,7 +2254,7 @@ function(input, output) {
         tuk.cld <- cld(tuk)
         old.par <- par( mai=c(1,1,2,1))
         #plot(tuk.cld, las=1, ylab="Yield", xlab="Genotype for BOPA2_12_30822", main="Yield within family 1 under control conditions", col=c("royalblue2","pink"))
-        plot(tuk.cld, las=1, ylab=names(subsetted_data[1]), xlab=names(subsetted_data[2]), main=i)
+        plot(tuk.cld, las=1, ylab=names(subsetted_data[1]), xlab=names(subsetted_data[2]), main=i, col=rainbow(length(unique(my_his_data[,2]))))
         
         par(old.par)
       }
@@ -2272,7 +2272,7 @@ function(input, output) {
       old.par <- par(mai=c(1,1,2,1))
       
       #plot(tuk.cld, las=1, ylab="Yield", xlab="Genotype for BOPA2_12_30822", main="Yield within family 1 under control conditions", col=c("royalblue2","pink"))
-      plot(tuk.cld, las=1, ylab=names(my_his_data[1]), xlab=names(my_his_data[2]))
+      plot(tuk.cld, las=1, ylab=names(my_his_data[1]), xlab=names(my_his_data[2]), col=rainbow(length(unique(my_his_data[,2]))))
       
       par(old.par)
     }
