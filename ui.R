@@ -230,28 +230,53 @@ tabPanel("Data curation", icon = icon("gavel"),
 tabPanel("Data exploration", icon=icon("binoculars"),
          sidebarPanel(
            fluidRow(
+             uiOutput("Histo_Pheno_data"),
              uiOutput("HisIV"),
              uiOutput("HisDV"),
+             uiOutput("Chosenthreshold"),
+             #uiOutput("Chosenmultipletest"),
              checkboxInput("plot_facet", "Would you like to facet the graph?"),
              uiOutput("Plotfacets")
+             
+             
            )),
          
          mainPanel(
            navbarPage("",
-                       tabPanel("Histograms", icon=icon("area-chart"),
-                                uiOutput("HistType"),
-                                plotlyOutput("HistPlot")
-                       ),
-                       tabPanel("Variance analysis", icon=icon("bar-chart-o"),
-                                verbatimTextOutput("Bartlett")
-                                #verbatimTextOutput("Levene")
-                       ),
-                       
-                       tabPanel("Boxplots", icon=icon("sun-o"),
-                                # actionButton("Go_Boxplot", label = "Plot boxplots"),
-                                plotlyOutput("Boxes")),
-                       tabPanel("ANOVA plots", icon=icon("snowflake-o"),
-                                verbatimTextOutput("ANOVAtest"))
+                      tabPanel("Normality test", icon=icon("area-chart"),
+                               uiOutput("HistType"),
+                               plotlyOutput("HistPlot", width = 600),
+                               br(),
+                               verbatimTextOutput("Shapiro"),
+                               br(),
+                               checkboxInput("showShapirotest", "Would you like to see detailed Shapiro-Wilk test and QQplots?"),
+                               br(),
+                               uiOutput("QQplot_slider"),
+                               plotOutput("QQplot", height=1000)
+                      ), 
+                      
+                      tabPanel("Variance test", icon=icon("area-chart"),
+                               verbatimTextOutput("Bartlett"),
+                               verbatimTextOutput("Levene")
+                               
+                      ),
+                      
+                      #tabPanel("Variance analysis", icon=icon("bar-chart-o"),
+                      #        verbatimTextOutput("Bartlett")
+                      #        #verbatimTextOutput("Levene")
+                      #),
+                      
+                      tabPanel("Boxplots", icon=icon("sun-o"),
+                               # actionButton("Go_Boxplot", label = "Plot boxplots"),
+                               
+                               verbatimTextOutput("ANOVAtest"),
+                               plotlyOutput("Boxes"),
+                               plotOutput("BoxesTukey", height=1000)
+                      )
+                      
+                      #tabPanel("ANOVA plots", icon=icon("snowflake-o"),
+                      #        verbatimTextOutput("ANOVAtest"))
+                      
            ))
          # end of Tab#5
 ),
