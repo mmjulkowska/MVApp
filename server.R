@@ -178,7 +178,8 @@ function(input, output) {
           inputId = "ModelIV",
           label = "Select an independent variable for which you would like estimate the kinetics (IndepVar)",
           choices = c(input$SelectIV, input$SelectGeno),
-          multiple = F
+          multiple = F,
+          selected = input$SelectIV
         )
       )
   })
@@ -193,7 +194,8 @@ function(input, output) {
           inputId = "ModelSubIV",
           label = "Select an independent variable for which you would to subset",
           choices = c(input$SelectIV, input$SelectGeno),
-          multiple = F
+          multiple = F, 
+          selected = input$SelectGeno
         )
       )
   })
@@ -706,6 +708,40 @@ function(input, output) {
   
   # - - - - - - - - - - - - >> SUMMARY STATS ON MODELING DATA << - - - - - - - - - - - - - - - 
   
+  output$model_comparison_report <- renderPrint({
+    temp <- Model_temp_data()  
+    temp$facet <- temp[,input$model_facet_plot]
+    temp$color <- temp[,input$model_color_plot]
+    temp$phenotype <- temp[,input$model_trait_plot]
+    
+    amod <- aov(phenotype ~ facet + color + facet*color, data = temp)
+    
+    if(summary(amod)[[1]][[5]][1] < 0.05){
+    cat("The effect of ", input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
+    }
+    if(summary(amod)[[1]][[5]][1] > 0.05){
+    cat("The effect of ", input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
+    }
+    
+    if(summary(amod)[[1]][[5]][2] < 0.05){
+    cat("\n")
+    cat("The effect of ", input$model_color_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
+    }
+    if(summary(amod)[[1]][[5]][2] > 0.05){
+      cat("\n")
+      cat("The effect of ", input$model_color_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
+    }
+    
+    if(summary(amod)[[1]][[5]][3] < 0.05){
+    cat("\n")
+    cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
+    }  
+    if(summary(amod)[[1]][[5]][3] > 0.05){
+      cat("\n")
+      cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
+    }
+  })
+  
   # - - - - - - - - - - - - >> input gizmos << - -  - - - - - - - - - - - - - - - 
   output$Select_model_trait_to_plot <- renderUI({
     if(is.null(Model_temp_data())){
@@ -819,18 +855,6 @@ function(input, output) {
       write.csv(temp_sum, file)}
   )
   
-  
-  output$model_comparison_report <- renderText({
-    temp <- Model_temp_data()  
-    temp$facet <- as.factor(temp[,input$model_facet_plot])
-    temp$color <- as.factor(temp[,input$model_color_plot])
-    temp$phenotype <- as.numeric(temp[,input$model_trait_plot])
-    
-    amod <- aov(phenotype ~ facet + color, data = temp)
-    print(summary(amod))
-
-    })
-  
   # - - - - - - - >> GRAPHS <<- - - - - - - - - - - - 
   
   output$model_comparison_plotski <- renderPlotly({
@@ -876,6 +900,10 @@ function(input, output) {
     benc <- benc + facet_wrap(~ facet)
   }
   
+  benc <- benc + theme(legend.title=element_blank())
+  benc <- benc + ylab(input$model_trait_plot)
+  benc <- benc + xlab(input$model_color_plot)
+  
   benc
   })
   
@@ -895,7 +923,8 @@ function(input, output) {
         selectizeInput("IV_outliers",
                        label = "Select the Indepentent Variables for which you would like to group yor phenotypes for outlier selection",
                        choices=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID),
-                       multiple=TRUE)
+                       multiple=TRUE,
+                       selected = c(input$SelectGeno, input$SelectIV, input$SelectTime))
       )})
   
   output$Outliers_selection_pheno  <- renderUI({
@@ -935,8 +964,8 @@ function(input, output) {
         selectizeInput("DV_graph_outliers",
                        label = "Select the phenotype for which you would like to examine graphically",
                        choices= input$SelectDV,
-                       selected = input$SelectDV[1],
-                       multiple=F)
+                       multiple=F, 
+                       selected = input$SelectDV[1])
       )})
   
   
@@ -961,19 +990,6 @@ function(input, output) {
     }
     else{
       return()
-    }
-  })
-  
-  output$Facet_user_input_columns <- renderUI({
-    if(input$outlier_facet == F){
-      return()
-    }  
-    if(input$outlier_facet == T){
-      sliderInput(
-        "out_graph_facet_col",
-        label = "How many columns would you like to use for facetting?",
-        1, 9, 3
-      )
     }
   })
   
@@ -1016,6 +1032,8 @@ function(input, output) {
       faka_boom <- my_data()
     }
     faka_boom$id_test <- do.call(paste,c(faka_boom[c(input$IV_outliers)], sep = "_"))
+    
+    
     
     for(i in 1:length(input$SelectDV)){
       
@@ -1321,7 +1339,8 @@ function(input, output) {
       outl <- outl[ , !(names(outl) %in% drops)]
     }
     
-    return(outl)
+    data_outl$outlier <- outl$outlier
+    return(data_outl)
     
   })
   
@@ -1546,7 +1565,6 @@ function(input, output) {
     if(input$outlier_graph_type == "box plot"){
       if(input$outlier_colour == T){
         taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))
-        taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
       }
       else{
         taka <- ggplot(outl, aes(x = id_test, y= pheno))   
@@ -1558,7 +1576,6 @@ function(input, output) {
       
       if(input$outlier_colour == T){
         taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))    
-        taka <- taka + guides(fill=guide_legend(title= input$outlier_colour))
       }
       else{
         taka <- ggplot(outl, aes(x = id_test, y= pheno))      
@@ -1571,9 +1588,13 @@ function(input, output) {
     if(input$outlier_facet == T){
     taka <- taka + facet_wrap(~listb, ncol=input$out_graph_facet_col, scale = input$out_facet_scale)}
     
-    taka <- taka + theme(axis.title.x=element_blank(),
-                         axis.text.x = element_text(angle = 90, hjust = 1),
-                         axis.title.y = element_text(input$DV_graph_outliers))
+    taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    taka <- taka + xlab("")
+    taka <- taka + ylab(input$DV_graph_outliers)
+    
+    if(input$outlier_colour == T){
+    taka <- taka + theme(legend.title=element_blank())
+    }
     
     taka
   })
@@ -1661,8 +1682,12 @@ function(input, output) {
       jaka <- jaka + facet_wrap(~listb, ncol=3, scale = input$out_facet_scale)}
     
     jaka <- jaka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-    jaka <- jaka + xlab(lista)
+    jaka <- jaka + xlab("")
     jaka <- jaka + ylab(input$DV_graph_outliers)
+    
+    if(input$outlier_colour == T){
+      jaka <- jaka + theme(legend.title=element_blank())
+    }
     
     jaka
   })
@@ -2942,7 +2967,7 @@ function(input, output) {
         selectizeInput(
           inputId = "Cluster_data",
           label = "Select the dataset that you would like to use for clustering analysis",
-          choices = c("raw data", "NA removed", "outliers removed", "Summary Stats data"), multiple = F))
+          choices = c("raw data", "NA removed", "outliers removed"), multiple = F))
   })
   
   output$Select_cluster_method <- renderUI({
@@ -3181,17 +3206,11 @@ function(input, output) {
     
     new_shait <- merge(cluster, temp2, by = "row.names")
     
-    to_test <- new_shait[,c("id","cluster",input$SelectDV[1])]
-    names(to_test)[3] <- "phenotype"
-    to_test$cluster <- as.factor(to_test$cluster)
-    amod <- aov(phenotype ~ cluster, data = to_test)
-    
-    if(summary(amod)[[1]][["Pr(>F)"]] < 0.05){
-      sig_listxxx <- input$SelectDV[1]
-    } 
+      sig_listxxx <- "."
     
     
-    for(i in 2:length(input$SelectDV)){
+    
+    for(i in 1:length(input$SelectDV)){
       to_test <- new_shait[,c("id","cluster",input$SelectDV[i])]
       names(to_test)[3] <- "phenotype"
       to_test$cluster <- as.factor(to_test$cluster)
@@ -3248,7 +3267,7 @@ function(input, output) {
     tuk <- glht(amod, linfct = mcp(cluster = "Tukey"))
     tuk.cld <- cld(tuk)   
     old.par <- par( mai=c(1,1,1.25,1))
-    shaka_laka <- plot(tuk.cld, las=1, col="#dd1c77", ylab=input$Clust_test)
+    shaka_laka <- plot(tuk.cld, las=1, col=topo.colors(n=length(unique(to_test$cluster))), ylab=input$Clust_test)
     shaka_laka
   })
   
