@@ -330,21 +330,17 @@ tabPanel(
   icon = icon("object-group"),
   sidebarPanel(
     fluidRow(
-      helpText("Which phenotype you would like to use for the PCA?"),
       uiOutput("PCA_Pheno_data"), # which phenotype data (summarized / na / original) selectize, multiple = F
-      checkboxInput("PCA_data_avg", label = "Check if you would like to perform PCA on mean values per genotype / IVs / time"),
-      checkboxInput("PCA_data_subset", label = "Check if you would like to perform PCA on specific subset of your data"),
-      uiOutput("PCA_subset_trait"),
-      uiOutput("PCA_subset_specific"),
       actionButton("Go_PCAdata", label = "set the dataset"),
       uiOutput("PCA_Select_pheno"), # which traits would you like to use? selectize, multiple = T
+      selectizeInput("PCA_data_avg", label = "Perform PCA on", choices=c("individual values", "average values per genotype / IVs / time")),
+      selectizeInput("PCA_data_subset", label = "Would like to perform PCA on", choices=c("full dataset", "subsetted dataset")),
+      uiOutput("PCA_subset_trait"),
+      uiOutput("PCA_subset_specific"),
+      
       # uiOutput("SelectGroup"), # How would you like to colour, selectize (input$SelectGeno, input$SelectDV, input$SelectTime, multiple = F)
       br(),
-      actionButton("Go_PCA", label = "Unleash the PCA monster",icon = icon("play-circle")),
-      
-      # selectInput("Select the principle components", "Select the principle components:",
-      uiOutput("PCA1_select"),
-      uiOutput("PCA2_select")
+      actionButton("Go_PCA", label = "Unleash the PCA monster",icon = icon("play-circle"))
     )),
   mainPanel(
     navbarPage("PCA the crazy",
@@ -352,12 +348,24 @@ tabPanel(
                         dataTableOutput("PCA_raw_table")),
                tabPanel("Final data for PCA",
                         dataTableOutput("PCA_final_table")),
-               tabPanel("Eigen Plot",
-                        plotlyOutput("PCA_eigen_plot")),
-               tabPanel("Contribution Plot",
-                        plotlyOutput("PCA_contribution_plot")),
-               tabPanel("Scatter Plot",
-                        plotlyOutput("PCA_scatter_plot"))
+               tabPanel("Eigenvalues",
+                        plotOutput("PCA_eigen_plot"),
+                        uiOutput("Eigen_download_button"),
+                        dataTableOutput("Eigen_data_table")),
+               tabPanel("Contribution of variables",
+                        uiOutput("PCA1_select"),
+                        uiOutput("PCA2_select"),
+                        plotOutput("PCA_contribution_plot")),
+               tabPanel("Scatterplot of individuals",
+                        uiOutput("PCA_colorby"),
+                        plotlyOutput("PCA_scatterplot"),
+                        uiOutput("Contrib_download_ind"),
+                        dataTableOutput("PCA_contribution_ind")),
+               tabPanel("Contribution per PC",
+                        uiOutput("PCA_contrib_select"),
+                        plotOutput("Contrib_trait_plot"),
+                        uiOutput("Contrib_download_var"),
+                        dataTableOutput("PCA_contribution_var"))
     ))
   # end Tab 7
 ),
