@@ -2321,6 +2321,155 @@ function(input, output) {
   # - - - - - - - - - - - - >> DATA CORRELATION IN 6th TAB << - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
+  ######################### correlation plot#############################
+  
+  # select data sets to be used
+  output$cor_Pheno_data <- renderUI({
+    if (is.null(ItemList())) {
+      return()
+    }
+    else
+      tagList(
+        selectizeInput(
+          inputId = "cor_data",
+          label = "Select the dataset that you would like to use for correlation",
+          choices = c("raw data", "NA removed", "outliers removed"),
+          multiple = F
+        )
+      )
+  })
+  
+  cor_data_type <- eventReactive(input$cor_data, {
+    if (input$cor_data == "raw data") {
+      cor_data_type <- my_data()
+    }
+    if (input$cor_data == "NA removed") {
+      cor_data_type <- my_data_nona()
+    }
+    if (input$cor_data == "outliers removed") {
+      cor_data_type <- Outlier_free_data()
+    }
+    cor_data_type
+  })
+  
+  
+  # whether to use subsetted data or not
+  output$cor_subset <- renderUI({
+    if (input$cor_data_subset == F) {
+      return()
+    }
+    else{
+      tagList(
+        selectizeInput(
+          inputId = "CorIV_sub",
+          label = "By which independent variable do you want to subset the data?",
+          choices = c(
+            input$SelectIV,
+            input$SelectGeno,
+            input$SelectTime,
+            input$SelectID
+          ),
+          multiple = F
+        )
+      )
+    }
+  })
+  
+  output$CorSpecIV_val <- renderUI({
+    if ((input$cor_data_subset == F)) {
+      return()
+    } else
+      names <-
+        subset(my_data(), select = input$CorIV_sub) %>% unique()
+    tagList(
+      selectizeInput(
+        inputId = "CorIV_val",
+        label = "Which values of the independent variable would you like to examine for correlation?",
+        choices = c(names),
+        multiple = F
+      )
+    )
+  })
+  
+  output$corrplot <- renderPlot({
+    df <- cor_data_type()
+    
+    if (input$cor_data_subset) {
+      df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
+    }
+    
+    beginCol <-
+      length(c(
+        input$SelectIV,
+        input$SelectGeno,
+        input$SelectTime,
+        input$SelectID
+      )) + 1
+    endCol <-
+      length(c(
+        input$SelectIV,
+        input$SelectGeno,
+        input$SelectTime,
+        input$SelectID
+      )) + length(input$SelectDV)
+    
+    
+    corrplot(
+      cor(df[, beginCol:endCol], method = input$corMethod),
+      method = input$corrplotMethod,
+      type = input$corType,
+      order = input$corOrder,
+      tl.col = 'black'
+    )
+  })
+  
+  ################ cor_table output###################
+  
+  my_table <- eventReactive(input$Go_table, {
+    beginCol <-
+      length(c(
+        input$SelectIV,
+        input$SelectGeno,
+        input$SelectTime,
+        input$SelectID
+      )) + 1
+    
+    endCol <-
+      length(c(
+        input$SelectIV,
+        input$SelectGeno,
+        input$SelectTime,
+        input$SelectID
+      )) + length(input$SelectDV)
+    
+    df <- cor_data_type()
+    if (input$cor_data_subset) {
+      df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
+    }
+    
+    res <-
+      rcorr(as.matrix(df[, beginCol:endCol]), type = input$corMethod)
+    
+    flattenCorrMatrix <- function(cormat, pmat) {
+      ut <- upper.tri(cormat)
+      data.frame(
+        row = rownames(cormat)[row(cormat)[ut]],
+        column = rownames(cormat)[col(cormat)[ut]],
+        cor  = (cormat)[ut],
+        p = pmat[ut]
+      )
+    }
+    
+    result <- flattenCorrMatrix(res$r, res$P)
+    return(result)
+  })
+  
+  output$cor_table <- renderDataTable({
+    my_table()
+  })
+  
+  ############ interactive scatter plot ##########
+  
   output$Pheno1 <- renderUI({
     if (is.null(input$SelectDV)) {
       return ()
@@ -2364,113 +2513,73 @@ function(input, output) {
       )
   })
   
-  ############ interactive scatter plot ##########
-  
   output$scatterplot <- renderPlotly({
     my_data <- data.frame(my_data())
-    my_data %>% ggplot(aes_string(input$Pheno1, input$Pheno2)) + geom_point(aes_string(colour =input$Color))
+    my_data %>% ggplot(aes_string(input$Pheno1, input$Pheno2)) + geom_point(aes_string(colour =
+                                                                                         input$Color))
     ggplotly()
   })
   
-  ########## showing r square and p value ###########
+  # r2 and p-value ----------------------------------------------------------
+  
   output$corrsq <- renderText({
-    cor_data <- my_data()[,c(input$Pheno1,input$Pheno2)]
-    correl <- lm(cor_data[,1] ~ cor_data[,2])
+    cor_data <- my_data()[, c(input$Pheno1, input$Pheno2)]
+    correl <- lm(cor_data[, 1] ~ cor_data[, 2])
     r2 <- summary(correl)$r.squared
     paste("The R square value of the linear regression is", signif(r2, 3))
   })
   
+  
   output$corpval <- renderText({
-    cor_data <- my_data()[,c(input$Pheno1,input$Pheno2)]
-    correl <- lm(cor_data[,1] ~ cor_data[,2])
+    cor_data <- my_data()[, c(input$Pheno1, input$Pheno2)]
+    correl <- lm(cor_data[, 1] ~ cor_data[, 2])
     pval <- summary(correl)$coefficients[8]
     paste("The p-value is", signif(pval, 3))
   })
   
-  ##################################
+  # make downloadButton for corplot -----------------------------------------
   
-  output$corrplot <- renderPlot({
-    beginCol <-
-      length(c(
-        input$SelectIV,
-        input$SelectGeno,
-        input$SelectTime,
-        input$SelectID
-      )) + 1
-    endCol <-
-      length(c(
-        input$SelectIV,
-        input$SelectGeno,
-        input$SelectTime,
-        input$SelectID
-      )) + length(input$SelectDV)
-    
-    corrplot.mixed(
-      cor(my_data()[, beginCol:endCol]),
-      order = "hclust",
-      tl.col  = "black"
-    )
-  })
   
-  output$CorSpecIV <- renderUI({
-    if ((input$Go_Data == FALSE)) {
-      return ()
-    } else
-      tagList(
-        selectizeInput(
-          inputId = "CorIV_sub",
-          label = "By which independent variable do you want to subset the data?",
-          choices = c(
-            input$SelectIV,
-            input$SelectGeno,
-            input$SelectTime,
-            input$SelectID
-          ),
-          multiple = F
-        )
+  output$downloadCorrplot <- downloadHandler(
+    filename = function() {
+      paste0('corrplot-', Sys.Date(), '.png')
+    },
+    content = function(con) {
+      df <- cor_data_type()
+      
+      if (input$cor_data_subset) {
+        df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
+      }
+      
+      beginCol <-
+        length(c(
+          input$SelectIV,
+          input$SelectGeno,
+          input$SelectTime,
+          input$SelectID
+        )) + 1
+      endCol <-
+        length(c(
+          input$SelectIV,
+          input$SelectGeno,
+          input$SelectTime,
+          input$SelectID
+        )) + length(input$SelectDV)
+      
+      png(con, width = 800, height = 800)
+      
+      corrplot(
+        cor(df[, beginCol:endCol], method = input$corMethod),
+        method = input$corrplotMethod,
+        type = input$corType,
+        order = input$corOrder,
+        tl.col = 'black'
       )
-  })
+      
+      dev.off()
+    }
+  )
   
-  output$CorSpecIV_val <- renderUI({
-    if ((input$Go_Data == FALSE)) {
-      return()
-    } else
-      names <-
-        subset(my_data(), select = input$CorIV_sub) %>% unique()
-    tagList(
-      selectizeInput(
-        inputId = "CorIV_val",
-        label = "Which values of the independent variable would you like to examine for correlation?",
-        choices = c(names),
-        multiple = F
-      )
-    )
-  })
-  
-  output$corrplot2 <- renderPlot({
-    beginCol <-
-      length(c(
-        input$SelectIV,
-        input$SelectGeno,
-        input$SelectTime,
-        input$SelectID
-      )) + 1
-    endCol <-
-      length(c(
-        input$SelectIV,
-        input$SelectGeno,
-        input$SelectTime,
-        input$SelectID
-      )) + length(input$SelectDV)
-    my_data <- data.frame(my_data())
-    
-    names(my_data) <- sub(input$CorIV_sub, "Cor_baby", names(my_data))
-    my_data2 <- subset(my_data, Cor_baby == input$CorIV_val)
-    my_data2 <- na.omit(my_data2)
-    corrplot.mixed(
-      cor(my_data2[, beginCol:endCol]),tl.col  = "black"
-    )
-  })
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - >> PCA IN 7th TAB <<- - - - - - - - - - - - - - - -

@@ -280,33 +280,40 @@ tabPanel("Data exploration", icon=icon("binoculars"),
            ))
          # end of Tab#5
 ),
-# Tab 6 = = = = = = = = = = = = = = >> CORRELATION ANALYSIS << = = = = = = = = = = = = = = = = = =      
+# Tab 6 = = = = = = = = = = = = = = >> CORRELATION ANALYSIS << = = = = = = = = = = = = = = = = = =
 
 tabPanel(
   "Establish correlations between traits",
   icon = icon("compress"),
-  
   navbarPage(
     "",
-    tabPanel("General Correlations",
-             plotOutput("corrplot")),
     tabPanel(
-      "Subsetted correlations",
-      sidebarPanel(# select which IV do they want to subset the data? especially if there are more IVs
-        uiOutput("CorSpecIV"),
-        # select what value(s) of IV1 to display (control or salt?)
-        uiOutput("CorSpecIV_val")),
+      "Correlation Plot",
+      
+      sidebarPanel(
+        uiOutput("cor_Pheno_data"),
+        # which data set to use (summarized / na / original) selectize, multiple = F
+        checkboxInput("cor_data_subset", label = "Calculate correlation on specific subset of your data"),
+        uiOutput("cor_subset"),
+        uiOutput("CorSpecIV_val"),
+        selectInput("corMethod", "Correlation Method", eval(formals(rcorr)$type)),
+        selectInput("corrplotMethod", "Plot Method", eval(formals(corrplot)$method)),
+        selectInput("corType", "Plot Type", eval(formals(corrplot)$type)),
+        selectInput("corOrder", "Order of the lable", eval(formals(corrplot)$order)),
+        actionButton("Go_table", label = "Click to see the correlation table with p value", icon = icon("play-circle"))
+      ),
+      
       
       mainPanel(
-        "Subset correlations",
-        "here another plot for subset correlations",
-        plotOutput("corrplot2")
+        downloadButton('downloadCorrplot', icon("download")),
+        plotOutput("corrplot"),
+        dataTableOutput('cor_table')
       )
     ),
     
     tabPanel(
       "Scatterplots",
-      sidebarPanel(uiOutput("Pheno1"),uiOutput("Pheno2"),uiOutput("colorby")),
+      sidebarPanel(uiOutput("Pheno1"), uiOutput("Pheno2"), uiOutput("colorby")),
       mainPanel(
         textOutput("corrsq"),
         textOutput("corpval"),
@@ -316,7 +323,6 @@ tabPanel(
   )
   # end of Tab#6
 ),
-
 # Tab 7 = = = = = = = = = = = = = = >> PCA ANALYSIS << = = = = = = = = = = = = = = = = = = 
 
 tabPanel(
