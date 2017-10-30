@@ -2584,7 +2584,7 @@ function(input, output) {
     PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
     mid1=median(res.pca$ind$contrib)
-    fviz_pca_ind(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.ind= input$PCA_Color, repel=T, addlabels=F) +
+    fviz_pca_ind(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.ind= 'contrib', repel=T, addlabels=F) +
     scale_color_gradient2(low="grey", mid="purple", 
                            high="red", midpoint=mid1)+
      theme_minimal()
@@ -2592,9 +2592,7 @@ function(input, output) {
    # G <- as.data.frame(res.pca$ind$contrib)
    # ggplot(aes_string(G) + geom_point(aes_string(colour =input$PCA_Color)))
    # ggplotly()
-    
-   # plotly_IMAGE(res.pca, format = "png", out_file = "PCA_scatterplot_MVApp.png")
-  })
+    })
   
 
   PCA_contrib_ind <- eventReactive(input$Go_PCA,{
@@ -2605,7 +2603,6 @@ function(input, output) {
     res.pca <- PCA(PCA_ready, graph = FALSE)
     contrib_ind <- res.pca$ind$contrib ### need to add the ID column from PCA_final_data and also separate Accession from Treatment
     contrib_ind
-    
   })
   
   output$PCA_contribution_ind <- renderDataTable({
