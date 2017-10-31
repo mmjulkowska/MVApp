@@ -419,8 +419,8 @@ function(input, output) {
   # Let's allow users to chose beteween one and multiple plot display
   
   output$Select_model_plot_type <- renderUI({
-    if(is.null(Model_temp_data()))
-      return()
+    if(is.null(Model_temp_data())){
+      return()}
     else
       tagList(
         selectizeInput(
@@ -430,6 +430,7 @@ function(input, output) {
         )
       )
   })
+  
   
   
   # Interactive user input for Fit-Plot - to select specific sample for fitness examination
@@ -814,6 +815,19 @@ function(input, output) {
           selected= input$ModelIV))}
   })
   
+  output$Select_model_facet_scale <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "Select_model_facet_sc",
+          label = "Select the scale of the facet plot",
+          choices = c("fixed", "free"),
+          selected = "fixed"
+        ))
+  })
+  
   output$Go_model_to_plot <- renderUI({
     if(is.null(Model_temp_data())){
       return()
@@ -876,7 +890,7 @@ function(input, output) {
     if(input$model_error_plot == "Standard Deviation"){
       benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
     }
-    benc <- benc + facet_wrap(~facet) 
+    benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
   }
   
   temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
@@ -891,13 +905,13 @@ function(input, output) {
   if(input$model_graph_plot == "box plot"){
         benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
         benc <- benc + geom_boxplot()
-        benc <- benc + facet_wrap(~facet) 
+        benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
       }
   
   if(input$model_graph_plot == "scatter plot"){
     benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
     benc <- benc + geom_point()
-    benc <- benc + facet_wrap(~ facet)
+    benc <- benc + facet_wrap(~ facet, scale = input$Select_model_facet_sc)
   }
   
   benc <- benc + theme(legend.title=element_blank())
