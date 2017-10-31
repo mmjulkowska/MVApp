@@ -419,8 +419,8 @@ function(input, output) {
   # Let's allow users to chose beteween one and multiple plot display
   
   output$Select_model_plot_type <- renderUI({
-    if(is.null(Model_temp_data()))
-      return()
+    if(is.null(Model_temp_data())){
+      return()}
     else
       tagList(
         selectizeInput(
@@ -430,6 +430,7 @@ function(input, output) {
         )
       )
   })
+  
   
   
   # Interactive user input for Fit-Plot - to select specific sample for fitness examination
@@ -814,6 +815,19 @@ function(input, output) {
           selected= input$ModelIV))}
   })
   
+  output$Select_model_facet_scale <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "Select_model_facet_sc",
+          label = "Select the scale of the facet plot",
+          choices = c("fixed", "free"),
+          selected = "fixed"
+        ))
+  })
+  
   output$Go_model_to_plot <- renderUI({
     if(is.null(Model_temp_data())){
       return()
@@ -876,7 +890,7 @@ function(input, output) {
     if(input$model_error_plot == "Standard Deviation"){
       benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
     }
-    benc <- benc + facet_wrap(~facet) 
+    benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
   }
   
   temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
@@ -891,13 +905,13 @@ function(input, output) {
   if(input$model_graph_plot == "box plot"){
         benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
         benc <- benc + geom_boxplot()
-        benc <- benc + facet_wrap(~facet) 
+        benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
       }
   
   if(input$model_graph_plot == "scatter plot"){
     benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
     benc <- benc + geom_point()
-    benc <- benc + facet_wrap(~ facet)
+    benc <- benc + facet_wrap(~ facet, scale = input$Select_model_facet_sc)
   }
   
   benc <- benc + theme(legend.title=element_blank())
@@ -3150,9 +3164,9 @@ function(input, output) {
     heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
   })
   
-  output$Dendro_sentence <- renderText({
-    if(is.null(input$Split_cluster)){
-      return()
+  output$Dendro_sentence <- renderPrint({
+    if(is.null(Cluster_table_data())){
+      cat("Please enter a value at which you would like to cut the dendrogram to segregate the samples into separate clusters.")
     }
     else{
       clust_temp <- Final_data_cluster()
@@ -3168,12 +3182,15 @@ function(input, output) {
       names(cluster)[1] <- "cluster"
       clust_number <- length(unique(cluster$cluster))
       
-      sentence <- paste("Cutting the dengrodram at ", input$Split_cluster, " will result in ", clust_number, " clusters. Please be aware that clustering your data into too many clusters might not be informative.")
-      return(sentence)
+      cat("Cutting the dengrodram at ", input$Split_cluster, " will result in ", clust_number, " clusters.")
+      cat("\n")
+      cat("Please be aware that clustering your data into too many clusters might not be informative.")
+      
     }
   })
-  
-  output$HotAnovaNews <- renderText({
+
+  Cluster_table_data <- eventReactive(input$Split_cluster,{
+    # perform clustering on the selected dataset  
     clust_temp <- Final_data_cluster()
     clust_temp <- na.omit(clust_temp)
     clust_matrix <- clust_temp[,2:ncol(clust_temp)]
@@ -3184,35 +3201,139 @@ function(input, output) {
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     
-    # cut_tree at $tree_cut value (but first make it numeric)
-    
     cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
     names(cluster)[1] <- "cluster"
-    clust_number <- length(unique(cluster$cluster))
+    
+    # import the data containing ALL the phenotypes
     
     temp <- Data_for_cluster()
-    if(input$Cluster_pre_calc == F){
-      temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
-      temp2 <- subset(temp, select = c("id", input$SelectDV))
+    
+    # check whether you want to subset your data - IF YES 
+    if(input$Cluster_subset_Q == T){
+      # Subset data by this trait:
+      subset_lista <- input$Cluster_subset_T
+      # Check if you want to summarize your data - if no then:
+      if(input$Cluster_pre_calc == F){
+        # list of all possible identifiers
+        id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)
+        # extract which id is being used for subsetting
+        id_lista2 <- setdiff(id_lista, subset_lista)
+        # make one column with ids which are NOT used for subsetting
+        temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+        # make column with ONLY the ids being used for subseting
+        temp$sub_id <- temp[,input$Cluster_subset_T]
+        # subset for whatever value is chosen
+        temp2 <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+        #temp2 <- subset(temp, select != c("sub_id", input$SelectIV, input$SelectTime, input$SelectID))
+      }
+      if(input$Cluster_pre_calc == T){
+        id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+        id_lista2 <- setdiff(id_lista, subset_lista)
+        temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+        temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+        temp2 <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+        #temp2 <- subset(temp, select != c("sub_id", input$SelectIV, input$SelectTime, input$SelectID))
+        temp2 <- summaryBy(.~ id, data=temp2)
+        #temp2 <- cSplit(temp2, "id", "_")
+      }
     }
-    if(input$Cluster_pre_calc == T){
-      temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
-      temp2 <- subset(temp, select = c("id", input$SelectDV))
-      temp2 <- summaryBy(.~ id, data=temp2) 
-      colnames(temp2) = gsub(pattern = ".mean", replacement = "", x = colnames(temp2))
-    }  
+    if(input$Cluster_subset_Q == F){
+      if(input$Cluster_pre_calc == F){
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+        #temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        temp2 <- temp
+      }
+      if(input$Cluster_pre_calc == T){
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+        # temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        temp2 <- summaryBy(.~ id, data=temp)
+        #temp2 <- cSplit(temp2, "id", "_")
+      }}
     
     row.names(temp2) <- temp2$id
     
-    new_shait <- merge(cluster, temp2, by = "row.names")
+    new_shait <- merge(cluster, temp2, by="row.names")
+    return(new_shait)
+  })
+  
+ 
+  output$Cluster_table <- renderDataTable({
+  Cluster_table_data()
+  })
+  
+  output$HotAnovaNews <- renderPrint({
     
-      sig_listxxx <- "."
+    clust_temp <- Final_data_cluster()
+    clust_temp <- na.omit(clust_temp)
+    clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+    row.names(clust_matrix) <- clust_temp$id
+    clust_matrix = as.matrix(clust_matrix)
+    clust_t_matrix = t(clust_matrix)
+    clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+    clust_t_dist = dist(clust_t_cor)
+    clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     
+    cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
+    names(cluster)[1] <- "cluster"
+    
+    # import the data containing ALL the phenotypes
+    
+    temp <- Data_for_cluster()
+    
+    # check whether you want to subset your data - IF YES 
+    if(input$Cluster_subset_Q == T){
+      # Subset data by this trait:
+      subset_lista <- input$Cluster_subset_T
+      # Check if you want to summarize your data - if no then:
+      if(input$Cluster_pre_calc == F){
+        # list of all possible identifiers
+        id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)
+        # extract which id is being used for subsetting
+        id_lista2 <- setdiff(id_lista, subset_lista)
+        # make one column with ids which are NOT used for subsetting
+        temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+        # make column with ONLY the ids being used for subseting
+        temp$sub_id <- temp[,input$Cluster_subset_T]
+        # subset for whatever value is chosen
+        temp2 <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+        #temp2 <- subset(temp, select != c("sub_id", input$SelectIV, input$SelectTime, input$SelectID))
+      }
+      if(input$Cluster_pre_calc == T){
+        id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+        id_lista2 <- setdiff(id_lista, subset_lista)
+        temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+        temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+        temp2 <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+        #temp2 <- subset(temp, select != c("sub_id", input$SelectIV, input$SelectTime, input$SelectID))
+        temp2 <- summaryBy(.~ id, data=temp2)
+        names(temp2) <- gsub(".mean", "", names(temp2), fixed=T)
+        #temp2 <- cSplit(temp2, "id", "_")
+      }
+    }
+    if(input$Cluster_subset_Q == F){
+      if(input$Cluster_pre_calc == F){
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+        #temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        temp2 <- temp
+      }
+      if(input$Cluster_pre_calc == T){
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+        # temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        temp2 <- summaryBy(.~ id, data=temp)
+        names(temp2) <- gsub(".mean", "", names(temp2), fixed=T)
+        #temp2 <- cSplit(temp2, "id", "_")
+      }}
+    
+    row.names(temp2) <- temp2$id
+    
+    new_shait <- merge(cluster, temp2, by="row.names")
+    
+    sig_listxxx <- " "
     
     
     for(i in 1:length(input$SelectDV)){
-      to_test <- new_shait[,c("id","cluster",input$SelectDV[i])]
-      names(to_test)[3] <- "phenotype"
+      to_test <- new_shait[,c("cluster",input$SelectDV[i])]
+      names(to_test)[2] <- "phenotype"
       to_test$cluster <- as.factor(to_test$cluster)
       amod <- aov(phenotype ~ cluster, data = to_test)
       
@@ -3224,8 +3345,10 @@ function(input, output) {
     
     lista_cudow <- unique(sig_listxxx)
     #sentence <- paste("significant effect of clustering was observed for ", lista_cudow, <font color=\"#FF0000\"><b>)
-    paste("<font color=\"#008080\"><b>", lista_cudow, "</b></font>")
     
+    cat("Significant effect of clustering was observed for:")
+    cat("\n")
+    cat(lista_cudow)
     
   })
   
@@ -3241,27 +3364,63 @@ function(input, output) {
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     
-    # cut_tree at $tree_cut value (but first make it numeric)
-    
     cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
     names(cluster)[1] <- "cluster"
     
+    # import the data containing ALL the phenotypes
+    
     temp <- Data_for_cluster()
-    if(input$Cluster_pre_calc == F){
-      temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
-      temp2 <- subset(temp, select = c("id", input$SelectDV))
+    
+    # check whether you want to subset your data - IF YES 
+    if(input$Cluster_subset_Q == T){
+      # Subset data by this trait:
+      subset_lista <- input$Cluster_subset_T
+      # Check if you want to summarize your data - if no then:
+      if(input$Cluster_pre_calc == F){
+        # list of all possible identifiers
+        id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)
+        # extract which id is being used for subsetting
+        id_lista2 <- setdiff(id_lista, subset_lista)
+        # make one column with ids which are NOT used for subsetting
+        temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+        # make column with ONLY the ids being used for subseting
+        temp$sub_id <- temp[,input$Cluster_subset_T]
+        # subset for whatever value is chosen
+        temp2 <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+        #temp2 <- subset(temp, select != c("sub_id", input$SelectIV, input$SelectTime, input$SelectID))
+      }
+      if(input$Cluster_pre_calc == T){
+        id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+        id_lista2 <- setdiff(id_lista, subset_lista)
+        temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+        temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+        temp2 <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+        #temp2 <- subset(temp, select != c("sub_id", input$SelectIV, input$SelectTime, input$SelectID))
+        temp2 <- summaryBy(.~ id, data=temp2)
+        names(temp2) <- gsub(".mean", "", names(temp2))
+        #temp2 <- cSplit(temp2, "id", "_")
+      }
     }
-    if(input$Cluster_pre_calc == T){
-      temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
-      temp2 <- subset(temp, select = c("id", input$SelectDV))
-      temp2 <- summaryBy(.~ id, data=temp2) 
-      colnames(temp2) = gsub(pattern = ".mean", replacement = "", x = colnames(temp2))
-    }  
+    if(input$Cluster_subset_Q == F){
+      if(input$Cluster_pre_calc == F){
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+        #temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        temp2 <- temp
+      }
+      if(input$Cluster_pre_calc == T){
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+        # temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        temp2 <- summaryBy(.~ id, data=temp)
+        names(temp2) <- gsub(".mean", "", names(temp2))
+        #temp2 <- cSplit(temp2, "id", "_")
+      }}
     
     row.names(temp2) <- temp2$id
-    new_shait <- merge(cluster, temp2, by = "row.names")
-    to_test <- new_shait[,c("id","cluster",input$Clust_test)]
-    names(to_test)[3] <- "phenotype"
+    
+    new_shait <- merge(cluster, temp2, by="row.names")
+    
+    to_test <- new_shait[,c("cluster",input$Clust_test)]
+    names(to_test)[2] <- "phenotype"
     to_test$cluster <- as.factor(to_test$cluster)
     amod <- aov(phenotype ~ cluster, data = to_test)
     tuk <- glht(amod, linfct = mcp(cluster = "Tukey"))
@@ -3272,43 +3431,8 @@ function(input, output) {
   })
   
   
- 
-  output$Cluster_table <- renderDataTable({
-  clust_temp <- Final_data_cluster()
-  clust_temp <- na.omit(clust_temp)
-  clust_matrix <- clust_temp[,2:ncol(clust_temp)]
-  row.names(clust_matrix) <- clust_temp$id
-  clust_matrix = as.matrix(clust_matrix)
-  clust_t_matrix = t(clust_matrix)
-  clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
-  clust_t_dist = dist(clust_t_cor)
-  clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
-  
-  # cut_tree at $tree_cut value (but first make it numeric)
-  
-  cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
-  names(cluster)[1] <- "cluster"
-  clust_number <- length(unique(cluster$cluster))
-  
-  temp <- Data_for_cluster()
-  if(input$Cluster_pre_calc == F){
-    temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
-    temp2 <- subset(temp, select = c("id", input$SelectDV))
-  }
-  if(input$Cluster_pre_calc == T){
-    temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
-    temp2 <- subset(temp, select = c("id", input$SelectDV))
-    temp2 <- summaryBy(.~ id, data=temp2) 
-    colnames(temp2) = gsub(pattern = ".mean", replacement = "", x = colnames(temp2))
-  }  
-  
-  row.names(temp2) <- temp2$id
-  
-  new_shait <- merge(cluster, temp2, by = "row.names")
-  return(new_shait)})
-  
   output$Cluster_download_button <- renderUI({
-    if(is.null(input$Split_cluster)){
+    if(is.null(Cluster_table_data())){
       return()}
     else
       downloadButton("data_clustered", label="Download Cluster data")
@@ -3318,39 +3442,7 @@ function(input, output) {
     filename = paste("Cluster analysis_based_on_", input$Cluster_pheno, "_with_split_at_", input$Split_cluster, "_MVApp.csv"),
     content <- function(file) {
       
-      clust_temp <- Final_data_cluster()
-      clust_temp <- na.omit(clust_temp)
-      clust_matrix <- clust_temp[,2:ncol(clust_temp)]
-      row.names(clust_matrix) <- clust_temp$id
-      clust_matrix = as.matrix(clust_matrix)
-      clust_t_matrix = t(clust_matrix)
-      clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
-      clust_t_dist = dist(clust_t_cor)
-      clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
-      
-      # cut_tree at $tree_cut value (but first make it numeric)
-      
-      cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
-      names(cluster)[1] <- "cluster"
-      clust_number <- length(unique(cluster$cluster))
-      
-      temp <- Data_for_cluster()
-      if(input$Cluster_pre_calc == F){
-        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
-        temp2 <- subset(temp, select = c("id", input$SelectDV))
-      }
-      if(input$Cluster_pre_calc == T){
-        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
-        temp2 <- subset(temp, select = c("id", input$SelectDV))
-        temp2 <- summaryBy(.~ id, data=temp2) 
-        colnames(temp2) = gsub(pattern = ".mean", replacement = "", x = colnames(temp2))
-      }  
-      
-      row.names(temp2) <- temp2$id
-      
-      new_shait <- merge(cluster, temp2, by = "row.names")
-      
-      write.csv(new_shait, file)}
+      write.csv(Cluster_table_data(), file)}
   )
     
   # end of the script

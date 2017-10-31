@@ -131,12 +131,13 @@ fluidPage(
                                   plotlyOutput("model_comparison_plotski"),
                                   hr(),
                                   column(4, uiOutput("Select_model_trait_to_plot"), 
-                                            uiOutput("Select_model_graph_to_plot")),
+                                            uiOutput("Select_model_graph_to_plot"),
+                                            uiOutput("Model_summ_download_button")),
                                   column(4, uiOutput("Select_model_color_to_plot"),
                                             uiOutput("Select_model_facet_to_plot")),
-                                  column(4, uiOutput("Select_model_error_bar_to_plot")),
+                                  column(4, uiOutput("Select_model_facet_scale"),
+                                            uiOutput("Select_model_error_bar_to_plot")),
                                   hr(),
-                                  uiOutput("Model_summ_download_button"),
                                   dataTableOutput("model_comparison_summary")
                                   )
                                   
@@ -172,12 +173,10 @@ tabPanel("Data curation", icon = icon("gavel"),
                                  uiOutput("Outliers_selection_pheno"),
                                  br(),
                                  actionButton("Go_outliers", label = "Unleash outlier highlight tool"),  
-                                 br(),
+                                 hr(),
                                  uiOutput("Outliers_save")),
                         
-                        
-                        
-                        tabPanel("graph tweaks",
+                        tabPanel("Outlier graphs tweaks",
                                  uiOutput("Pheno_graph_outliers"),
                                  radioButtons("outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot")),
                                  uiOutput("Outlier_error_bar"),
@@ -187,12 +186,7 @@ tabPanel("Data curation", icon = icon("gavel"),
                                  checkboxInput("outlier_facet", "would you like to facet the graph?"),
                                  uiOutput("Q_facet"),
                                  uiOutput("Facet_user_input_columns"),
-                                 uiOutput("Facet_outlier_scale")),
-                        tabPanel("summary statistics",
-                                 uiOutput("Data_for_SummaryStats"), # Select the dataset to be used for Summary Stats - <3<3<3 MMJ <3<3<3
-                                 uiOutput("CustomSumm"), ### <<< Added this,   Hashed out selectize  below       %% Mitch %%
-                                 actionButton("Go_SummaryStat", label = "unleash Summary Statistics")
-                        )
+                                 uiOutput("Facet_outlier_scale"))
              ))),
          mainPanel(
            navbarPage("Get it OUT",
@@ -217,7 +211,11 @@ tabPanel("Data curation", icon = icon("gavel"),
                                br(),
                                dataTableOutput("Outlier_free_table")),
                       tabPanel("summary data", icon=icon("flask"),
-                               uiOutput("Sum_download_button"),
+                               column(6,uiOutput("Data_for_SummaryStats"),
+                                        actionButton("Go_SummaryStat", label = "unleash Summary Statistics")), 
+                               column(6, uiOutput("CustomSumm"),
+                                      uiOutput("Sum_download_button")), 
+                               hr(),
                                br(),
                                dataTableOutput("sum_data"))
            ))
@@ -374,9 +372,6 @@ tabPanel(
 tabPanel("Clustering",
          icon = icon("sitemap"),
          sidebarPanel(
-           fluidRow(
-             navbarPage("",
-                        tabPanel("Select data",
                                  helpText("In here, you can perform a cluster analysis by grouping your data based on the phenotypic traits and validating the clusters"),
                                  uiOutput("Select_data_cluster"),
                                  uiOutput("Select_phenotypes_cluster"),
@@ -386,32 +381,29 @@ tabPanel("Clustering",
                                  uiOutput("Cluster_subset_specific"),
                                  uiOutput("Select_cluster_method"),
                                  uiOutput("Select_clustering_method"),
-                                 actionButton("Go_cluster", "Unleash cluster analysis")),
-                        tabPanel("Determine the clusters",
-                                 helpText("Have a look at the dendrogram and choose the value at which you would like to split into individual clusters"),
-                                 textInput("Split_cluster", "Enter the numeric value here")),
-                        tabPanel("Cluster validation",
-                                 helpText("Please choose the phenotype which you would like to further examine for the cluster validation"),
-                                 uiOutput("Select_data_cluster_validation"))
-             ))        
-         ),
+                                 actionButton("Go_cluster", "Unleash cluster analysis"),
+                                 hr(),
+                                 textInput("Split_cluster", "Please enter a numaric value at which you would like to cut the dendrogram to segregate the samples into separate clusters.")),
          mainPanel(
            navbarPage("Cluster analysis",
-                      tabPanel("Cluster HOT HOT Heatmap",
+                      tabPanel("Clustering your HOT HOT Data",
                                #dataTableOutput("Data_cluster_table"),
                                #dataTableOutput("Final_cluster_table"),
-                               plotOutput("HotHeatMap")),
-                      tabPanel("Cluster dendrogram",
+                               plotOutput("HotHeatMap"),
+                               br(),
+                               hr(),
                                verbatimTextOutput("Dendro_sentence"),
                                plotOutput("ClusterTree"),
                                uiOutput("Cluster_download_button"),
                                br(),
-                               dataTableOutput("Cluster_table")
-                               ),
+                               dataTableOutput("Cluster_table")),
+                               
                       tabPanel("Cluster validation",
-                               helpText("Significant effect of clusters was observed on the followind traits:"),
-                               htmlOutput("HotAnovaNews"),
-                               plotOutput("HotANOVA"))
+                               verbatimTextOutput("HotAnovaNews"),
+                               
+                               plotOutput("HotANOVA"),
+                               hr(),
+                               column(4, uiOutput("Select_data_cluster_validation")))
            ))
          # end of Tab #8
 )
