@@ -1,5 +1,5 @@
 # install the missing packages - this can last some time for the first time you run the App
-list.of.packages <- c("car", "wesanderson", "agricolae", "splines", "data.table", "multcompView", "gplots","RColorBrewer","colorRamps","multcomp","ggplot2", "DT", "shinythemes", "plotly", "doBy", "reshape", "reshape2", "plotrix", "corrplot", "tidyverse", "FactoMineR", "devtools", "factoextra", "missMDA", "dplyr")
+list.of.packages <- c("splitstackshape", "car", "wesanderson", "agricolae", "splines", "data.table", "multcompView", "gplots","RColorBrewer","colorRamps","multcomp","ggplot2", "DT", "shinythemes", "plotly", "doBy", "reshape", "reshape2", "plotrix", "corrplot", "tidyverse", "FactoMineR", "devtools", "factoextra", "missMDA", "dplyr")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 
@@ -31,3 +31,4 @@ library("splines")
 library("agricolae") #for HSD.test for Tukey in case we want to use it
 library("wesanderson") #for nice palette colors 
 library("car")
+library("splitstackshape")

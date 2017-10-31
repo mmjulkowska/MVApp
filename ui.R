@@ -374,9 +374,6 @@ tabPanel(
 tabPanel("Clustering",
          icon = icon("sitemap"),
          sidebarPanel(
-           fluidRow(
-             navbarPage("",
-                        tabPanel("Select data",
                                  helpText("In here, you can perform a cluster analysis by grouping your data based on the phenotypic traits and validating the clusters"),
                                  uiOutput("Select_data_cluster"),
                                  uiOutput("Select_phenotypes_cluster"),
@@ -386,31 +383,26 @@ tabPanel("Clustering",
                                  uiOutput("Cluster_subset_specific"),
                                  uiOutput("Select_cluster_method"),
                                  uiOutput("Select_clustering_method"),
-                                 actionButton("Go_cluster", "Unleash cluster analysis")),
-                        tabPanel("Determine the clusters",
-                                 helpText("Have a look at the dendrogram and choose the value at which you would like to split into individual clusters"),
-                                 textInput("Split_cluster", "Enter the numeric value here")),
-                        tabPanel("Cluster validation",
-                                 helpText("Please choose the phenotype which you would like to further examine for the cluster validation"),
-                                 uiOutput("Select_data_cluster_validation"))
-             ))        
-         ),
+                                 actionButton("Go_cluster", "Unleash cluster analysis"),
+                                 hr(),
+                                 textInput("Split_cluster", "Please enter a numaric value at which you would like to cut the dendrogram to segregate the samples into separate clusters.")),
          mainPanel(
            navbarPage("Cluster analysis",
-                      tabPanel("Cluster HOT HOT Heatmap",
+                      tabPanel("Clustering your HOT HOT Data",
                                #dataTableOutput("Data_cluster_table"),
                                #dataTableOutput("Final_cluster_table"),
-                               plotOutput("HotHeatMap")),
-                      tabPanel("Cluster dendrogram",
+                               plotOutput("HotHeatMap"),
+                               br(),
+                               hr(),
                                verbatimTextOutput("Dendro_sentence"),
                                plotOutput("ClusterTree"),
                                uiOutput("Cluster_download_button"),
                                br(),
-                               dataTableOutput("Cluster_table")
-                               ),
+                               dataTableOutput("Cluster_table")),
+                               
                       tabPanel("Cluster validation",
-                               helpText("Significant effect of clusters was observed on the followind traits:"),
-                               htmlOutput("HotAnovaNews"),
+                               verbatimTextOutput("HotAnovaNews"),
+                               uiOutput("Select_data_cluster_validation"),
                                plotOutput("HotANOVA"))
            ))
          # end of Tab #8
