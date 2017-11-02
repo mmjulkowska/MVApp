@@ -131,13 +131,20 @@ fluidPage(
                                   plotlyOutput("model_comparison_plotski"),
                                   hr(),
                                   column(4, uiOutput("Select_model_trait_to_plot"), 
-                                            uiOutput("Select_model_graph_to_plot"),
-                                            uiOutput("Model_summ_download_button")),
+                                            uiOutput("Select_model_graph_to_plot")),
                                   column(4, uiOutput("Select_model_color_to_plot"),
                                             uiOutput("Select_model_facet_to_plot")),
-                                  column(4, uiOutput("Select_model_facet_scale"),
+                                  column(4, selectizeInput(
+                                              inputId = "Model_threshold",
+                                              label = "Select the p-value threshold",
+                                              choices = c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1),
+                                              selected = 0.05,
+                                              multiple = F),
+                                            uiOutput("Select_model_facet_scale"),
                                             uiOutput("Select_model_error_bar_to_plot")),
                                   hr(),
+                                  column(12, verbatimTextOutput("model_comparison_Tukey"),
+                                         uiOutput("Model_summ_download_button")),
                                   dataTableOutput("model_comparison_summary")
                                   )
                                   
@@ -246,10 +253,10 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                                br(),
                                verbatimTextOutput("Shapiro"),
                                br(),
-                               checkboxInput("showShapirotest", "Would you like to see detailed Shapiro-Wilk test and QQplots?"),
-                               br(),
-                               uiOutput("QQplot_slider"),
-                               plotOutput("QQplot", height=1000)
+                               column(4, checkboxInput("showShapirotest", "Would you like to see detailed Shapiro-Wilk test and QQplots?")),
+                               column(4, uiOutput("QQplot_slider")),
+                               column(4, uiOutput("QQplot_slider2")),
+                               column(12,plotOutput("QQplot", height=1000))
                       ), 
                       
                       tabPanel("Variance test", icon=icon("area-chart"),
@@ -268,7 +275,9 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                                
                                verbatimTextOutput("ANOVAtest"),
                                plotlyOutput("Boxes"),
-                               plotOutput("BoxesTukey", height=1000)
+                               #plotOutput("BoxesTukey", height=1000),
+                               #dataTableOutput("Tukeylisting")
+                               verbatimTextOutput("Tukeylisting")
                       )
                       
                       #tabPanel("ANOVA plots", icon=icon("snowflake-o"),
@@ -277,6 +286,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
            ))
          # end of Tab#5
 ),
+
 # Tab 6 = = = = = = = = = = = = = = >> CORRELATION ANALYSIS << = = = = = = = = = = = = = = = = = =
 
 tabPanel(
@@ -293,18 +303,19 @@ tabPanel(
         checkboxInput("cor_data_subset", label = "Calculate correlation on specific subset of your data"),
         uiOutput("cor_subset"),
         uiOutput("CorSpecIV_val"),
-        selectInput("corMethod", "Correlation Method", eval(formals(rcorr)$type)),
-        selectInput("corrplotMethod", "Plot Method", eval(formals(corrplot)$method)),
-        selectInput("corType", "Plot Type", eval(formals(corrplot)$type)),
-        selectInput("corOrder", "Order of the lable", eval(formals(corrplot)$order)),
-        actionButton("Go_table", label = "Click to see the correlation table with p value", icon = icon("play-circle"))
+        selectInput("corMethod", "Correlation Method", choices = c("pearson", "kendall", "spearman")),
+        selectInput("corrplotMethod", "Plot Method", choices = c("circle", "square", "ellipse", "number", "shade", "color", "pie")),
+        selectInput("corType", "Plot Type", choices = c("full", "lower", "upper")),
+        selectInput("corOrder", "Order of the lable", choices = c("original", "AOE",  "FPC",  "hclust", "alphabet"))
+        #actionButton("Go_table", label = "Click to see the correlation table with p value", icon = icon("play-circle"))
       ),
       
       
       mainPanel(
+        verbatimTextOutput("tricky_table"),
         downloadButton('downloadCorrplot', icon("download")),
         plotOutput("corrplot"),
-        dataTableOutput('cor_table')
+        dataTableOutput("cor_table")
       )
     ),
     
