@@ -714,30 +714,32 @@ function(input, output) {
     temp$facet <- temp[,input$model_facet_plot]
     temp$color <- temp[,input$model_color_plot]
     temp$phenotype <- temp[,input$model_trait_plot]
+    thres <- as.numeric(as.character(input$Model_threshold))
     
     amod <- aov(phenotype ~ facet + color + facet*color, data = temp)
-    
-    if(summary(amod)[[1]][[5]][1] < 0.05){
+    cat("ANOVA report")
+    cat("\n")
+    if(summary(amod)[[1]][[5]][1] < thres){
     cat("The effect of ", input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
     }
-    if(summary(amod)[[1]][[5]][1] > 0.05){
+    if(summary(amod)[[1]][[5]][1] > thres){
     cat("The effect of ", input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
     }
     
-    if(summary(amod)[[1]][[5]][2] < 0.05){
+    if(summary(amod)[[1]][[5]][2] < thres){
     cat("\n")
     cat("The effect of ", input$model_color_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
     }
-    if(summary(amod)[[1]][[5]][2] > 0.05){
+    if(summary(amod)[[1]][[5]][2] > thres){
       cat("\n")
       cat("The effect of ", input$model_color_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
     }
     
-    if(summary(amod)[[1]][[5]][3] < 0.05){
+    if(summary(amod)[[1]][[5]][3] < thres){
     cat("\n")
     cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
     }  
-    if(summary(amod)[[1]][[5]][3] > 0.05){
+    if(summary(amod)[[1]][[5]][3] > thres){
       cat("\n")
       cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
     }
@@ -846,7 +848,7 @@ function(input, output) {
     temp <- Model_temp_data()
     temp[,input$SelectID] <- NULL
     temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
-    temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
+    temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = mean(x), sd = sd(x), se = std.error(x))})
     temp_sum
   })
   
@@ -920,6 +922,40 @@ function(input, output) {
   
   benc
   })
+  
+  # - - - - - - - - - - >> TUKEY MESSAGE << - - - - - - - - 
+  output$model_comparison_Tukey <- renderPrint({
+    
+    Chosenpvalue<-as.numeric(as.character(input$Model_threshold))
+    temp <- Model_temp_data()
+    temp[,input$SelectID] <- NULL
+    
+    
+    temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
+    melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
+    melt_sub$color <- melt_sub[,input$model_color_plot]
+    melt_sub$facet <- melt_sub[,input$model_facet_plot]
+    
+    final <- subset(melt_sub, select = c("facet", "color", "value"))
+    
+    for (h in unique(final$facet)){
+      subset_melt <- subset(final, final$facet == h )
+      fit_tukey <- aov(subset_melt$value ~ subset_melt$color)
+      out <- HSD.test(fit_tukey, "subset_melt$color", group = T, alpha = Chosenpvalue)
+      
+      out_tukey<-as.data.frame(out$groups)
+      out_tukey$x<-row.names(out_tukey)
+      n_name<-rep(h, length(levels(subset_melt$color)))
+      out_tukey_n<-as.data.frame(cbind(out_tukey, n_name))
+      colnames(out_tukey_n)[4] <- input$model_facet_plot
+      colnames(out_tukey_n)[3] <- input$model_color_plot
+      colnames(out_tukey_n)[1] <- input$model_trait_plot
+      #colnames(out_tukey_n)<-c(input$model_facet_plot, input$model_trait_color, "Tukey's letters", input$model_trait_plot)
+      out_tukey_f<-out_tukey_n[c(4,3,2,1)]
+      print(as.data.frame(out_tukey_f), row.names=FALSE)
+    }
+  })
+  
   
   # - - - - - - - >> DOWNLOAD BUTTONS <<- - - - - - - - - - - - 
   
@@ -1870,7 +1906,7 @@ function(input, output) {
         selectizeInput(
           inputId = "Chosenthreshold",
           label = "Select the p-value threshold to apply for tests of normality, homogeneity of variance and ANOVA:",
-          choices = c(0.00001, 0.01, 0.05, 0.1),
+          choices = c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1),
           selected = 0.05,
           multiple = F
         )
@@ -2070,9 +2106,37 @@ function(input, output) {
     }
   })
   
+  # Add here a conditional slider
+  
+  output$QQplot_slider2 <- renderUI({
+    if(input$showShapirotest == F){
+      return()
+    }
+    else{
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    groupedIV<-input$HisIV
+    groupedFacet<-input$Plotfacet_choice
+    my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
+    my_his_data$combinedTID<-as.factor(my_his_data$combinedTID)
+    length_of_elements <- as.numeric(length(unique(my_his_data$combinedTID)))
+    see_those_graphs <- as.numeric(input$QQplots_graph_col*4)
+    maximum <- as.numeric(length_of_elements)
+    if(see_those_graphs >  length_of_elements){
+      return()
+    }
+    else{
+     sliderInput(
+       inputId = "QQplots_portion_show",
+       label = "Select portion of the graphs you would like to see",
+       min = 1, max = maximum, ticks=T, step = see_those_graphs, value = 1) 
+    }
+    }
+  })
+  
   
   output$QQplot <- renderPlot({
     if(input$showShapirotest==T){
+      
       if(input$plot_facet ==T){
         my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
         groupedIV<-input$HisIV
@@ -2080,24 +2144,50 @@ function(input, output) {
         my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
         #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
         my_his_data$combinedTID<-as.factor(my_his_data$combinedTID)
-        par(mfrow=c(4,input$QQplots_graph_col))
+        
         # par(mfrow=c(4,5))
-        for (i in unique(my_his_data$combinedTID)){
-          subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==i)
-          #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) +  geom_point() + geom_smooth(method="lm", se=FALSE)
-          #QQ<-QQ + facet_wrap(~combinedTID)
-          QQplot<-qqnorm(subsetted_shapiro[,1], main=paste(input$HisDV, "for ", i))
-          QQline<-qqline(subsetted_shapiro[,1], col = 2)
-          QQplot
-          QQline
+        length_of_elements <- as.numeric(length(unique(my_his_data$combinedTID)))
+        col_number <- as.numeric(input$QQplots_graph_col)
+        see_those_graphs <- as.numeric(col_number*4)
+        lista <- unique(my_his_data$combinedTID)
+        start <- as.numeric(input$QQplots_portion_show)
+        end <- (start + see_those_graphs)-1
+        if(end > length_of_elements){
+        end <- length_of_elements  
         }
-      }
+        
+        to_plot <- lista[start:end]
+        
+        if(length_of_elements < see_those_graphs){
+          par(mfrow=c(4,col_number))
+          for (i in 1:length(lista)){
+            subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==lista[i])
+            #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) +  geom_point() + geom_smooth(method="lm", se=FALSE)
+            #QQ<-QQ + facet_wrap(~combinedTID)
+            QQplot<-qqnorm(subsetted_shapiro[,1], main=paste(input$HisDV, "for ", lista[i]))
+            QQline<-qqline(subsetted_shapiro[,1], col = 2)
+            QQplot
+            QQline
+          }}
+        
+        if(length_of_elements > see_those_graphs){
+          par(mfrow=c(4,col_number))
+          for (i in 1:length(to_plot)){
+            subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==to_plot[i])
+            #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) +  geom_point() + geom_smooth(method="lm", se=FALSE)
+            #QQ<-QQ + facet_wrap(~combinedTID)
+            QQplot<-qqnorm(subsetted_shapiro[,1], main=paste(input$HisDV, "for ", to_plot[i]))
+            QQline<-qqline(subsetted_shapiro[,1], col = 2)
+            QQplot
+            QQline
+          }}}
+      
       
       if(input$plot_facet ==F){
         my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
         shapiroIV<-input$HisIV
         my_his_data$shapiroIV<-my_his_data[,input$HisIV]
-        par(mfrow=c(4,5))
+        par(mfrow=c(4,input$QQplots_graph_col))
         for (i in unique(my_his_data[,shapiroIV])){
           subsetted_shapiro<-subset(my_his_data, my_his_data$shapiroIV==i)
           #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) + geom_point() + geom_smooth(method="lm", se=FALSE)
@@ -2107,66 +2197,46 @@ function(input, output) {
           QQplot
           QQline
         }
-      }
-    }
+      }}
     else{}
     #ggplotly(QQ)
   })
   
   
-  output$BoxesTukey <- renderPlot({
-    
-    #groupIV<-input$HisIV
-    
+  output$Tukeylisting <- renderPrint({
+    Chosenpvalue<-as.numeric(as.character(input$Chosenthreshold))
     if(input$plot_facet ==T){
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
       my_his_data[,2]<-as.factor(my_his_data[,2])
-      groupedIV<-input$HisIV
-      groupedFacet<-input$Plotfacet_choice
-      groupedDV<-input$HisDV
-      
-      par(mfrow=c(4,3))
-      for (i in unique(my_his_data[,groupedFacet])){
-        subsetted_data<- subset(my_his_data, my_his_data[,groupedFacet]==i)
-        fit_graph<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
-        #out<-HSD.test(fit_graph, "subsetted_data[, 2]", group=TRUE) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
-        #plot(out, main=paste(names(subsetted_data[1]), "~", names(subsetted_data[2]), "for", i))
-        tuk <- glht(fit_graph, linfct = mcp("subsetted_data[, 2]" = "Tukey"))
-        tuk.cld <- cld(tuk)
-        old.par <- par( mai=c(1,1,2,1))
-        #plot(tuk.cld, las=1, ylab="Yield", xlab="Genotype for BOPA2_12_30822", main="Yield within family 1 under control conditions", col=c("royalblue2","pink"))
-        #type = "continuous" is needed to extrapolate between colors when the number of levels exceeds the number of colors available in palette
-        #plot(tuk.cld, las=1, ylab=names(subsetted_data[1]), xlab=names(subsetted_data[2]), main=i, col=wes_palette(n=length(unique(my_his_data[,2])), name="GrandBudapest", type = "continuous"))
-        plot(tuk.cld, las=1, ylab=names(subsetted_data[1]), xlab=names(subsetted_data[2]), main=i, col=rainbow(n=length(unique(my_his_data[,2]))))
-        par(old.par)
+      for (i in unique(my_his_data[,3])){
+        subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
+        fit_tukey<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+        out<-HSD.test(fit_tukey, "subsetted_data[, 2]", group=TRUE, alpha==Chosenpvalue) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+        out_tukey<-as.data.frame(out$groups)
+        out_tukey$x<-row.names(out_tukey)
+        n_name<-rep(i, length(levels(subsetted_data[,2])))
+        out_tukey_n<-as.data.frame(cbind(out_tukey, n_name))
+        colnames(out_tukey_n)<-c(names(subsetted_data[1]), "Tukey's letters", names(subsetted_data)[2], names(subsetted_data[3]))
+        out_tukey_f<-out_tukey_n[c(4,3,2,1)]
+        print(as.data.frame(out_tukey_f), row.names=FALSE)
       }
     }
+    
     if(input$plot_facet ==F){
-      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
       my_his_data[,2]<-as.factor(my_his_data[,2])
-      fit_graph<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
-      #out<-HSD.test(fit_graph, "my_his_data[, 2]", group=TRUE)##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
-      #plot(out, main=paste(names(my_his_data[1]), "~", names(my_his_data[2])))
-      #plot(out, main=paste(names(my_his_data[1]), "~", names(my_his_data[2])))
-      
-      tuk <- glht(fit_graph, linfct = mcp("my_his_data[, 2]" = "Tukey"))
-      tuk.cld <- cld(tuk)
-      old.par <- par(mai=c(1,1,2,1))
-      
-      #plot(tuk.cld, las=1, ylab="Yield", xlab="Genotype for BOPA2_12_30822", main="Yield within family 1 under control conditions", col=c("royalblue2","pink"))
-      #plot(tuk.cld, las=1, ylab=names(my_his_data[1]), xlab=names(my_his_data[2]), col=wes_palette(n=length(unique(my_his_data[,2])), name="GrandBudapest", type = "continuous"))
-      plot(tuk.cld, las=1, ylab=names(my_his_data[1]), xlab=names(my_his_data[2]), col=rainbow(n=length(unique(my_his_data[,2]))))
-      par(old.par)
-      
-      par(old.par)
+      fit_tukey<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
+      out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha==Chosenpvalue) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+      out_tukey<-as.data.frame(out$groups)
+      out_tukey$x<-row.names(out_tukey)
+      colnames(out_tukey)<-c(names(my_his_data[1]), "Significant groups based on Tukey's pairwise comparison ", names(my_his_data)[2])
+      out_tukey_f<-out_tukey[c(3,1,2)]
+      print(out_tukey_f, row.names=FALSE)
     }
     
   })
   
   
-  
-  ##STILL TO DO:
-  #       try to do subset by multiple variables
   #the margin needs to be fixed to be able to see the y-lab
   output$Boxes <- renderPlotly({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
@@ -2356,6 +2426,7 @@ function(input, output) {
     }
   })
   
+  
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> DATA CORRELATION IN 6th TAB << - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2464,7 +2535,7 @@ function(input, output) {
   
   ################ cor_table output###################
   
-  my_table <- eventReactive(input$Go_table, {
+  output$cor_table <- renderDataTable({
     beginCol <-
       length(c(
         input$SelectIV,
@@ -2482,6 +2553,7 @@ function(input, output) {
       )) + length(input$SelectDV)
     
     df <- cor_data_type()
+    
     if (input$cor_data_subset) {
       df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
     }
@@ -2503,9 +2575,93 @@ function(input, output) {
     return(result)
   })
   
-  output$cor_table <- renderDataTable({
-    my_table()
-  })
+  output$tricky_table <- renderPrint({
+    
+    if(input$cor_data_subset == F){
+      cat("If you want to examine most variation in correlations, please select for which variable you would like to subset your data.")
+    }
+    else{
+  beginCol <-
+    length(c(
+      input$SelectIV,
+      input$SelectGeno,
+      input$SelectTime,
+      input$SelectID
+    )) + 1
+  
+  endCol <-
+    length(c(
+      input$SelectIV,
+      input$SelectGeno,
+      input$SelectTime,
+      input$SelectID
+    )) + length(input$SelectDV)
+  
+  df <- cor_data_type()
+  
+  list <- unique(df[,input$CorIV_sub])
+  
+  df2 <- subset(df, df[,input$CorIV_sub] == list[1])
+  
+  res <-
+    rcorr(as.matrix(df2[, beginCol:endCol]), type = input$corMethod)
+  
+  flattenCorrMatrix <- function(cormat, pmat) {
+    ut <- upper.tri(cormat)
+    data.frame(
+      row = rownames(cormat)[row(cormat)[ut]],
+      column = rownames(cormat)[col(cormat)[ut]],
+      cor  = (cormat)[ut],
+      p = pmat[ut]
+    )
+  }
+  
+  result <- flattenCorrMatrix(res$r, res$P)
+  result <- result[1:3]
+  
+  
+  for(i in 2:length(list)){
+    df2 <- subset(df, df[,input$CorIV_sub] == list[i])
+    
+    res <-
+      rcorr(as.matrix(df2[, beginCol:endCol]), type = input$corMethod)
+    
+    flattenCorrMatrix <- function(cormat, pmat) {
+      ut <- upper.tri(cormat)
+      data.frame(
+        row = rownames(cormat)[row(cormat)[ut]],
+        column = rownames(cormat)[col(cormat)[ut]],
+        cor  = (cormat)[ut],
+        p = pmat[ut]
+      )
+    }
+    
+    result3 <- flattenCorrMatrix(res$r, res$P)
+    res2 <- result3[3]
+    result <- cbind(result, res2)
+  }
+  
+  result <- as.data.frame(result)
+  for(f in 1:nrow(result)){
+    lista_g <- result[f,3]
+    for(g in 4:ncol(result)){
+      lista_g <- c(lista_g, result[f,g])
+    }
+    result$vaRiance[f] <- var(lista_g)   
+  }
+  
+  maxymum <- tail(sort(result$vaRiance),5)
+  cat(paste("The highest variability in correlation across ", input$CorIV_sub, " was observed for: "))
+  cat("\n")
+  
+  for(a in 1:length(maxymum)){
+    tijdelijk <- subset(result, result[,"vaRiance"] == maxymum[a])
+    cor_a <- tijdelijk[,1]
+    cor_b <- tijdelijk[,2]
+    cat(paste(a,". ", cor_a, " and ", cor_b))
+    cat("\n")
+  }}
+})
   
   ############ interactive scatter plot ##########
   
