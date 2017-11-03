@@ -1,6 +1,7 @@
 fluidPage(
   theme = shinytheme("yeti"),
-  navbarPage( ">> MVApp <<",
+  navbarPage(
+    title = ">> MVApp <<",
 
    # Tab 1 = = = = = = = = = = = = = = >> BACKGROUND INFORMATION << = = = = = = = = = = = = = = = = = = 
    
@@ -291,9 +292,8 @@ tabPanel("Data exploration", icon=icon("binoculars"),
 tabPanel(
   "Establish correlations between traits",
   icon = icon("compress"),
-  navbarPage("",
-    tabPanel("General Correlations",
-             plotOutput("corrplot")),
+  navbarPage(
+    "",
     tabPanel(
       "Correlation Plot",
       
