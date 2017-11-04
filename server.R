@@ -2575,6 +2575,68 @@ function(input, output) {
     return(result)
   })
   
+  output$ cor_table_text <- renderPrint({
+    if(input$cor_data_subset == F){
+      cat(paste("The", input$corMethod, "correlation coefficients and p values of your data are:"))
+    }
+    else{
+      cat(paste("The", input$corMethod, "correlation coefficients and p values for you subsetted data in",input$CorIV_sub, "-", input$CorIV_val, "are:"))
+    }
+  })
+  
+  output$cortable_button <- renderUI({
+    if (is.null(ItemList())) {
+      return()
+    }
+    else{
+      downloadButton("cortable_download_button", label = "Download the correlation table")
+    }
+  })
+  
+  output$cortable_download_button <- downloadHandler(
+    filename = paste("Correlation_table_using_", input$corrplotMethod, "_MVApp.csv"),
+    content <- function(file) {
+      beginCol <-
+        length(c(
+          input$SelectIV,
+          input$SelectGeno,
+          input$SelectTime,
+          input$SelectID
+        )) + 1
+      
+      endCol <-
+        length(c(
+          input$SelectIV,
+          input$SelectGeno,
+          input$SelectTime,
+          input$SelectID
+        )) + length(input$SelectDV)
+      
+      df <- cor_data_type()
+      
+      if (input$cor_data_subset) {
+        df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
+      }
+      
+      res <-
+        rcorr(as.matrix(df[, beginCol:endCol]), type = input$corMethod)
+      
+      flattenCorrMatrix <- function(cormat, pmat) {
+        ut <- upper.tri(cormat)
+        data.frame(
+          row = rownames(cormat)[row(cormat)[ut]],
+          column = rownames(cormat)[col(cormat)[ut]],
+          cor  = (cormat)[ut],
+          p = pmat[ut]
+        )
+      }
+      
+      result <- flattenCorrMatrix(res$r, res$P)
+      write.csv(results, file)}
+  )
+  
+  
+  
   output$tricky_table <- renderPrint({
     
     if(input$cor_data_subset == F){

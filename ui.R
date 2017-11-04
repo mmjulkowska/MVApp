@@ -14,6 +14,8 @@ fluidPage(
         br(),
         "This app is meant to streamline the data analysis that is common in many biological studies - especially when screaning large populations such as diversity panels or comparing multiple mutant lines to wild type.", 
         "Our background is plant biology - so you know where our bias is ;).",br(),br(),
+        "The example dataset is available ", a("here", href = "https://drive.google.com/file/d/0B08MX6N7rXcZX0xQamtweUZCbDQ/view?usp=sharing", target = "_blank"),br(), br(),
+        "Please - fill in the survey about the App - available ", a("here", href = "https://goo.gl/forms/kpMdpMpswdbb9BJv2", target = "_blank"),br(), br(),
         "If you have any problems / questions / ", span("suggestions how we can improve this APP so that YOU can do your analysis smoother", style="color:red") ,"- or simply you would like to tell us how amazing the App is - please contact ",span("Magdalena.Julkowska@kaust.edu.sa", style="color:blue")
       ),
       mainPanel(
@@ -54,7 +56,6 @@ fluidPage(
       icon = icon("table"),
       sidebarPanel(
         fluidRow(
-          helpText("Upload your data or choose one of the example datasets:"),
           fileInput(
             "your_data",
             label = "Upload your file",
@@ -90,12 +91,10 @@ fluidPage(
    tabPanel("Fitting curves to the data",icon = icon("wrench"),
             sidebarPanel(
               fluidRow(
-                                    helpText("Please select which phenotype you would like to model"),
                                     uiOutput("Pheno_to_model"),
                                     uiOutput("IV_to_model"),
                                     uiOutput("IV_subset_model"),
                                     actionButton("Go_HelpModel", label = "Unleash the model estimation"),
-                                    helpText("If you have more than 10 time points it is worthwhile to consider fitting the polynomial functions to your data",br(),"Cubical splines where you determine the breakpoints yourself.", br()," By using smoothed splines - the breakpoints are determined automatically."),
                                     selectInput("model",
                                                 label = "Select method",
                                                 choices = list(
@@ -249,7 +248,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
            navbarPage("",
                       tabPanel("Normality test", icon=icon("area-chart"),
                                uiOutput("HistType"),
-                               plotlyOutput("HistPlot", width = 600),
+                               plotlyOutput("HistPlot", width = 1000),
                                br(),
                                verbatimTextOutput("Shapiro"),
                                br(),
@@ -315,6 +314,9 @@ tabPanel(
         verbatimTextOutput("tricky_table"),
         downloadButton('downloadCorrplot', icon("download")),
         plotOutput("corrplot"),
+        
+        uiOutput("cortable_button"),
+        verbatimTextOutput("cor_table_text"),
         dataTableOutput("cor_table")
       )
     ),
