@@ -302,7 +302,7 @@ tabPanel(
         checkboxInput("cor_data_subset", label = "Calculate correlation on specific subset of your data"),
         uiOutput("cor_subset"),
         uiOutput("CorSpecIV_val"),
-        selectInput("corMethod", "Correlation Method", choices = c("pearson", "kendall", "spearman")),
+        selectInput("corMethod", "Correlation Method", choices = c("pearson","spearman")),
         selectInput("corrplotMethod", "Plot Method", choices = c("circle", "square", "ellipse", "number", "shade", "color", "pie")),
         selectInput("corType", "Plot Type", choices = c("full", "lower", "upper")),
         selectInput("corOrder", "Order of the lable", choices = c("original", "AOE",  "FPC",  "hclust", "alphabet"))
@@ -312,7 +312,7 @@ tabPanel(
       
       mainPanel(
         verbatimTextOutput("tricky_table"),
-        downloadButton('downloadCorrplot', icon("download")),
+        downloadButton('downloadCorrplot', label="Download Plot"),
         plotOutput("corrplot"),
         
         uiOutput("cortable_button"),

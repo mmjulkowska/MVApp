@@ -2589,7 +2589,7 @@ function(input, output) {
       return()
     }
     else{
-      downloadButton("cortable_download_button", label = "Download the correlation table")
+      downloadButton("cortable_download_button", label = "Download Table")
     }
   })
   
