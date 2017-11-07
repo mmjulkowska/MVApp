@@ -57,9 +57,43 @@ The Example dataset would look like this:
 ### 6. PCA => Mariam
 
 ###### Selecting the dataset & traits
-###### Selecting informative PCs
-###### Looking at the contribution and how your individuals are spaced in the PC
-###### downloading the data
+-   As mentioned previously, the user has the option to set which dataset is used to perform the PCA from the dropdown menu of 'raw data, 'missing values removed' or 'outliers removed'. 
+
+-   After setting the data, the user can select which DVs (phenotypes) will go into the PCA.
+
+-   The user can decide to perform the PCA on the values as they are or on the averaged data per IV (e.g. genotype, treatment, time).
+
+-   The user also has a further option to use the full dataset or decide to subset based on a chosen IV or IVs.
+
+-   All these options can be reset by clicking on 'set the dataset' and choosing other options to compare between different PCA results.
+
+-   The final selected dataset for the PCA can be found in the tab 'Final data for PCA'.
+
+###### Visualizing the PCs
+
+-   When clicking on the 'Eigenvalues' tab, the Scree plot would be displayed showing the main principle components generated from the PCA in decreasing order of percentage variance.
+
+-   The Scree plot can be copied as an image into MS Office platforms.
+
+-   The table summarizing the eigenvalues of each principle component, their percentage of variance and the cumulative percentages that add to 100% can be found below the plot and can be downloaded as a CSV file.
+
+###### Visualizing the general contribution of DVs per PC
+
+-   When clicking on the 'Contribution per variable' tab, the user can visualize the contribution of the chosen DVs with respect to two PCs at a time that the user can choose from the two dropdown menus. 
+
+-   The contribution plot can be copied as an image into MS Office platforms.
+
+###### Visualizing the contribution of each DV value
+
+-   When clicking on the 'Scatterplot of individuals' tab, the visualization moved from the PC contribution of the variables (DVs) to the individuals (DV values).
+
+-   The dropdown menu above the plot allows the user to change the color scheme to highlight different IVs.
+
+-   The table summarizes each DV value and its contribution to the generated PCs, which can be downloaded as a CSV file.
+
+###### Visualizing the contribution of each DV per PC
+
+-   A different representation of the 'contribution per variable' tab is to look at the 'Contribution per PC' in detail in a bar plot format and download the specific percentange contribution data per PC.
 
 ### 7. Cluster analysis => Magda
 
