@@ -21,7 +21,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "SelectGeno",
-          label = "Select your Genotype column",
+          label = "Select column containing Genotype information",
           choices = ItemList(),
           multiple = F
         )
@@ -35,7 +35,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "SelectIV",
-          label = "Select your independent variables (e.g. treatment, position) that are going to be used for grouping your phenotypes",
+          label = "Select column(s) containing Independent Variables (such as Treatment)",
           choices = ItemList(),
           multiple = T
         )
@@ -50,7 +50,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "SelectDV",
-          label = "Select your dependent variables (phenotypes) that you would like to analyze",
+          label = "Select columns containing Dependent Variables (Phenotypes)",
           choices = ItemList(),
           multiple = T
         )
@@ -65,7 +65,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "SelectID",
-          label = "Select your sample ID",
+          label = "Select column containing sample ID",
           choices = ItemList(),
           multiple = F
         )
@@ -80,7 +80,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "SelectTime",
-          label = "Select your Time column",
+          label = "Select column containing Time / gradient information (MUST be numeric)",
           choices = ItemList(),
           multiple = F
         )
@@ -161,7 +161,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "ModelPheno",
-          label = "Select a phenotype for which you would like estimate the kinetics",
+          label = "Phenotype used for modeling",
           choices = c(input$SelectDV),
           multiple = F
         )
@@ -176,7 +176,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "ModelIV",
-          label = "Select an independent variable for which you would like estimate the kinetics (IndepVar)",
+          label = "Independent Variable to split the samples (default - Treatment)",
           choices = c(input$SelectIV, input$SelectGeno),
           multiple = F,
           selected = input$SelectIV
@@ -192,7 +192,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "ModelSubIV",
-          label = "Select an independent variable for which you would to subset",
+          label = "Independent Variable to subset the samples (default - Genotype)",
           choices = c(input$SelectIV, input$SelectGeno),
           multiple = F, 
           selected = input$SelectGeno
@@ -204,7 +204,7 @@ function(input, output) {
     if(input$model == "cubic"){
       textInput(
         inputId = "cubic_knots",
-        label = "Enter the time value at which you would like to split the spline. Use dot (.) as decimal point. If you which to use more than one knots, separate them using comma (,)."
+        label = "Time-point to split the cubic spline."
       )
     }
     else{
@@ -276,11 +276,14 @@ function(input, output) {
     Model_est_data()
   })
   
-  output$best_model_advice <- renderText({
+  output$best_model_advice <- renderPrint({
     fraka <- Model_est_data()
     fraka1 <- colnames(fraka)[apply(fraka,1,which.max)]
-    sentence <- paste("The model with the highest estimation is ", fraka1[1])
-    return(sentence)
+    cat(paste("The model with the best fit is", fraka1[1]))
+    cat("\n")
+    cat("The model estimation is based on the r2 values for Linear, Quadratic, Exponential and Square root functions, presented in the table below.")
+    cat("\n")
+    cat("If your data contains many timepoints, you can consider fitting a polynomial curves, using smoothed / cubic splines available in the model menu.")
   })
   
   
@@ -397,7 +400,7 @@ function(input, output) {
     things_to_model
   })
   
-  output$model_warning <- renderText({
+  output$model_warning <- renderPrint({
     if(is.null(Model_temp_data())){
       return()}
     else {
@@ -406,8 +409,10 @@ function(input, output) {
     frajka_boom <- subset(frajka_boom, frajka_boom$r_squared < 0.7)                      
     how_much <- nrow(frajka_boom)
     
-    sentence <- paste("There are ", how_much, " samples with r-square value below 0.7. You should consider checking them.")
-    return(sentence)
+    cat(paste("There are ", how_much, " samples with r-square value below 0.7."))
+    cat("\n")
+    cat("You should consider checking those samples using fit-plots and even going back to your original data.")
+    cat("\n")
     }
   })
   
@@ -425,7 +430,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Select_model_type_plot",
-          label = "Select how you would like to view the fit-plots",
+          label = "View fit-plots as:",
           choices = c("single plot", "multiple plots")
         )
       )
@@ -453,7 +458,7 @@ function(input, output) {
     tagList(
       selectizeInput(
         inputId = "Model_graph_fit_select",
-        label = "Select a specific sample to display in Fit-Plot",
+        label = "Select a specific sample to view",
         choices = sample_list,
         multiple = F
       )
@@ -563,7 +568,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Model_graph_fit_select_multi",
-          label = "Plot the fit-plots for",
+          label = "Fit-plots arranged by",
           choices = c("r-square values (low to high)", 
                       "r-square values (high to low)")
         ))}
@@ -574,7 +579,7 @@ function(input, output) {
       return()
     }
     else{
-      actionButton(inputId = "Go_fitplot", icon=icon("magic"), label="unleash multiple fit plots galery")
+      actionButton(inputId = "Go_fitplot", icon=icon("magic"), label="update fit-plot galery")
     }
   })
   
@@ -584,7 +589,7 @@ function(input, output) {
     }
     else{
       maxi <- nrow(Model_temp_data())-19
-      sliderInput(inputId = "Fit_plot_slider", label = "Select starting slice of the samples you would like to view", min=1, max=maxi, value=1, step=20)
+      sliderInput(inputId = "Fit_plot_slider", label = "Plot portion of the data starting from element number...", min=1, max=maxi, value=1, step=20)
     }
   })
   
@@ -697,11 +702,11 @@ function(input, output) {
     if(is.null(Model_temp_data())){
       return()}
     else
-      downloadButton("Download_model_data", label="Download Fitted data")
+      downloadButton("Download_model_data", label="Download modelled data")
   })  
   
   output$Download_model_data <- downloadHandler(
-    filename = paste("Modelled_",input$ModelPheno, "_with_", input$model ,"_MVApp.csv"),
+    filename = paste("Modelled ",input$ModelPheno, " with ", input$model ," MVApp.csv"),
     content <- function(file) {
       write.csv(Model_temp_data(), file)}
   )
@@ -758,7 +763,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "model_trait_plot",
-          label = "Select trait to plot",
+          label = "Phenotype to plot",
           choices = lista,
           multiple = F
         ))}
@@ -772,7 +777,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "model_graph_plot",
-          label = "Select graph type to plot",
+          label = "Graph type",
           choices = c("box plot", "scatter plot", "bar graph"),
           multiple=F
           ))}
@@ -797,7 +802,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "model_color_plot",
-          label = "colour the graph by",
+          label = "Color the graph by",
           choices = c(input$ModelIV,input$ModelSubIV,input$SelectID),
           multiple = F,
           selected= input$ModelSubIV))}
@@ -811,7 +816,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "model_facet_plot",
-          label = "facet the graph by",
+          label = "Split the graph by",
           choices = c(input$ModelIV,input$ModelSubIV,input$SelectID),
           multiple = F,
           selected= input$ModelIV))}
@@ -824,7 +829,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Select_model_facet_sc",
-          label = "Select the scale of the facet plot",
+          label = "Scale of the split plot",
           choices = c("fixed", "free"),
           selected = "fixed"
         ))
@@ -842,6 +847,39 @@ function(input, output) {
     }
   })
   
+  output$Select_model_color_scale_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "Select_model_color_sc",
+          label = "Select color palet",
+          choices = c("Set1", "Set2", "Set3", "Pastel1", "Pastel2", "Paired", "Dark2", "Accent", "Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")
+        ))
+  })
+  
+  output$Select_model_background_color_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()}
+    else
+      tagList(
+        checkboxInput(
+          inputId = "Select_model_background",
+          label = "Remove background"))
+  })
+  
+  output$Select_model_maj_grid_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()}
+    else
+      tagList(
+        checkboxInput(
+          inputId = "Select_model_maj_grid",
+          label = "Remove major grid lines"))
+  })
+  
+  
   # - - - - - - - >> CALCULATIONS <<- - - - - - - - - - - - 
   
   output$model_comparison_summary <- renderDataTable({
@@ -858,11 +896,11 @@ function(input, output) {
     if(is.null(Model_temp_data())){
       return()}
     else
-      downloadButton("Download_summ_model_data", label="Download summary statistics of fitted data")
+      downloadButton("Download_summ_model_data", label="Download summary statistics of modelled data")
   })  
   
   output$Download_summ_model_data <- downloadHandler(
-    filename = paste("Summary Statistics of data Modelled_",input$ModelPheno, "_with_", input$model ,"_MVApp.csv"),
+    filename = paste("Summary Statistics of data modelled for ",input$ModelPheno, " with ", input$model ," MVApp.csv"),
     content <- function(file) {
       temp <- Model_temp_data()
       temp[,input$SelectID] <- NULL
@@ -893,6 +931,7 @@ function(input, output) {
       benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
     }
     benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
+    benc <- benc + scale_color_brewer(palette = input$Select_model_color_sc)
   }
   
   temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
@@ -908,15 +947,23 @@ function(input, output) {
         benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
         benc <- benc + geom_boxplot()
         benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
+        benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
       }
   
   if(input$model_graph_plot == "scatter plot"){
     benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
     benc <- benc + geom_point()
+    
+    
     benc <- benc + facet_wrap(~ facet, scale = input$Select_model_facet_sc)
+      benc <- benc + scale_color_brewer(palette = input$Select_model_color_sc)
   }
   
-  benc <- benc + theme(legend.title=element_blank())
+  if(input$Select_model_background == T){
+    benc <- benc + theme_minimal()}
+  if(input$Select_model_maj_grid == T){
+  benc <- benc + theme(panel.grid.major = element_blank())}
+
   benc <- benc + ylab(input$model_trait_plot)
   benc <- benc + xlab(input$model_color_plot)
   
@@ -971,7 +1018,7 @@ function(input, output) {
     else
       tagList(
         selectizeInput("IV_outliers",
-                       label = "Select the Indepentent Variables for which you would like to group yor phenotypes for outlier selection",
+                       label = "Indepentent Variables for grouping the samples to identify outlier samples",
                        choices=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID),
                        multiple=TRUE,
                        selected = c(input$SelectGeno, input$SelectIV, input$SelectTime))
@@ -988,7 +1035,7 @@ function(input, output) {
       data <- Outlier_overview()
       max_out <- max(data$Add_outliers)
       min_out <- min(data$Add_outliers)
-      sliderInput("outlier_cutoff", "Remove the samples which are characterized as an outlier in at least x traits:", min_out, max_out, value = 2, step = 1)  
+      sliderInput("outlier_cutoff", "Remove the samples which are characterized as an outlier in at least ... traits:", min_out, max_out, value = 2, step = 1)  
     }
   })
   
@@ -999,7 +1046,7 @@ function(input, output) {
     else
       tagList(
         selectizeInput("DV_outliers",
-                       label = "Select the phenotype for which you would like to determine the outliers",
+                       label = "Selected phenotype for the outlier selection",
                        choices= input$SelectDV,
                        multiple=F)
       )})
@@ -1012,7 +1059,7 @@ function(input, output) {
     else
       tagList(
         selectizeInput("DV_graph_outliers",
-                       label = "Select the phenotype for which you would like to examine graphically",
+                       label = "Phenotype to plot",
                        choices= input$SelectDV,
                        multiple=F, 
                        selected = input$SelectDV[1])
@@ -1022,7 +1069,7 @@ function(input, output) {
   output$Q_facet <- renderUI({
     if(input$outlier_facet == T){
       tagList(
-        selectInput("Facet_choice", "Select variable for which to facet",
+        selectInput("Facet_choice", "Variable to split the plot",
                     choices = c(input$SelectGeno, input$SelectIV, input$SelectTime))
       )
     }
@@ -1034,7 +1081,7 @@ function(input, output) {
   output$Q_colour <- renderUI({
     if(input$outlier_colour == T){
       tagList(
-        selectInput("Colour_choice", "Select variable for which to colour code",
+        selectInput("Colour_choice", "Variable to colour code the plot",
                     choices = c(input$SelectGeno, input$SelectIV, input$SelectTime))
       )
     }
@@ -1050,8 +1097,8 @@ function(input, output) {
     if(input$outlier_facet == T){
       selectizeInput(
         "out_facet_scale",
-        label = "The scale of the graphs is",
-        choices=c("fixed", "free", "free_x", "free_y")
+        label = "The scale of the split plot",
+        choices=c("fixed", "free")
       )
       
     }
@@ -1064,6 +1111,39 @@ function(input, output) {
                        label = "Error bars represent",
                        choices = c("Standard Error", "Standard Deviation"), multiple = F))}
   })
+  
+  output$Select_outlier_color_scale_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "Select_outl_color_sc",
+          label = "Select color palet",
+          choices = c("Set1", "Set2", "Set3", "Pastel1", "Pastel2", "Paired", "Dark2", "Accent", "Spectral", "RdYlGn", "RdYlBu", "RdGy", "RdBu", "PuOr", "PRGn", "PiYG", "BrBG")
+        ))
+  })
+  
+  output$Select_outlier_background_color_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()}
+    else
+      tagList(
+        checkboxInput(
+          inputId = "Select_outl_background",
+          label = "Remove background"))
+  })
+  
+  output$Select_outlier_maj_grid_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()}
+    else
+      tagList(
+        checkboxInput(
+          inputId = "Select_outl_maj_grid",
+          label = "Remove major grid lines"))
+  })
+  
   
   # - - - - - - - - - - - - - >>  MAIN CALCULATIONS << - - - - - - - - - - - - - -
   
@@ -1087,7 +1167,7 @@ function(input, output) {
     
     for(i in 1:length(input$SelectDV)){
       
-      if(input$outlier_method == "1.5*IQR away from the mean"){
+      if(input$outlier_method == "1.5*IQR away from the mean (default)"){
         
         faka_laka <- subset(faka_boom, select=c("id_test", input$SelectDV[i]))
         faka_laka$pheno <- faka_laka[,(input$SelectDV[i])]
@@ -1260,7 +1340,7 @@ function(input, output) {
     outl$pheno <- outl[,input$DV_outliers]
     
     # outliers based on 1.5IQR
-    if(input$outlier_method == "1.5*IQR away from the mean"){
+    if(input$outlier_method == "1.5*IQR away from the mean (default)"){
       
       bad_shit <- boxplot(outl$pheno ~ outl$id_test)$out
       # Adding all the outliers as a column "outlier" with 1/0 values 
@@ -1409,20 +1489,12 @@ function(input, output) {
   # - - - - - - - - - - - - - >>  OUTPUT TABLES / GRAPHS / DOWNLOAD BUTTONS << - - - - - - - - - - - - - -
   
   # Table with outliers marked out
-  output$Outlier_overview_table <- DT::renderDataTable({
+  output$Outlier_overview_table <- renderDataTable({
     test <- Outliers_final_data()
-    # WE NEED TO MAKE CONDITIONAL FORMATING OF THIS!!!
-    # right now the table doesnt show when you do SINGLE PHENOTYPE because the formating is for ALL PHENOTYPES
-    # I tried to include if() statements in this position, but then it doesnt work (formating - but the table still shows up)
-    # not sure how to proceed.... aiaiai :(((
-    
-    # datatable(test) %>% formatStyle( "Add_outliers",
-    #    target = 'row',
-    #    backgroundColor = styleInterval((input$outlier_cutoff-1), c("white", "pink")))
   })
   
   # Outlier report
-  output$Outlier_report <- renderText({
+  output$Outlier_report <- renderPrint({
     
     tescior <- Outliers_final_data()
     if(input$Out_pheno_single_multi == "All phenotypes"){
@@ -1438,8 +1510,13 @@ function(input, output) {
       pheno <-paste(input$DV_outliers)
       method <- paste(input$outlier_method)
     }
-    sentence <- paste("There are ", number," outliers identified based on", pheno, "using", method)
-    return(sentence)
+    cat(paste("There are ", number," outliers identified based on", pheno, "using", method))
+    cat("\n")
+    cat("DISCLAIMER:") 
+    cat("\n")
+    cat("Please think twice before removing a sample from your data, as it might contain valuable information.") 
+    cat("\n")
+    cat("We advice you to go back to your original data, look at the pictures (if you have them) and make sure that the sample is not representative for a VERY good reason.")
   })
   
   # Outlier free data (and table)
@@ -1498,7 +1575,7 @@ function(input, output) {
   })  
   
   output$full_data_outliers <- downloadHandler(
-    filename = paste("Marked_outliers_based_on_",input$Out_pheno_single_multi,"_", input$DV_outliers ,"_identified_with_", input$outlier_method, "_MVApp.csv"),
+    filename = paste("Marked outliers based on ",input$Out_pheno_single_multi,"_", input$DV_outliers ," identified with ", input$outlier_method, " MVApp.csv"),
     content <- function(file) {
       write.csv(Outliers_final_data(), file)}
   )
@@ -1510,7 +1587,7 @@ function(input, output) {
     if(is.null(Outliers_final_data())){
       return()}
     else{
-      downloadButton("data_outliers", label="Download table containing the outlier values")}
+      downloadButton("data_outliers", label="Download table containing ONLY the outliers")}
   })  
   
   output$data_outliers <- downloadHandler(
@@ -1529,7 +1606,7 @@ function(input, output) {
   })  
   
   output$data_clean_final <- downloadHandler(
-    filename = paste("Data_free_from_outliers_based_on",input$Out_pheno_single_multi,"_", input$DV_outliers ,"_identified_with_", input$outlier_method, "_MVApp.csv"),
+    filename = paste("Data free from outliers based on",input$Out_pheno_single_multi," ", input$DV_outliers ," identified with ", input$outlier_method, " MVApp.csv"),
     content <- function(file) {
       write.csv(Outlier_free_data(), file)}
   )
@@ -1540,7 +1617,7 @@ function(input, output) {
       return()
     }
     else{
-      actionButton("lock_outliers", icon=icon("thumbs-o-up"), label = "Lock this outlier-free data for further analysis")
+      actionButton("lock_outliers", icon=icon("thumbs-down"), label = "Lock this outlier-free data for further analysis")
     }
   })
   
@@ -1604,6 +1681,7 @@ function(input, output) {
       }
       
       taka <- taka + geom_bar(stat="identity", position=position_dodge(1))
+      taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)
       
       if(input$out_error_bar == "Standard Deviation"){
         taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.s, ymax=pheno.m+pheno.s), position=position_dodge(1))}
@@ -1620,7 +1698,8 @@ function(input, output) {
         taka <- ggplot(outl, aes(x = id_test, y= pheno))   
       }
       
-      taka <- taka + geom_boxplot(position="dodge")}
+      taka <- taka + geom_boxplot(position="dodge")
+      taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)}
     
     if(input$outlier_graph_type == "scatter plot"){
       
@@ -1631,7 +1710,8 @@ function(input, output) {
         taka <- ggplot(outl, aes(x = id_test, y= pheno))      
       }
       
-      taka <- taka + geom_point(position=position_dodge(1))}
+      taka <- taka + geom_point(position=position_dodge(1))
+      taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)}
     
     
     
@@ -1645,6 +1725,12 @@ function(input, output) {
     if(input$outlier_colour == T){
     taka <- taka + theme(legend.title=element_blank())
     }
+  
+  if(input$Select_outl_background == T){
+    taka <- taka + theme_minimal()}
+  if(input$Select_outl_maj_grid == T){
+    taka <- taka + theme(panel.grid.major = element_blank())}
+  
     
     taka
   })
@@ -1699,6 +1785,7 @@ function(input, output) {
       }
       
       jaka <- jaka + geom_bar(stat="identity", position=position_dodge(1))
+      jaka <- jaka + scale_color_brewer(palette = input$Select_outl_color_sc)
       
       if(input$out_error_bar == "Standard Deviation"){
         jaka <- jaka + geom_errorbar(aes(ymin=pheno.m-pheno.s, ymax=pheno.m+pheno.s), position=position_dodge(1))}
@@ -1715,6 +1802,7 @@ function(input, output) {
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
       }
       
+      jaka <- jaka + scale_fill_brewer(palette = input$Select_outl_color_sc)
       jaka <- jaka + geom_boxplot(position="dodge")}
     
     if(input$outlier_graph_type == "scatter plot"){
@@ -1726,6 +1814,7 @@ function(input, output) {
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
       }
       jaka <- jaka + geom_point(position=position_dodge(1))
+      jaka <- jaka + scale_color_brewer(palette = input$Select_outl_color_sc)
     }
     
     if(input$outlier_facet == T){
@@ -1739,6 +1828,12 @@ function(input, output) {
       jaka <- jaka + theme(legend.title=element_blank())
     }
     
+    if(input$Select_outl_background == T){
+      jaka <- jaka + theme_minimal()}
+    if(input$Select_outl_maj_grid == T){
+      jaka <- jaka + theme(panel.grid.major = element_blank())}
+    
+    
     jaka
   })
   
@@ -1749,11 +1844,11 @@ function(input, output) {
     }
     else{
       sum_na<-nrow(my_data())-nrow(my_data_nona())
-      return(paste(sum_na, " rows containing NAs that were removed.")) 
+      return(paste(sum_na, " rows containing missing values that were removed.")) 
     }
   })
   
-  # = = = = = = >> SUMMARY STATS - MOVED FROM 5th TAB << = = = = = = = = = 
+  # = = = = = = >> SUMMARY STATS << = = = = = = = = = 
   
   ## Added new input "$SelectSumm"  and output "$CustomSumm"  %% Mitch %%
   
@@ -1761,15 +1856,15 @@ function(input, output) {
     if(is.null(ItemList())){return ()
     } else tagList(
       selectizeInput(inputId = "SelectDataSumm",
-                     label = "Select the dataset to be used for the summary stats",
-                     choices= c("raw data", "NA removed", "outliers removed"), selected="raw data", multiple = F))
+                     label = "Dataset to be used for the summary stats",
+                     choices= c("raw data", "missing values removed", "outliers removed"), selected="raw data", multiple = F))
   })
   
   output$CustomSumm <- renderUI({
     if((is.null(ItemList()))){return ()
     } else tagList(
       selectizeInput(inputId = "SelectSumm", 
-                     label = "Select desired summary statistics calculations to be performed", 
+                     label = "Calculations to perform:", 
                      choices=c("Mean", "Median", "StdDev", "StdErr", "Min", "Max", "Sum"), multiple=T))
   })
   
@@ -1790,7 +1885,7 @@ function(input, output) {
       melted_icecream <- melted_icecream[ , !(names(melted_icecream)%in% drops)]
       melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))
     }
-    if(input$SelectDataSumm == "Na_removed"){
+    if(input$SelectDataSumm == "missing values removed"){
       melted_icecream <- my_data_nona()
       drops <-input$SelectID
       melted_icecream <- melted_icecream[ , !(names(melted_icecream)%in% drops)]
@@ -1823,11 +1918,11 @@ function(input, output) {
     if(is.null(sum_data())){
       return()}
     else
-      downloadButton("data_sum", label="Download Summary Stats data")
+      downloadButton("data_sum", label="Download summary statistics data")
   })
   
   output$data_sum <- downloadHandler(
-    filename = "Summary_stats_MVApp.csv",
+    filename = "Summary stats MVApp.csv",
     content <- function(file) {
       write.csv(sum_data(), file)}
   )
@@ -1843,15 +1938,15 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Histo_data",
-          label = "Select the dataset that you would like to explore",
-          choices = c("raw data", "NA removed", "outliers removed"), multiple = F))
+          label = "Dataset to explore:",
+          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
   })  
   
   Histo_data_type <- eventReactive(exists(input$Histo_data),{
     if(input$Histo_data == "raw data"){
       Histo_data_type <- my_data()
     }
-    if(input$Histo_data == "NA removed"){
+    if(input$Histo_data == "missing values removed"){
       Histo_data_type <- my_data_nona()
     }
     if(input$Histo_data == "outliers removed"){
@@ -1869,7 +1964,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "HisIV",
-          label = "Select the variable for which you would like to subset your data.",
+          label = "Independent Variable to subset the data:",
           choices = c(
             input$SelectIV,
             input$SelectGeno,
@@ -1889,7 +1984,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "HisDV",
-          label = "Select the trait you would like to plot",
+          label = "Phenotype to plot",
           choices = c(
             input$SelectDV
           ),
@@ -1905,7 +2000,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Chosenthreshold",
-          label = "Select the p-value threshold to apply for tests of normality, homogeneity of variance and ANOVA:",
+          label = "p-value threshold:",
           choices = c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1),
           selected = 0.05,
           multiple = F
@@ -1933,7 +2028,7 @@ function(input, output) {
   output$Plotfacets <- renderUI({
     if(input$plot_facet == T){
       tagList(
-        selectInput("Plotfacet_choice", "Select variable for which to facet",
+        selectInput("Plotfacet_choice", "Independent Variable to split the plots",
                     choices = c(setdiff(list(input$SelectGeno, input$SelectIV, input$SelectTime),input$HisIV)))
       )
     }
@@ -1951,7 +2046,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "HistType",
-          label = "Select a plot type",
+          label = "Plot type",
           choices = c("Histogram with counts on y-axis", "Histogram with density on y-axis"),
           selected = "Histogram with counts on y-axis",
           multiple = F
@@ -2029,9 +2124,9 @@ function(input, output) {
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
         if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
-          interpret_shapiro[i]<-"Data not normally distributed"
+          interpret_shapiro[i]<-"Data might NOT be normally distributed"
         } else {
-          interpret_shapiro[i]<-"Cannot reject H0"
+          interpret_shapiro[i]<-"Data has NORMAL distribution"
         }
         
         temp_shapiro<-as.data.frame(cbind(facetting_shapiro,shapiro_pvalue, interpret_shapiro))
@@ -2041,7 +2136,7 @@ function(input, output) {
       
       sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(as.character(input$Chosenthreshold)))
       list_sig_shapiro<- as.vector(sig_shapiro[,1])
-      cat("The following groups do not have a normal distribution for",input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice)
+      cat("The data for ",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "does not show the normal distribution in the following samples:")
       cat("\n")
       cat(list_sig_shapiro, sep=", ")
       #cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "do not have a normal distribution?!")
@@ -2097,7 +2192,7 @@ function(input, output) {
     if(input$showShapirotest == T){
       sliderInput(
         "QQplots_graph_col",
-        label = "How many columns would you like to use for displaying the QQ plots?",
+        label = "Display QQ plots in ... columns:",
         1, 9, 3
       )
     }
@@ -2127,7 +2222,7 @@ function(input, output) {
     else{
      sliderInput(
        inputId = "QQplots_portion_show",
-       label = "Select portion of the graphs you would like to see",
+       label = "Plot portion of the data starting from element number...",
        min = 1, max = maximum, ticks=T, step = see_those_graphs, value = 1) 
     }
     }
@@ -2310,7 +2405,7 @@ function(input, output) {
       if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
         cat("Significant difference in means")
       } else {
-        cat("Cannot reject H0")
+        cat("NO significant difference in means")
       }
     }
   })
@@ -2351,7 +2446,7 @@ function(input, output) {
       }
       temp_bartlett<-na.omit(temp_bartlett)
       colnames(temp_bartlett) <- c("", "p_value", paste("The variances between ", input$HisIV, " groups are:", sep=""))
-      cat(paste("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
+      cat(paste("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, " for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
       print(temp_bartlett, row.names=FALSE)
     }
     
@@ -2362,12 +2457,12 @@ function(input, output) {
       #model_bartlett<-fit_bartlett[[4]] #result of bartlett is a list with 4th element the description of model
       pvalue_bartlett<-signif(fit_bartlett[[3]],5) #result of bartlett is a list with 3rd element the p-value
       cat("HOMOGENEITY OF VARIANCE ANALYSIS", "\n")
-      cat("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, "S is ", pvalue_bartlett, ".", "\n", sep="")
+      cat("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, " is ", pvalue_bartlett, ".", "\n", sep="")
       
       if (pvalue_bartlett < as.numeric(as.character(input$Chosenthreshold) )) {
-        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are equal.", sep="")
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are EQUAL", sep="")
       } else {
-        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are not equal.", sep="")
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are NOT equal.", sep="")
       }
     }
   })
@@ -2419,9 +2514,9 @@ function(input, output) {
       cat("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "S is ", pvalue_levene, ".", "\n", sep="")
       
       if (pvalue_levene < as.numeric(as.character(input$Chosenthreshold))) {
-        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are equal.", sep="")
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are EQUAL.", sep="")
       } else {
-        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are not equal.", sep="")
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are NOT equal.", sep="")
       }
     }
   })
@@ -2442,8 +2537,8 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "cor_data",
-          label = "Select the dataset that you would like to use for correlation",
-          choices = c("raw data", "NA removed", "outliers removed"),
+          label = "Dataset to correlate:",
+          choices = c("raw data", "missing values removed", "outliers removed"),
           multiple = F
         )
       )
@@ -2453,7 +2548,7 @@ function(input, output) {
     if (input$cor_data == "raw data") {
       cor_data_type <- my_data()
     }
-    if (input$cor_data == "NA removed") {
+    if (input$cor_data == "missing values removed") {
       cor_data_type <- my_data_nona()
     }
     if (input$cor_data == "outliers removed") {
@@ -2472,7 +2567,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "CorIV_sub",
-          label = "By which independent variable do you want to subset the data?",
+          label = "Subset the data by:",
           choices = c(
             input$SelectIV,
             input$SelectGeno,
@@ -2494,7 +2589,7 @@ function(input, output) {
     tagList(
       selectizeInput(
         inputId = "CorIV_val",
-        label = "Which values of the independent variable would you like to examine for correlation?",
+        label = "Use subset:",
         choices = c(names),
         multiple = F
       )
@@ -2589,12 +2684,12 @@ function(input, output) {
       return()
     }
     else{
-      downloadButton("cortable_download_button", label = "Download Table")
+      downloadButton("cortable_download_button", label = "Download correlation table")
     }
   })
   
   output$cortable_download_button <- downloadHandler(
-    filename = paste("Correlation_table_using_", input$corrplotMethod, "_MVApp.csv"),
+    filename = paste("Correlation table using ", input$corrplotMethod, " MVApp.csv"),
     content <- function(file) {
       beginCol <-
         length(c(
@@ -2640,7 +2735,7 @@ function(input, output) {
   output$tricky_table <- renderPrint({
     
     if(input$cor_data_subset == F){
-      cat("If you want to examine most variation in correlations, please select for which variable you would like to subset your data.")
+      cat("")
     }
     else{
   beginCol <-
@@ -2748,7 +2843,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Pheno2",
-          label = "Select the second dependent variable to be plotted",
+          label = "X-axis:",
           choices = input$SelectDV,
           multiple = F
         )
@@ -2763,7 +2858,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Color",
-          label = "Select the color variable to be shown on the plot",
+          label = "Y-axis:",
           choices = c(input$SelectIV, input$SelectGeno),
           multiple = F
         )
@@ -2783,7 +2878,7 @@ function(input, output) {
     cor_data <- my_data()[, c(input$Pheno1, input$Pheno2)]
     correl <- lm(cor_data[, 1] ~ cor_data[, 2])
     r2 <- summary(correl)$r.squared
-    paste("The R square value of the linear regression is", signif(r2, 3))
+    paste("The R square value is", signif(r2, 3))
   })
   
   
@@ -2848,15 +2943,15 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "PCA_data",
-          label = "Select the dataset that you would like to use for PCA",
-          choices = c("raw data", "NA removed", "outliers removed"), multiple = F))
+          label = "Dataset for PCA:",
+          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
   })  
  
   PCA_data_type <- eventReactive(input$Go_PCAdata,{
     if(input$PCA_data == "raw data"){
       PCA_data_type <- my_data()
     }
-    if(input$PCA_data == "NA removed"){
+    if(input$PCA_data == "missing values removed"){
       PCA_data_type <- my_data_nona()
     }
     if(input$PCA_data == "outliers removed"){
@@ -2876,7 +2971,7 @@ function(input, output) {
     tagList(
       selectizeInput(
         inputId = "PCA_pheno",
-        label = "Select the phenotypes would you like to use for the PCA",
+        label = "Phenotypes for the PCA",
         choices = c(input$SelectDV),
         multiple = T
       )
@@ -2890,7 +2985,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "PCA_subset_T",
-          label = "Select the Independent Variables that you would like to subset",
+          label = "Independent Variables to subset the data",
           choices=c(input$SelectGeno, input$SelectIV, input$SelectTime),
           multiple=T
         ))}
@@ -2921,7 +3016,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "PCA_subset_S",
-          label = "Select specific subset for which you would like to subset",
+          label = "Select subset:",
           choices=c(the_list),
           multiple=F
         ))}
@@ -2999,7 +3094,7 @@ function(input, output) {
   })
   
   output$Eigen_data <- downloadHandler(
-    filename = "Eigen_values_MVApp.csv",
+    filename = "Eigen values MVApp.csv",
     content <- function(file) {
       write.csv(PCA_eigen_data(), file)}
   )
@@ -3018,7 +3113,7 @@ function(input, output) {
     tagList(
       selectizeInput(
         inputId = "Which_PC1",
-        label = "Select which PCs you would like to plot on x-axis",
+        label = "PC x-axis",
         choices = list_avail_PCs,
         multiple = F
       )
@@ -3034,7 +3129,7 @@ function(input, output) {
     tagList(
       selectizeInput(
         inputId = "Which_PC2",
-        label = "Select which PCs you would like to plot on y-axis",
+        label = "PC y-axis",
         choices = list_avail_PCs,
         multiple = F
       )
@@ -3068,7 +3163,7 @@ function(input, output) {
     tagList(
       selectizeInput(
         inputId = "Which_PC_contrib",
-        label = "Select which PC you would like to view",
+        label = "PC to plot:",
         choices = list_avail_PCs,
         multiple = F
       )
@@ -3117,7 +3212,7 @@ function(input, output) {
   })
   
   output$contrib_var <- downloadHandler(
-    filename = "PCA_contrib_var_MVApp.csv",
+    filename = "PCA contrib var MVApp.csv",
     content <- function(file) {
       write.csv(PCA_final_data(), file)}
   )
@@ -3129,8 +3224,8 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "PCA_Color",
-          label = "Select the color variable to be shown on the plot",
-          choices = c(input$SelectIV, input$SelectGeno), ### Need to change this input to reflect the PCA_final_data
+          label = "Color by:",
+          choices = c(input$SelectIV, input$SelectGeno, input$SelectTime), ### Need to change this input to reflect the PCA_final_data
           multiple = F
         )
       )
@@ -3182,7 +3277,7 @@ function(input, output) {
   })
   
   output$contrib_ind <- downloadHandler(
-    filename = "PCA_contrib_ind_MVApp.csv",
+    filename = "PCA contrib ind MVApp.csv",
     content <- function(file) {
       write.csv(PCA_final_data(), file)}
   )
@@ -3198,8 +3293,8 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Cluster_data",
-          label = "Select the dataset that you would like to use for clustering analysis",
-          choices = c("raw data", "NA removed", "outliers removed"), multiple = F))
+          label = "Dataset for clustering analysis",
+          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
   })
   
   output$Select_cluster_method <- renderUI({
@@ -3209,7 +3304,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Cluster_cor_method",
-          label = "Select the correlation method for clustering",
+          label = "Correlation method:",
           choices = c("pearson", "kendall", "spearman"), multiple = F))
   })
   
@@ -3220,7 +3315,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Cluster_method",
-          label = "Select the method for calculating clusters",
+          label = "Clustering method:",
           choices = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"), multiple = F))
   })   
   
@@ -3232,7 +3327,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           "Clust_test",
-          label = "Which phenotypes would you like to test for significant differences between clusters",
+          label = "View:",
           choices = input$SelectDV
         )
       )
@@ -3243,7 +3338,7 @@ function(input, output) {
     if(input$Cluster_data == "raw data"){
       cluster_data <- my_data()
     }  
-    if(input$Cluster_data == "NA removed"){
+    if(input$Cluster_data == "missing values removed"){
       cluster_data <- my_data_nona()
     }
     if(input$Cluster_data == "outliers removed"){
@@ -3263,7 +3358,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Cluster_pheno", 
-          label = "Select the phenotypes you would like to use for clustering analysis",
+          label = "Phenotypes to include in clustering analysis:",
           choices=c(input$SelectDV),
           multiple = T))}
   })
@@ -3276,7 +3371,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Cluster_subset_T",
-          label = "Select Indepdentend Variables for which you would like to subset",
+          label = "Subset by Independent Variables:",
           choices=c(input$SelectGeno, input$SelectIV, input$SelectTime),
           multiple=T
         ))}
@@ -3307,7 +3402,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Cluster_subset_S",
-          label = "Select specific subset for which you would like to subset",
+          label = "Subset:",
           choices=c(the_list),
           multiple=F
         ))}
@@ -3384,7 +3479,7 @@ function(input, output) {
   
   output$Dendro_sentence <- renderPrint({
     if(is.null(Cluster_table_data())){
-      cat("Please enter a value at which you would like to cut the dendrogram to segregate the samples into separate clusters.")
+      cat("NUMERIC value at which to cut the dendrogram to segregate the samples into separate clusters:")
     }
     else{
       clust_temp <- Final_data_cluster()
@@ -3564,7 +3659,7 @@ function(input, output) {
     lista_cudow <- unique(sig_listxxx)
     #sentence <- paste("significant effect of clustering was observed for ", lista_cudow, <font color=\"#FF0000\"><b>)
     
-    cat("Significant effect of clustering was observed for:")
+    cat("Significant effect of clusters observed for:")
     cat("\n")
     cat(lista_cudow)
     
@@ -3657,7 +3752,7 @@ function(input, output) {
   })
   
   output$data_clustered <- downloadHandler(
-    filename = paste("Cluster analysis_based_on_", input$Cluster_pheno, "_with_split_at_", input$Split_cluster, "_MVApp.csv"),
+    filename = paste("Cluster analysis based on ", input$Cluster_pheno, " with split at ", input$Split_cluster, " MVApp.csv"),
     content <- function(file) {
       
       write.csv(Cluster_table_data(), file)}

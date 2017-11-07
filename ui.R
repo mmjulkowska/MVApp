@@ -64,9 +64,9 @@ fluidPage(
           uiOutput("CustomGeno"),
           uiOutput("CustomIndepVar"),
           uiOutput("CustomPheno"),
-          checkboxInput("IdCheck", label = "Do you have a column with Sample ID?", value = F),
+          checkboxInput("IdCheck", label = "Data contains Sample ID information?", value = F),
           uiOutput("CustomID"),
-          checkboxInput("TimeCheck", label = "Do you have a column with Time values?", value = F),
+          checkboxInput("TimeCheck", label = "Data contains Time / gradient that can be used for modeling", value = F),
           uiOutput("CustomTimepoint"),
           actionButton("Go_Data", label = "Click to set the data", icon = icon("play-circle"))
           
@@ -94,9 +94,9 @@ fluidPage(
                                     uiOutput("Pheno_to_model"),
                                     uiOutput("IV_to_model"),
                                     uiOutput("IV_subset_model"),
-                                    actionButton("Go_HelpModel", label = "Unleash the model estimation"),
+                                    actionButton("Go_HelpModel", label = "Unleash model estimation"),
                                     selectInput("model",
-                                                label = "Select method",
+                                                label = "Select method for modeling",
                                                 choices = list(
                                                   "linear" = "lin",
                                                   "quadratic" = "quad",
@@ -129,10 +129,14 @@ fluidPage(
                                   verbatimTextOutput("model_comparison_report"),
                                   plotlyOutput("model_comparison_plotski"),
                                   hr(),
-                                  column(4, uiOutput("Select_model_trait_to_plot"), 
-                                            uiOutput("Select_model_graph_to_plot")),
-                                  column(4, uiOutput("Select_model_color_to_plot"),
+                                 
+                                  column(4, uiOutput("Select_model_trait_to_plot"),
+                                            uiOutput("Select_model_graph_to_plot"),
+                                            uiOutput("Select_model_color_to_plot"),
                                             uiOutput("Select_model_facet_to_plot")),
+                                  column(4, uiOutput("Select_model_color_scale_to_plot"),
+                                         uiOutput("Select_model_background_color_to_plot"),
+                                         uiOutput("Select_model_maj_grid_to_plot")),
                                   column(4, selectizeInput(
                                               inputId = "Model_threshold",
                                               label = "Select the p-value threshold",
@@ -158,15 +162,15 @@ tabPanel("Data curation", icon = icon("gavel"),
          sidebarPanel(
            fluidRow(
              navbarPage("",
-                        tabPanel("outlier selection",            
+                        tabPanel("Outlier selection",            
                                  checkboxInput("Go_omitna", label = "Remove rows containing missing data prior to outlier selection"),
                                  br(),
                                  uiOutput("IV_outliers_selection"),
-                                 selectizeInput("Out_pheno_single_multi", label = "Would you like to select outliers based on", choices=c("All phenotypes", "Single phenotype"), multiple = F),
+                                 selectizeInput("Out_pheno_single_multi", label = "Select outliers based on", choices=c("All phenotypes", "Single phenotype"), multiple = F),
                                  
-                                 selectizeInput("outlier_method", label="Select the method for the outlier selection", 
+                                 selectizeInput("outlier_method", label="Method for the outlier selection", 
                                                 choices = list(
-                                                  "1.5*IQR away from the mean",
+                                                  "1.5*IQR away from the mean (default)",
                                                   "Cook's Distance",
                                                   "Bonferonni outlier test",
                                                   "1xStDev from the median", 
@@ -178,21 +182,24 @@ tabPanel("Data curation", icon = icon("gavel"),
                                  uiOutput("Pheno_outliers"),
                                  uiOutput("Outliers_selection_pheno"),
                                  br(),
-                                 actionButton("Go_outliers", label = "Unleash outlier highlight tool"),  
+                                 actionButton("Go_outliers", label = "Unleash outlier highlighter"),  
                                  hr(),
                                  uiOutput("Outliers_save")),
                         
-                        tabPanel("Outlier graphs tweaks",
+                        tabPanel("Tweak the graphs",
                                  uiOutput("Pheno_graph_outliers"),
                                  radioButtons("outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot")),
                                  uiOutput("Outlier_error_bar"),
                                  br(),
-                                 checkboxInput("outlier_colour", "would you like to colour-code one of your Indepentent Variables in the graph?"),
+                                 checkboxInput("outlier_colour", "Color code Independent Variables?"),
                                  uiOutput("Q_colour"),
-                                 checkboxInput("outlier_facet", "would you like to facet the graph?"),
+                                 checkboxInput("outlier_facet", "Split the graph?"),
                                  uiOutput("Q_facet"),
                                  uiOutput("Facet_user_input_columns"),
-                                 uiOutput("Facet_outlier_scale"))
+                                 uiOutput("Facet_outlier_scale"),
+                                 uiOutput("Select_outlier_color_scale_to_plot"),
+                                 uiOutput("Select_outlier_background_color_to_plot"),
+                                 uiOutput("Select_outlier_maj_grid_to_plot"))
              ))),
          mainPanel(
            navbarPage("Get it OUT",
@@ -203,20 +210,20 @@ tabPanel("Data curation", icon = icon("gavel"),
                                uiOutput("Full_outlier_download"),
                                br(),
                                DT::dataTableOutput("Outlier_overview_table")),
-                      tabPanel("Meet your outliers", icon=icon("bug"),
+                      tabPanel("Graph containing outliers", icon=icon("bug"),
                                plotlyOutput("outlier_graph"),
                                br(),
                                uiOutput("Pheno_outlier_download"),
                                br(),
                                dataTableOutput("Outlier_only_table")),
                       
-                      tabPanel("The graphs with outliers removed", icon=icon("birthday-cake"),
+                      tabPanel("Graph with outliers removed", icon=icon("birthday-cake"),
                                plotlyOutput("no_outliers_graph"),
                                br(),
                                uiOutput("Pheno_outlier_free_download"),
                                br(),
                                dataTableOutput("Outlier_free_table")),
-                      tabPanel("summary data", icon=icon("flask"),
+                      tabPanel("Summary data", icon=icon("flask"),
                                column(6,uiOutput("Data_for_SummaryStats"),
                                         actionButton("Go_SummaryStat", label = "unleash Summary Statistics")), 
                                column(6, uiOutput("CustomSumm"),
@@ -246,7 +253,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
          
          mainPanel(
            navbarPage("",
-                      tabPanel("Normality test", icon=icon("area-chart"),
+                      tabPanel("Testing normal distribution", icon=icon("area-chart"),
                                uiOutput("HistType"),
                                plotlyOutput("HistPlot", width = 1000),
                                br(),
@@ -258,7 +265,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                                column(12,plotOutput("QQplot", height=1000))
                       ), 
                       
-                      tabPanel("Variance test", icon=icon("area-chart"),
+                      tabPanel("Testing equal variance", icon=icon("area-chart"),
                                verbatimTextOutput("Bartlett"),
                                verbatimTextOutput("Levene")
                                
@@ -269,7 +276,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                       #        #verbatimTextOutput("Levene")
                       #),
                       
-                      tabPanel("Boxplots", icon=icon("sun-o"),
+                      tabPanel("Testing significant differences", icon=icon("sun-o"),
                                # actionButton("Go_Boxplot", label = "Plot boxplots"),
                                
                                verbatimTextOutput("ANOVAtest"),
@@ -288,8 +295,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
 
 # Tab 6 = = = = = = = = = = = = = = >> CORRELATION ANALYSIS << = = = = = = = = = = = = = = = = = =
 
-tabPanel(
-  "Establish correlations between traits",
+tabPanel("Correlations",
   icon = icon("compress"),
   navbarPage(
     "",
@@ -299,13 +305,13 @@ tabPanel(
       sidebarPanel(
         uiOutput("cor_Pheno_data"),
         # which data set to use (summarized / na / original) selectize, multiple = F
-        checkboxInput("cor_data_subset", label = "Calculate correlation on specific subset of your data"),
+        checkboxInput("cor_data_subset", label = "Subset your data for correlation analysis?"),
         uiOutput("cor_subset"),
         uiOutput("CorSpecIV_val"),
-        selectInput("corMethod", "Correlation Method", choices = c("pearson","spearman")),
-        selectInput("corrplotMethod", "Plot Method", choices = c("circle", "square", "ellipse", "number", "shade", "color", "pie")),
-        selectInput("corType", "Plot Type", choices = c("full", "lower", "upper")),
-        selectInput("corOrder", "Order of the lable", choices = c("original", "AOE",  "FPC",  "hclust", "alphabet"))
+        selectInput("corMethod", "Correlation Method:", choices = c("pearson","spearman")),
+        selectInput("corrplotMethod", "Plot Method:", choices = c("circle", "square", "ellipse", "number", "shade", "color", "pie")),
+        selectInput("corType", "Plot Type:", choices = c("full", "lower", "upper")),
+        selectInput("corOrder", "Order the lables by:", choices = c("original", "AOE",  "FPC",  "hclust", "alphabet"))
         #actionButton("Go_table", label = "Click to see the correlation table with p value", icon = icon("play-circle"))
       ),
       
@@ -335,8 +341,7 @@ tabPanel(
 ),
 # Tab 7 = = = = = = = = = = = = = = >> PCA ANALYSIS << = = = = = = = = = = = = = = = = = = 
 
-tabPanel(
-  "PCA",
+tabPanel("PCA",
   icon = icon("object-group"),
   sidebarPanel(
     fluidRow(
@@ -344,7 +349,7 @@ tabPanel(
       actionButton("Go_PCAdata", label = "set the dataset"),
       uiOutput("PCA_Select_pheno"), # which traits would you like to use? selectize, multiple = T
       selectizeInput("PCA_data_avg", label = "Perform PCA on", choices=c("individual values", "average values per genotype / IVs / time")),
-      selectizeInput("PCA_data_subset", label = "Would like to perform PCA on", choices=c("full dataset", "subsetted dataset")),
+      selectizeInput("PCA_data_subset", label = "Dataset", choices=c("full dataset", "subsetted dataset")),
       uiOutput("PCA_subset_trait"),
       uiOutput("PCA_subset_specific"),
       
@@ -363,10 +368,9 @@ tabPanel(
                         uiOutput("Eigen_download_button"),
                         dataTableOutput("Eigen_data_table")),
                tabPanel("Contribution of variables",
-                        uiOutput("PCA1_select"),
-                        uiOutput("PCA2_select"),
-                        plotOutput("PCA_contribution_plot")),
-               tabPanel("Scatterplot of individuals",
+                        column(4,uiOutput("PCA1_select")),
+                        column(4,uiOutput("PCA2_select")),
+                        column(12,plotOutput("PCA_contribution_plot")),
                         uiOutput("PCA_colorby"),
                         plotlyOutput("PCA_scatterplot"),
                         uiOutput("Contrib_download_ind"),
@@ -382,23 +386,22 @@ tabPanel(
 
 # Tab 8 = = = = = = = = = = = = = = >> CLUSTERING ANALYSIS << = = = = = = = = = = = = = = = = = = 
 
-tabPanel("Clustering",
+tabPanel("Hierarchical Clustering",
          icon = icon("sitemap"),
          sidebarPanel(
-                                 helpText("In here, you can perform a cluster analysis by grouping your data based on the phenotypic traits and validating the clusters"),
                                  uiOutput("Select_data_cluster"),
                                  uiOutput("Select_phenotypes_cluster"),
-                                 checkboxInput("Cluster_pre_calc", label = "Check if you would like to perform cluster analysis on mean values"),
-                                 checkboxInput("Cluster_subset_Q", label = "Check if you would like to subset the data before cluster analysis"),
+                                 checkboxInput("Cluster_pre_calc", label = "Perform cluster analysis on mean values?"),
+                                 checkboxInput("Cluster_subset_Q", label = "Subset the data for cluster analysis?"),
                                  uiOutput("Cluster_subset_trait"),
                                  uiOutput("Cluster_subset_specific"),
                                  uiOutput("Select_cluster_method"),
                                  uiOutput("Select_clustering_method"),
                                  actionButton("Go_cluster", "Unleash cluster analysis"),
                                  hr(),
-                                 textInput("Split_cluster", "Please enter a numaric value at which you would like to cut the dendrogram to segregate the samples into separate clusters.")),
+                                 textInput("Split_cluster", "Numaric value at which to cut the dendrogram to separate clusters:")),
          mainPanel(
-           navbarPage("Cluster analysis",
+           navbarPage("Happy clustering",
                       tabPanel("Clustering your HOT HOT Data",
                                #dataTableOutput("Data_cluster_table"),
                                #dataTableOutput("Final_cluster_table"),
