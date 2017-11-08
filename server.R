@@ -3044,7 +3044,6 @@ function(input, output) {
       temp <- subset(temp, temp$sub_id == input$PCA_subset_S)
       temp <- subset(temp, select = c("id", input$PCA_pheno))
       temp2 <- summaryBy(. ~ id, data=temp)
-      # Add remove .mean from column names 
       }}
   if(input$PCA_data_subset == "full dataset"){
     if(input$PCA_data_avg == "individual values"){
@@ -3191,11 +3190,6 @@ function(input, output) {
     PCA_ready <- PCA_final_data()
     PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
-    #for_labels <- PCA_final_data()
-    #for_labels <- for_labels[1:beginCol-1]
-    #new_stuff <- cbind(for_labels, res.pca$ind$contrib)
-    #plot(input$Which_PC1 ~ input$Which_PC2, data = new_stuff, fill = input$SelectIV)
-    #color <- input$SelectIV
     contrib_var <- res.pca$var$contrib
     contrib_var
   })
@@ -3225,13 +3219,15 @@ function(input, output) {
         selectizeInput(
           inputId = "PCA_Color",
           label = "Color by:",
-          choices = c(input$SelectIV, input$SelectGeno, input$SelectTime), ### Need to change this input to reflect the PCA_final_data
+          choices = c(input$SelectIV, input$SelectGeno, input$SelectTime),
           multiple = F
         )
       )
   })
   
-  output$PCA_scatterplot <- renderPlotly({
+  
+  
+  PCA_contrib_ind <- eventReactive(input$Go_PCA,{
     beginCol <-
       length(c(
         input$SelectIV,
@@ -3243,27 +3239,82 @@ function(input, output) {
     PCA_ready <- PCA_final_data()
     PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
-    mid1=median(res.pca$ind$contrib)
-    fviz_pca_ind(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.ind= 'contrib', repel=T, addlabels=F) +
-    scale_color_gradient2(low="grey", mid="purple", 
-                           high="red", midpoint=mid1)+
-     theme_minimal()
     
+    
+    ###### ADDING REFERENCE DATA HERE #######
+    temp <- data.frame(PCA_data_type())
+    temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
+    
+    if(input$PCA_data_subset == "subsetted dataset"){
+      subset_lista <- input$PCA_subset_T
+      if(input$PCA_data_avg == "individual values"){
+        id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)
+        id_lista2 <- setdiff(id_lista, subset_lista)
+        temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+        temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+        temp2 <- subset(temp, temp$sub_id == input$PCA_subset_S)
+        #temp2 <- subset(temp2, select = c("id", input$PCA_pheno))
+      }
+      if(input$PCA_data_avg == "average values per genotype / IVs / time"){
+        id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+        id_lista2 <- setdiff(id_lista, subset_lista)
+        temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+        temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+        temp <- subset(temp, temp$sub_id == input$PCA_subset_S)
+        #temp <- subset(temp, select = c("id", input$PCA_pheno))
+        temp$genotype <- temp[,input$SelectGeno]
+        temp$IV <- temp[,input$SelectIV]
+        temp$time <- temp[,input$SelectTime]
+        temp <- subset(temp, select=c("genotype", "IV", "time", input$PCA_pheno))
+        temp2 <- summaryBy(. ~ genotype + IV + time, data=temp)
+      }}
+    if(input$PCA_data_subset == "full dataset"){
+      if(input$PCA_data_avg == "individual values"){
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+        temp2 <- temp
+        #temp2 <- subset(temp, select = c("id", input$PCA_pheno))
+      }
+      if(input$PCA_data_avg == "average values per genotype / IVs / time"){
+        temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
+        temp$genotype <- temp[,input$SelectGeno]
+        temp$IV <- temp[,input$SelectIV]
+        temp$time <- temp[,input$SelectTime]
+        temp <- subset(temp, select=c("genotype", "IV", "time", input$PCA_pheno))
+        temp2 <- summaryBy(. ~ genotype + IV + time, data=temp)
+        #  data_kick_ass <- data[,c("X", "Treatment", "Day")]
+        #  entirely_new<- cbind(data_kick_ass, temporary)
+        
+      }}
+    
+    ##### END REFERENCE DATA HERE ######   
+    temp3 <- subset(temp2, select = c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID))
+    
+    temporary <- res.pca$ind$coord
+    
+    Le_table <- cbind(temp3, temporary)
+    names(Le_table) <- gsub("Dim.", "", names(Le_table), fixed=T)
+    Le_table
+  })
+  
+  
+  
+  
+  
+  output$PCA_scatterplot <- renderPlotly({
+    Le_table <- PCA_contrib_ind()
+    Le_table$x_axis <- Le_table[,input$Which_PC1]
+    Le_table$y_axis <- Le_table[,input$Which_PC2]
+    Le_table$color <- Le_table[,input$PCA_Color]
+        super_plot <- ggplot(data = Le_table, aes(x = x_axis, y= y_axis, colour = color))
+        super_plot <- super_plot + geom_point()
+      super_plot
    # G <- as.data.frame(res.pca$ind$contrib)
    # ggplot(aes_string(G) + geom_point(aes_string(colour =input$PCA_Color)))
-   # ggplotly()
+    #ggplotly(super_plot)
     })
   
 
-  PCA_contrib_ind <- eventReactive(input$Go_PCA,{
-    beginCol <-2
-    endCol <-ncol(PCA_final_data())
-    PCA_ready <- PCA_final_data()
-    PCA_ready <- PCA_ready[, beginCol : endCol]
-    res.pca <- PCA(PCA_ready, graph = FALSE)
-    contrib_ind <- res.pca$ind$contrib ### need to add the ID column from PCA_final_data and also separate Accession from Treatment
-    contrib_ind
-  })
+ 
   
   output$PCA_contribution_ind <- renderDataTable({
     PCA_contrib_ind()
