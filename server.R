@@ -931,7 +931,7 @@ function(input, output) {
       benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
     }
     benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
-    benc <- benc + scale_color_brewer(palette = input$Select_model_color_sc)
+    #benc <- benc + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
   }
   
   temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
@@ -947,7 +947,7 @@ function(input, output) {
         benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
         benc <- benc + geom_boxplot()
         benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
-        benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
+       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
       }
   
   if(input$model_graph_plot == "scatter plot"){
@@ -955,8 +955,8 @@ function(input, output) {
     benc <- benc + geom_point()
     
     
-    benc <- benc + facet_wrap(~ facet, scale = input$Select_model_facet_sc)
-      benc <- benc + scale_color_brewer(palette = input$Select_model_color_sc)
+      benc <- benc + facet_wrap(~ facet, scale = input$Select_model_facet_sc)
+      #benc <- benc + scale_color_brewer(palette = input$Select_model_color_sc)
   }
   
   if(input$Select_model_background == T){
@@ -1681,7 +1681,7 @@ function(input, output) {
       }
       
       taka <- taka + geom_bar(stat="identity", position=position_dodge(1))
-      taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)
+      #taka <- taka + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
       
       if(input$out_error_bar == "Standard Deviation"){
         taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.s, ymax=pheno.m+pheno.s), position=position_dodge(1))}
@@ -1699,7 +1699,8 @@ function(input, output) {
       }
       
       taka <- taka + geom_boxplot(position="dodge")
-      taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)}
+      #taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)
+      }
     
     if(input$outlier_graph_type == "scatter plot"){
       
@@ -1711,7 +1712,8 @@ function(input, output) {
       }
       
       taka <- taka + geom_point(position=position_dodge(1))
-      taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)}
+      #taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)
+      }
     
     
     
@@ -1730,8 +1732,6 @@ function(input, output) {
     taka <- taka + theme_minimal()}
   if(input$Select_outl_maj_grid == T){
     taka <- taka + theme(panel.grid.major = element_blank())}
-  
-    
     taka
   })
   
@@ -1785,7 +1785,7 @@ function(input, output) {
       }
       
       jaka <- jaka + geom_bar(stat="identity", position=position_dodge(1))
-      jaka <- jaka + scale_color_brewer(palette = input$Select_outl_color_sc)
+      #jaka <- jaka + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
       
       if(input$out_error_bar == "Standard Deviation"){
         jaka <- jaka + geom_errorbar(aes(ymin=pheno.m-pheno.s, ymax=pheno.m+pheno.s), position=position_dodge(1))}
@@ -1802,7 +1802,7 @@ function(input, output) {
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
       }
       
-      jaka <- jaka + scale_fill_brewer(palette = input$Select_outl_color_sc)
+      #jaka <- jaka + scale_fill_brewer(palette = input$Select_outl_color_sc)
       jaka <- jaka + geom_boxplot(position="dodge")}
     
     if(input$outlier_graph_type == "scatter plot"){
@@ -1814,7 +1814,7 @@ function(input, output) {
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
       }
       jaka <- jaka + geom_point(position=position_dodge(1))
-      jaka <- jaka + scale_color_brewer(palette = input$Select_outl_color_sc)
+      #jaka <- jaka + scale_color_brewer(palette = input$Select_outl_color_sc)
     }
     
     if(input$outlier_facet == T){

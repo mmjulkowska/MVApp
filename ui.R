@@ -131,10 +131,10 @@ fluidPage(
                                   hr(),
                                  
                                   column(4, uiOutput("Select_model_trait_to_plot"),
-                                            uiOutput("Select_model_graph_to_plot"),
-                                            uiOutput("Select_model_color_to_plot"),
-                                            uiOutput("Select_model_facet_to_plot")),
-                                  column(4, uiOutput("Select_model_color_scale_to_plot"),
+                                            uiOutput("Select_model_graph_to_plot")),
+                                  column(4, uiOutput("Select_model_color_to_plot"),
+                                         uiOutput("Select_model_facet_to_plot"),
+                                         #uiOutput("Select_model_color_scale_to_plot"),
                                          uiOutput("Select_model_background_color_to_plot"),
                                          uiOutput("Select_model_maj_grid_to_plot")),
                                   column(4, selectizeInput(
@@ -197,7 +197,7 @@ tabPanel("Data curation", icon = icon("gavel"),
                                  uiOutput("Q_facet"),
                                  uiOutput("Facet_user_input_columns"),
                                  uiOutput("Facet_outlier_scale"),
-                                 uiOutput("Select_outlier_color_scale_to_plot"),
+                                 #uiOutput("Select_outlier_color_scale_to_plot"),
                                  uiOutput("Select_outlier_background_color_to_plot"),
                                  uiOutput("Select_outlier_maj_grid_to_plot"))
              ))),
