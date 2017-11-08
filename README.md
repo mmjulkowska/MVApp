@@ -57,7 +57,7 @@ The Example dataset would look like this:
 ### 6. PCA => Mariam
 
 ###### Selecting the dataset & traits
--   As mentioned previously, the user has the option to set which dataset is used to perform the PCA from the dropdown menu of 'raw data, 'missing values removed' or 'outliers removed'. 
+-   As mentioned previously, the user has the option to set which dataset is used to perform the ["principle component analysis (PCA)"](https://en.wikipedia.org/wiki/Principal_component_analysis) from the dropdown menu of 'raw data, 'missing values removed' or 'outliers removed'. 
 
 -   After setting the data, the user can select which DVs (phenotypes) will go into the PCA.
 
@@ -71,7 +71,7 @@ The Example dataset would look like this:
 
 ###### Visualizing the PCs
 
--   When clicking on the 'Eigenvalues' tab, the Scree plot would be displayed showing the main principle components generated from the PCA in decreasing order of percentage variance.
+-   When clicking on the ['Eigenvalues'](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) tab, the ["Scree plot"](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) would be displayed showing the main principle components generated from the PCA in decreasing order of percentage variance.
 
 -   The Scree plot can be copied as an image into MS Office platforms.
 
