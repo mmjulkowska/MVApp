@@ -782,7 +782,7 @@ function(input, output) {
           multiple=F
           ))}
   })
-  
+    
   output$Select_model_error_bar_to_plot <- renderUI({
     if(input$model_graph_plot == "bar graph"){
       tagList(
@@ -1865,7 +1865,7 @@ function(input, output) {
     } else tagList(
       selectizeInput(inputId = "SelectSumm", 
                      label = "Calculations to perform:", 
-                     choices=c("Mean", "Median", "StdDev", "StdErr", "Min", "Max", "Sum"), multiple=T))
+                     choices=c("Mean", "Median", "StdDev", "StdErr", "Min", "Max", "Sum", "No.samples"), multiple=T))
   })
   
   
@@ -1876,7 +1876,8 @@ function(input, output) {
                  StdErr = function(x) std.error(x),
                  Min = function(x) min(x),
                  Max = function(x) max(x),
-                 Sum = function(x) sum(x))
+                 Sum = function(x) sum(x),
+                 No.samples = function(x) length(x))
   
   sum_data <- eventReactive(input$Go_SummaryStat, {
     if(input$SelectDataSumm == "raw data"){
@@ -3297,17 +3298,6 @@ function(input, output) {
           choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
   })
   
-  output$Select_cluster_method <- renderUI({
-    if(is.null(ItemList())){
-      return()}
-    else
-      tagList(
-        selectizeInput(
-          inputId = "Cluster_cor_method",
-          label = "Correlation method:",
-          choices = c("pearson", "kendall", "spearman"), multiple = F))
-  })
-  
   
   output$Select_clustering_method <- renderUI({
     if(is.null(ItemList())){return()}
@@ -3456,7 +3446,7 @@ function(input, output) {
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
-    clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+    clust_t_cor = cor(clust_t_matrix,method="pearson")
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     
@@ -3471,7 +3461,7 @@ function(input, output) {
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
-    clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+    clust_t_cor = cor(clust_t_matrix,method="pearson")
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
@@ -3488,7 +3478,7 @@ function(input, output) {
       row.names(clust_matrix) <- clust_temp$id
       clust_matrix = as.matrix(clust_matrix)
       clust_t_matrix = t(clust_matrix)
-      clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+      clust_t_cor = cor(clust_t_matrix,method="pearson")
       clust_t_dist = dist(clust_t_cor)
       clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
       cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
@@ -3510,7 +3500,7 @@ function(input, output) {
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
-    clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+    clust_t_cor = cor(clust_t_matrix,method="pearson")
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     
@@ -3582,7 +3572,7 @@ function(input, output) {
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
-    clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+    clust_t_cor = cor(clust_t_matrix,method="pearson")
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     
@@ -3673,7 +3663,7 @@ function(input, output) {
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
-    clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+    clust_t_cor = cor(clust_t_matrix,method="pearson")
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     
