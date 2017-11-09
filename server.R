@@ -3067,35 +3067,10 @@ function(input, output) {
     temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
     
   if(input$PCA_data_subset == "subsetted dataset"){
-    subset_lista <- input$PCA_subset_T
-    if(input$PCA_data_avg == "individual values"){
-      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)
-      id_lista2 <- setdiff(id_lista, subset_lista)
-      temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
-      temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
-      temp2 <- subset(temp, temp$sub_id == input$PCA_subset_S)
-      temp2 <- subset(temp2, select = c("id", input$PCA_pheno))
-      }
-    if(input$PCA_data_avg == "average values per genotype / IVs / time"){
-      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
-      id_lista2 <- setdiff(id_lista, subset_lista)
-      temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
-      temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
-      temp <- subset(temp, temp$sub_id == input$PCA_subset_S)
-      temp <- subset(temp, select = c("id", input$PCA_pheno))
-      temp2 <- summaryBy(. ~ id, data=temp)
-      # Add remove .mean from column names 
-      }}
-  if(input$PCA_data_subset == "full dataset"){
-    if(input$PCA_data_avg == "individual values"){
+    subset_lista <- input$PCA_subset_T}
+  if(input$PCA_data_subset == "full dataset"){{
       temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
       temp2 <- subset(temp, select = c("id", input$PCA_pheno))
-    }
-    if(input$PCA_data_avg == "average values per genotype / IVs / time"){
-      temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
-      temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
-      temp <- subset(temp, select = c("id", input$PCA_pheno))
-      temp2 <- summaryBy(. ~ id, data=temp)  
     }}
     
   return(temp2)
@@ -3231,11 +3206,6 @@ function(input, output) {
     PCA_ready <- PCA_final_data()
     PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
-    #for_labels <- PCA_final_data()
-    #for_labels <- for_labels[1:beginCol-1]
-    #new_stuff <- cbind(for_labels, res.pca$ind$contrib)
-    #plot(input$Which_PC1 ~ input$Which_PC2, data = new_stuff, fill = input$SelectIV)
-    #color <- input$SelectIV
     contrib_var <- res.pca$var$contrib
     contrib_var
   })
@@ -3245,7 +3215,7 @@ function(input, output) {
   })
   
   output$Contrib_download_var <- renderUI({
-    if(is.null(PCA_final_data())){
+    if(is.null(PCA_contrib_var())){
       return()}
     else
       downloadButton("contrib_var", label="Download PCA contribution by variable")
@@ -3254,7 +3224,7 @@ function(input, output) {
   output$contrib_var <- downloadHandler(
     filename = "PCA contrib var MVApp.csv",
     content <- function(file) {
-      write.csv(PCA_final_data(), file)}
+      write.csv(PCA_contrib_var(), file)}
   )
   
   output$PCA_colorby <- renderUI({
@@ -3265,13 +3235,15 @@ function(input, output) {
         selectizeInput(
           inputId = "PCA_Color",
           label = "Color by:",
-          choices = c(input$SelectIV, input$SelectGeno, input$SelectTime), ### Need to change this input to reflect the PCA_final_data
+          choices = c(input$SelectIV, input$SelectGeno, input$SelectTime),
           multiple = F
         )
       )
   })
   
-  output$PCA_scatterplot <- renderPlotly({
+  
+  
+  PCA_coord_ind <- eventReactive(input$Go_PCA,{
     beginCol <-
       length(c(
         input$SelectIV,
@@ -3283,44 +3255,55 @@ function(input, output) {
     PCA_ready <- PCA_final_data()
     PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
-    mid1=median(res.pca$ind$contrib)
-    fviz_pca_ind(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.ind= 'contrib', repel=T, addlabels=F) +
-    scale_color_gradient2(low="grey", mid="purple", 
-                           high="red", midpoint=mid1)+
-     theme_minimal()
     
-   # G <- as.data.frame(res.pca$ind$contrib)
-   # ggplot(aes_string(G) + geom_point(aes_string(colour =input$PCA_Color)))
-   # ggplotly()
-    })
-  
-
-  PCA_contrib_ind <- eventReactive(input$Go_PCA,{
-    beginCol <-2
-    endCol <-ncol(PCA_final_data())
-    PCA_ready <- PCA_final_data()
-    PCA_ready <- PCA_ready[, beginCol : endCol]
-    res.pca <- PCA(PCA_ready, graph = FALSE)
-    contrib_ind <- res.pca$ind$contrib ### need to add the ID column from PCA_final_data and also separate Accession from Treatment
-    contrib_ind
+    ###### ADDING REFERENCE DATA HERE #######
+    temp <- data.frame(PCA_data_type())
+    temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
+    
+    if(input$PCA_data_subset == "subsetted dataset"){
+      subset_lista <- input$PCA_subset_T}
+    if(input$PCA_data_subset == "full dataset"){{
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+        temp2 <- temp
+      }}
+    
+    ##### END REFERENCE DATA HERE ######   
+    temp3 <- subset(temp2, select = c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID))
+    
+    temporary <- res.pca$ind$coord
+    
+    Le_table <- cbind(temp3, temporary)
+    names(Le_table) <- gsub("Dim.", "", names(Le_table), fixed=T)
+    Le_table
   })
   
-  output$PCA_contribution_ind <- renderDataTable({
-    PCA_contrib_ind()
+  output$PCA_coordinates_ind <- renderDataTable({
+    PCA_coord_ind()
   })
   
-  output$Contrib_ind_download <- renderUI({
-    if(is.null(PCA_final_data())){
+  output$Coord_download_ind <- renderUI({
+    if(is.null(PCA_coord_ind())){
       return()}
     else
-      downloadButton("contrib_ind", label="Download PCA contribution by indiviuals")
+      downloadButton("coord_ind", label="Download individual PCA coordinates")
   })
   
-  output$contrib_ind <- downloadHandler(
-    filename = "PCA contrib ind MVApp.csv",
+  output$coord_ind <- downloadHandler(
+    filename = "PCA coord ind MVApp.csv",
     content <- function(file) {
-      write.csv(PCA_final_data(), file)}
+      write.csv(PCA_coord_ind(), file)}
   )
+  
+  output$PCA_scatterplot <- renderPlotly({
+    Le_table <- PCA_coord_ind()
+    Le_table$x_axis <- Le_table[,input$Which_PC1]
+    Le_table$y_axis <- Le_table[,input$Which_PC2]
+    Le_table$color <- Le_table[,input$PCA_Color]
+        super_plot <- ggplot(data = Le_table, aes(x = x_axis, y= y_axis, colour = color))
+        super_plot <- super_plot + geom_point()
+      super_plot
+    })
+  
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> CLUSTER ANALYSIS IN 8th TAB << - - - - - - - - - - -
