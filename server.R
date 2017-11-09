@@ -211,6 +211,36 @@ function(input, output) {
       return()
     }
   })
+  
+  output$Spline_df_select <- renderUI({
+    if(input$model == "smooth"){
+      selectizeInput(
+        inputId = "spline_df",
+        label = "The degrees of freedom are",
+        choices = c("automatic", "user defined")
+      )
+    }
+    else{
+      return()
+    }
+  })
+  
+  output$Spline_user_df <- renderUI({
+    if(input$model == "smooth"){
+    if(input$spline_df == "user defined"){
+      textInput(
+        inputId = "model_smooth_df",
+        label = "Number of degrees of freedom:"
+      )
+    }
+    else{
+      return()
+    }}
+    else{
+      return()
+    }
+  })
+  
   # - - - - - - - - -  >> PRE-calculations << - - - - - - - - - - 
   
   # making advice on which model type to chose based on the r-square values
@@ -376,7 +406,11 @@ function(input, output) {
         }
       
       if(input$model == "smooth"){
-        fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], cv=T)
+        if(input$spline_df == "user determined"){
+          fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], df= input$model_smooth_df)}
+        if(input$spline_df == "automatic"){
+        fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], cv=T)}
+        
         for(e in 1:length(fit_smooth$fit$coef)){
           things_to_model[i,(3+e)] <- fit_smooth$fit$coef[e]
         }
@@ -391,6 +425,8 @@ function(input, output) {
         rsq <- cor(test,method="pearson")[1,2]^2
         things_to_model[i,(4 + e)] <- rsq
         colnames(things_to_model)[4 + e] <- "r_squared"
+        things_to_model[i,(5+e)] <- fit_smooth$df
+        colnames(things_to_model)[5 + e] <- "df"
         
         super_temp$predict  
         for(f in 1:length(fit_smooth$fit$coef)){
@@ -413,6 +449,9 @@ function(input, output) {
     cat("\n")
     cat("You should consider checking those samples using fit-plots and even going back to your original data.")
     cat("\n")
+    
+    
+    
     }
   })
   
