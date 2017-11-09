@@ -41,7 +41,7 @@ fluidPage(
       br(),
       h4("8. Cluster your samples based on the selected traits and perform cluster validation analysis."),
       br(),
-      h3("User guide (still in making) is available ", a("HERE!", href="https://mmjulkowska.github.io/MVApp/"))
+      h3("User guide (still in making) is available ", a("HERE!", href="https://mmjulkowska.github.io/MVApp/")),
       br(),
       "Although our App is super cool and everything is now just ONE click away from you, please remember that the final output will depend on your data - as they say", tags$b(">> rubbish in - rubbish out <<"),
       br(),
