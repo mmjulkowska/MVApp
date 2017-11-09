@@ -42,7 +42,7 @@ fluidPage(
       h4("8. Cluster your samples based on the selected traits and perform cluster validation analysis."),
       br(),
       br(),
-      "Although our App is super cool and everything is now just ONE click away from you, please remember that the final output will depend on your data - as a great philosopher once said", tags$b(">> bullshit in - bullshit out <<"),
+      "Although our App is super cool and everything is now just ONE click away from you, please remember that the final output will depend on your data - as they say", tags$b(">> rubbish in - rubbish out <<"),
       br(),
       br(),
       img(src="bullshit_out.jpg", align="center"))
@@ -105,6 +105,8 @@ fluidPage(
                                                   "cubic spline" = "cubic",
                                                   "smoothed spline" = "smooth")),
                                     uiOutput("if_cubic_knots"),
+                                    uiOutput("Spline_df_select"),
+                                    uiOutput("Spline_user_df"),
                                     actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle"))
                                     )),
             # end of side Panel
@@ -117,7 +119,6 @@ fluidPage(
                                   uiOutput("Model_download_button"),
                                   dataTableOutput("Model_data")),
                          tabPanel("Fit-Plot",
-
                                   column(4, uiOutput("Select_model_plot_type")),
                                   column(4, uiOutput("Select_modelPlot")),
                                   column(4, uiOutput("Model_graph_fit_select_multi_input")),
