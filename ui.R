@@ -22,7 +22,7 @@ fluidPage(
       h2("About the MVApp"),
       br(),
       "We are aiming streamline the analysis of experiments containing multiple phenotypical measurements of the same sample, but you can easily use the app even if you have one phenotype.",
-      
+      br(),
       h3("Our App empowers you to easily perform:"),
       br(),
       h4("1. Fitting the curves using simple functions (linear, quadratic, exponential and square root) as well as by fitting cubic and smoothed splines"),
@@ -41,6 +41,7 @@ fluidPage(
       br(),
       h4("8. Cluster your samples based on the selected traits and perform cluster validation analysis."),
       br(),
+      h3("User guide (still in making) is available ", a("HERE!", href="https://mmjulkowska.github.io/MVApp/"))
       br(),
       "Although our App is super cool and everything is now just ONE click away from you, please remember that the final output will depend on your data - as a great philosopher once said", tags$b(">> bullshit in - bullshit out <<"),
       br(),
