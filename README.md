@@ -122,7 +122,7 @@ Subsequently, you select which method would you like to use to highlight the out
 - 2.5 Standard Deviation from the Median - all the samples that are further than 2.5xSD on each side of the median are considered as outliers
 - 3 Standard Deviation from the Median - all the samples that are further than 3xSD on each side of the median are considered as outliers
 
-SCREENSHOT Outlier_methods
+![mvapp_outlier_methods](https://user-images.githubusercontent.com/14832460/32647173-51f8df5e-c5f0-11e7-8dc4-8ce1d9da152a.png)
 
 Click on "Unleash outlier highlighter" to see the table with highlighted outliers. This might take a while - depending on the size of your data.
 
@@ -130,7 +130,7 @@ In the main tab, the outlier message will appear, listing the number of the outl
 
 If you select outliers based on all phenotypes, you can change the threshold of a sample marked as an outlier by changing the slider input in the side panel. 
 
-SCREENSHOT MVApp outlier_output
+![mvapp_outlier_output1](https://user-images.githubusercontent.com/14832460/32647171-51b52f48-c5f0-11e7-8a46-6ae78ad193c3.png)
 
 ###### Examine the data containing the outliers
 
@@ -140,21 +140,21 @@ Go to sidepanel sub-tab "Tweak the graphs" and select the phenotype you wish to 
 
 Click on the main panel sub-tab "Graph containing outliers" to see the boxplot: 
 
-SCREENSHOT outlier_graph_bugs
+![mvapp_outlier_graph_bugs](https://user-images.githubusercontent.com/14832460/32647170-517e6c4c-c5f0-11e7-99a1-89a3adc59e1c.png)
 
 If you wish to color code your samples or split the plots depending on Independent Variable, you can select it in the side panel:
 
-SCREENSHOT outlier_graph_bugs_facet_color
+![mvapp_outlier_graph_facet_color](https://user-images.githubusercontent.com/14832460/32647168-507f1f26-c5f0-11e7-9f9f-c0f162cf7f95.png)
 
 If you want to alter the order of your samples - you can swap the order of the Independent Variables in the sidebar sub-panel "Outlier selection"
 
-SCREENSHOT outlier_graph_bugs_facet_color_even_nicer
+![mvapp_outlier_graph_even_nicer](https://user-images.githubusercontent.com/14832460/32647167-5066effa-c5f0-11e7-9388-9620294702ff.png)
 
 ###### Compare the data with outlier removed
 
 If you want to look at the graphs with no outliers (as defined in main panel "The outliers test"), click on the main panel "Graphs with outliers removed". You can click between "Graph containing outlier" and "Graph with outliers removed" to compare both datasets.
 
-SCREENSHOT outlier_graph_no_outliers
+![mvapp_outliers_graph_no_outliers](https://user-images.githubusercontent.com/14832460/32647177-528bf596-c5f0-11e7-89dd-a8c85a287a47.png)
 
 IMPORTANT NOTE: This outlier test was developed to facilitate data curation. Please do NOT remove any data before making absolutely sure that there is a very good reason that the sample is not representative 
 
@@ -168,11 +168,11 @@ Select the data-set in the upper left corner of the tab, and select the function
 
 NOTE: If you removed missing values prior to outlier selection, the dataset without outliers will NOT contain missing values. If you didnot removed missing values, the dataset with outliers removed will contain missing values. 
 
-SCREENSHOT outlier_Summ_stats
+![mvapp_outlier_summ_stats](https://user-images.githubusercontent.com/14832460/32647166-503e1d64-c5f0-11e7-98ff-54ef9cc5fa02.png)
 
 Click on "Unleas Summary Statistics" and the table will appear in the main panel:
 
-SCREENSHOT outlier_Summ_stats2
+![mvapp_outlier_summstats2](https://user-images.githubusercontent.com/14832460/32647174-52602bd2-c5f0-11e7-87f7-616859da1044.png)
 
 ### 4. DATA EXPLORATION => Stephanie
 
@@ -188,48 +188,61 @@ SCREENSHOT outlier_Summ_stats2
 
 ### 6. PCA => Mariam
 
+["Principle component analysis (PCA)"](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimentions, and also check which traits explain majority of the variation in the population studied. However, the PCA is often not explored to its full potential. You can for example run PCA on a subset of your data - for example subsetting your data per treatment or genotype - and run PCA separately on those subsets and observe how the individual phenotypes contribute to explaining observed variation. MVApp will allow you to do simple PCA on all of your data, or on the subsetted data per any of the Independent Variables selected. 
+
 ###### Selecting the dataset & traits
--   As mentioned previously, the user has the option to set which dataset is used to perform the ["principle component analysis (PCA)"](https://en.wikipedia.org/wiki/Principal_component_analysis) from the dropdown menu of 'raw data, 'missing values removed' or 'outliers removed'. 
 
--   After setting the data, the user can select which DVs (phenotypes) will go into the PCA.
+Select the dataset from the dropdown menu at the top of the side panel and click "Set the dataset":
 
--   The user can decide to perform the PCA on the values as they are or on the averaged data per IV (e.g. genotype, treatment, time).
+![mvapp_pca_data_input1](https://user-images.githubusercontent.com/14832460/32647215-7829f348-c5f0-11e7-8416-c339543a8e9f.png)
 
--   The user also has a further option to use the full dataset or decide to subset based on a chosen IV or IVs.
+Then, select which Dependent Variables / phenotypes are going to be used in PCA and click "Unleash the PCA monster":
 
--   All these options can be reset by clicking on 'set the dataset' and choosing other options to compare between different PCA results.
+![mvapp_pca_data_input2](https://user-images.githubusercontent.com/14832460/32647214-78109808-c5f0-11e7-8303-663bb39cb05e.png)
 
--   The final selected dataset for the PCA can be found in the tab 'Final data for PCA'.
+In the first two sub-tabs in the main panel window you will have the tables that you selected. 
 
 ###### Visualizing the PCs
 
--   When clicking on the ['Eigenvalues'](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) tab, the ["Scree plot"](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) would be displayed showing the main principle components generated from the PCA in decreasing order of percentage variance.
+In the third sub-tab, ['Eigenvalues'](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) tab, the ["Scree plot"](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) are displayed showing the main principle components generated from the PCA in decreasing order of percentage variance explained by each Principle Component.
 
--   The Scree plot can be copied as an image into MS Office platforms.
+![mvapp_pca_eigen](https://user-images.githubusercontent.com/14832460/32647217-788202b8-c5f0-11e7-9f1d-85f44ccc6a10.png)
 
--   The table summarizing the eigenvalues of each principle component, their percentage of variance and the cumulative percentages that add to 100% can be found below the plot and can be downloaded as a CSV file.
+The table summarizing the eigenvalues of each principle component, their percentage of variance and the cumulative percentages that add to 100% can be found below the plot and can be downloaded as a CSV file.
 
 ###### Visualizing the general contribution of DVs per PC
 
--   When clicking on the 'Contribution per variable' tab, the user can visualize the contribution of the chosen DVs with respect to two PCs at a time that the user can choose from the two dropdown menus. 
+'Contribution per variable' tab displays the contribution of the chosen DVs with respect to two PCs at a time. You can select individual PCs to be plotted on x- and y-axis from the two dropdown menus.
 
--   The contribution plot can be copied as an image into MS Office platforms.
+![mvapp_pca_trait_contrib](https://user-images.githubusercontent.com/14832460/32647213-77f03ef0-c5f0-11e7-8033-922fc073a36d.png)
 
 ###### Visualizing the contribution of each DV value
 
--   When clicking on the 'Scatterplot of individuals' tab, the visualization moved from the PC contribution of the variables (DVs) to the individuals (DV values).
+By scrolling down, you can see the PC coordinates of the individual samples - the x- and y-axis are controlled by the same dropdown menu as the contribution plots. You can color the plot by any of the Independent Variable to see if you have separation in PC coordinates between your genotype / treatment / time points:
 
--   The dropdown menu above the plot allows the user to change the color scheme to highlight different IVs.
-
--   The table summarizes each DV value and its contribution to the generated PCs, which can be downloaded as a CSV file.
+![mvapp_pca_scatter](https://user-images.githubusercontent.com/14832460/32647923-ef68a3c0-c5f3-11e7-9321-ede2f7620bef.png)
 
 ###### Visualizing the contribution of each DV per PC
 
--   A different representation of the 'contribution per variable' tab is to look at the 'Contribution per PC' in detail in a bar plot format and download the specific percentange contribution data per PC.
+In the sub-tab 'Contribution per PC' the contribution of individual Phenotypes for each PC are displayed. You can download the specific percentange contribution data per PC below the graph:
+
+![mvapp_pca_trait_contrib2](https://user-images.githubusercontent.com/14832460/32647216-78663bdc-c5f0-11e7-82ef-dd418670a6f8.png)
 
 ### 7. Cluster analysis => Magda
 
 ###### Selecting the data
+
+![mvapp_hcluster_hotmap](https://user-images.githubusercontent.com/14832460/32647242-8e58ae48-c5f0-11e7-85fe-7501207fbfcd.png)
+
 ###### What kind of clustering
+
 ###### Select the distance for cluster separation
+
+![mvapp_hcluster_dendro](https://user-images.githubusercontent.com/14832460/32647240-8df05d2a-c5f0-11e7-99dc-9b75a5430c96.png)
+
+
+![mvapp_hcluster_dendro2](https://user-images.githubusercontent.com/14832460/32647243-8e890e94-c5f0-11e7-8312-08bf29ef78b2.png)
+
 ###### Validate the cluster
+
+![mvapp_hcluster_clustervalidation](https://user-images.githubusercontent.com/14832460/32647239-8db955f0-c5f0-11e7-9e90-67fe21ae6f65.png)
