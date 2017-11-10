@@ -26,7 +26,7 @@ Additionally, if you would like to perform fitting the curves to your data, you 
 * Time - this column has to contain only numeric values
 * Sample ID - if you would like to model the change in the phenotype in your individual samples separately, please include Sample ID
 
-The Example dataset would look like this:
+The Example dataset looks like this:
 ![mvapp_data](https://user-images.githubusercontent.com/14832460/32609292-48dc541c-c570-11e7-8f87-54ca02b646d8.png)
 
 
@@ -100,12 +100,79 @@ By scrolling further down, you will find a message containing the significance g
 ![mvapp_model_summarystats](https://user-images.githubusercontent.com/14832460/32610098-c682f090-c572-11e7-8945-d5257b591ca3.png)
 
 
-### 3. OUTLIER SELECTION => Mitch
+### 3. OUTLIER SELECTION => Magda
 
-###### How to select the dependent variables (exclude ID)
-###### Methods for selection (include links to the methods - preferably paper that uses it as an example or Wikipedia)
-###### Outliers based on ALL traits
-###### Outliers based on ONE trait
+If you ever run a large(ish) scale experiment, you probably went through a data curation. You picked up the samples either based on the Standard Deviation from the mean, or outside of the 1.5 interquartile range. !!! INCLUDE LINKS TO STATS PAGE ON OUTLIER SELECTION !!!
+
+MVApp facilitates automatic highlighting of the outliers based on single phenotype or all the phenotypes. 
+
+###### Select dataset & methods to highlight the outliers
+
+First what you need to do is select the Independent Variables by which we can group the samples. MVApp assumes that you would like to group the variables by Genotype, ALL Independent Variables and Time (Sample ID is excluded).
+
+You can remove missing values by clicking the check-box in the top-left corner of the side-bar.
+
+Subsequently, you select which method would you like to use to highlight the outliers. MVApp provides following methods:
+!!!! TO INCLUDE LINKS TO WIKIPEDIA HERE!!!!
+- 1.5 x Interquartile Range - this is the most commonly used method and is visually very appealing, as the outliers will be identified on the boxplot as the "dots" outside of the whiskers
+- Cook's distance - this algorithm is actually used to determine the most influential points - meaning the points that could make the most difference in the correlation tests and such. However, if the sample is considered to be "influential" in majority of the traits, it might be worthwhile to check whether everything is OK with it.
+- Bonferoni test - this is a test useing car::outlierTest() function from R
+- 1xStandard Deviation from the Median - all the samples that are further than 1xSD on each side of the median are considered as outliers (this test is VERY strict and we do not recomend it)
+- 2x Standard Deviation from the Median - all the samples that are further than 2xSD on each side of the median are considered as outliers
+- 2.5 Standard Deviation from the Median - all the samples that are further than 2.5xSD on each side of the median are considered as outliers
+- 3 Standard Deviation from the Median - all the samples that are further than 3xSD on each side of the median are considered as outliers
+
+SCREENSHOT Outlier_methods
+
+Click on "Unleash outlier highlighter" to see the table with highlighted outliers. This might take a while - depending on the size of your data.
+
+In the main tab, the outlier message will appear, listing the number of the outliers selected, and the table with your data. If you scroll to the right, you will see the columns marked "outl_Phenotype" (for example "outl_AREA"), where "true" will indicate this sample as being an outlier per genotype / day / independent variables selected.
+
+If you select outliers based on all phenotypes, you can change the threshold of a sample marked as an outlier by changing the slider input in the side panel. 
+
+SCREENSHOT MVApp outlier_output
+
+###### Examine the data containing the outliers
+
+After we examined how many outliers might be in our data, you can have a look at how the data looks with and without outliers.
+
+Go to sidepanel sub-tab "Tweak the graphs" and select the phenotype you wish to examine. 
+
+Click on the main panel sub-tab "Graph containing outliers" to see the boxplot: 
+
+SCREENSHOT outlier_graph_bugs
+
+If you wish to color code your samples or split the plots depending on Independent Variable, you can select it in the side panel:
+
+SCREENSHOT outlier_graph_bugs_facet_color
+
+If you want to alter the order of your samples - you can swap the order of the Independent Variables in the sidebar sub-panel "Outlier selection"
+
+SCREENSHOT outlier_graph_bugs_facet_color_even_nicer
+
+###### Compare the data with outlier removed
+
+If you want to look at the graphs with no outliers (as defined in main panel "The outliers test"), click on the main panel "Graphs with outliers removed". You can click between "Graph containing outlier" and "Graph with outliers removed" to compare both datasets.
+
+SCREENSHOT outlier_graph_no_outliers
+
+IMPORTANT NOTE: This outlier test was developed to facilitate data curation. Please do NOT remove any data before making absolutely sure that there is a very good reason that the sample is not representative 
+
+PICTURE OF MOUSE EATING A PLANT
+
+###### Perform summary statistics
+
+MVApp can calculate summary statistics functions in the main panel sub-tab "Summary data".
+
+Select the data-set in the upper left corner of the tab, and select the functions that you want to be calculated in the upper right corner:
+
+NOTE: If you removed missing values prior to outlier selection, the dataset without outliers will NOT contain missing values. If you didnot removed missing values, the dataset with outliers removed will contain missing values. 
+
+SCREENSHOT outlier_Summ_stats
+
+Click on "Unleas Summary Statistics" and the table will appear in the main panel:
+
+SCREENSHOT outlier_Summ_stats2
 
 ### 4. DATA EXPLORATION => Stephanie
 
