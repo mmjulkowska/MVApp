@@ -207,7 +207,7 @@ If the p-value of the ANOVA test for a group is larger than the p-value threshol
 
 Boxplots display the distribution of the data for a specific trait (dependent variable) for the levels of the independent variable. The boxplots are facetted by the second independent variable, which the user chose when they ticked the checkbox for "Would you like to facet the graph?". 
 
-A second table displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for a trait. In the example below, there is no significant differences in the perimeter between the salt and control groups for the Accession C24. While there is a significant differences in the perimeter between the salt and control groups for the Accession Te.
+A second table displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for a trait. In the example below, there is no significant differences in the perimeter between the salt and control groups for the Accession C24. While there is a significant difference in the perimeter between the salt and control groups for the Accession Te.
 
 
 
