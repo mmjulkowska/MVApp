@@ -177,11 +177,11 @@ Click on "Unleas Summary Statistics" and the table will appear in the main panel
 ### 4. DATA EXPLORATION => Stephanie
 In this tab, the user is able to explore their data by testing for normality, homoscedasticity (i.e. equal variances), and differences in means. 
 On the left pane of the window, the user chooses:
-- The dataset to be used (raw data, data with missing values removed, or data with outliers removed)
+- The dataset to be used (raw data, data with missing values removed, or data with outliers removed). The default value is raw data.
 
 - The independent variable to subset the data (e.g: Treatment)
 - The trait to be used as the dependent variable ("Phenotype to plot")
-- The p-value threshold to be used in subsequent tests in the tab (e.g.: Levene's test, ANOVA, etc.)
+- The p-value threshold to be used in subsequent tests in the tab (e.g.: Levene's test, ANOVA, etc.). The default value is 0.05.
 - Whether they want to facet their graphs by another variable. When the user ticks the checkbox "Would you like to facet the graph?", a dropdown menu with a list of independent variables appears. The user can choose the independent variable to split the plot.
 Once the choices are made, the user can proceed to the different tests available in the DATA EXPLORATION tab:
 
