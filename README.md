@@ -188,15 +188,14 @@ Click on "Unleas Summary Statistics" and the table will appear in the main panel
 ![mvapp_outlier_summstats2](https://user-images.githubusercontent.com/14832460/32647174-52602bd2-c5f0-11e7-87f7-616859da1044.png)
 
 
-### 4. DATA EXPLORATION => Stephanie
-In this tab, the user is able to explore their data by testing for normality, homoscedasticity (i.e. equal variances), and differences in means. 
-On the left pane of the window, the user chooses:
+### 4. DATA EXPLORATION
+In this tab, you can explore your data by testing for normality, homoscedasticity (i.e. equal variances), and differences in means. 
+In the side panel, you can choose:
 - The dataset to be used (raw data, data with missing values removed, or data with outliers removed). The default value is raw data.
-
-- The independent variable to subset the data (e.g: Treatment)
-- The trait to be used as the dependent variable ("Phenotype to plot")
-- The p-value threshold to be used in subsequent tests in the tab (e.g.: Levene's test, ANOVA, etc.). The default value is 0.05.
-- Whether they want to facet their graphs by another variable. When the user ticks the checkbox "Would you like to facet the graph?", a dropdown menu with a list of independent variables appears. The user can choose the independent variable to split the plot.
+- The Independent Variable to subset the data by
+- The Dependent Variable you want to plot
+- The p-value threshold to be used in subsequent tests in the tab (e.g.: Levene's test, ANOVA, etc.). The default value is 0.05
+- If you want to facet your graphs by another Independent Variabl, tick the checkbox "Would you like to facet the graph?" a dropdown menu with a list of independent variables appears. The user can choose the independent variable to split the plot.
 Once the choices are made, the user can proceed to the different tests available in the DATA EXPLORATION tab:
 
 ###### Testing normal distribution
@@ -221,6 +220,7 @@ If the p-value of the ANOVA test for a group is larger than the p-value threshol
 
 Boxplots display the distribution of the data for a specific trait (dependent variable) for the levels of the independent variable. The boxplots are facetted by the second independent variable, which the user chose when they ticked the checkbox for "Would you like to facet the graph?". 
 
+A second table displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for a trait. In the example below, there is no significant differences in the perimeter between the salt and control groups for the Accession C24. While there is a significant difference in the perimeter between the salt and control groups for the Accession Te.
 A second table displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for a trait. In the example below, there is no significant differences in the perimeter between the salt and control groups for the Accession C24. While there is a significant difference in the perimeter between the salt and control groups for the Accession Te.
 
 
