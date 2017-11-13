@@ -10,10 +10,10 @@ Although the MVApp development team is armpit-deep in Plant Science we are tryin
 With the MVApp, we indend to provide a platform allowing:
 [IN FUTURE => links will be linked to those individual points - directing you to the specific sections]
 
-1. Fitting of simple curves (linear/quadratic/exponential/square root) as well as polynomial curves (cubic and smoothed splines) for datasets with a continuous independent variable (e.g. time, dose concentrations, latitude...)
+1. Fitting of simple curves (linear/quadratic/exponential/square root) as well as polynomial curves (cubic and smoothed splines) for datasets with a continuous Independent Variable (e.g. time, dose concentrations, latitude...)
 2. Data curation through detection and removal of outliers based on standard statistical methods
-3. Data exploration through analysis of distrubution, variance and significant differences across independent variables (e.g. individual genotypes, experimental treatment)
-5. Correlation Analyses between different phenotypes across user defined data subsets (e.g. for a given genotype, experimental treatment)
+3. Data exploration through analysis of distrubution, variance and significant differences across Independent Variables (e.g. individual genotypes, experimental treatment)
+5. Correlation Analyses between different Dependent Variables (i.e. phenotypes) across user defined data subsets (e.g. for a given genotype, experimental treatment)
 6. Principal Component Analysis and data normalization
 7. Cluster Analysis based on selected dependent variables 
 
@@ -21,11 +21,12 @@ With the MVApp, we indend to provide a platform allowing:
 
 MVApp can handle all kinds of data. It only requires that your data be in .csv format, with at least the following:
 * column with the genotype (if you use only one - please include the name)
-* column(s) with an Independent Variable (e.g. Treatment, Position, Experiment number)
+* column(s) with an Independent Variable (e.g. treatment, position, experiment number)
 * column(s) with a Dependent Variable (i.e. phenotypes)
 
 To fit curves to your data, you should also include columns containing:
-* Time (or other continuous independent variable) - this variable MUST be numeric (e.g. "1" instead of "Day 1")
+* Time (or other continuous Independent Variable) - this variable MUST be numeric (e.g. "1" instead of "Day 1")
+[I think we should change the "Time" label to, perhaps, "Continuous Independent Variable"]
 
 To perform data analysis on individual replicates, you should also include a column containing:
 * Sample ID - an identifier for each individual sample
@@ -36,7 +37,7 @@ Your data should look something like the Example dataset:
 To upload your data, navigate to the "Upload your data" tab in the uppermost panel. Click on the "Browse" button and locate your .csv data file:
 ![mvapp_data_upload1](https://user-images.githubusercontent.com/14832460/32609364-8044b6ce-c570-11e7-9002-dd9f21a700cf.png)
 
-Select the columns pertaining to Genotype, Independent Variables, Dependent Variables and, optionally, Continuous Independent Variables and Sample IDs:
+Select the columns pertaining to Genotype, Independent Variables, Dependent Variables and, optionally, continuous Independent Variables and Sample IDs:
 ![mvapp_data_upload2](https://user-images.githubusercontent.com/14832460/32609363-801c9950-c570-11e7-809b-d9922fb9a606.png)
 
 Finally, click on the "Lock in raw dataset" button to finalise data upload with selected columns and annotations (unselected columns from the original dataset will be dropped at this point). View the newly uploaded dataset in sub-tab "New Data":
@@ -44,10 +45,10 @@ Finally, click on the "Lock in raw dataset" button to finalise data upload with 
 
 ### 2. CURVE FITTING - 
 
-If you have time component in your experiment, you might want to estimate how quickly are your plants / bacteria grow. You can also fit the curves in order to estimate the response type of your organism to a specific compound. In any case - fitting the curves will simplify your data. 
+If you have a continuous Independent Variable in your experiment, you might want to estimate how your phenotype changes across it. For example, you could investigate the the kinetics of plant/basterial growth over time, or the dose dependency of a phenotypic response to a chemical treatment. Fitting the curves will allow you to observe and model these response dynamics.
 
 ###### what kind of curves can we fit?
-At the moment, you can fit the simple functions: linear, quadratic, exponential and square root functions. For all of those functions, we fit linear model (using lm() function) between the Independent Variable indicated in the "Time" column and the dependent variable (phenotype). In case of models other than linear, the dependent variable is transformed:
+At the moment, you can fit simple functions: linear, quadratic, exponential and square root functions. For these functions, we fit linear model (using lm() function) between the continuous Independent Variable indicated in the "Time" column and the dependent variable (phenotype). In case of models other than linear, the dependent variable is transformed:
 - square root transformation for fitting quadratic function
 - log transformation for fitting exponential function
 - quadratic transformation for fitting the square root function
