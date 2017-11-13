@@ -19,7 +19,7 @@ With the MVApp, we indend to provide a platform allowing:
 ### 1. DATA UPLOAD
 
 
-#### How to import your data?
+#### Importing data
 MVApp can handle all kinds of data. It only requires that your data be in .csv format, with at least the following:
 * column with the genotype (if you use only one - please include the name)
 * column(s) with an Independent Variable (e.g. treatment, position, experiment number)
@@ -49,8 +49,6 @@ Finally, click on the "Lock in raw dataset" button to finalise data upload with 
 ####  Why model your data?
 If you have a continuous Independent Variable in your experiment, you might want to estimate how your Dependent Variables change across it. For example, you could investigate the the dynamics of plant/basterial growth over time, or the dose dependency of a phenotypic response to a chemical treatment. Fitting the curves will allow you to observe and model these response dynamics.
 
-
-#### What kind of curves can you fit?
 At the moment, you can fit simple functions: linear, quadratic, exponential and square root functions. For these functions, we fit linear model (using lm() function) between the continuous Independent Variable indicated in the "Time" column and the Dependent Variable (phenotype)[How many times do we need to reindicate this?]. 
 
 Modelling of non-linear functions also relies on fitting a linear function, but after transformation of the Dependent Variable:
@@ -61,7 +59,7 @@ Modelling of non-linear functions also relies on fitting a linear function, but 
 MVApp extracts the model parameters: y-intercept ("INTERCEPT") and the first regression coefficient ("DELTA"), as well as the r2 values to determine model performance.
 
 
-#### How to fit curves?
+#### Fitting curves
 First, in the side panel, select which the Independent Variable(s) you wish to group your samples by, and which Dependent Variable you would like to model. 
 
 If you don't know which function will fit best, you can click on "Unleash model estimation" button. The best model will be indicated based on the r2 values presented in the table:
@@ -89,7 +87,7 @@ For the smoothed splines, we use smooth.spline() function in R, with a choice be
 ![mvapp_model_smoothed](https://user-images.githubusercontent.com/14832460/32610089-c59f6abe-c572-11e7-90a1-7a50f1dd4cb4.png)
 
 
-#### How to visualise fit-plots?
+#### Visualise fit-plots
 You can view how your data fits to the model by viewing single fit-plots - the names of the samples are merged by "Genotype_IndependentVariable_SampleID". You can either scroll through the sample list or type in the sample name:
 
 ![mvapp_model_single_plot](https://user-images.githubusercontent.com/14832460/32610100-c6cd6332-c572-11e7-973f-45a99169dfa8.png)
@@ -101,7 +99,7 @@ Alternatively, you can view multiple plots simultaneously. The plots can be sort
 Note: By examining the data, you can select the samples with odd dynamics with respect to other replicates and consider removing them from the dataset. 
 
 
-#### How to asses and compare the dynamics between Genotypes and other Independent Variables?
+#### Assess and compare the dynamics between Genotypes and other Independent Variables
 Finally, you can have a look how the calculated DELTAs or Coefficients extracted from the models differ between Genotypes and Independent Variables, by clicking on sub-tab "Examine differences". The message box at the top provides ANOVA results, with the p-value threshold indicated below the graph:
 
 ![mvapp_model_summarystats](https://user-images.githubusercontent.com/14832460/32610654-75e89eda-c574-11e7-9cf3-bdb69c4d299f.png)
@@ -122,7 +120,7 @@ You likely identified these problem samples by simple graphical means, or based 
 MVApp helps to automatically highlight potential outliers based on a single or multiple Dependent Variables, using various approaches. However, be careful, outliers should not be removed mindlessly. It is good practice to justify outlier samples, perhaps refering to notes or images taken during the experiment that might explain the unusual result. It is possible that a "potential outlier" is in fact a valuable, if extreme, result. 
 
 
-#### How to highlihgt potential outliers?
+#### Highlight potential outliers
 Begin by deciding whether or not to remove samples with missing values by clicking the check-box in the top-left corner of the side-bar.
 
 Then, select the Independent Variable(s) by which to group the samples, and the Dependent Variables you would like to investigate for outliers. By default, MVApp assumes that you would like to group the variables by Genotype, ALL Independent Variables and Time (Sample ID is excluded), across all Dependent Variables.
@@ -148,7 +146,7 @@ Click on "Unleash outlier highlighter" to see the table with highlighted outlier
 In the main tab, the outlier message will appear indicating the number of potential outliers highlightes, as well as a table of your data. If you scroll to the right, you will see the columns marked "outl_Dependent Variable" (for example "outl_AREA"), where "true" will indicate this sample as being an outlier per genotype / day / independent variables selected. If considering all Dependent Variables, the final column will indicate whether a given sample is a potential outlier in a number of Dependent Variables that meets or exceeds the user-defined threshold (annotated as "true").
 
 
-#### How to examine the data with and without potential outliers?
+#### Examine the data with and without potential outliers
 After highlighting potential outliers in your data, you can look at how the data looks with and without them.
 
 Go to sidepanel sub-tab "Tweak the graphs" and select the Dependent Variable you wish to examine. You can also select the type of plot you would like: box plot, scatter plot or bar plot (we find box plots most informative).
@@ -171,17 +169,17 @@ If you want to look at the graphs with potential outliers removed (as highlighte
 
 ![mvapp_outliers_graph_no_outliers](https://user-images.githubusercontent.com/14832460/32647177-528bf596-c5f0-11e7-89dd-a8c85a287a47.png)
 
-IMPORTANT NOTE: This outlier test was developed to facilitate data curation. Please do NOT remove any data before making absolutely sure that there is a very good reason that the sample is not representative. We recommend downloading the dataset with outliers highlighted [screenshot], manually removing samples that you can reasonably explain, and reuploading the curated dataset before continuing with your analysis.
+IMPORTANT NOTE: This outlier test was developed to facilitate data curation. Please do NOT remove any data before making absolutely sure that there is a very good reason that the sample is not representative. We recommend downloading the dataset with outliers highlighted [Add screenshot?], manually removing samples that you can reasonably explain, and reuploading the curated dataset before continuing with your analysis.
 
 PICTURE OF MOUSE EATING A PLANT
 
 
 #### Calculate summary statistics
-MVApp can calculate summary statistics functions in the main panel sub-tab "Summary data".
+MVApp can calculate summary statistics functions (e.g. mean, median, standard deviation) in the main panel sub-tab "Summary data".
 
-Select the data-set in the upper left corner of the tab, and select the functions that you want to be calculated in the upper right corner.
+Select the dataset in the upper left corner of the tab, and select the functions that you want to be calculated in the upper right corner.
 
-NOTE: If you removed missing values prior to outlier selection, the dataset without outliers will NOT contain missing values. If you didnot removed missing values, the dataset with outliers removed will contain missing values. 
+NOTE: If you removed missing values prior to outlier selection, the dataset without outliers will NOT contain missing values. If you did not removed missing values, the dataset with outliers removed WILL contain missing values. 
 
 ![mvapp_outlier_summ_stats](https://user-images.githubusercontent.com/14832460/32647166-503e1d64-c5f0-11e7-98ff-54ef9cc5fa02.png)
 
