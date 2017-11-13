@@ -18,6 +18,7 @@ With the MVApp, we indend to provide a platform allowing:
 
 ### 1. DATA UPLOAD
 
+
 #### How to import your data?
 MVApp can handle all kinds of data. It only requires that your data be in .csv format, with at least the following:
 * column with the genotype (if you use only one - please include the name)
@@ -44,11 +45,12 @@ Finally, click on the "Lock in raw dataset" button to finalise data upload with 
 
 ### 2. DATA MODELLING
 
+
 ####  Why model your data?
+If you have a continuous Independent Variable in your experiment, you might want to estimate how your Dependent Variables change across it. For example, you could investigate the the dynamics of plant/basterial growth over time, or the dose dependency of a phenotypic response to a chemical treatment. Fitting the curves will allow you to observe and model these response dynamics.
 
-If you have a continuous Independent Variable in your experiment, you might want to estimate how your phenotype changes across it. For example, you could investigate the the dynamics of plant/basterial growth over time, or the dose dependency of a phenotypic response to a chemical treatment. Fitting the curves will allow you to observe and model these response dynamics.
 
-#### What kind of curves can we fit?
+#### What kind of curves can you fit?
 At the moment, you can fit simple functions: linear, quadratic, exponential and square root functions. For these functions, we fit linear model (using lm() function) between the continuous Independent Variable indicated in the "Time" column and the Dependent Variable (phenotype)[How many times do we need to reindicate this?]. 
 
 Modelling of non-linear functions also relies on fitting a linear function, but after transformation of the Dependent Variable:
@@ -57,6 +59,7 @@ Modelling of non-linear functions also relies on fitting a linear function, but 
 - quadratic transformation for fitting the square root function
 
 MVApp extracts the model parameters: y-intercept ("INTERCEPT") and the first regression coefficient ("DELTA"), as well as the r2 values to determine model performance.
+
 
 #### How to fit curves?
 First, in the side panel, select which the Independent Variable(s) you wish to group your samples by, and which Dependent Variable you would like to model. 
@@ -85,6 +88,7 @@ For the smoothed splines, we use smooth.spline() function in R, with a choice be
 
 ![mvapp_model_smoothed](https://user-images.githubusercontent.com/14832460/32610089-c59f6abe-c572-11e7-90a1-7a50f1dd4cb4.png)
 
+
 #### How to visualise fit-plots?
 You can view how your data fits to the model by viewing single fit-plots - the names of the samples are merged by "Genotype_IndependentVariable_SampleID". You can either scroll through the sample list or type in the sample name:
 
@@ -96,7 +100,8 @@ Alternatively, you can view multiple plots simultaneously. The plots can be sort
 
 Note: By examining the data, you can select the samples with odd dynamics with respect to other replicates and consider removing them from the dataset. 
 
-#### How to compare the dynamics between Genotypes and other Independent Variables?
+
+#### How to asses and compare the dynamics between Genotypes and other Independent Variables?
 Finally, you can have a look how the calculated DELTAs or Coefficients extracted from the models differ between Genotypes and Independent Variables, by clicking on sub-tab "Examine differences". The message box at the top provides ANOVA results, with the p-value threshold indicated below the graph:
 
 ![mvapp_model_summarystats](https://user-images.githubusercontent.com/14832460/32610654-75e89eda-c574-11e7-9cf3-bdb69c4d299f.png)
@@ -108,6 +113,7 @@ By scrolling further down, you will find a message containing the significance g
 
 ### 3. OUTLIER SELECTION
 
+
 #### Why identify potential outliers?
 For those familiar with large(ish) scale experiments, you have probably had to curate your data, removing outlier samples that stem from experimental errors or even mistakes made while recording data. This will help avoid making spurrious conclusions based on unrepresentative data. 
 
@@ -115,10 +121,11 @@ You likely identified these problem samples by simple graphical means, or based 
 
 MVApp helps to automatically highlight potential outliers based on a single or multiple Dependent Variables, using various approaches. However, be careful, outliers should not be removed mindlessly. It is good practice to justify outlier samples, perhaps refering to notes or images taken during the experiment that might explain the unusual result. It is possible that a "potential outlier" is in fact a valuable, if extreme, result. 
 
+
 #### How to highlihgt potential outliers?
 Begin by deciding whether or not to remove samples with missing values by clicking the check-box in the top-left corner of the side-bar.
 
-Then, select the Independent Variable(s) by which to group the samples, and the Dependent Variables you would like to investigate for outliers. By default, MVApp assumes that you would like to group the variables by Genotype, ALL Independent Variables and Time (Sample ID is excluded), across all phenotypes.
+Then, select the Independent Variable(s) by which to group the samples, and the Dependent Variables you would like to investigate for outliers. By default, MVApp assumes that you would like to group the variables by Genotype, ALL Independent Variables and Time (Sample ID is excluded), across all Dependent Variables.
 
 Next, select which method you would like to use to highlight potential outliers. MVApp provides following methods:
 !!!! TO INCLUDE LINKS TO WIKIPEDIA HERE!!!!
@@ -132,47 +139,47 @@ Next, select which method you would like to use to highlight potential outliers.
 
 ![mvapp_outlier_methods](https://user-images.githubusercontent.com/14832460/32647173-51f8df5e-c5f0-11e7-8dc4-8ce1d9da152a.png)
 
-Finally, if you decided to select outliers based on all phenotypes, use the slider input in the side panel to select the number of Dependent Variables a given sample must be an outlier in order to consider it an outlier across the whole experiment, i.e. the samples that extreme across so many phenotypes that they warrant being removed from the data analysis.
+Finally, if you decided to select outliers based on all Dependent Variables, use the slider input in the side panel to select the number of Dependent Variables a given sample must be an outlier in order to consider it an outlier across the whole experiment, i.e. the samples that extreme across so many phenotypes that they warrant being removed from the data analysis.
 
 ![mvapp_outlier_output1](https://user-images.githubusercontent.com/14832460/32647171-51b52f48-c5f0-11e7-8a46-6ae78ad193c3.png)
 
 Click on "Unleash outlier highlighter" to see the table with highlighted outliers. This might take a while - depending on the size of your dataset.
 
-In the main tab, the outlier message will appear indicating the number of potential outliers highlightes, as well as a table of your data. If you scroll to the right, you will see the columns marked "outl_Dependent Variable" (for example "outl_AREA"), where "true" will indicate this sample as being an outlier per genotype / day / independent variables selected. If considering all phenotypes, the final column will indicate whether a given sample is a potential outlier in a number of Dependent Variables that meets or exceeds the user-defined threshold (annotated as "true").
+In the main tab, the outlier message will appear indicating the number of potential outliers highlightes, as well as a table of your data. If you scroll to the right, you will see the columns marked "outl_Dependent Variable" (for example "outl_AREA"), where "true" will indicate this sample as being an outlier per genotype / day / independent variables selected. If considering all Dependent Variables, the final column will indicate whether a given sample is a potential outlier in a number of Dependent Variables that meets or exceeds the user-defined threshold (annotated as "true").
 
 
 #### How to examine the data with and without potential outliers?
 After highlighting potential outliers in your data, you can look at how the data looks with and without them.
 
-Go to sidepanel sub-tab "Tweak the graphs" and select the phenotype you wish to examine. 
+Go to sidepanel sub-tab "Tweak the graphs" and select the Dependent Variable you wish to examine. You can also select the type of plot you would like: box plot, scatter plot or bar plot (we find box plots most informative).
 
-Click on the main panel sub-tab "Graph containing outliers" to see the boxplot: 
+Click on the main panel sub-tab "Graph containing outliers" to see your plots prior to removing potential outliers: 
 
 ![mvapp_outlier_graph_bugs](https://user-images.githubusercontent.com/14832460/32647170-517e6c4c-c5f0-11e7-99a1-89a3adc59e1c.png)
 
-If you wish to color code your samples or split the plots depending on Independent Variable, you can select it in the side panel:
+If you wish to color code your samples or split the plots based on your Independent Variables, you can do this in the side panel:
 
 ![mvapp_outlier_graph_facet_color](https://user-images.githubusercontent.com/14832460/32647168-507f1f26-c5f0-11e7-9f9f-c0f162cf7f95.png)
 
-If you want to alter the order of your samples - you can swap the order of the Independent Variables in the sidebar sub-panel "Outlier selection"
+If you want to alter the order of your samples, you can swap the order of the Independent Variables in the sidebar sub-panel "Outlier selection":
 
 ![mvapp_outlier_graph_even_nicer](https://user-images.githubusercontent.com/14832460/32647167-5066effa-c5f0-11e7-9388-9620294702ff.png)
 
-###### Compare the data with outlier removed
 
-If you want to look at the graphs with no outliers (as defined in main panel "The outliers test"), click on the main panel "Graphs with outliers removed". You can click between "Graph containing outlier" and "Graph with outliers removed" to compare both datasets.
+#### Compare the data with outlier removed
+If you want to look at the graphs with potential outliers removed (as highlighted in main panel "The outliers test"), click on the main panel "Graphs with outliers removed". You can click between "Graph containing outliers" and "Graph with outliers removed" to compare both datasets.
 
 ![mvapp_outliers_graph_no_outliers](https://user-images.githubusercontent.com/14832460/32647177-528bf596-c5f0-11e7-89dd-a8c85a287a47.png)
 
-IMPORTANT NOTE: This outlier test was developed to facilitate data curation. Please do NOT remove any data before making absolutely sure that there is a very good reason that the sample is not representative 
+IMPORTANT NOTE: This outlier test was developed to facilitate data curation. Please do NOT remove any data before making absolutely sure that there is a very good reason that the sample is not representative. We recommend downloading the dataset with outliers highlighted [screenshot], manually removing samples that you can reasonably explain, and reuploading the curated dataset before continuing with your analysis.
 
 PICTURE OF MOUSE EATING A PLANT
 
-###### Perform summary statistics
 
+#### Calculate summary statistics
 MVApp can calculate summary statistics functions in the main panel sub-tab "Summary data".
 
-Select the data-set in the upper left corner of the tab, and select the functions that you want to be calculated in the upper right corner:
+Select the data-set in the upper left corner of the tab, and select the functions that you want to be calculated in the upper right corner.
 
 NOTE: If you removed missing values prior to outlier selection, the dataset without outliers will NOT contain missing values. If you didnot removed missing values, the dataset with outliers removed will contain missing values. 
 
@@ -181,6 +188,7 @@ NOTE: If you removed missing values prior to outlier selection, the dataset with
 Click on "Unleas Summary Statistics" and the table will appear in the main panel:
 
 ![mvapp_outlier_summstats2](https://user-images.githubusercontent.com/14832460/32647174-52602bd2-c5f0-11e7-87f7-616859da1044.png)
+
 
 ### 4. DATA EXPLORATION => Stephanie
 In this tab, the user is able to explore their data by testing for normality, homoscedasticity (i.e. equal variances), and differences in means. 
