@@ -223,7 +223,7 @@ ANOVA assumes the data comes from a normal distribution and the variances are eq
 ###### Testing significant differences
 In this sub-tab, the user can check for signifcant differences in the means between different groups using analysis of variance (ANOVA). A table displays the p-value of the ANOVA test between different levels of the independent variable.
 
-<img width="1116" alt="testing significant differences" src="https://user-images.githubusercontent.com/15339112/32780980-c07ed486-c8ef-11e7-9799-51b45e3e2b4c.png">
+<img width="1118" alt="testing significant differences_1" src="https://user-images.githubusercontent.com/15339112/32781415-6d3a68f6-c8f1-11e7-9f33-37b8bc9812ba.png">
 
 If the p-value of the ANOVA test for a group is larger than the p-value threshold already chosen, a message "Cannot reject H0" appears. In this case there is not enough evidence to reject the null hypothesis and the means of the groups are assumed equal. If the p-value of the ANOVA test for a group is smaller than the p-value threshold already chosen, a message "Significant difference in means" appears. In this case the null hypothesis, where the means of the group are considered equal, is rejected and the means of the groups are considered to be significantly different. 
 
