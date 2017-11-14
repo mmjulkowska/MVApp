@@ -194,14 +194,27 @@ Once the choices are made, the user can proceed to the different tests available
 ###### Testing normal distribution
 In this sub-tab, the user can choose the "Plot type". Two options are available to display the histograms: "Histograms with  counts on y-axis" or "Histograms with  density on y-axis". From these plots, the user can visualize if their data is normally distributed or skewed. 
 A message appears below the histograms. This message summarizes the groups/subgroups that seem not to have a normal distribution, where the p-value of the Shapiro-Wilk test is larger than the p-value threshold already chosen. 
+
+<img width="1119" alt="testing normal distribution" src="https://user-images.githubusercontent.com/15339112/32780913-79ca2e14-c8ef-11e7-85e9-cdec4d163525.png">
+
 The user can see the results of the Shapiro-Wilk test for all groups/subgroups along with their QQ-plots by ticking the checkbox "Would you like to see detailed Shapiro-Wilk test and QQplots?". The table shows p-value of the Shapiro-Wilk tests performed for each groups/subgroups. If the p-value of the Shapiro-Wilk test for a group is larger than the p-value threshold already chosen, a message "Data has NORMAL distribution" appears. In this case there is not enough evidence to reject the null hypothesis, where the data is considered from a normally distributed population. If the p-value of the Shapiro-Wilk test for a group is smaller than the p-value threshold already chosen, a message "Data might NOT be normally distributed" appears. In this case the null hypothesis is rejected and the data is considered not from normally distributed population. However, sample size affects the Shapiro-Wilk test and hence, the user is strongly encouraged to check the QQ-plots.
+
+<img width="1038" alt="shapirowilk detailed and qq" src="https://user-images.githubusercontent.com/15339112/32780927-82b5c4ca-c8ef-11e7-8cf0-e95da533b0d5.png">
+
+
 When the user checks "Would you like to see detailed Shapiro-Wilk test and QQplots?", sliders for QQ-plots also appear. These sliders help choose the optimum number of columns and plots for display.
 The first slider " Display QQ plots in ... columns:" allows the user to choose the number of columns for the display of the QQ-plots. If the number of plots is very large to be displayed all at once in the window, a second slider "Plot portion of the data starting from element number..." appears and the user can choose the portion of plots to be displayed. 
+
+<img width="1075" alt="qqplot slides" src="https://user-images.githubusercontent.com/15339112/32780970-a9d7add4-c8ef-11e7-9622-4dbb3fac5f76.png">
+
 Based on the results obtained in this sub-tab, the user can have a better judgement in the following sub-tab whether to check Bartlett or Levene test for equal variances.
 
 ###### Testing equal variance 
 In this sub-tab, the user can have a look at the results of the Bartlett test and Levene test of homogeneity of variances between the different groups and for each sub-groups. 
 The null hypothesis of the Bartlett test and Levene tests assumes that the variances in each of the groups are the same. Bartlett test is more robust when the data comes from a normal distribution, while Levene test is more robust in case of departures from normality.
+
+<img width="1113" alt="bartlett and levene test result" src="https://user-images.githubusercontent.com/15339112/32780973-b0b08f86-c8ef-11e7-865b-c87f88cb2a8a.png">
+
 The first table displays the results of the Bartlett test and the second table displays those of the Levene test.
 The tables show the p-value of tests performed for each groups/subgroups. If the p-value of the test for a group is larger than the p-value threshold already chosen, a message "Equal" appears. In this case there is not enough evidence to reject the null hypothesis, where the variances are considered equal. If the p-value of the test for a group is smaller than the p-value threshold already chosen, a message "Not equal" appears. In this case the null hypothesis is rejected and the variances are not equal.
 The results of this sub-tab and the previous sub-tab are needed to for the ANOVA test performed in the following sub-table.
@@ -209,11 +222,18 @@ ANOVA assumes the data comes from a normal distribution and the variances are eq
 
 ###### Testing significant differences
 In this sub-tab, the user can check for signifcant differences in the means between different groups using analysis of variance (ANOVA). A table displays the p-value of the ANOVA test between different levels of the independent variable.
+
+<img width="1116" alt="testing significant differences" src="https://user-images.githubusercontent.com/15339112/32780980-c07ed486-c8ef-11e7-9799-51b45e3e2b4c.png">
+
 If the p-value of the ANOVA test for a group is larger than the p-value threshold already chosen, a message "Cannot reject H0" appears. In this case there is not enough evidence to reject the null hypothesis and the means of the groups are assumed equal. If the p-value of the ANOVA test for a group is smaller than the p-value threshold already chosen, a message "Significant difference in means" appears. In this case the null hypothesis, where the means of the group are considered equal, is rejected and the means of the groups are considered to be significantly different. 
 
 Boxplots display the distribution of the data for a specific trait (dependent variable) for the levels of the independent variable. The boxplots are facetted by the second independent variable, which the user chose when they ticked the checkbox for "Would you like to facet the graph?". 
 
-A second table displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for a trait. In the example below, there is no significant differences in the perimeter between the salt and control groups for the Accession C24. While there is a significant difference in the perimeter between the salt and control groups for the Accession Te.
+A second table displays the significant groups based on Tukey's pairwise comparison. 
+Groups that share a common letter do not have significantly different means for a trait. 
+In the example below, there is no significant differences in the perimeter between the salt and control groups for the Accession C24. While there is a significant difference in the perimeter between the salt and control groups for the Accession Te.
+
+<img width="354" alt="tukey letters" src="https://user-images.githubusercontent.com/15339112/32781182-8d4c2360-c8f0-11e7-931c-2d64589dc1ce.png">
 
 
 
