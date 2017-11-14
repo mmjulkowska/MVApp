@@ -183,6 +183,12 @@ On the left pane of the window, the user chooses:
 - The trait to be used as the dependent variable ("Phenotype to plot")
 - The p-value threshold to be used in subsequent tests in the tab (e.g.: Levene's test, ANOVA, etc.). The default value is 0.05.
 - Whether they want to facet their graphs by another variable. When the user ticks the checkbox "Would you like to facet the graph?", a dropdown menu with a list of independent variables appears. The user can choose the independent variable to split the plot.
+
+
+<img width="1115" alt="data exploration input choices" src="https://user-images.githubusercontent.com/15339112/32780896-6bf2d2aa-c8ef-11e7-81f1-45add2e36d98.png">
+
+
+
 Once the choices are made, the user can proceed to the different tests available in the DATA EXPLORATION tab:
 
 ###### Testing normal distribution
