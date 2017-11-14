@@ -251,11 +251,10 @@ A second table displays the significant groups based on Tukey's pairwise compari
 
 ### 6. PCA
 
-OOPS, BROKE THE PCA LINK BELOW
-['Principle component analysis'] (PCA) (https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, the PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or genotype) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
+
+Principle component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, the PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or genotype) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
 
 #### Select data, subsets, and Dependent Variables
-
 Select the dataset to analyse from the dropdown menu at the top of the side panel and click "Set the dataset":
 
 ![mvapp_pca_data_input1](https://user-images.githubusercontent.com/14832460/32647215-7829f348-c5f0-11e7-8416-c339543a8e9f.png)
@@ -267,27 +266,23 @@ Then, select which Dependent Variables you want to use in the PCA and click "Unl
 You can see your selected datasets in the first two sub-tabs.
 
 #### Visualize the PCs
-
-In the third sub-tab, ['Eigenvalues'](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors), the ["Scree plot"](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) are displayed showing the main principle components generated from the PCA in decreasing order of percentage variance explained by each Principle Component.
+In the third sub-tab, [Eigenvalues](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors), the ["Scree plot"](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) are displayed showing the main principle components generated from the PCA in decreasing order of percentage variance explained by each Principle Component.
 
 ![mvapp_pca_eigen](https://user-images.githubusercontent.com/14832460/32647217-788202b8-c5f0-11e7-9f1d-85f44ccc6a10.png)
 
 The table summarizing the eigenvalues of each Principle Component (PC), their percentage of variance EXPLAINED and the cumulative percentages that add to 100% can be found below the plot and can be downloaded as a .csv file.
 
 #### Visualize the general contribution of DVs per PC
-
 The 'Contribution per variable' sub-tab displays the contribution of the chosen Dependent Variables with respect to two PCs at a time. You can select individual PCs to be plotted on x- and y-axis from the two dropdown menus.
 
 ![mvapp_pca_trait_contrib](https://user-images.githubusercontent.com/14832460/32647213-77f03ef0-c5f0-11e7-8033-922fc073a36d.png)
 
 #### Visualize the contribution of each DV value
-
 By scrolling down, you can see the PC coordinates of the individual samples. The x- and y-axis are controlled by the same dropdown menu as the contribution plots. You can color the plot by any of the Independent Variable to see if you have separation in PC coordinates between your genotype / treatment / time points:
 
 ![mvapp_pca_scatter](https://user-images.githubusercontent.com/14832460/32647923-ef68a3c0-c5f3-11e7-9321-ede2f7620bef.png)
 
 #### Visualize the contribution of each DV per PC
-
 In the sub-tab 'Contribution per PC' the contribution of individual Dependent Variable for each PC are displayed. You can download the specific percentange contribution data per PC below the graph:
 
 ![mvapp_pca_trait_contrib2](https://user-images.githubusercontent.com/14832460/32647216-78663bdc-c5f0-11e7-82ef-dd418670a6f8.png)
