@@ -19,7 +19,7 @@ With the MVApp, we indend to provide a platform allowing:
 ### 1. DATA UPLOAD
 
 
-#### Importing data
+#### How should I format my data?
 MVApp can handle all kinds of data. It only requires that your data be in .csv format, with at least the following:
 * column with the genotype (if you use only one - please include the name)
 * column(s) with an Independent Variable (e.g. treatment, position, experiment number)
@@ -34,6 +34,7 @@ To perform data analysis on individual replicates, you should also include a col
 Your data should look something like the Example dataset:
 ![mvapp_data](https://user-images.githubusercontent.com/14832460/32609292-48dc541c-c570-11e7-8f87-54ca02b646d8.png)
 
+#### Upload and annotate your data
 To upload your data, navigate to the "Upload your data" tab in the uppermost panel. Click on the "Browse" button and locate your .csv data file:
 ![mvapp_data_upload1](https://user-images.githubusercontent.com/14832460/32609364-8044b6ce-c570-11e7-9002-dd9f21a700cf.png)
 
@@ -49,9 +50,9 @@ Finally, click on the "Lock in raw dataset" button to finalise data upload with 
 ####  Why model your data?
 If you have a continuous Independent Variable in your experiment, you might want to estimate how your Dependent Variables change across it. For example, you could investigate the the dynamics of plant/basterial growth over time, or the dose dependency of a phenotypic response to a chemical treatment. Fitting the curves will allow you to observe and model these response dynamics.
 
-At the moment, you can fit simple functions: linear, quadratic, exponential and square root functions. For these functions, we fit linear model (using lm() function) between the continuous Independent Variable indicated in the "Time" column and the Dependent Variable (phenotype)[How many times do we need to reindicate this?]. 
+At the moment, MVApp helps you to fit simple functions: linear, quadratic, exponential and square root functions. For these functions, we fit linear model (using lm() function) between the continuous Independent Variable indicated in the "Time" column and the Dependent Variable (phenotype)[How many times do we need to reindicate this "phenotype?]. 
 
-Modelling of non-linear functions also relies on fitting a linear function, but after transformation of the Dependent Variable:
+Modelling of non-linear functionsis also relies on fitting a linear function, but after transformation of the Dependent Variable:
 - square root transformation for fitting quadratic function
 - log transformation for fitting exponential function
 - quadratic transformation for fitting the square root function
@@ -59,7 +60,7 @@ Modelling of non-linear functions also relies on fitting a linear function, but 
 MVApp extracts the model parameters: y-intercept ("INTERCEPT") and the first regression coefficient ("DELTA"), as well as the r2 values to determine model performance.
 
 
-#### Fitting curves
+#### Fit curves
 First, in the side panel, select which the Independent Variable(s) you wish to group your samples by, and which Dependent Variable you would like to model. 
 
 If you don't know which function will fit best, you can click on "Unleash model estimation" button. The best model will be indicated based on the r2 values presented in the table:
@@ -189,103 +190,117 @@ Click on "Unleas Summary Statistics" and the table will appear in the main panel
 
 
 ### 4. DATA EXPLORATION
-In this tab, you can explore your data by testing for normality, homoscedasticity (i.e. equal variances), and differences in means. 
+Once your data is nice and clean and ready to go, it's time to start having a proper look at it [adapt to whether curation comes before curve fitting etc.]. A good place to start is to check out how your data is distributed using histograms and boxplots, grouping samples according to your various Independent Variables. From these you can get an idea of how your different genotypes are behaving, how your treatments are affecting your phenotypes, how variable your data is. 
+
+Beyond eyeballing, you can apply statistical tests such as ANOVA to test whether there are significant differences between groups. These are all easy things to do in MVApp, which also helps you check the assumptions of these statistical tests, such as normal distribution and homoscedasticity (i.e. equal variance).
+
+
 In the side panel, you can choose:
 - The dataset to be used (raw data, data with missing values removed, or data with outliers removed). The default value is raw data.
 - The Independent Variable to subset the data by
 - The Dependent Variable you want to plot
 - The p-value threshold to be used in subsequent tests in the tab (e.g.: Levene's test, ANOVA, etc.). The default value is 0.05
-- If you want to facet your graphs by another Independent Variabl, tick the checkbox "Would you like to facet the graph?" a dropdown menu with a list of independent variables appears. The user can choose the independent variable to split the plot.
+- If you want to facet your graphs by another Independent Variable, tick the checkbox "Would you like to facet the graph?" a dropdown menu with a list of independent variables appears. The user can choose the independent variable to split the plot.
 Once the choices are made, the user can proceed to the different tests available in the DATA EXPLORATION tab:
 
-###### Testing normal distribution
-In this sub-tab, the user can choose the "Plot type". Two options are available to display the histograms: "Histograms with  counts on y-axis" or "Histograms with  density on y-axis". From these plots, the user can visualize if their data is normally distributed or skewed. 
-A message appears below the histograms. This message summarizes the groups/subgroups that seem not to have a normal distribution, where the p-value of the Shapiro-Wilk test is larger than the p-value threshold already chosen. 
-The user can see the results of the Shapiro-Wilk test for all groups/subgroups along with their QQ-plots by ticking the checkbox "Would you like to see detailed Shapiro-Wilk test and QQplots?". The table shows p-value of the Shapiro-Wilk tests performed for each groups/subgroups. If the p-value of the Shapiro-Wilk test for a group is larger than the p-value threshold already chosen, a message "Data has NORMAL distribution" appears. In this case there is not enough evidence to reject the null hypothesis, where the data is considered from a normally distributed population. If the p-value of the Shapiro-Wilk test for a group is smaller than the p-value threshold already chosen, a message "Data might NOT be normally distributed" appears. In this case the null hypothesis is rejected and the data is considered not from normally distributed population. However, sample size affects the Shapiro-Wilk test and hence, the user is strongly encouraged to check the QQ-plots.
-When the user checks "Would you like to see detailed Shapiro-Wilk test and QQplots?", sliders for QQ-plots also appear. These sliders help choose the optimum number of columns and plots for display.
-The first slider " Display QQ plots in ... columns:" allows the user to choose the number of columns for the display of the QQ-plots. If the number of plots is very large to be displayed all at once in the window, a second slider "Plot portion of the data starting from element number..." appears and the user can choose the portion of plots to be displayed. 
-Based on the results obtained in this sub-tab, the user can have a better judgement in the following sub-tab whether to check Bartlett or Levene test for equal variances.
+#### Examine distribution
+Start in the side-panel by selecting the dataset you want to examine, the Independent Variable you want to group your samples by, and the Dependent Variable you want to plot. If you want to split the graphs by another Independent Variable, tick the "Split graph?" checkbox and select the Independent Variable in the dropdown menu that appears. You can also select the p-value threshold for the subsequent statistical tests. [screenshot]
 
-###### Testing equal variance 
-In this sub-tab, the user can have a look at the results of the Bartlett test and Levene test of homogeneity of variances between the different groups and for each sub-groups. 
-The null hypothesis of the Bartlett test and Levene tests assumes that the variances in each of the groups are the same. Bartlett test is more robust when the data comes from a normal distribution, while Levene test is more robust in case of departures from normality.
-The first table displays the results of the Bartlett test and the second table displays those of the Levene test.
-The tables show the p-value of tests performed for each groups/subgroups. If the p-value of the test for a group is larger than the p-value threshold already chosen, a message "Equal" appears. In this case there is not enough evidence to reject the null hypothesis, where the variances are considered equal. If the p-value of the test for a group is smaller than the p-value threshold already chosen, a message "Not equal" appears. In this case the null hypothesis is rejected and the variances are not equal.
-The results of this sub-tab and the previous sub-tab are needed to for the ANOVA test performed in the following sub-table.
-ANOVA assumes the data comes from a normal distribution and the variances are equal.
+Your histograms will appear in the "Explore distribution" sub-tab, where you can chose between having "Histograms with  counts on y-axis" or "Histograms with density on y-axis".
 
-###### Testing significant differences
-In this sub-tab, the user can check for signifcant differences in the means between different groups using analysis of variance (ANOVA). A table displays the p-value of the ANOVA test between different levels of the independent variable.
-If the p-value of the ANOVA test for a group is larger than the p-value threshold already chosen, a message "Cannot reject H0" appears. In this case there is not enough evidence to reject the null hypothesis and the means of the groups are assumed equal. If the p-value of the ANOVA test for a group is smaller than the p-value threshold already chosen, a message "Significant difference in means" appears. In this case the null hypothesis, where the means of the group are considered equal, is rejected and the means of the groups are considered to be significantly different. 
+From these plots, you can look at the spread of your data across the Independent Variable groupings selected in the side-panel. Below the histograms, you will find a message that summarizes the groups/subgroups that seem to not have a normal distribution, where the p-value of the Shapiro-Wilk test is larger than the p-value threshold selected in the side-panel. Normal distribution is a requirement for performing an ANOVA test (less so for large sample sizes). [screenshot]
 
-Boxplots display the distribution of the data for a specific trait (dependent variable) for the levels of the independent variable. The boxplots are facetted by the second independent variable, which the user chose when they ticked the checkbox for "Would you like to facet the graph?". 
+If you want to see the detailed results of the Shapiro-Wilk test for all groups/subgroups along with their QQ-plots, tick the checkbox "See detailed Shapiro-Wilk test and QQ-plots". The table shows p-value of the Shapiro-Wilk tests performed for each groups/subgroups. If the p-value of the Shapiro-Wilk test for a group is larger than the selected p-value threshold, in the final column the group will be noted with "Data has NORMAL distribution" appears. [screenshot]
 
-A second table displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for a trait. In the example below, there is no significant differences in the perimeter between the salt and control groups for the Accession C24. While there is a significant difference in the perimeter between the salt and control groups for the Accession Te.
-A second table displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for a trait. In the example below, there is no significant differences in the perimeter between the salt and control groups for the Accession C24. While there is a significant difference in the perimeter between the salt and control groups for the Accession Te.
+In this case there is not enough evidence to reject the null hypothesis, where the data is considered to be sampled from a normally distributed population. If the p-value of the Shapiro-Wilk test for a group is smaller than the selected p-value threshold, a message "Data might NOT be normally distributed" appears. In this case the null hypothesis is rejected, meaning the data appears not to be sampled from a normally distributed population. However, sample size affects the Shapiro-Wilk test and hence (the more the merrier), the user is strongly encouraged to check the QQ-plots.
+
+If you ticked the "See detailed Shapiro-Wilk test and QQ-plots?" checkbox, sliders for QQ-plots also appear. These sliders help choose the optimum number of columns and plots for display. The first slider " Display QQ plots in ... columns:" allows the user to choose the number of columns for the display of the QQ-plots. If the number of plots is too large to be displayed all at once in the window, a second slider "Plot portion of the data starting from element number..." appears and the user can choose the portion of plots to be displayed. [screenshot]
+
+Based on the results obtained in this sub-tab, you can have a better judgement in the following sub-tab whether to check Bartlett or Levene test for equal variances.
+
+#### Examine variance
+In this sub-tab, you can have a look at the results of the Bartlett test and Levene test of homogeneity of variances between the different groups and for each sub-groups. Equal variances, or homoscedasticity, is also a requirement for performing an ANOVA test.
+
+The null hypothesis of the Bartlett test and Levene tests assumes that the variances in each of the groups are the same. The Bartlett test is more robust when the data comes from a normal distribution, while Levene test is more robust in case of departures from normality.
+
+The first table displays the results of the Bartlett test and the second table displays those of the Levene test. The tables show the p-value of tests performed for each groups/subgroups. If the p-value of the test for a group is larger than the selected p-value threshold, groups are noted as "Equal". In this case there is not enough evidence to reject the null hypothesis, where the variances are considered equal. If the p-value of the test for a group is smaller than the selected p-value threshold, groups are noted as "Not equal". In this case the null hypothesis is rejected and the variances are considered not equal. [screenshot]
+
+As indicated previously, the results of this sub-tab and the previous sub-tab are needed to for the ANOVA test performed in the following sub-tab. ANOVA assumes the data comes from a normal distribution and the variances are equal.
+
+#### Test significant differences between groups
+In this sub-tab, you can check for signifcant differences in the means between different groups using analysis of variance (ANOVA). A table displays the p-value of the ANOVA test between different levels of the Independent Variable.
+
+If the p-value of the ANOVA test for a group is larger than the selected p-value threshold, groups are noted with "Cannot reject H0". In this case there is not enough evidence to reject the null hypothesis and the means of the groups are assumed equal. If the p-value of the ANOVA test for a group is smaller than the p-value threshold already chosen, groups are noted with "Significant difference in means". In this case the null hypothesis, where the means of the group are considered equal, is rejected and the means of the groups can be considered significantly different. 
+
+Boxplots display the distribution of the data for a specific trait (dependent variable) for the levels of the independent variable. The boxplots are split by the second Independent Variable, selected when if you ticked the checkbox for "Split graph?". 
+
+A second table displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for the selected Dependent Variable. In the example below, there is no significant differences in PERIMETER between the salt and control groups for the Genotype C24. While there is a significant difference in PERIMETER between the salt and control groups for the Genotype Te.
 
 
+#### Summary stats
+#### Histograms + variation analysis + testing for normality and variance (including ftest ;P )
+#### ANOVA + boxplots
 
-###### Summary stats
-###### Histograms + variation analysis + testing for normality and variance (including ftest ;P )
-###### ANOVA + boxplots
 
-### 5. CORRELATIONS => Gege
+### 5. CORRELATIONS
 
-###### General Correlations
+#### General Correlations
 ###### Subsetted Correlations
 ###### Scatter plots
 
-### 6. PCA => Mariam
 
-["Principle component analysis (PCA)"](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimentions, and also check which traits explain majority of the variation in the population studied. However, the PCA is often not explored to its full potential. You can for example run PCA on a subset of your data - for example subsetting your data per treatment or genotype - and run PCA separately on those subsets and observe how the individual phenotypes contribute to explaining observed variation. MVApp will allow you to do simple PCA on all of your data, or on the subsetted data per any of the Independent Variables selected. 
+### 6. PCA
 
-###### Selecting the dataset & traits
+OOPS, BROKE THE PCA LINK BELOW
+['Principle component analysis'] (PCA) (https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, the PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or genotype) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
 
-Select the dataset from the dropdown menu at the top of the side panel and click "Set the dataset":
+#### Select data, subsets, and Dependent Variables
+
+Select the dataset to analyse from the dropdown menu at the top of the side panel and click "Set the dataset":
 
 ![mvapp_pca_data_input1](https://user-images.githubusercontent.com/14832460/32647215-7829f348-c5f0-11e7-8416-c339543a8e9f.png)
 
-Then, select which Dependent Variables / phenotypes are going to be used in PCA and click "Unleash the PCA monster":
+Then, select which Dependent Variables you want to use in the PCA and click "Unleash the PCA monster":
 
 ![mvapp_pca_data_input2](https://user-images.githubusercontent.com/14832460/32647214-78109808-c5f0-11e7-8303-663bb39cb05e.png)
 
-In the first two sub-tabs in the main panel window you will have the tables that you selected. 
+You can see your selected datasets in the first two sub-tabs.
 
-###### Visualizing the PCs
+#### Visualize the PCs
 
-In the third sub-tab, ['Eigenvalues'](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) tab, the ["Scree plot"](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) are displayed showing the main principle components generated from the PCA in decreasing order of percentage variance explained by each Principle Component.
+In the third sub-tab, ['Eigenvalues'](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors), the ["Scree plot"](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) are displayed showing the main principle components generated from the PCA in decreasing order of percentage variance explained by each Principle Component.
 
 ![mvapp_pca_eigen](https://user-images.githubusercontent.com/14832460/32647217-788202b8-c5f0-11e7-9f1d-85f44ccc6a10.png)
 
-The table summarizing the eigenvalues of each principle component, their percentage of variance and the cumulative percentages that add to 100% can be found below the plot and can be downloaded as a CSV file.
+The table summarizing the eigenvalues of each Principle Component (PC), their percentage of variance EXPLAINED and the cumulative percentages that add to 100% can be found below the plot and can be downloaded as a .csv file.
 
-###### Visualizing the general contribution of DVs per PC
+#### Visualize the general contribution of DVs per PC
 
-'Contribution per variable' tab displays the contribution of the chosen DVs with respect to two PCs at a time. You can select individual PCs to be plotted on x- and y-axis from the two dropdown menus.
+The 'Contribution per variable' sub-tab displays the contribution of the chosen Dependent Variables with respect to two PCs at a time. You can select individual PCs to be plotted on x- and y-axis from the two dropdown menus.
 
 ![mvapp_pca_trait_contrib](https://user-images.githubusercontent.com/14832460/32647213-77f03ef0-c5f0-11e7-8033-922fc073a36d.png)
 
-###### Visualizing the contribution of each DV value
+#### Visualize the contribution of each DV value
 
-By scrolling down, you can see the PC coordinates of the individual samples - the x- and y-axis are controlled by the same dropdown menu as the contribution plots. You can color the plot by any of the Independent Variable to see if you have separation in PC coordinates between your genotype / treatment / time points:
+By scrolling down, you can see the PC coordinates of the individual samples. The x- and y-axis are controlled by the same dropdown menu as the contribution plots. You can color the plot by any of the Independent Variable to see if you have separation in PC coordinates between your genotype / treatment / time points:
 
 ![mvapp_pca_scatter](https://user-images.githubusercontent.com/14832460/32647923-ef68a3c0-c5f3-11e7-9321-ede2f7620bef.png)
 
-###### Visualizing the contribution of each DV per PC
+#### Visualize the contribution of each DV per PC
 
-In the sub-tab 'Contribution per PC' the contribution of individual Phenotypes for each PC are displayed. You can download the specific percentange contribution data per PC below the graph:
+In the sub-tab 'Contribution per PC' the contribution of individual Dependent Variable for each PC are displayed. You can download the specific percentange contribution data per PC below the graph:
 
 ![mvapp_pca_trait_contrib2](https://user-images.githubusercontent.com/14832460/32647216-78663bdc-c5f0-11e7-82ef-dd418670a6f8.png)
 
 ### 7. Cluster analysis => Magda
 
-###### Selecting the data
+#### Selecting the data
 
 ![mvapp_hcluster_hotmap](https://user-images.githubusercontent.com/14832460/32647242-8e58ae48-c5f0-11e7-85fe-7501207fbfcd.png)
 
-###### What kind of clustering
+#### What kind of clustering
 
-###### Select the distance for cluster separation
+#### Select the distance for cluster separation
 
 ![mvapp_hcluster_dendro](https://user-images.githubusercontent.com/14832460/32647240-8df05d2a-c5f0-11e7-99dc-9b75a5430c96.png)
 
