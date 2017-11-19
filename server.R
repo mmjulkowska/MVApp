@@ -823,7 +823,10 @@ function(input, output) {
   })
     
   output$Select_model_error_bar_to_plot <- renderUI({
-    if(input$model_graph_plot == "bar graph"){
+    if(is.null(Model_temp_data())){
+      return()
+    }
+     if(input$model_graph_plot == "bar graph"){
       tagList(
         selectizeInput(
           inputId = "model_error_plot",
@@ -831,6 +834,9 @@ function(input, output) {
           choices = c("Standard Error", "Standard Deviation"),
           multiple = F
         ))}
+    else{
+      return()
+    }
   })
   
   output$Select_model_color_to_plot <- renderUI({
@@ -874,17 +880,7 @@ function(input, output) {
         ))
   })
   
-  output$Go_model_to_plot <- renderUI({
-    if(is.null(Model_temp_data())){
-      return()
-    }
-    else{
-      actionButton(
-        inputId = "Go_model_plot",
-        label = "Unleash model plot"
-      )
-    }
-  })
+
   
   output$Select_model_color_scale_to_plot <- renderUI({
     if(is.null(Model_temp_data())){
@@ -919,6 +915,62 @@ function(input, output) {
   })
   
   
+  output$Model_Selection_of_colors <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    else
+      selectizeInput(
+        inputId = "Model_col_select_order",
+        label = "Show samples based on:",
+        choices = c("Order of the trait (increasing)", "Order of the trait (decreasing)", "Chose samples to plot")
+      )
+  }) 
+  
+  output$Select_number_of_colors <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      return()
+    }
+    else{
+      sliderInput(
+        inputId = "Model_col_number",
+        label = "Show ... number of samples",
+        min = 2,
+        max = 12,
+        value = 9)
+    }
+  })
+  
+  output$Select_portion_of_color <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      flop <- Model_temp_data()
+      list <- unique(flop[,input$model_color_plot])
+      selectizeInput(
+        inputId = "Model_spec_color",
+        label = "Plot specific samples:",
+        choices = list,
+        multiple = T
+      )
+    }
+    else{
+      flop <- Model_temp_data()
+      max0 <- (length(unique(flop[,input$model_color_plot])) - (input$Model_col_number-1))
+      sliderInput(
+        inputId = "Model_col_portion",
+        label = "Plot portion of the data starting from element number ...",
+        min = 1,
+        max = max0,
+        value = 1,
+        step = input$Model_col_number)}
+  }) 
+  
+  
   # - - - - - - - >> CALCULATIONS <<- - - - - - - - - - - - 
   
   output$model_comparison_summary <- renderDataTable({
@@ -927,6 +979,41 @@ function(input, output) {
     temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
     temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = mean(x), sd = sd(x), se = std.error(x))})
     temp_sum
+  })
+  
+  
+  output$testeros_of_selection <- renderDataTable({
+    temp <- Model_temp_data()
+    temp[,input$SelectID] <- NULL
+    temp$colorek <- temp[,input$model_color_plot]
+    temp_sub <- subset(temp, select = c("colorek", input$model_trait_plot))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
+    
+    
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Model_spec_color)}
+    
+    if(input$Model_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    if(input$Model_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    dropski <- c("colorek")
+    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    from_sub
   })
   
   # Add download button here
@@ -951,12 +1038,39 @@ function(input, output) {
   # - - - - - - - >> GRAPHS <<- - - - - - - - - - - - 
   
   output$model_comparison_plotski <- renderPlotly({
-  temp <- Model_temp_data()
-  temp[,input$SelectID] <- NULL
+    temp <- Model_temp_data()
+    temp[,input$SelectID] <- NULL
+    temp$colorek <- temp[,input$model_color_plot]
+    temp_sub <- subset(temp, select = c("colorek", input$model_trait_plot))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
+    
+    
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Model_spec_color)}
+    
+    if(input$Model_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    if(input$Model_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    dropski <- c("colorek")
+    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
   
   if(input$model_graph_plot == "bar graph"){
     
-    temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
+    temp_melt <- melt(from_sub, id=c(input$ModelIV, input$ModelSubIV))
     temp_melt <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
     temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
     temp_sum$color <- temp_sum[,input$model_color_plot]
@@ -973,7 +1087,7 @@ function(input, output) {
     #benc <- benc + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
   }
   
-  temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
+  temp_melt <- melt(from_sub, id=c(input$ModelIV, input$ModelSubIV))
   melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
   melt_sub$id <- paste(melt_sub[,input$ModelIV], melt_sub[,input$ModelSubIV], sep="_")
   melt_sub$color <- melt_sub[,input$model_color_plot]
