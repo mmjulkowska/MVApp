@@ -133,24 +133,28 @@ fluidPage(
                                   hr(),
                                  
                                   column(4, uiOutput("Select_model_trait_to_plot"),
-                                            uiOutput("Select_model_graph_to_plot")),
+                                            uiOutput("Model_Selection_of_colors"),
+                                            uiOutput("Select_number_of_colors"),
+                                            uiOutput("Select_portion_of_color")),
                                   column(4, uiOutput("Select_model_color_to_plot"),
-                                         uiOutput("Select_model_facet_to_plot"),
-                                         #uiOutput("Select_model_color_scale_to_plot"),
-                                         uiOutput("Select_model_background_color_to_plot"),
-                                         uiOutput("Select_model_maj_grid_to_plot")),
+                                            uiOutput("Select_model_facet_to_plot"),
+                                             #uiOutput("Select_model_color_scale_to_plot"),
+                                            uiOutput("Select_model_background_color_to_plot"),
+                                            uiOutput("Select_model_maj_grid_to_plot")),
                                   column(4, selectizeInput(
                                               inputId = "Model_threshold",
                                               label = "Select the p-value threshold",
                                               choices = c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1),
                                               selected = 0.05,
                                               multiple = F),
+                                            uiOutput("Select_model_graph_to_plot"),
                                             uiOutput("Select_model_facet_scale"),
                                             uiOutput("Select_model_error_bar_to_plot")),
                                   hr(),
-                                  column(12, verbatimTextOutput("model_comparison_Tukey"),
-                                         uiOutput("Model_summ_download_button")),
-                                  dataTableOutput("model_comparison_summary")
+                                  column(12,dataTableOutput("testeros_of_selection"))
+                                  #column(12, verbatimTextOutput("model_comparison_Tukey"),
+                                  #       uiOutput("Model_summ_download_button")),
+                                  #dataTableOutput("model_comparison_summary")
                                   )
                                   
                                   #plotOutput("Fit_plot_multi_graphs",  width = 1000))
