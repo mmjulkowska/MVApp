@@ -981,41 +981,6 @@ function(input, output) {
     temp_sum
   })
   
-  
-  output$testeros_of_selection <- renderDataTable({
-    temp <- Model_temp_data()
-    temp[,input$SelectID] <- NULL
-    temp$colorek <- temp[,input$model_color_plot]
-    temp_sub <- subset(temp, select = c("colorek", input$model_trait_plot))
-    names(temp_sub)[2] <- "pheno"
-    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
-    
-    
-    if(input$Model_col_select_order == "Chose samples to plot"){
-      from_sub <- subset(temp, temp$colorek %in% input$Model_spec_color)}
-    
-    if(input$Model_col_select_order == "Order of the trait (increasing)"){
-      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
-      min <- as.numeric(as.character(input$Model_col_portion))
-      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
-      super_lista <- as.character(from_sort$colorek[min:max])
-      from_sub <- subset(temp, temp$colorek %in% super_lista)
-    }
-    
-    if(input$Model_col_select_order == "Order of the trait (decreasing)"){
-      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
-      min <- as.numeric(as.character(input$Model_col_portion))
-      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
-      super_lista <- as.character(from_sort$colorek[min:max])
-      from_sub <- subset(temp, temp$colorek %in% super_lista)
-    }
-    
-    dropski <- c("colorek")
-    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
-    
-    from_sub
-  })
-  
   # Add download button here
   
   output$Model_summ_download_button <- renderUI({
