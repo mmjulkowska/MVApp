@@ -1164,25 +1164,24 @@ function(input, output) {
   })
   
   output$Select_outlier_background_color_to_plot <- renderUI({
-    if(is.null(Model_temp_data())){
+    if(is.null(input$Go_outliers)){
       return()}
-    else
+    else{
       tagList(
         checkboxInput(
           inputId = "Select_outl_background",
-          label = "Remove background"))
+          label = "Remove background"))}
   })
   
   output$Select_outlier_maj_grid_to_plot <- renderUI({
-    if(is.null(Model_temp_data())){
+    if(is.null(input$Go_outliers)){
       return()}
-    else
+    else{
       tagList(
         checkboxInput(
           inputId = "Select_outl_maj_grid",
-          label = "Remove major grid lines"))
+          label = "Remove major grid lines"))}
   })
-  
   
   # - - - - - - - - - - - - - >>  MAIN CALCULATIONS << - - - - - - - - - - - - - -
   
@@ -1524,6 +1523,62 @@ function(input, output) {
     return(data_blob)
   })
   
+  #   =   =   =   =   =   =   >>  # intermediate input widgets #  <<    =   =   =   =   =   =   =   =
+  
+  output$Outlier_Selection_of_colors <- renderUI({
+    if(is.null(input$Go_outliers)){
+      return()
+    }
+    else
+      selectizeInput(
+        inputId = "Outl_col_select_order",
+        label = "Show samples based on:",
+        choices = c("Order of the trait (increasing)", "Order of the trait (decreasing)", "Chose samples to plot")
+      )
+  }) 
+  
+  output$Select_number_of_colors_outl <- renderUI({
+    if(is.null(input$Go_outliers)){
+      return()
+    }
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      return()
+    }
+    else{
+      sliderInput(
+        inputId = "Outl_col_number",
+        label = "Show ... number of samples",
+        min = 2,
+        max = 12,
+        value = 9)
+    }
+  })
+  
+  output$Select_portion_of_color_outl <- renderUI({
+    if(is.null(input$Go_outliers)){
+      return()
+    }
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      flop <- Outliers_final_data()
+      list <- unique(flop[,input$SelectGeno])
+      selectizeInput(
+        inputId = "Outl_spec_color",
+        label = "Plot specific samples:",
+        choices = list,
+        multiple = T
+      )
+    }
+    else{
+      flop <- Outliers_final_data()
+      max0 <- (length(unique(flop[,input$SelectGeno])) - (input$Outl_col_number-1))
+      sliderInput(
+        inputId = "Outl_col_portion",
+        label = "Plot portion of the data starting from element number ...",
+        min = 1,
+        max = max0,
+        value = 1,
+        step = input$Outl_col_number)}
+  }) 
   
   # - - - - - - - - - - - - - >>  OUTPUT TABLES / GRAPHS / DOWNLOAD BUTTONS << - - - - - - - - - - - - - -
   
@@ -1674,7 +1729,43 @@ function(input, output) {
       data_outl <- my_data()
     }
     
-    outl <- subset(data_outl, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_graph_outliers))
+    # # # # >> START OF KINKY SECTION << # # # # #
+    
+    temp <- data_outl
+    
+    temp$colorek <- temp[,input$SelectGeno]
+    temp_sub <- subset(temp, select = c("colorek", input$DV_graph_outliers))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
+    
+    
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Outl_spec_color)}
+    
+    if(input$Outl_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Outl_col_portion))
+      max <- as.numeric(as.character(input$Outl_col_portion)) + (input$Outl_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    if(input$Outl_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Outl_col_portion))
+      max <- as.numeric(as.character(input$Outl_col_portion)) + (input$Outl_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    dropski <- c("colorek")
+    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    data_outl <- from_sub
+    
+    # # # END OF KINKY SECTION
+    
+    outl <- subset(data_outl, select=c(input$IV_outliers, input$DV_graph_outliers))
     lista <- input$IV_outliers
     
     if(input$outlier_facet == T){
@@ -1685,8 +1776,6 @@ function(input, output) {
     if(input$outlier_colour == T){
       listx <- input$Colour_choice
       outl$listx <- outl[,input$Colour_choice]
-      listax <- setdiff(lista, listx)
-      outl$listax <- do.call(paste,c(outl[listax], sep = "_"))
     }
     
     phenotype <- input$DV_graph_outliers
@@ -1699,18 +1788,24 @@ function(input, output) {
       outl$pheno <- as.numeric(outl$pheno)
       if(input$outlier_colour == T) {
         if(input$outlier_facet == F){
-        out_sum <- summaryBy(pheno ~ listax + listx, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-        taka <- ggplot(out_sum, aes(x = listax, y= pheno.m, fill = listx))
+        out_sum <- summaryBy(pheno ~ listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })
+        list_temp <- c(lista, listx)
+        out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
+        taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
         #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
       }
       if(input$outlier_facet == T){
-        out_sum <- summaryBy(pheno ~ listax + listx + listb, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-        taka <- ggplot(out_sum, aes(x = listax, y= pheno.m, fill = listx))
+        out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+        taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
       }}
       
       if(input$outlier_colour == F){
         if(input$outlier_facet == T){
           out_sum <- summaryBy(pheno ~ id_test + listb, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+          list_temp <- c(lista, listx)
+          out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+          
           taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))
         }
         if(input$outlier_facet == F){
@@ -1763,9 +1858,6 @@ function(input, output) {
     taka <- taka + xlab("")
     taka <- taka + ylab(input$DV_graph_outliers)
     
-    if(input$outlier_colour == T){
-    taka <- taka + theme(legend.title=element_blank())
-    }
   
   if(input$Select_outl_background == T){
     taka <- taka + theme_minimal()}
@@ -1778,7 +1870,45 @@ function(input, output) {
   
   output$no_outliers_graph <- renderPlotly({
     data <- Outlier_free_data()
-    clean_data <- subset(data, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_graph_outliers))
+    
+    # # # # >> START OF KINKY SECTION << # # # # #
+    
+    temp <- data
+    
+    temp$colorek <- temp[,input$SelectGeno]
+    temp_sub <- subset(temp, select = c("colorek", input$DV_graph_outliers))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
+    
+    
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Outl_spec_color)}
+    
+    if(input$Outl_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Outl_col_portion))
+      max <- as.numeric(as.character(input$Outl_col_portion)) + (input$Outl_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    if(input$Outl_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Outl_col_portion))
+      max <- as.numeric(as.character(input$Outl_col_portion)) + (input$Outl_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    dropski <- c("colorek")
+    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    data <- from_sub
+    
+    # # # END OF KINKY SECTION
+    
+    clean_data <- subset(data, select=c(input$IV_outliers, input$DV_graph_outliers))
+    
     lista <- input$IV_outliers
     
     if(input$outlier_facet == T){
@@ -1789,9 +1919,7 @@ function(input, output) {
     if(input$outlier_colour == T){
       listx <- input$Colour_choice
       clean_data$listx <- clean_data[,input$Colour_choice]
-      listax <- setdiff(lista, listx)
-      clean_data$listax <- do.call(paste,c(clean_data[listax], sep = "_"))
-    }
+      }
     
     phenotype <- input$DV_graph_outliers
     clean_data$pheno <- clean_data[,input$DV_graph_outliers]
