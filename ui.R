@@ -403,7 +403,7 @@ tabPanel("Hierarchical Clustering",
                                  uiOutput("Select_clustering_method"),
                                  actionButton("Go_cluster", "Unleash cluster analysis"),
                                  hr(),
-                                 textInput("Split_cluster", "Numaric value at which to cut the dendrogram to separate clusters:")),
+                                 textInput("Split_cluster", "Numeric value at which to cut the dendrogram to separate clusters:")),
          mainPanel(
            navbarPage("Happy clustering",
                       tabPanel("Clustering your HOT HOT Data",

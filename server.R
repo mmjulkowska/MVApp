@@ -2243,9 +2243,9 @@ function(input, output) {
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
         if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
-          interpret_shapiro[i]<-"Data might NOT be normally distributed"
+          interpret_shapiro[i]<-"Data is NOT normally distributed"
         } else {
-          interpret_shapiro[i]<-"Data has NORMAL distribution"
+          interpret_shapiro[i]<-"Data is NORMALLY distributed"
         }
         
         temp_shapiro<-as.data.frame(cbind(facetting_shapiro,shapiro_pvalue, interpret_shapiro))
@@ -2258,7 +2258,7 @@ function(input, output) {
       cat("The data for ",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "does not show the normal distribution in the following samples:")
       cat("\n")
       cat(list_sig_shapiro, sep=", ")
-      #cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "do not have a normal distribution?!")
+      #cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "might NOT have a normal distribution")
       
       if(input$showShapirotest==T){
         cat("\n")
@@ -2281,9 +2281,9 @@ function(input, output) {
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
         if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
-          interpret_shapiro[i]<-"Data not normally distributed"
+          interpret_shapiro[i]<-"Data is NOT normally distributed"
         } else {
-          interpret_shapiro[i]<-"Cannot reject H0"
+          interpret_shapiro[i]<-"Data is NORMALLY distributed"
         }
         temp_shapiro<-as.data.frame(cbind(facetting_shapiro,shapiro_pvalue, interpret_shapiro))
       }
@@ -2295,7 +2295,7 @@ function(input, output) {
       #list_sha <- unique(list_sig_shapiro)
       #paste("<font color=\"#008080\"><b>",list_sha, "</b></font>")
       #print(colore)
-      cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "do not have a normal distribution?!")
+      cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "does NOT have a normal distribution")
       #paste(type='text/css', 'list_sig_shapiro, {color = "red"}')
       
       if(input$showShapirotest==T){
@@ -2418,14 +2418,15 @@ function(input, output) {
   
   
   output$Tukeylisting <- renderPrint({
-    Chosenpvalue<-as.numeric(as.character(input$Chosenthreshold))
+    Chosen_tukey_threshold <- as.numeric(as.character(input$Chosenthreshold))
+    
     if(input$plot_facet ==T){
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
       my_his_data[,2]<-as.factor(my_his_data[,2])
       for (i in unique(my_his_data[,3])){
         subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
         fit_tukey<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
-        out<-HSD.test(fit_tukey, "subsetted_data[, 2]", group=TRUE, alpha==Chosenpvalue) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+        out<-HSD.test(fit_tukey, "subsetted_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
         out_tukey<-as.data.frame(out$groups)
         out_tukey$x<-row.names(out_tukey)
         n_name<-rep(i, length(levels(subsetted_data[,2])))
@@ -2440,14 +2441,13 @@ function(input, output) {
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
       my_his_data[,2]<-as.factor(my_his_data[,2])
       fit_tukey<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
-      out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha==Chosenpvalue) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+      out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
       out_tukey<-as.data.frame(out$groups)
       out_tukey$x<-row.names(out_tukey)
       colnames(out_tukey)<-c(names(my_his_data[1]), "Significant groups based on Tukey's pairwise comparison ", names(my_his_data)[2])
       out_tukey_f<-out_tukey[c(3,1,2)]
       print(out_tukey_f, row.names=FALSE)
     }
-    
   })
   
   
@@ -2499,9 +2499,9 @@ function(input, output) {
         #print(paste("The p-value of the ANOVA test is", pvalue))
         #temp_anova<-as.data.frame(cbind(facetting, p_values_anova, p_values_anovacorr))
         if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
-          interpret_anova[i]<-"Significant difference in means"
+          interpret_anova[i]<-"SIGNIFICANT difference in means"
         } else {
-          interpret_anova[i]<-"Cannot reject H0"
+          interpret_anova[i]<-"NO significant difference in means"
         }
         temp_anova<-as.data.frame(cbind(facetting, p_values_anova,interpret_anova))
       }
@@ -2789,7 +2789,7 @@ function(input, output) {
     return(result)
   })
   
-  output$ cor_table_text <- renderPrint({
+  output$cor_table_text <- renderPrint({
     if(input$cor_data_subset == F){
       cat(paste("The", input$corMethod, "correlation coefficients and p values of your data are:"))
     }
@@ -2810,6 +2810,7 @@ function(input, output) {
   output$cortable_download_button <- downloadHandler(
     filename = paste("Correlation table using ", input$corrplotMethod, " MVApp.csv"),
     content <- function(file) {
+      
       beginCol <-
         length(c(
           input$SelectIV,
@@ -2846,7 +2847,8 @@ function(input, output) {
       }
       
       result <- flattenCorrMatrix(res$r, res$P)
-      write.csv(results, file)}
+      
+      write.csv(result, file)}
   )
   
   
@@ -2948,7 +2950,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Pheno1",
-          label = "Select the first dependent variable to be plotted",
+          label = "Select the first dependent variable to be plotted on the x-axis:",
           choices = input$SelectDV,
           multiple = F
         )
@@ -2962,7 +2964,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Pheno2",
-          label = "X-axis:",
+          label = "Select the first dependent variable to be plotted on the y-axis:",
           choices = input$SelectDV,
           multiple = F
         )
@@ -2977,7 +2979,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Color",
-          label = "Y-axis:",
+          label = "Color the plot by:",
           choices = c(input$SelectIV, input$SelectGeno),
           multiple = F
         )
