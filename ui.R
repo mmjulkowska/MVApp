@@ -151,10 +151,9 @@ fluidPage(
                                             uiOutput("Select_model_facet_scale"),
                                             uiOutput("Select_model_error_bar_to_plot")),
                                   hr(),
-                                  column(12,dataTableOutput("testeros_of_selection"))
-                                  #column(12, verbatimTextOutput("model_comparison_Tukey"),
-                                  #       uiOutput("Model_summ_download_button")),
-                                  #dataTableOutput("model_comparison_summary")
+                                  column(12, verbatimTextOutput("model_comparison_Tukey"),
+                                         uiOutput("Model_summ_download_button")),
+                                  dataTableOutput("model_comparison_summary")
                                   )
                                   
                                   #plotOutput("Fit_plot_multi_graphs",  width = 1000))
