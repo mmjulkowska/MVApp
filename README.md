@@ -243,9 +243,47 @@ In the example below, there is no significant differences in the perimeter betwe
 
 ### 5. CORRELATIONS => Gege
 
-###### General Correlations
-###### Subsetted Correlations
-###### Scatter plots
+This tab is to check how correlated the selected dependent variables (phenotypes) are in your data by creating a correlation matrix of the selected variables. Correlation coefficientss and p.values are provided for each variable pair. 
+
+###### Select the dataset
+
+Select which dataset you would like to use to perform the correlation analysis. You can choose from the following options: 
+raw data: use your selected data from “Upload your data” tab, you can check the data from the Data Magic - New data tab
+missing values removed: use data without rows with missing values
+outliers removed: use outlier-free data from “Data curation” tab
+
+[screenshot]
+
+###### Select the correlation method
+
+There are two methods you can choose from to calculate correlations. The most common method is Pearson.
+
+For more details, you can read about how they are calculated here: 
+https://en.wikipedia.org/wiki/Pearson_correlation_coefficient
+https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient
+
+###### Correlation for subsetted data
+
+The default is to perform correlation analysis across all dependent variables (phenotypes) across all independent variables. You can also choose to use a subset your data (for examples, phenotypes under a certain treatment, or from a certain day) to examine the correlation. 
+
+Tick the checkbox “Subset your data for correlation analysis” and choose the condition to want to observe by choosing from the dropdown menu.
+
+[screenshot]
+
+###### Customize the plot
+
+You can choose different plot method, plot type and label orders to customize your correlation plot by choosing from the dropdown menus on the left-side panel.
+
+[screenshot]
+
+###### Scatterplots
+
+To visualize the dependent variable data on a scatterplot,
+  -choose the fist phenotype to be plotted on the X-axis
+  -choose the second phenotype to be plotted on the Y-axis
+You can also choose to color your data points by choosing a certain independent variable (such as day, or treatment).
+
+[screenshot]
 
 ### 6. PCA => Mariam
 
