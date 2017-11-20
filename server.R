@@ -2810,6 +2810,7 @@ function(input, output) {
   output$cortable_download_button <- downloadHandler(
     filename = paste("Correlation table using ", input$corrplotMethod, " MVApp.csv"),
     content <- function(file) {
+      
       beginCol <-
         length(c(
           input$SelectIV,
@@ -2846,7 +2847,8 @@ function(input, output) {
       }
       
       result <- flattenCorrMatrix(res$r, res$P)
-      write.csv(results, file)}
+      
+      write.csv(result, file)}
   )
   
   
@@ -2948,7 +2950,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Pheno1",
-          label = "Select the first dependent variable to be plotted",
+          label = "Select the first dependent variable to be plotted on the x-axis:",
           choices = input$SelectDV,
           multiple = F
         )
@@ -2962,7 +2964,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Pheno2",
-          label = "X-axis:",
+          label = "Select the first dependent variable to be plotted on the y-axis:",
           choices = input$SelectDV,
           multiple = F
         )
@@ -2977,7 +2979,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Color",
-          label = "Y-axis:",
+          label = "Color the plot by:",
           choices = c(input$SelectIV, input$SelectGeno),
           multiple = F
         )
