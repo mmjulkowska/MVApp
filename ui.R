@@ -87,29 +87,29 @@ fluidPage(
       # end of Tab2
     ),
    
-# Tab 3 = = = = = = = = = = = = = = >> MODELING DATA << = = = = = = = = = = = = = = = = = = 
+   # Tab 3 = = = = = = = = = = = = = = >> MODELING DATA << = = = = = = = = = = = = = = = = = = 
    
    tabPanel("Fitting curves to the data",icon = icon("wrench"),
             sidebarPanel(
               fluidRow(
-                                    uiOutput("Pheno_to_model"),
-                                    uiOutput("IV_to_model"),
-                                    uiOutput("IV_subset_model"),
-                                    actionButton("Go_HelpModel", label = "Unleash model estimation"),
-                                    selectInput("model",
-                                                label = "Select method for modeling",
-                                                choices = list(
-                                                  "linear" = "lin",
-                                                  "quadratic" = "quad",
-                                                  "exponential" = "exp",
-                                                  "square root" = "sqr",
-                                                  "cubic spline" = "cubic",
-                                                  "smoothed spline" = "smooth")),
-                                    uiOutput("if_cubic_knots"),
-                                    uiOutput("Spline_df_select"),
-                                    uiOutput("Spline_user_df"),
-                                    actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle"))
-                                    )),
+                uiOutput("Pheno_to_model"),
+                uiOutput("IV_to_model"),
+                uiOutput("IV_subset_model"),
+                actionButton("Go_HelpModel", label = "Unleash model estimation"),
+                selectInput("model",
+                            label = "Select method for modeling",
+                            choices = list(
+                              "linear" = "lin",
+                              "quadratic" = "quad",
+                              "exponential" = "exp",
+                              "square root" = "sqr",
+                              "cubic spline" = "cubic",
+                              "smoothed spline" = "smooth")),
+                uiOutput("if_cubic_knots"),
+                uiOutput("Spline_df_select"),
+                uiOutput("Spline_user_df"),
+                actionButton("Go_Model", label = "Unleash the model", icon = icon("play-circle"))
+              )),
             # end of side Panel
             mainPanel(
               navbarPage("",
@@ -124,118 +124,125 @@ fluidPage(
                                   column(4, uiOutput("Select_modelPlot")),
                                   column(4, uiOutput("Model_graph_fit_select_multi_input")),
                                   column(4, uiOutput("Fit_plot_slider_input")),
-
+                                  
                                   uiOutput("Go_fitplot_model"),
                                   plotOutput("Fit_plot_only_graph",height = 750)),
                          tabPanel("Examine differences",
                                   verbatimTextOutput("model_comparison_report"),
                                   plotlyOutput("model_comparison_plotski"),
                                   hr(),
-                                 
+                                  
                                   column(4, uiOutput("Select_model_trait_to_plot"),
-                                            uiOutput("Select_model_graph_to_plot")),
+                                         uiOutput("Model_Selection_of_colors"),
+                                         uiOutput("Select_number_of_colors"),
+                                         uiOutput("Select_portion_of_color")),
                                   column(4, uiOutput("Select_model_color_to_plot"),
                                          uiOutput("Select_model_facet_to_plot"),
                                          #uiOutput("Select_model_color_scale_to_plot"),
                                          uiOutput("Select_model_background_color_to_plot"),
                                          uiOutput("Select_model_maj_grid_to_plot")),
                                   column(4, selectizeInput(
-                                              inputId = "Model_threshold",
-                                              label = "Select the p-value threshold",
-                                              choices = c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1),
-                                              selected = 0.05,
-                                              multiple = F),
-                                            uiOutput("Select_model_facet_scale"),
-                                            uiOutput("Select_model_error_bar_to_plot")),
+                                    inputId = "Model_threshold",
+                                    label = "Select the p-value threshold",
+                                    choices = c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1),
+                                    selected = 0.05,
+                                    multiple = F),
+                                    uiOutput("Select_model_graph_to_plot"),
+                                    uiOutput("Select_model_facet_scale"),
+                                    uiOutput("Select_model_error_bar_to_plot")),
                                   hr(),
                                   column(12, verbatimTextOutput("model_comparison_Tukey"),
                                          uiOutput("Model_summ_download_button")),
                                   dataTableOutput("model_comparison_summary")
-                                  )
-                                  
-                                  #plotOutput("Fit_plot_multi_graphs",  width = 1000))
+                         )
+                         
+                         #plotOutput("Fit_plot_multi_graphs",  width = 1000))
               ))
             # end of Tab3
    ),
-
-# Tab 4 = = = = = = = = = = = = = = >> DATA CURATION << = = = = = = = = = = = = = = = = = =   
-
-tabPanel("Data curation", icon = icon("gavel"),
-         sidebarPanel(
-           fluidRow(
-             navbarPage("",
-                        tabPanel("Outlier selection",            
-                                 checkboxInput("Go_omitna", label = "Remove rows containing missing data prior to outlier selection"),
-                                 br(),
-                                 uiOutput("IV_outliers_selection"),
-                                 selectizeInput("Out_pheno_single_multi", label = "Select outliers based on", choices=c("All phenotypes", "Single phenotype"), multiple = F),
-                                 
-                                 selectizeInput("outlier_method", label="Method for the outlier selection", 
-                                                choices = list(
-                                                  "1.5*IQR away from the mean (default)",
-                                                  "Cook's Distance",
-                                                  "Bonferonni outlier test",
-                                                  "1xStDev from the median", 
-                                                  "2xStDev from the median", 
-                                                  "2.5xStDev from the median", 
-                                                  "3xStDev from the median" 
-                                                ), multiple = F),
-                                 br(),
-                                 uiOutput("Pheno_outliers"),
-                                 uiOutput("Outliers_selection_pheno"),
-                                 br(),
-                                 actionButton("Go_outliers", label = "Unleash outlier highlighter"),  
-                                 hr(),
-                                 uiOutput("Outliers_save")),
-                        
-                        tabPanel("Tweak the graphs",
-                                 uiOutput("Pheno_graph_outliers"),
-                                 radioButtons("outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot")),
-                                 uiOutput("Outlier_error_bar"),
-                                 br(),
-                                 checkboxInput("outlier_colour", "Color code Independent Variables?"),
-                                 uiOutput("Q_colour"),
-                                 checkboxInput("outlier_facet", "Split the graph?"),
-                                 uiOutput("Q_facet"),
-                                 uiOutput("Facet_user_input_columns"),
-                                 uiOutput("Facet_outlier_scale"),
-                                 #uiOutput("Select_outlier_color_scale_to_plot"),
-                                 uiOutput("Select_outlier_background_color_to_plot"),
-                                 uiOutput("Select_outlier_maj_grid_to_plot"))
-             ))),
-         mainPanel(
-           navbarPage("Get it OUT",
-                      tabPanel("The outliers test", icon=icon("hand-pointer-o"),
-                               verbatimTextOutput("na_report"),
-                               verbatimTextOutput("Outlier_report"),
-                               br(),
-                               uiOutput("Full_outlier_download"),
-                               br(),
-                               DT::dataTableOutput("Outlier_overview_table")),
-                      tabPanel("Graph containing outliers", icon=icon("bug"),
-                               plotlyOutput("outlier_graph"),
-                               br(),
-                               uiOutput("Pheno_outlier_download"),
-                               br(),
-                               dataTableOutput("Outlier_only_table")),
-                      
-                      tabPanel("Graph with outliers removed", icon=icon("birthday-cake"),
-                               plotlyOutput("no_outliers_graph"),
-                               br(),
-                               uiOutput("Pheno_outlier_free_download"),
-                               br(),
-                               dataTableOutput("Outlier_free_table")),
-                      tabPanel("Summary data", icon=icon("flask"),
-                               column(6,uiOutput("Data_for_SummaryStats"),
-                                        actionButton("Go_SummaryStat", label = "unleash Summary Statistics")), 
-                               column(6, uiOutput("CustomSumm"),
-                                      uiOutput("Sum_download_button")), 
-                               hr(),
-                               br(),
-                               dataTableOutput("sum_data"))
-           ))
-         # end of Tab#4         
-), 
+   
+   # Tab 4 = = = = = = = = = = = = = = >> DATA CURATION << = = = = = = = = = = = = = = = = = =   
+   
+   tabPanel("Data curation", icon = icon("gavel"),
+            sidebarPanel(
+              fluidRow(
+                navbarPage("",
+                           tabPanel("Outlier selection",            
+                                    checkboxInput("Go_omitna", label = "Remove rows containing missing data prior to outlier selection"),
+                                    br(),
+                                    uiOutput("IV_outliers_selection"),
+                                    selectizeInput("Out_pheno_single_multi", label = "Select outliers based on", choices=c("All phenotypes", "Single phenotype"), multiple = F),
+                                    
+                                    selectizeInput("outlier_method", label="Method for the outlier selection", 
+                                                   choices = list(
+                                                     "1.5*IQR away from the mean (default)",
+                                                     "Cook's Distance",
+                                                     "Bonferonni outlier test",
+                                                     "1xStDev from the median", 
+                                                     "2xStDev from the median", 
+                                                     "2.5xStDev from the median", 
+                                                     "3xStDev from the median" 
+                                                   ), multiple = F),
+                                    br(),
+                                    uiOutput("Pheno_outliers"),
+                                    uiOutput("Outliers_selection_pheno"),
+                                    br(),
+                                    actionButton("Go_outliers", label = "Unleash outlier highlighter"),  
+                                    hr(),
+                                    uiOutput("Outliers_save")),
+                           
+                           tabPanel("Tweak the graphs",
+                                    uiOutput("Pheno_graph_outliers"),
+                                    radioButtons("outlier_graph_type", "Type of graph", choices = c("box plot", "scatter plot", "bar plot")),
+                                    uiOutput("Outlier_error_bar"),
+                                    br(),
+                                    uiOutput("Outlier_Selection_of_colors"),
+                                    uiOutput("Select_number_of_colors_outl"),
+                                    uiOutput("Select_portion_of_color_outl"),
+                                    br(),
+                                    checkboxInput("outlier_colour", "Color code Independent Variables?"),
+                                    uiOutput("Q_colour"),
+                                    checkboxInput("outlier_facet", "Split the graph?"),
+                                    uiOutput("Q_facet"),
+                                    uiOutput("Facet_user_input_columns"),
+                                    uiOutput("Facet_outlier_scale"),
+                                    uiOutput("Select_outlier_background_color_to_plot"),
+                                    uiOutput("Select_outlier_maj_grid_to_plot"))
+                ))),
+            mainPanel(
+              navbarPage("Get it OUT",
+                         tabPanel("The outliers test", icon=icon("hand-pointer-o"),
+                                  verbatimTextOutput("na_report"),
+                                  verbatimTextOutput("Outlier_report"),
+                                  br(),
+                                  uiOutput("Full_outlier_download"),
+                                  br(),
+                                  DT::dataTableOutput("Outlier_overview_table")),
+                         tabPanel("Graph containing outliers", icon=icon("bug"),
+                                  plotlyOutput("outlier_graph"),
+                                  br(),
+                                  uiOutput("Pheno_outlier_download"),
+                                  br(),
+                                  dataTableOutput("Outlier_only_table")),
+                         
+                         tabPanel("Graph with outliers removed", icon=icon("birthday-cake"),
+                                  plotlyOutput("no_outliers_graph"),
+                                  br(),
+                                  uiOutput("Pheno_outlier_free_download"),
+                                  br(),
+                                  dataTableOutput("Outlier_free_table")),
+                         tabPanel("Summary data", icon=icon("flask"),
+                                  column(6,uiOutput("Data_for_SummaryStats"),
+                                         actionButton("Go_SummaryStat", label = "unleash Summary Statistics")), 
+                                  column(6, uiOutput("CustomSumm"),
+                                         uiOutput("Sum_download_button")), 
+                                  hr(),
+                                  br(),
+                                  dataTableOutput("sum_data"))
+              ))
+            # end of Tab#4         
+   ), 
+   
 
 # Tab 5 = = = = = = = = = = = = = = >> DATA EXPLORATION << = = = = = = = = = = = = = = = = = =    
 

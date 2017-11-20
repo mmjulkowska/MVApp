@@ -227,15 +227,15 @@ function(input, output) {
   
   output$Spline_user_df <- renderUI({
     if(input$model == "smooth"){
-    if(input$spline_df == "user defined"){
-      textInput(
-        inputId = "model_smooth_df",
-        label = "Number of degrees of freedom:"
-      )
-    }
-    else{
-      return()
-    }}
+      if(input$spline_df == "user defined"){
+        textInput(
+          inputId = "model_smooth_df",
+          label = "Number of degrees of freedom:"
+        )
+      }
+      else{
+        return()
+      }}
     else{
       return()
     }
@@ -392,7 +392,7 @@ function(input, output) {
         colnames(super_temp3)[4] <- "time"
         colnames(super_temp3)[5] <- "phenotype"
         fit_cub <- lm(phenotype ~ bs(time, knots=knoty), data=super_temp3)
-      
+        
         for(e in 1:length(fit_cub$coef)){
           things_to_model[i,(3+e)] <- fit_cub$coef[[e]]
         }
@@ -403,13 +403,13 @@ function(input, output) {
           colnames(things_to_model)[3+f] <- paste("Coef",f,sep="_")
         }
         colnames(things_to_model)[(4+length(fit_cub$coef))] <- "r_squared"
-        }
+      }
       
       if(input$model == "smooth"){
         if(input$spline_df == "user determined"){
           fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], df= input$model_smooth_df)}
         if(input$spline_df == "automatic"){
-        fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], cv=T)}
+          fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], cv=T)}
         
         for(e in 1:length(fit_smooth$fit$coef)){
           things_to_model[i,(3+e)] <- fit_smooth$fit$coef[e]
@@ -431,7 +431,7 @@ function(input, output) {
         super_temp$predict  
         for(f in 1:length(fit_smooth$fit$coef)){
           colnames(things_to_model)[3+f] <- paste("Coef",f,sep="_")
-      }}
+        }}
     }
     things_to_model
   })
@@ -440,18 +440,18 @@ function(input, output) {
     if(is.null(Model_temp_data())){
       return()}
     else {
-    frajka <- Model_temp_data()
-    frajka_boom <- subset(frajka, select=c("r_squared"))
-    frajka_boom <- subset(frajka_boom, frajka_boom$r_squared < 0.7)                      
-    how_much <- nrow(frajka_boom)
-    
-    cat(paste("There are ", how_much, " samples with r-square value below 0.7."))
-    cat("\n")
-    cat("You should consider checking those samples using fit-plots and even going back to your original data.")
-    cat("\n")
-    
-    
-    
+      frajka <- Model_temp_data()
+      frajka_boom <- subset(frajka, select=c("r_squared"))
+      frajka_boom <- subset(frajka_boom, frajka_boom$r_squared < 0.7)                      
+      how_much <- nrow(frajka_boom)
+      
+      cat(paste("There are ", how_much, " samples with r-square value below 0.7."))
+      cat("\n")
+      cat("You should consider checking those samples using fit-plots and even going back to your original data.")
+      cat("\n")
+      
+      
+      
     }
   })
   
@@ -666,7 +666,7 @@ function(input, output) {
     par(mfrow=c(4,5))
     
     
-      for(i in 1:length(real_list)){
+    for(i in 1:length(real_list)){
       super_temp <- subset(docelowy, docelowy$lista == real_list[i])  
       
       # The graph instruction from single plot - so should work :P
@@ -753,46 +753,11 @@ function(input, output) {
   
   # - - - - - - - - - - - - >> SUMMARY STATS ON MODELING DATA << - - - - - - - - - - - - - - - 
   
-  output$model_comparison_report <- renderPrint({
-    temp <- Model_temp_data()  
-    temp$facet <- temp[,input$model_facet_plot]
-    temp$color <- temp[,input$model_color_plot]
-    temp$phenotype <- temp[,input$model_trait_plot]
-    thres <- as.numeric(as.character(input$Model_threshold))
-    
-    amod <- aov(phenotype ~ facet + color + facet*color, data = temp)
-    cat("ANOVA report")
-    cat("\n")
-    if(summary(amod)[[1]][[5]][1] < thres){
-    cat("The effect of ", input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
-    }
-    if(summary(amod)[[1]][[5]][1] > thres){
-    cat("The effect of ", input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
-    }
-    
-    if(summary(amod)[[1]][[5]][2] < thres){
-    cat("\n")
-    cat("The effect of ", input$model_color_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
-    }
-    if(summary(amod)[[1]][[5]][2] > thres){
-      cat("\n")
-      cat("The effect of ", input$model_color_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
-    }
-    
-    if(summary(amod)[[1]][[5]][3] < thres){
-    cat("\n")
-    cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
-    }  
-    if(summary(amod)[[1]][[5]][3] > thres){
-      cat("\n")
-      cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
-    }
-  })
   
   # - - - - - - - - - - - - >> input gizmos << - -  - - - - - - - - - - - - - - - 
   output$Select_model_trait_to_plot <- renderUI({
     if(is.null(Model_temp_data())){
-    return()}
+      return()}
     else{
       taka <- Model_temp_data()  
       list <- colnames(taka)
@@ -819,10 +784,13 @@ function(input, output) {
           label = "Graph type",
           choices = c("box plot", "scatter plot", "bar graph"),
           multiple=F
-          ))}
+        ))}
   })
-    
+  
   output$Select_model_error_bar_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
     if(input$model_graph_plot == "bar graph"){
       tagList(
         selectizeInput(
@@ -831,6 +799,9 @@ function(input, output) {
           choices = c("Standard Error", "Standard Deviation"),
           multiple = F
         ))}
+    else{
+      return()
+    }
   })
   
   output$Select_model_color_to_plot <- renderUI({
@@ -874,17 +845,7 @@ function(input, output) {
         ))
   })
   
-  output$Go_model_to_plot <- renderUI({
-    if(is.null(Model_temp_data())){
-      return()
-    }
-    else{
-      actionButton(
-        inputId = "Go_model_plot",
-        label = "Unleash model plot"
-      )
-    }
-  })
+  
   
   output$Select_model_color_scale_to_plot <- renderUI({
     if(is.null(Model_temp_data())){
@@ -919,7 +880,131 @@ function(input, output) {
   })
   
   
+  output$Model_Selection_of_colors <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    else
+      selectizeInput(
+        inputId = "Model_col_select_order",
+        label = "Show samples based on:",
+        choices = c("Order of the trait (increasing)", "Order of the trait (decreasing)", "Chose samples to plot")
+      )
+  }) 
+  
+  output$Select_number_of_colors <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      return()
+    }
+    else{
+      sliderInput(
+        inputId = "Model_col_number",
+        label = "Show ... number of samples",
+        min = 2,
+        max = 12,
+        value = 9)
+    }
+  })
+  
+  output$Select_portion_of_color <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      flop <- Model_temp_data()
+      list <- unique(flop[,input$model_color_plot])
+      selectizeInput(
+        inputId = "Model_spec_color",
+        label = "Plot specific samples:",
+        choices = list,
+        multiple = T
+      )
+    }
+    else{
+      flop <- Model_temp_data()
+      max0 <- (length(unique(flop[,input$model_color_plot])) - (input$Model_col_number-1))
+      sliderInput(
+        inputId = "Model_col_portion",
+        label = "Plot portion of the data starting from element number ...",
+        min = 1,
+        max = max0,
+        value = 1,
+        step = input$Model_col_number)}
+  }) 
+  
+  
   # - - - - - - - >> CALCULATIONS <<- - - - - - - - - - - - 
+  
+  output$model_comparison_report <- renderPrint({
+    temp <- Model_temp_data()
+    temp[,input$SelectID] <- NULL
+    
+    temp$colorek <- temp[,input$model_color_plot]
+    temp_sub <- subset(temp, select = c("colorek", input$model_trait_plot))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
+    
+    
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Model_spec_color)}
+    
+    if(input$Model_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    if(input$Model_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    dropski <- c("colorek")
+    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    temp <- from_sub
+    
+    temp$facet <- temp[,input$model_facet_plot]
+    temp$color <- temp[,input$model_color_plot]
+    temp$phenotype <- temp[,input$model_trait_plot]
+    thres <- as.numeric(as.character(input$Model_threshold))
+    
+    amod <- aov(phenotype ~ facet + color + facet*color, data = temp)
+    cat("ANOVA report")
+    cat("\n")
+    if(summary(amod)[[1]][[5]][1] < thres){
+      cat("The effect of ", input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
+    }
+    if(summary(amod)[[1]][[5]][1] > thres){
+      cat("The effect of ", input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
+    }
+    
+    if(summary(amod)[[1]][[5]][2] < thres){
+      cat("\n")
+      cat("The effect of ", input$model_color_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
+    }
+    if(summary(amod)[[1]][[5]][2] > thres){
+      cat("\n")
+      cat("The effect of ", input$model_color_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
+    }
+    
+    if(summary(amod)[[1]][[5]][3] < thres){
+      cat("\n")
+      cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
+    }  
+    if(summary(amod)[[1]][[5]][3] > thres){
+      cat("\n")
+      cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
+    }
+  })
   
   output$model_comparison_summary <- renderDataTable({
     temp <- Model_temp_data()
@@ -951,71 +1036,99 @@ function(input, output) {
   # - - - - - - - >> GRAPHS <<- - - - - - - - - - - - 
   
   output$model_comparison_plotski <- renderPlotly({
-  temp <- Model_temp_data()
-  temp[,input$SelectID] <- NULL
-  
-  if(input$model_graph_plot == "bar graph"){
+    temp <- Model_temp_data()
+    temp[,input$SelectID] <- NULL
+    temp$colorek <- temp[,input$model_color_plot]
+    temp_sub <- subset(temp, select = c("colorek", input$model_trait_plot))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
     
-    temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
-    temp_melt <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
-    temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
-    temp_sum$color <- temp_sum[,input$model_color_plot]
-    temp_sum$facet <- temp_sum[,input$model_facet_plot]
-    benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, fill = color))
-    benc <- benc + geom_bar(stat = "identity", position=position_dodge(1))
-    if(input$model_error_plot == "Standard Error"){
-      benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))
+    
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Model_spec_color)}
+    
+    if(input$Model_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
     }
-    if(input$model_error_plot == "Standard Deviation"){
-      benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
+    
+    if(input$Model_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
     }
-    benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
-    #benc <- benc + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
-  }
-  
-  temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
-  melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
-  melt_sub$id <- paste(melt_sub[,input$ModelIV], melt_sub[,input$ModelSubIV], sep="_")
-  melt_sub$color <- melt_sub[,input$model_color_plot]
-  melt_sub$facet <- melt_sub[,input$model_facet_plot]
-  no <- c(input$ModelIV, input$ModelSubIV)
-  no_fac <- setdiff(no, input$model_facet_plot)
-  melt_sub$no_facet <- paste(melt_sub[,no_fac], sep="_")
-  
-  if(input$model_graph_plot == "box plot"){
-        benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
-        benc <- benc + geom_boxplot()
-        benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
-       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
+    
+    dropski <- c("colorek")
+    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    if(input$model_graph_plot == "bar graph"){
+      
+      temp_melt <- melt(from_sub, id=c(input$ModelIV, input$ModelSubIV))
+      temp_melt <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
+      temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
+      temp_sum$color <- temp_sum[,input$model_color_plot]
+      temp_sum$facet <- temp_sum[,input$model_facet_plot]
+      benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, fill = color))
+      benc <- benc + geom_bar(stat = "identity", position=position_dodge(1))
+      if(input$model_error_plot == "Standard Error"){
+        benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))
       }
-  
-  if(input$model_graph_plot == "scatter plot"){
-    benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
-    benc <- benc + geom_point()
+      if(input$model_error_plot == "Standard Deviation"){
+        benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
+      }
+      benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
+      #benc <- benc + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
+    }
     
+    temp_melt <- melt(from_sub, id=c(input$ModelIV, input$ModelSubIV))
+    melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
+    melt_sub$id <- paste(melt_sub[,input$ModelIV], melt_sub[,input$ModelSubIV], sep="_")
+    melt_sub$color <- melt_sub[,input$model_color_plot]
+    melt_sub$facet <- melt_sub[,input$model_facet_plot]
+    no <- c(input$ModelIV, input$ModelSubIV)
+    no_fac <- setdiff(no, input$model_facet_plot)
+    melt_sub$no_facet <- paste(melt_sub[,no_fac], sep="_")
     
+    if(input$model_graph_plot == "box plot"){
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
+      benc <- benc + geom_boxplot()
+      benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
+      # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
+    }
+    
+    if(input$model_graph_plot == "scatter plot"){
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
+      benc <- benc + geom_point()
+      
+      
       benc <- benc + facet_wrap(~ facet, scale = input$Select_model_facet_sc)
       #benc <- benc + scale_color_brewer(palette = input$Select_model_color_sc)
-  }
-  
-  if(input$Select_model_background == T){
-    benc <- benc + theme_minimal()}
-  if(input$Select_model_maj_grid == T){
-  benc <- benc + theme(panel.grid.major = element_blank())}
-
-  benc <- benc + ylab(input$model_trait_plot)
-  benc <- benc + xlab(input$model_color_plot)
-  
-  benc
+    }
+    
+    if(input$Select_model_background == T){
+      benc <- benc + theme_minimal()}
+    if(input$Select_model_maj_grid == T){
+      benc <- benc + theme(panel.grid.major = element_blank())}
+    
+    benc <- benc + ylab(input$model_trait_plot)
+    benc <- benc + xlab(input$model_color_plot)
+    
+    benc
   })
+  
   
   # - - - - - - - - - - >> TUKEY MESSAGE << - - - - - - - - 
   output$model_comparison_Tukey <- renderPrint({
     
     Chosenpvalue<-as.numeric(as.character(input$Model_threshold))
+    
     temp <- Model_temp_data()
     temp[,input$SelectID] <- NULL
-    
     
     temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
     melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
@@ -1164,25 +1277,24 @@ function(input, output) {
   })
   
   output$Select_outlier_background_color_to_plot <- renderUI({
-    if(is.null(Model_temp_data())){
+    if(is.null(input$Go_outliers)){
       return()}
-    else
+    else{
       tagList(
         checkboxInput(
           inputId = "Select_outl_background",
-          label = "Remove background"))
+          label = "Remove background"))}
   })
   
   output$Select_outlier_maj_grid_to_plot <- renderUI({
-    if(is.null(Model_temp_data())){
+    if(is.null(input$Go_outliers)){
       return()}
-    else
+    else{
       tagList(
         checkboxInput(
           inputId = "Select_outl_maj_grid",
-          label = "Remove major grid lines"))
+          label = "Remove major grid lines"))}
   })
-  
   
   # - - - - - - - - - - - - - >>  MAIN CALCULATIONS << - - - - - - - - - - - - - -
   
@@ -1524,6 +1636,62 @@ function(input, output) {
     return(data_blob)
   })
   
+  #   =   =   =   =   =   =   >>  # intermediate input widgets #  <<    =   =   =   =   =   =   =   =
+  
+  output$Outlier_Selection_of_colors <- renderUI({
+    if(is.null(input$Go_outliers)){
+      return()
+    }
+    else
+      selectizeInput(
+        inputId = "Outl_col_select_order",
+        label = "Show samples based on:",
+        choices = c("Order of the trait (increasing)", "Order of the trait (decreasing)", "Chose samples to plot")
+      )
+  }) 
+  
+  output$Select_number_of_colors_outl <- renderUI({
+    if(is.null(input$Go_outliers)){
+      return()
+    }
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      return()
+    }
+    else{
+      sliderInput(
+        inputId = "Outl_col_number",
+        label = "Show ... number of samples",
+        min = 2,
+        max = 12,
+        value = 9)
+    }
+  })
+  
+  output$Select_portion_of_color_outl <- renderUI({
+    if(is.null(input$Go_outliers)){
+      return()
+    }
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      flop <- Outliers_final_data()
+      list <- unique(flop[,input$SelectGeno])
+      selectizeInput(
+        inputId = "Outl_spec_color",
+        label = "Plot specific samples:",
+        choices = list,
+        multiple = T
+      )
+    }
+    else{
+      flop <- Outliers_final_data()
+      max0 <- (length(unique(flop[,input$SelectGeno])) - (input$Outl_col_number-1))
+      sliderInput(
+        inputId = "Outl_col_portion",
+        label = "Plot portion of the data starting from element number ...",
+        min = 1,
+        max = max0,
+        value = 1,
+        step = input$Outl_col_number)}
+  }) 
   
   # - - - - - - - - - - - - - >>  OUTPUT TABLES / GRAPHS / DOWNLOAD BUTTONS << - - - - - - - - - - - - - -
   
@@ -1674,7 +1842,43 @@ function(input, output) {
       data_outl <- my_data()
     }
     
-    outl <- subset(data_outl, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_graph_outliers))
+    # # # # >> START OF KINKY SECTION << # # # # #
+    
+    temp <- data_outl
+    
+    temp$colorek <- temp[,input$SelectGeno]
+    temp_sub <- subset(temp, select = c("colorek", input$DV_graph_outliers))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
+    
+    
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Outl_spec_color)}
+    
+    if(input$Outl_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Outl_col_portion))
+      max <- as.numeric(as.character(input$Outl_col_portion)) + (input$Outl_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    if(input$Outl_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Outl_col_portion))
+      max <- as.numeric(as.character(input$Outl_col_portion)) + (input$Outl_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    dropski <- c("colorek")
+    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    data_outl <- from_sub
+    
+    # # # END OF KINKY SECTION
+    
+    outl <- subset(data_outl, select=c(input$IV_outliers, input$DV_graph_outliers))
     lista <- input$IV_outliers
     
     if(input$outlier_facet == T){
@@ -1685,8 +1889,6 @@ function(input, output) {
     if(input$outlier_colour == T){
       listx <- input$Colour_choice
       outl$listx <- outl[,input$Colour_choice]
-      listax <- setdiff(lista, listx)
-      outl$listax <- do.call(paste,c(outl[listax], sep = "_"))
     }
     
     phenotype <- input$DV_graph_outliers
@@ -1699,18 +1901,24 @@ function(input, output) {
       outl$pheno <- as.numeric(outl$pheno)
       if(input$outlier_colour == T) {
         if(input$outlier_facet == F){
-        out_sum <- summaryBy(pheno ~ listax + listx, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-        taka <- ggplot(out_sum, aes(x = listax, y= pheno.m, fill = listx))
-        #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
-      }
-      if(input$outlier_facet == T){
-        out_sum <- summaryBy(pheno ~ listax + listx + listb, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-        taka <- ggplot(out_sum, aes(x = listax, y= pheno.m, fill = listx))
-      }}
+          out_sum <- summaryBy(pheno ~ listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })
+          list_temp <- c(lista, listx)
+          out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+          #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
+        }
+        if(input$outlier_facet == T){
+          out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+        }}
       
       if(input$outlier_colour == F){
         if(input$outlier_facet == T){
           out_sum <- summaryBy(pheno ~ id_test + listb, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+          list_temp <- c(lista, listx)
+          out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+          
           taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))
         }
         if(input$outlier_facet == F){
@@ -1725,7 +1933,7 @@ function(input, output) {
       if(input$out_error_bar == "Standard Deviation"){
         taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.s, ymax=pheno.m+pheno.s), position=position_dodge(1))}
       if(input$out_error_bar == "Standard Error"){
-      taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.se, ymax=pheno.m+pheno.se), position=position_dodge(1))}
+        taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.se, ymax=pheno.m+pheno.se), position=position_dodge(1))}
     }
     
     
@@ -1739,7 +1947,7 @@ function(input, output) {
       
       taka <- taka + geom_boxplot(position="dodge")
       #taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)
-      }
+    }
     
     if(input$outlier_graph_type == "scatter plot"){
       
@@ -1752,25 +1960,22 @@ function(input, output) {
       
       taka <- taka + geom_point(position=position_dodge(1))
       #taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)
-      }
+    }
     
     
     
     if(input$outlier_facet == T){
-    taka <- taka + facet_wrap(~listb, ncol=input$out_graph_facet_col, scale = input$out_facet_scale)}
+      taka <- taka + facet_wrap(~listb, ncol=input$out_graph_facet_col, scale = input$out_facet_scale)}
     
     taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
     taka <- taka + xlab("")
     taka <- taka + ylab(input$DV_graph_outliers)
     
-    if(input$outlier_colour == T){
-    taka <- taka + theme(legend.title=element_blank())
-    }
-  
-  if(input$Select_outl_background == T){
-    taka <- taka + theme_minimal()}
-  if(input$Select_outl_maj_grid == T){
-    taka <- taka + theme(panel.grid.major = element_blank())}
+    
+    if(input$Select_outl_background == T){
+      taka <- taka + theme_minimal()}
+    if(input$Select_outl_maj_grid == T){
+      taka <- taka + theme(panel.grid.major = element_blank())}
     taka
   })
   
@@ -1778,7 +1983,45 @@ function(input, output) {
   
   output$no_outliers_graph <- renderPlotly({
     data <- Outlier_free_data()
-    clean_data <- subset(data, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_graph_outliers))
+    
+    # # # # >> START OF KINKY SECTION << # # # # #
+    
+    temp <- data
+    
+    temp$colorek <- temp[,input$SelectGeno]
+    temp_sub <- subset(temp, select = c("colorek", input$DV_graph_outliers))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
+    
+    
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Outl_spec_color)}
+    
+    if(input$Outl_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Outl_col_portion))
+      max <- as.numeric(as.character(input$Outl_col_portion)) + (input$Outl_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    if(input$Outl_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Outl_col_portion))
+      max <- as.numeric(as.character(input$Outl_col_portion)) + (input$Outl_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    dropski <- c("colorek")
+    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    data <- from_sub
+    
+    # # # END OF KINKY SECTION
+    
+    clean_data <- subset(data, select=c(input$IV_outliers, input$DV_graph_outliers))
+    
     lista <- input$IV_outliers
     
     if(input$outlier_facet == T){
@@ -1789,8 +2032,6 @@ function(input, output) {
     if(input$outlier_colour == T){
       listx <- input$Colour_choice
       clean_data$listx <- clean_data[,input$Colour_choice]
-      listax <- setdiff(lista, listx)
-      clean_data$listax <- do.call(paste,c(clean_data[listax], sep = "_"))
     }
     
     phenotype <- input$DV_graph_outliers
