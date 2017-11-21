@@ -206,7 +206,7 @@ Once the choices are made, the user can proceed to the different tests available
 #### Examine distribution
 Start in the side-panel by selecting the dataset you want to examine, the Independent Variable you want to group your samples by, and the Dependent Variable you want to plot. If you want to split the graphs by another Independent Variable, tick the "Split graph?" checkbox and select the Independent Variable in the dropdown menu that appears. You can also select the p-value threshold for the subsequent statistical tests.
 
-Your histograms will appear in the "Explore distribution" sub-tab, where you can chose between having "Histograms with  counts on y-axis" or "Histograms with density on y-axis".
+Your histograms will appear in the "Testing normal distribution" sub-tab, where you can chose between having "Histograms with  counts on y-axis" or "Histograms with density on y-axis".
 
 From these plots, you can look at the spread of your data across the Independent Variable groupings selected in the side-panel. Below the histograms, you will find a message that summarizes the groups/subgroups that seem to not have a normal distribution, where the p-value of the Shapiro-Wilk test is larger than the p-value threshold selected in the side-panel. Normal distribution is a requirement for performing an ANOVA test (less so for large sample sizes).
 
@@ -225,13 +225,13 @@ If you ticked the "See detailed Shapiro-Wilk test and QQ-plots?" checkbox, slide
 Based on the results obtained in this sub-tab, you can have a better judgement in the following sub-tab whether to check Bartlett or Levene test for equal variances.
 
 #### Examine variance
-In this sub-tab, you can have a look at the results of the Bartlett test and Levene test of homogeneity of variances between the different groups and for each sub-groups. Equal variances, or homoscedasticity, is also a requirement for performing an ANOVA test.
+In the "Testing equal variance" sub-tab, you can have a look at the results of the Bartlett test and Levene test of homogeneity of variances between the different groups and for each sub-groups. Equal variances, or homoscedasticity, is also a requirement for performing an ANOVA test.
 
 The null hypothesis of the Bartlett test and Levene tests assumes that the variances in each of the groups are the same. The Bartlett test is more robust when the data comes from a normal distribution, while Levene test is more robust in case of departures from normality.
 
 <img width="1113" alt="bartlett and levene test result" src="https://user-images.githubusercontent.com/15339112/32780973-b0b08f86-c8ef-11e7-865b-c87f88cb2a8a.png">
 
-The first table displays the results of the Bartlett test and the second table displays those of the Levene test. The tables show the p-value of tests performed for each groups/subgroups. If the p-value of the test for a group is larger than the selected p-value threshold, groups are noted as "Equal". In this case there is not enough evidence to reject the null hypothesis, where the variances are considered equal. If the p-value of the test for a group is smaller than the selected p-value threshold, groups are noted as "Not equal". In this case the null hypothesis is rejected and the variances are considered not equal. [screenshot]
+The first table displays the results of the Bartlett test and the second table displays those of the Levene test. The tables show the p-value of tests performed for each groups/subgroups. If the p-value of the test for a group is larger than the selected p-value threshold, groups are noted as "Equal". In this case there is not enough evidence to reject the null hypothesis, where the variances are considered equal. If the p-value of the test for a group is smaller than the selected p-value threshold, groups are noted as "Not equal". In this case the null hypothesis is rejected and the variances are considered not equal.
 
 As indicated previously, the results of this sub-tab and the previous sub-tab are needed to for the ANOVA test performed in the following sub-tab. ANOVA assumes the data comes from a normal distribution and the variances are equal.
 
