@@ -160,7 +160,6 @@ fluidPage(
               ))
             # end of Tab3
    ),
-   
    # Tab 4 = = = = = = = = = = = = = = >> DATA CURATION << = = = = = = = = = = = = = = = = = =   
    
    tabPanel("Data curation", icon = icon("gavel"),

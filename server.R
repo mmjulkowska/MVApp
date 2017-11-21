@@ -791,7 +791,6 @@ function(input, output) {
     if(is.null(Model_temp_data())){
       return()
     }
-
     if(input$model_graph_plot == "bar graph"){
       tagList(
         selectizeInput(
@@ -845,6 +844,8 @@ function(input, output) {
           selected = "fixed"
         ))
   })
+  
+  
   
   output$Select_model_color_scale_to_plot <- renderUI({
     if(is.null(Model_temp_data())){
@@ -1064,36 +1065,34 @@ function(input, output) {
     
     dropski <- c("colorek")
     from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
-  
-  if(input$model_graph_plot == "bar graph"){
+    
+    if(input$model_graph_plot == "bar graph"){
+      
+      temp_melt <- melt(from_sub, id=c(input$ModelIV, input$ModelSubIV))
+      temp_melt <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
+      temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
+      temp_sum$color <- temp_sum[,input$model_color_plot]
+      temp_sum$facet <- temp_sum[,input$model_facet_plot]
+      benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, fill = color))
+      benc <- benc + geom_bar(stat = "identity", position=position_dodge(1))
+      if(input$model_error_plot == "Standard Error"){
+        benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))
+      }
+      if(input$model_error_plot == "Standard Deviation"){
+        benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
+      }
+      benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
+      #benc <- benc + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
+    }
     
     temp_melt <- melt(from_sub, id=c(input$ModelIV, input$ModelSubIV))
-    temp_melt <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
-    temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
-    temp_sum$color <- temp_sum[,input$model_color_plot]
-    temp_sum$facet <- temp_sum[,input$model_facet_plot]
-    benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, fill = color))
-    benc <- benc + geom_bar(stat = "identity", position=position_dodge(1))
-    if(input$model_error_plot == "Standard Error"){
-      benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))
-    }
-    if(input$model_error_plot == "Standard Deviation"){
-      benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
-    }
-    benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
-    #benc <- benc + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
-  }
-  
-  temp_melt <- melt(from_sub, id=c(input$ModelIV, input$ModelSubIV))
-  melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
-  melt_sub$id <- paste(melt_sub[,input$ModelIV], melt_sub[,input$ModelSubIV], sep="_")
-  melt_sub$color <- melt_sub[,input$model_color_plot]
-  melt_sub$facet <- melt_sub[,input$model_facet_plot]
-  no <- c(input$ModelIV, input$ModelSubIV)
-  no_fac <- setdiff(no, input$model_facet_plot)
-  melt_sub$no_facet <- paste(melt_sub[,no_fac], sep="_")
-  
-  
+    melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
+    melt_sub$id <- paste(melt_sub[,input$ModelIV], melt_sub[,input$ModelSubIV], sep="_")
+    melt_sub$color <- melt_sub[,input$model_color_plot]
+    melt_sub$facet <- melt_sub[,input$model_facet_plot]
+    no <- c(input$ModelIV, input$ModelSubIV)
+    no_fac <- setdiff(no, input$model_facet_plot)
+    melt_sub$no_facet <- paste(melt_sub[,no_fac], sep="_")
     
     if(input$model_graph_plot == "box plot"){
       benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
@@ -1119,6 +1118,12 @@ function(input, output) {
     benc <- benc + ylab(input$model_trait_plot)
     benc <- benc + xlab(input$model_color_plot)
     
+    benc <- benc + guides(fill=guide_legend(title= input$model_color_plot))
+    
+    benc <- benc + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    benc <- benc + xlab("")
+    benc <- benc + ylab(input$model_trait_plot)
+    
     benc
   })
   
@@ -1126,38 +1131,63 @@ function(input, output) {
   # - - - - - - - - - - >> TUKEY MESSAGE << - - - - - - - - 
   output$model_comparison_Tukey <- renderPrint({
     
-    Chosenpvalue<-as.numeric(as.character(input$Model_threshold))
-    
     temp <- Model_temp_data()
     temp[,input$SelectID] <- NULL
     
-    temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
-    melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
-    melt_sub$color <- melt_sub[,input$model_color_plot]
-    melt_sub$facet <- melt_sub[,input$model_facet_plot]
+    temp$colorek <- temp[,input$model_color_plot]
+    temp_sub <- subset(temp, select = c("colorek", input$model_trait_plot))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
     
-    final <- subset(melt_sub, select = c("facet", "color", "value"))
     
-    for (h in unique(final$facet)){
-      subset_melt <- subset(final, final$facet == h )
-      fit_tukey <- aov(subset_melt$value ~ subset_melt$color)
-      out <- HSD.test(fit_tukey, "subset_melt$color", group = T, alpha = Chosenpvalue)
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Model_spec_color)}
+    
+    if(input$Model_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    if(input$Model_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    dropski <- c("colorek")
+    temp_ski <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    
+    temp_ski$facet <- temp_ski[,input$model_facet_plot]
+    temp_ski$color <- temp_ski[,input$model_color_plot]
+    temp_ski$phenotype <- temp_ski[,input$model_trait_plot]
+    thres <- as.numeric(as.character(input$Model_threshold))
+    
+    
+    for (h in unique(temp_ski$facet)){
+      subset_melt_ski <- subset(temp_ski, temp_ski$facet == h)
+      fit_tukey <- aov(subset_melt_ski$phenotype ~ subset_melt_ski$color)
+      out <- HSD.test(fit_tukey, "subset_melt_ski$color", group = T, alpha = thres)
       
       out_tukey<-as.data.frame(out$groups)
       out_tukey$x<-row.names(out_tukey)
-      n_name<-rep(h, length(levels(subset_melt$color)))
+      n_name<-rep(h, length(levels(subset_melt_ski$color)))
       out_tukey_n<-as.data.frame(cbind(out_tukey, n_name))
       colnames(out_tukey_n)[4] <- input$model_facet_plot
       colnames(out_tukey_n)[3] <- input$model_color_plot
       colnames(out_tukey_n)[1] <- input$model_trait_plot
       #colnames(out_tukey_n)<-c(input$model_facet_plot, input$model_trait_color, "Tukey's letters", input$model_trait_plot)
       out_tukey_f<-out_tukey_n[c(4,3,2,1)]
-      print(as.data.frame(out_tukey_f), row.names=FALSE)
+      print(as.data.frame(out_tukey_f))
     }
   })
   
   
-  # - - - - - - - >> DOWNLOAD BUTTONS <<- - - - - - - - - - - - 
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   #  - - - - - - - - - - >> DATA CURATION IN 4th TAB << - - - - - - - - - - - - - -
@@ -1967,15 +1997,18 @@ function(input, output) {
     
     if(input$outlier_facet == T){
       taka <- taka + facet_wrap(~listb, ncol=input$out_graph_facet_col, scale = input$out_facet_scale)}
-    
-    taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-    taka <- taka + xlab("")
-    taka <- taka + ylab(input$DV_graph_outliers)
   
     if(input$Select_outl_background == T){
       taka <- taka + theme_minimal()}
     if(input$Select_outl_maj_grid == T){
       taka <- taka + theme(panel.grid.major = element_blank())}
+    
+    taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    taka <- taka + xlab("")
+    taka <- taka + ylab(input$DV_graph_outliers)
+    
+    if(input$outlier_colour == T){
+    taka <- taka + guides(fill=guide_legend(title=listx))}
 
     taka
   })
@@ -2095,10 +2128,6 @@ function(input, output) {
     if(input$outlier_facet == T){
       jaka <- jaka + facet_wrap(~listb, ncol=3, scale = input$out_facet_scale)}
     
-    jaka <- jaka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-    jaka <- jaka + xlab("")
-    jaka <- jaka + ylab(input$DV_graph_outliers)
-    
     if(input$outlier_colour == T){
       jaka <- jaka + theme(legend.title=element_blank())
     }
@@ -2108,6 +2137,12 @@ function(input, output) {
     if(input$Select_outl_maj_grid == T){
       jaka <- jaka + theme(panel.grid.major = element_blank())}
     
+    if(input$outlier_colour == T){
+      jaka <- jaka + guides(fill=guide_legend(title=listx))}
+    
+    jaka <- jaka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    jaka <- jaka + xlab("")
+    jaka <- jaka + ylab(input$DV_graph_outliers)
     
     jaka
   })
@@ -3919,9 +3954,9 @@ function(input, output) {
       amod <- aov(phenotype ~ cluster, data = to_test)
       
       if(summary(amod)[[1]][["Pr(>F)"]] < 0.05){
-        significantna_lista <- input$SelectDV[i]
+        one_of_your_cluster_contains_only_one_sample <- input$SelectDV[i]
       } 
-      sig_listxxx <- c(sig_listxxx, significantna_lista)
+      sig_listxxx <- c(sig_listxxx, one_of_your_cluster_contains_only_one_sample)
     }
     
     lista_cudow <- unique(sig_listxxx)
