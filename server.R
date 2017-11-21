@@ -1754,7 +1754,7 @@ function(input, output) {
     cat("\n")
     cat("Please think twice before removing a sample from your data, as it might contain valuable information.") 
     cat("\n")
-    cat("We advice you to go back to your original data, look at the pictures (if you have them) and make sure that the sample is not representative for a VERY good reason.")
+    cat("We advise you to go back to your original data, look at the pictures (if you have them) and make sure that the sample is not representative for a VERY good reason.")
   })
   
   # Outlier free data (and table)
