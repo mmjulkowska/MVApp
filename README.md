@@ -7,7 +7,6 @@ MVApp was created to streamline data analysis for all kinds of biological querie
 Although the MVApp development team is armpit-deep in Plant Science we are trying to make the App as applicable as possible for all biological disciplines and beyond...
 
 With the MVApp, we indend to provide a platform allowing:
-[IN FUTURE => links will be linked to those individual points - directing you to the specific sections]
 
 1. Fitting of simple curves (linear/quadratic/exponential/square root) as well as polynomial curves (cubic and smoothed splines) for datasets with a continuous Independent Variable (e.g. time, dose concentrations, latitude...)
 2. Data curation through detection and removal of outliers based on standard statistical methods
@@ -48,9 +47,9 @@ Finally, click on the "Lock in raw dataset" button to finalise data upload with 
 
 
 ####  Why model your data?
-If you have a continuous Independent Variable in your experiment, you might want to estimate how your Dependent Variables change across it. For example, you could investigate the the dynamics of plant/basterial growth over time, or the dose dependency of a phenotypic response to a chemical treatment. Fitting the curves will allow you to observe and model these response dynamics.
+If you have a continuous Independent Variable in your experiment, you might want to estimate how your Dependent Variables change across it. For example, you could investigate the the dynamics of plant/bacterial growth over time, or the dose dependency of a phenotypic response to a chemical treatment. [Fitting curves](https://en.wikipedia.org/wiki/Curve_fitting) will allow you to observe and model these response dynamics.
 
-At the moment, MVApp helps you to fit simple functions: linear, quadratic, exponential and square root functions. For these functions, we fit linear model (using lm() function) between the continuous Independent Variable indicated in the "Time" column and the Dependent Variable (phenotype)[How many times do we need to reindicate this "phenotype?]. 
+At the moment, MVApp helps you to fit simple functions: linear, quadratic, exponential and square root functions. For these functions, we fit linear model (using lm() function) between the continuous Independent Variable indicated in the "Time" column and the Dependent Variable (phenotype). 
 
 Modelling of non-linear functionsis also relies on fitting a linear function, but after transformation of the Dependent Variable:
 - square root transformation for fitting quadratic function
@@ -71,7 +70,7 @@ Decide which model you would like to apply for entire dataset and click "Unleash
 
 ![mvapp_model_calculated](https://user-images.githubusercontent.com/14832460/32610094-c60a9d0c-c572-11e7-82f1-9af9fbacf375.png)
 
-Whenever you fit the curves to the chosen Dependent Variable (phenotype), the MVApp will automatically calculate coefficient of correlation (r2) that will indicate how well the fitted function models the observed data. The number of samples that have a poor fit (r2 < 0.7) will be indicated in the message box above the table.
+Whenever you fit the curves to the chosen Dependent Variable (phenotype), the MVApp will automatically calculate the coefficient of correlation (r2) that will indicate how well the fitted function models the observed data. The number of samples that have a poor fit (r2 < 0.7) will be indicated in the message box above the table.
 
 You can view the lowest r2 values by sorting the samples based on r2 by clicking on the r2 column sorting arrow:
 
@@ -114,9 +113,9 @@ By scrolling further down, you will find a message containing the significance g
 
 
 #### Why identify potential outliers?
-For those familiar with large(ish) scale experiments, you have probably had to curate your data, removing outlier samples that stem from experimental errors or even mistakes made while recording data. This will help avoid making spurrious conclusions based on unrepresentative data. 
+For those familiar with large(ish) scale experiments, you have probably had to curate your data, removing [outlier](https://en.wikipedia.org/wiki/Outlier#Working_with_outliers) samples that stem from experimental errors or even mistakes made while recording data. This will help avoid making spurrious conclusions based on unrepresentative data. 
 
-You likely identified these problem samples by simple graphical means, or based on their distance from the median in terms of the Standard Deviation or the Interquartile Range. [!!! INCLUDE LINKS TO STATS PAGE ON OUTLIER SELECTION !!!]
+You likely identified these problem samples by simple graphical means, or based on their distance from the median in terms of the Standard Deviation or the Interquartile Range.
 
 MVApp helps to automatically highlight potential outliers based on a single or multiple Dependent Variables, using various approaches. However, be careful, outliers should not be removed mindlessly. It is good practice to justify outlier samples, perhaps refering to notes or images taken during the experiment that might explain the unusual result. It is possible that a "potential outlier" is in fact a valuable, if extreme, result. 
 
@@ -127,10 +126,9 @@ Begin by deciding whether or not to remove samples with missing values by clicki
 Then, select the Independent Variable(s) by which to group the samples, and the Dependent Variables you would like to investigate for outliers. By default, MVApp assumes that you would like to group the variables by Genotype, ALL Independent Variables and Time (Sample ID is excluded), across all Dependent Variables.
 
 Next, select which method you would like to use to highlight potential outliers. MVApp provides following methods:
-!!!! TO INCLUDE LINKS TO WIKIPEDIA HERE!!!!
-- 1.5x Interquartile Range: this is the most commonly used method and is visually very appealing, as the potential outliers will be identified on the boxplot as the "dots" outside of the whiskers
-- Cook's distance: this algorithm is actually used to determine the most influential points - meaning the points that could make the most difference in the correlation tests and such. However, if the sample is considered to be "influential" in majority of the traits, it might be worthwhile to check whether everything is OK with it.
-- Bonferoni test: this is a test using the car::outlierTest() function from R
+- 1.5x [Interquartile Range](http://www.purplemath.com/modules/boxwhisk3.htm): this is the most commonly used method and is visually very appealing, as the potential outliers will be identified on the boxplot as the "dots" outside of the whiskers
+- [Cook's distance](https://en.wikipedia.org/wiki/Cook%27s_distance): this algorithm is actually used to determine the most influential points - meaning the points that could make the most difference in the correlation tests and such. However, if the sample is considered to be "influential" in majority of the traits, it might be worthwhile to check whether everything is OK with it.
+- [Bonferoni test](http://polisci.msu.edu/jacoby/icpsr/regress3/lectures/week3/11.Outliers.pdf): this is a test using the car::outlierTest() function from R
 - 1x Standard Deviation from the Median - all the samples that are further than 1xSD from the median are highlighted as potential outliers (this test is VERY strict and we do not recommend it)
 - 2x Standard Deviation from the Median - all the samples that are further than 2xSD from the median are highlighted as potential outliers
 - 2.5x Standard Deviation from the Median - all the samples that are further than 2.5xSD from the median are highlighted as potential outliers
@@ -170,13 +168,13 @@ If you want to look at the graphs with potential outliers removed (as highlighte
 
 ![mvapp_outliers_graph_no_outliers](https://user-images.githubusercontent.com/14832460/32647177-528bf596-c5f0-11e7-89dd-a8c85a287a47.png)
 
-IMPORTANT NOTE: This outlier test was developed to facilitate data curation. Please do NOT remove any data before making absolutely sure that there is a very good reason that the sample is not representative. We recommend downloading the dataset with outliers highlighted [Add screenshot?], manually removing samples that you can reasonably explain, and reuploading the curated dataset before continuing with your analysis.
+IMPORTANT NOTE: This outlier test was developed to facilitate data curation. Please do NOT remove any data before making absolutely sure that there is a very good reason that the sample is not representative. We recommend downloading the dataset with outliers highlighted , manually removing samples that you can reasonably explain, and reuploading the curated dataset before continuing with your analysis.
 
 PICTURE OF MOUSE EATING A PLANT
 
 
 #### Calculate summary statistics
-MVApp can calculate summary statistics functions (e.g. mean, median, standard deviation) in the main panel sub-tab "Summary data".
+MVApp can calculate [summary statistics](https://en.wikipedia.org/wiki/Summary_statistics) functions (e.g. mean, median, standard deviation) in the main panel sub-tab "Summary data".
 
 Select the dataset in the upper left corner of the tab, and select the functions that you want to be calculated in the upper right corner.
 
@@ -190,10 +188,9 @@ Click on "Unleas Summary Statistics" and the table will appear in the main panel
 
 
 ### 4. DATA EXPLORATION
-Once your data is nice and clean and ready to go, it's time to start having a proper look at it [adapt to whether curation comes before curve fitting etc.]. A good place to start is to check out how your data is distributed using histograms and boxplots, grouping samples according to your various Independent Variables. From these you can get an idea of how your different genotypes are behaving, how your treatments are affecting your phenotypes, how variable your data is. 
+Once your data is nice and clean and ready to go, it's time to start having a proper look at it. A good place to start is to check out how your data is distributed using histograms and boxplots, grouping samples according to your various Independent Variables. From these you can get an idea of how your different genotypes are behaving, how your treatments are affecting your phenotypes, how variable your data is. 
 
 Beyond eyeballing, you can apply statistical tests such as ANOVA to test whether there are significant differences between groups. These are all easy things to do in MVApp, which also helps you check the assumptions of these statistical tests, such as normal distribution and homoscedasticity (i.e. equal variance).
-
 
 In the side panel, you can choose:
 - The dataset to be used (raw data, data with missing values removed, or data with outliers removed). The default value is raw data.
@@ -201,20 +198,29 @@ In the side panel, you can choose:
 - The Dependent Variable you want to plot
 - The p-value threshold to be used in subsequent tests in the tab (e.g.: Levene's test, ANOVA, etc.). The default value is 0.05
 - If you want to facet your graphs by another Independent Variable, tick the checkbox "Would you like to facet the graph?" a dropdown menu with a list of independent variables appears. The user can choose the independent variable to split the plot.
-Once the choices are made, the user can proceed to the different tests available in the DATA EXPLORATION tab:
+
+<img width="1115" alt="data exploration input choices" src="https://user-images.githubusercontent.com/15339112/32780896-6bf2d2aa-c8ef-11e7-81f1-45add2e36d98.png">
+
+Once the choices are made, the user can proceed to the different tests available in the DATA EXPLORATION tab.
 
 #### Examine distribution
-Start in the side-panel by selecting the dataset you want to examine, the Independent Variable you want to group your samples by, and the Dependent Variable you want to plot. If you want to split the graphs by another Independent Variable, tick the "Split graph?" checkbox and select the Independent Variable in the dropdown menu that appears. You can also select the p-value threshold for the subsequent statistical tests. [screenshot]
+Start in the side-panel by selecting the dataset you want to examine, the Independent Variable you want to group your samples by, and the Dependent Variable you want to plot. If you want to split the graphs by another Independent Variable, tick the "Split graph?" checkbox and select the Independent Variable in the dropdown menu that appears. You can also select the p-value threshold for the subsequent statistical tests.
 
 Your histograms will appear in the "Explore distribution" sub-tab, where you can chose between having "Histograms with  counts on y-axis" or "Histograms with density on y-axis".
 
-From these plots, you can look at the spread of your data across the Independent Variable groupings selected in the side-panel. Below the histograms, you will find a message that summarizes the groups/subgroups that seem to not have a normal distribution, where the p-value of the Shapiro-Wilk test is larger than the p-value threshold selected in the side-panel. Normal distribution is a requirement for performing an ANOVA test (less so for large sample sizes). [screenshot]
+From these plots, you can look at the spread of your data across the Independent Variable groupings selected in the side-panel. Below the histograms, you will find a message that summarizes the groups/subgroups that seem to not have a normal distribution, where the p-value of the Shapiro-Wilk test is larger than the p-value threshold selected in the side-panel. Normal distribution is a requirement for performing an ANOVA test (less so for large sample sizes).
 
-If you want to see the detailed results of the Shapiro-Wilk test for all groups/subgroups along with their QQ-plots, tick the checkbox "See detailed Shapiro-Wilk test and QQ-plots". The table shows p-value of the Shapiro-Wilk tests performed for each groups/subgroups. If the p-value of the Shapiro-Wilk test for a group is larger than the selected p-value threshold, in the final column the group will be noted with "Data has NORMAL distribution" appears. [screenshot]
+<img width="1119" alt="testing normal distribution" src="https://user-images.githubusercontent.com/15339112/32780913-79ca2e14-c8ef-11e7-85e9-cdec4d163525.png">
+
+If you want to see the detailed results of the Shapiro-Wilk test for all groups/subgroups along with their QQ-plots, tick the checkbox "See detailed Shapiro-Wilk test and QQ-plots". The table shows p-value of the Shapiro-Wilk tests performed for each groups/subgroups. If the p-value of the Shapiro-Wilk test for a group is larger than the selected p-value threshold, in the final column the group will be noted with "Data has NORMAL distribution" appears.
 
 In this case there is not enough evidence to reject the null hypothesis, where the data is considered to be sampled from a normally distributed population. If the p-value of the Shapiro-Wilk test for a group is smaller than the selected p-value threshold, a message "Data might NOT be normally distributed" appears. In this case the null hypothesis is rejected, meaning the data appears not to be sampled from a normally distributed population. However, sample size affects the Shapiro-Wilk test and hence (the more the merrier), the user is strongly encouraged to check the QQ-plots.
 
-If you ticked the "See detailed Shapiro-Wilk test and QQ-plots?" checkbox, sliders for QQ-plots also appear. These sliders help choose the optimum number of columns and plots for display. The first slider " Display QQ plots in ... columns:" allows the user to choose the number of columns for the display of the QQ-plots. If the number of plots is too large to be displayed all at once in the window, a second slider "Plot portion of the data starting from element number..." appears and the user can choose the portion of plots to be displayed. [screenshot]
+<img width="1038" alt="shapirowilk detailed and qq" src="https://user-images.githubusercontent.com/15339112/32780927-82b5c4ca-c8ef-11e7-8cf0-e95da533b0d5.png">
+
+If you ticked the "See detailed Shapiro-Wilk test and QQ-plots?" checkbox, sliders for QQ-plots also appear. These sliders help choose the optimum number of columns and plots for display. The first slider " Display QQ plots in ... columns:" allows the user to choose the number of columns for the display of the QQ-plots. If the number of plots is too large to be displayed all at once in the window, a second slider "Plot portion of the data starting from element number..." appears and the user can choose the portion of plots to be displayed. 
+
+<img width="1075" alt="qqplot slides" src="https://user-images.githubusercontent.com/15339112/32780970-a9d7add4-c8ef-11e7-9622-4dbb3fac5f76.png">
 
 Based on the results obtained in this sub-tab, you can have a better judgement in the following sub-tab whether to check Bartlett or Levene test for equal variances.
 
@@ -223,6 +229,8 @@ In this sub-tab, you can have a look at the results of the Bartlett test and Lev
 
 The null hypothesis of the Bartlett test and Levene tests assumes that the variances in each of the groups are the same. The Bartlett test is more robust when the data comes from a normal distribution, while Levene test is more robust in case of departures from normality.
 
+<img width="1113" alt="bartlett and levene test result" src="https://user-images.githubusercontent.com/15339112/32780973-b0b08f86-c8ef-11e7-865b-c87f88cb2a8a.png">
+
 The first table displays the results of the Bartlett test and the second table displays those of the Levene test. The tables show the p-value of tests performed for each groups/subgroups. If the p-value of the test for a group is larger than the selected p-value threshold, groups are noted as "Equal". In this case there is not enough evidence to reject the null hypothesis, where the variances are considered equal. If the p-value of the test for a group is smaller than the selected p-value threshold, groups are noted as "Not equal". In this case the null hypothesis is rejected and the variances are considered not equal. [screenshot]
 
 As indicated previously, the results of this sub-tab and the previous sub-tab are needed to for the ANOVA test performed in the following sub-tab. ANOVA assumes the data comes from a normal distribution and the variances are equal.
@@ -230,33 +238,27 @@ As indicated previously, the results of this sub-tab and the previous sub-tab ar
 #### Test significant differences between groups
 In this sub-tab, you can check for signifcant differences in the means between different groups using analysis of variance (ANOVA). A table displays the p-value of the ANOVA test between different levels of the Independent Variable.
 
+<img width="1118" alt="testing significant differences_1" src="https://user-images.githubusercontent.com/15339112/32781415-6d3a68f6-c8f1-11e7-9f33-37b8bc9812ba.png">
+
 If the p-value of the ANOVA test for a group is larger than the selected p-value threshold, groups are noted with "Cannot reject H0". In this case there is not enough evidence to reject the null hypothesis and the means of the groups are assumed equal. If the p-value of the ANOVA test for a group is smaller than the selected p-value threshold, groups are noted with "Significant difference in means". In this case the null hypothesis, where the means of the group are considered equal, is rejected and the means of the groups can be considered significantly different. 
 
 Boxplots display the distribution of the data for a specific trait (dependent variable) for the levels of the independent variable. The boxplots are split by the second Independent Variable, selected when if you ticked the checkbox for "Split graph?". 
 
 A second table displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for the selected Dependent Variable. In the example below, there is no significant differences in PERIMETER between the salt and control groups for the Genotype C24. While there is a significant difference in PERIMETER between the salt and control groups for the Genotype Te.
 
-
-#### Summary stats
-#### Histograms + variation analysis + testing for normality and variance (including ftest ;P )
-#### ANOVA + boxplots
+<img width="354" alt="tukey letters" src="https://user-images.githubusercontent.com/15339112/32781182-8d4c2360-c8f0-11e7-931c-2d64589dc1ce.png">
 
 
 ### 5. CORRELATIONS
-
 This tab is to check how correlated the selected dependent variables (phenotypes) are in your data by creating a correlation matrix of the selected variables. Correlation coefficientss and p.values are provided for each variable pair. 
 
 #### Select the dataset
-
 Select which dataset you would like to use to perform the correlation analysis. You can choose from the following options: 
 raw data: use your selected data from “Upload your data” tab, you can check the data from the Data Magic - New data tab
-missing values removed: use data without rows with missing values
-outliers removed: use outlier-free data from “Data curation” tab
+missing values removed: use data without rows with missing values outliers removed: use outlier-free data from “Data curation” tab
 
-[screenshot]
 
 #### Select the correlation method
-
 There are two methods you can choose from to calculate correlations. The most common method is Pearson.
 
 For more details, you can read about how they are calculated here: 
@@ -264,18 +266,12 @@ https://en.wikipedia.org/wiki/Pearson_correlation_coefficient
 https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient
 
 #### Correlation for subsetted data
-
 The default is to perform correlation analysis across all dependent variables (phenotypes) across all independent variables. You can also choose to use a subset your data (for examples, phenotypes under a certain treatment, or from a certain day) to examine the correlation. 
 
 Tick the checkbox “Subset your data for correlation analysis” and choose the condition to want to observe by choosing from the dropdown menu.
 
-[screenshot]
-
 #### Customize the plot
-
 You can choose different plot method, plot type and label orders to customize your correlation plot by choosing from the dropdown menus on the left-side panel.
-
-[screenshot]
 
 #### Scatterplots
 
@@ -283,8 +279,6 @@ To visualize the dependent variable data on a scatterplot,
   -choose the fist phenotype to be plotted on the X-axis
   -choose the second phenotype to be plotted on the Y-axis
 You can also choose to color your data points by choosing a certain independent variable (such as day, or treatment).
-
-[screenshot]
 
 
 ### 6. PCA
@@ -325,7 +319,7 @@ In the sub-tab 'Contribution per PC' the contribution of individual Dependent Va
 
 ![mvapp_pca_trait_contrib2](https://user-images.githubusercontent.com/14832460/32647216-78663bdc-c5f0-11e7-82ef-dd418670a6f8.png)
 
-### 7. Cluster analysis => Magda
+### 7. Cluster analysis
 
 #### Selecting the data
 
@@ -336,7 +330,6 @@ In the sub-tab 'Contribution per PC' the contribution of individual Dependent Va
 #### Select the distance for cluster separation
 
 ![mvapp_hcluster_dendro](https://user-images.githubusercontent.com/14832460/32647240-8df05d2a-c5f0-11e7-99dc-9b75a5430c96.png)
-
 
 ![mvapp_hcluster_dendro2](https://user-images.githubusercontent.com/14832460/32647243-8e890e94-c5f0-11e7-8312-08bf29ef78b2.png)
 
