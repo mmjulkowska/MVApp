@@ -3179,7 +3179,7 @@ function(input, output) {
         selectizeInput(
           inputId = "Color",
           label = "Color the plot by:",
-          choices = c(input$SelectIV, input$SelectGeno),
+          choices = c(input$SelectIV, input$SelectGeno, input$SelectTime),
           multiple = F
         )
       )
