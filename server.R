@@ -2072,13 +2072,13 @@ function(input, output) {
       clean_data$pheno <- as.numeric(clean_data$pheno)
       if(input$outlier_colour == T) {
         if(input$outlier_facet == F){
-          clean_sum <- summaryBy(pheno ~ listax + listx, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-          jaka <- ggplot(clean_sum, aes(x = listax, y= pheno.m, fill = listx))
+          clean_sum <- summaryBy(pheno ~ listx + id_test, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, fill = listx))
           #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
         }
         if(input$outlier_facet == T){
-          clean_sum <- summaryBy(pheno ~ listax + listx + listb, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-          jaka <- ggplot(clean_sum, aes(x = listax, y= pheno.m, fill = listx))
+          clean_sum <- summaryBy(pheno ~ id_test + listx + listb, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, fill = listx))
         }}
       
       if(input$outlier_colour == F){
