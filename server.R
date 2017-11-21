@@ -791,6 +791,7 @@ function(input, output) {
     if(is.null(Model_temp_data())){
       return()
     }
+
     if(input$model_graph_plot == "bar graph"){
       tagList(
         selectizeInput(
@@ -844,8 +845,6 @@ function(input, output) {
           selected = "fixed"
         ))
   })
-  
-  
   
   output$Select_model_color_scale_to_plot <- renderUI({
     if(is.null(Model_temp_data())){
@@ -1065,34 +1064,36 @@ function(input, output) {
     
     dropski <- c("colorek")
     from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
-    
-    if(input$model_graph_plot == "bar graph"){
-      
-      temp_melt <- melt(from_sub, id=c(input$ModelIV, input$ModelSubIV))
-      temp_melt <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
-      temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
-      temp_sum$color <- temp_sum[,input$model_color_plot]
-      temp_sum$facet <- temp_sum[,input$model_facet_plot]
-      benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, fill = color))
-      benc <- benc + geom_bar(stat = "identity", position=position_dodge(1))
-      if(input$model_error_plot == "Standard Error"){
-        benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))
-      }
-      if(input$model_error_plot == "Standard Deviation"){
-        benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
-      }
-      benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
-      #benc <- benc + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
-    }
+  
+  if(input$model_graph_plot == "bar graph"){
     
     temp_melt <- melt(from_sub, id=c(input$ModelIV, input$ModelSubIV))
-    melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
-    melt_sub$id <- paste(melt_sub[,input$ModelIV], melt_sub[,input$ModelSubIV], sep="_")
-    melt_sub$color <- melt_sub[,input$model_color_plot]
-    melt_sub$facet <- melt_sub[,input$model_facet_plot]
-    no <- c(input$ModelIV, input$ModelSubIV)
-    no_fac <- setdiff(no, input$model_facet_plot)
-    melt_sub$no_facet <- paste(melt_sub[,no_fac], sep="_")
+    temp_melt <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
+    temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
+    temp_sum$color <- temp_sum[,input$model_color_plot]
+    temp_sum$facet <- temp_sum[,input$model_facet_plot]
+    benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, fill = color))
+    benc <- benc + geom_bar(stat = "identity", position=position_dodge(1))
+    if(input$model_error_plot == "Standard Error"){
+      benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))
+    }
+    if(input$model_error_plot == "Standard Deviation"){
+      benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
+    }
+    benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
+    #benc <- benc + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
+  }
+  
+  temp_melt <- melt(from_sub, id=c(input$ModelIV, input$ModelSubIV))
+  melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
+  melt_sub$id <- paste(melt_sub[,input$ModelIV], melt_sub[,input$ModelSubIV], sep="_")
+  melt_sub$color <- melt_sub[,input$model_color_plot]
+  melt_sub$facet <- melt_sub[,input$model_facet_plot]
+  no <- c(input$ModelIV, input$ModelSubIV)
+  no_fac <- setdiff(no, input$model_facet_plot)
+  melt_sub$no_facet <- paste(melt_sub[,no_fac], sep="_")
+  
+  
     
     if(input$model_graph_plot == "box plot"){
       benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
@@ -1901,16 +1902,18 @@ function(input, output) {
       outl$pheno <- as.numeric(outl$pheno)
       if(input$outlier_colour == T) {
         if(input$outlier_facet == F){
-          out_sum <- summaryBy(pheno ~ listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })
-          list_temp <- c(lista, listx)
-          out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
-          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
-          #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
-        }
-        if(input$outlier_facet == T){
-          out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
-        }}
+
+        out_sum <- summaryBy(pheno ~ listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })
+        list_temp <- c(lista, listx)
+        out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
+        taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+        #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
+      }
+      if(input$outlier_facet == T){
+        out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+        taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+      }}
+
       
       if(input$outlier_colour == F){
         if(input$outlier_facet == T){
@@ -1962,20 +1965,18 @@ function(input, output) {
       #taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)
     }
     
-    
-    
     if(input$outlier_facet == T){
       taka <- taka + facet_wrap(~listb, ncol=input$out_graph_facet_col, scale = input$out_facet_scale)}
     
     taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
     taka <- taka + xlab("")
     taka <- taka + ylab(input$DV_graph_outliers)
-    
-    
+  
     if(input$Select_outl_background == T){
       taka <- taka + theme_minimal()}
     if(input$Select_outl_maj_grid == T){
       taka <- taka + theme(panel.grid.major = element_blank())}
+
     taka
   })
   
@@ -1983,8 +1984,6 @@ function(input, output) {
   
   output$no_outliers_graph <- renderPlotly({
     data <- Outlier_free_data()
-    
-    # # # # >> START OF KINKY SECTION << # # # # #
     
     temp <- data
     
@@ -2018,8 +2017,6 @@ function(input, output) {
     
     data <- from_sub
     
-    # # # END OF KINKY SECTION
-    
     clean_data <- subset(data, select=c(input$IV_outliers, input$DV_graph_outliers))
     
     lista <- input$IV_outliers
@@ -2031,13 +2028,11 @@ function(input, output) {
     
     if(input$outlier_colour == T){
       listx <- input$Colour_choice
-      clean_data$listx <- clean_data[,input$Colour_choice]
-    }
+      clean_data$listx <- clean_data[,input$Colour_choice]}
+
     
     phenotype <- input$DV_graph_outliers
     clean_data$pheno <- clean_data[,input$DV_graph_outliers]
-    
-    
     clean_data$id_test <- do.call(paste,c(clean_data[lista], sep = "_"))
     
     if(input$outlier_graph_type == "bar plot"){
@@ -2307,11 +2302,18 @@ function(input, output) {
   #})
   
   output$Plotfacets <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
     if(input$plot_facet == T){
+      if(input$TimeCheck == T){
+      Stephanies_list <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), input$HisIV)}
+      if(input$TimeCheck == F){
+        Stephanies_list <- setdiff(c(input$SelectGeno, input$SelectIV), input$HisIV)}
       tagList(
         selectInput("Plotfacet_choice", "Independent Variable to split the plots",
-                    choices = c(setdiff(list(input$SelectGeno, input$SelectIV, input$SelectTime),input$HisIV)))
-      )
+                    choices = c(Stephanies_list)
+      ))
     }
     else{
       return()
@@ -2405,9 +2407,9 @@ function(input, output) {
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
         if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
-          interpret_shapiro[i]<-"Data might NOT be normally distributed"
+          interpret_shapiro[i]<-"Data is NOT normally distributed"
         } else {
-          interpret_shapiro[i]<-"Data has NORMAL distribution"
+          interpret_shapiro[i]<-"Data is NORMALLY distributed"
         }
         
         temp_shapiro<-as.data.frame(cbind(facetting_shapiro,shapiro_pvalue, interpret_shapiro))
@@ -2420,7 +2422,7 @@ function(input, output) {
       cat("The data for ",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "does not show the normal distribution in the following samples:")
       cat("\n")
       cat(list_sig_shapiro, sep=", ")
-      #cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "do not have a normal distribution?!")
+      #cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "might NOT have a normal distribution")
       
       if(input$showShapirotest==T){
         cat("\n")
@@ -2443,9 +2445,9 @@ function(input, output) {
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
         if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
-          interpret_shapiro[i]<-"Data not normally distributed"
+          interpret_shapiro[i]<-"Data is NOT normally distributed"
         } else {
-          interpret_shapiro[i]<-"Cannot reject H0"
+          interpret_shapiro[i]<-"Data is NORMALLY distributed"
         }
         temp_shapiro<-as.data.frame(cbind(facetting_shapiro,shapiro_pvalue, interpret_shapiro))
       }
@@ -2457,7 +2459,7 @@ function(input, output) {
       #list_sha <- unique(list_sig_shapiro)
       #paste("<font color=\"#008080\"><b>",list_sha, "</b></font>")
       #print(colore)
-      cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "do not have a normal distribution?!")
+      cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "does NOT have a normal distribution")
       #paste(type='text/css', 'list_sig_shapiro, {color = "red"}')
       
       if(input$showShapirotest==T){
@@ -2580,14 +2582,15 @@ function(input, output) {
   
   
   output$Tukeylisting <- renderPrint({
-    Chosenpvalue<-as.numeric(as.character(input$Chosenthreshold))
+    Chosen_tukey_threshold <- as.numeric(as.character(input$Chosenthreshold))
+    
     if(input$plot_facet ==T){
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
       my_his_data[,2]<-as.factor(my_his_data[,2])
       for (i in unique(my_his_data[,3])){
         subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
         fit_tukey<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
-        out<-HSD.test(fit_tukey, "subsetted_data[, 2]", group=TRUE, alpha==Chosenpvalue) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+        out<-HSD.test(fit_tukey, "subsetted_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
         out_tukey<-as.data.frame(out$groups)
         out_tukey$x<-row.names(out_tukey)
         n_name<-rep(i, length(levels(subsetted_data[,2])))
@@ -2602,14 +2605,13 @@ function(input, output) {
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
       my_his_data[,2]<-as.factor(my_his_data[,2])
       fit_tukey<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
-      out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha==Chosenpvalue) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+      out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
       out_tukey<-as.data.frame(out$groups)
       out_tukey$x<-row.names(out_tukey)
       colnames(out_tukey)<-c(names(my_his_data[1]), "Significant groups based on Tukey's pairwise comparison ", names(my_his_data)[2])
       out_tukey_f<-out_tukey[c(3,1,2)]
       print(out_tukey_f, row.names=FALSE)
     }
-    
   })
   
   
@@ -2661,9 +2663,9 @@ function(input, output) {
         #print(paste("The p-value of the ANOVA test is", pvalue))
         #temp_anova<-as.data.frame(cbind(facetting, p_values_anova, p_values_anovacorr))
         if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
-          interpret_anova[i]<-"Significant difference in means"
+          interpret_anova[i]<-"SIGNIFICANT difference in means"
         } else {
-          interpret_anova[i]<-"Cannot reject H0"
+          interpret_anova[i]<-"NO significant difference in means"
         }
         temp_anova<-as.data.frame(cbind(facetting, p_values_anova,interpret_anova))
       }
@@ -2951,7 +2953,7 @@ function(input, output) {
     return(result)
   })
   
-  output$ cor_table_text <- renderPrint({
+  output$cor_table_text <- renderPrint({
     if(input$cor_data_subset == F){
       cat(paste("The", input$corMethod, "correlation coefficients and p values of your data are:"))
     }
@@ -2972,6 +2974,7 @@ function(input, output) {
   output$cortable_download_button <- downloadHandler(
     filename = paste("Correlation table using ", input$corrplotMethod, " MVApp.csv"),
     content <- function(file) {
+      
       beginCol <-
         length(c(
           input$SelectIV,
@@ -3008,7 +3011,8 @@ function(input, output) {
       }
       
       result <- flattenCorrMatrix(res$r, res$P)
-      write.csv(results, file)}
+      
+      write.csv(result, file)}
   )
   
   
@@ -3110,7 +3114,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Pheno1",
-          label = "Select the first dependent variable to be plotted",
+          label = "Select the first dependent variable to be plotted on the x-axis:",
           choices = input$SelectDV,
           multiple = F
         )
@@ -3124,7 +3128,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Pheno2",
-          label = "X-axis:",
+          label = "Select the first dependent variable to be plotted on the y-axis:",
           choices = input$SelectDV,
           multiple = F
         )
@@ -3139,7 +3143,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Color",
-          label = "Y-axis:",
+          label = "Color the plot by:",
           choices = c(input$SelectIV, input$SelectGeno),
           multiple = F
         )
