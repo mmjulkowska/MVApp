@@ -230,7 +230,7 @@ As indicated previously, the results of this sub-tab and the previous sub-tab ar
 #### Test significant differences between groups
 In this sub-tab, you can check for signifcant differences in the means between different groups using analysis of variance (ANOVA). A table displays the p-value of the ANOVA test between different levels of the Independent Variable.
 
-If the p-value of the ANOVA test for a group is larger than the selected p-value threshold, groups are noted with "Cannot reject H0". In this case there is not enough evidence to reject the null hypothesis and the means of the groups are assumed equal. If the p-value of the ANOVA test for a group is smaller than the p-value threshold already chosen, groups are noted with "Significant difference in means". In this case the null hypothesis, where the means of the group are considered equal, is rejected and the means of the groups can be considered significantly different. 
+If the p-value of the ANOVA test for a group is larger than the selected p-value threshold, groups are noted with "Cannot reject H0". In this case there is not enough evidence to reject the null hypothesis and the means of the groups are assumed equal. If the p-value of the ANOVA test for a group is smaller than the selected p-value threshold, groups are noted with "Significant difference in means". In this case the null hypothesis, where the means of the group are considered equal, is rejected and the means of the groups can be considered significantly different. 
 
 Boxplots display the distribution of the data for a specific trait (dependent variable) for the levels of the independent variable. The boxplots are split by the second Independent Variable, selected when if you ticked the checkbox for "Split graph?". 
 
