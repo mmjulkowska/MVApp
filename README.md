@@ -15,18 +15,17 @@ With the MVApp, we indend to provide a platform allowing:
 6. Principal Component Analysis and data normalization
 7. Cluster Analysis based on selected dependent variables 
 
-# Table of contents:
-#### [1 DATA UPLOAD](#1-data-upload)
-#### [2 DATA MODELLING](#2-data-modelling)
-#### [3 OUTLIER SELECTION](#3-outlier-selection)
-#### [4 DATA EXPLORATION](#4-data-exploration)
-#### [5 CORRELATIONS](#5-correlations)
-#### [6 PRINCIPLE COMPONENT ANALYSIS](#6-principle-component-analysis)
-#### [7 CLUSTER ANALYSIS](#7-cluster-analysis)
+## Table of contents:
+[1. DATA UPLOAD](#1-data-upload)
+[2 DATA MODELLING](#2-data-modelling)
+[3 OUTLIER SELECTION](#3-outlier-selection)
+[4 DATA EXPLORATION](#4-data-exploration)
+[5 CORRELATIONS](#5-correlations)
+[6 PRINCIPLE COMPONENT ANALYSIS](#6-principle-component-analysis)
+[7 CLUSTER ANALYSIS](#7-cluster-analysis)
 
 
-
-### 1 DATA UPLOAD
+### 1. DATA UPLOAD
 
 #### How should I format my data?
 MVApp can handle all kinds of data. It only requires that your data be in .csv format, with at least the following:
