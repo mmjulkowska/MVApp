@@ -16,13 +16,13 @@ With the MVApp, we indend to provide a platform allowing:
 7. Cluster Analysis based on selected dependent variables 
 
 # Table of contents:
-#### 1. [DATA UPLOAD](#data-upload)
-#### 2. [DATA MODELLING](#data-modelling)
-#### 3. [OUTLIER SELECTION](#outlier-selection)
-#### 4. [DATA EXPLORATION](#data-exploration)
-#### 5. [CORRELATIONS](#correlations)
-#### 6. [PRINCIPLE COMPONENT ANALYSIS](#principle-component-analysis)
-#### 7. [CLUSTER ANALYSIS](#cluster-analysis)
+#### [1. DATA UPLOAD](#data-upload)
+#### [2. DATA MODELLING](#data-modelling)
+#### [3. OUTLIER SELECTION](#outlier-selection)
+#### [4. DATA EXPLORATION](#data-exploration)
+#### [5. CORRELATIONS](#correlations)
+#### [6. PRINCIPLE COMPONENT ANALYSIS](#principle-component-analysis)
+#### [7. CLUSTER ANALYSIS](#cluster-analysis)
 
 
 
