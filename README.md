@@ -257,21 +257,22 @@ Select which dataset you would like to use to perform the correlation analysis. 
 raw data: use your selected data from “Upload your data” tab, you can check the data from the Data Magic - New data tab
 missing values removed: use data without rows with missing values outliers removed: use outlier-free data from “Data curation” tab
 
-
 #### Select the correlation method
-There are two methods you can choose from to calculate correlations. The most common method is Pearson.
+There are two methods you can choose from to calculate correlations. The most common method is [Pearson] (https://en.wikipedia.org/wiki/Pearson_correlation_coefficient), but you can also use [Spearman correlation](https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient).
 
-For more details, you can read about how they are calculated here: 
-https://en.wikipedia.org/wiki/Pearson_correlation_coefficient
-https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient
+<img width="960" alt="screenshot1" src="https://user-images.githubusercontent.com/8470158/33008572-110563d6-cd80-11e7-84be-084880b31d2c.png">
 
 #### Correlation for subsetted data
 The default is to perform correlation analysis across all dependent variables (phenotypes) across all independent variables. You can also choose to use a subset your data (for examples, phenotypes under a certain treatment, or from a certain day) to examine the correlation. 
 
 Tick the checkbox “Subset your data for correlation analysis” and choose the condition to want to observe by choosing from the dropdown menu.
 
+<img width="960" alt="screenshot3" src="https://user-images.githubusercontent.com/8470158/33008571-10e523d2-cd80-11e7-9f59-2d6f6f95d590.png">
+
 #### Customize the plot
 You can choose different plot method, plot type and label orders to customize your correlation plot by choosing from the dropdown menus on the left-side panel.
+
+<img width="960" alt="screenshot2" src="https://user-images.githubusercontent.com/8470158/33008574-1146ca74-cd80-11e7-9270-e9b7bb13ebb7.png">
 
 #### Scatterplots
 
@@ -280,6 +281,7 @@ To visualize the dependent variable data on a scatterplot,
   -choose the second phenotype to be plotted on the Y-axis
 You can also choose to color your data points by choosing a certain independent variable (such as day, or treatment).
 
+<img width="960" alt="screenshot4" src="https://user-images.githubusercontent.com/8470158/33008573-1125b578-cd80-11e7-9676-9ac52742f056.png">
 
 ### 6. PCA
 
