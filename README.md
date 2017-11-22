@@ -15,8 +15,18 @@ With the MVApp, we indend to provide a platform allowing:
 6. Principal Component Analysis and data normalization
 7. Cluster Analysis based on selected dependent variables 
 
-### 1. DATA UPLOAD
+# Table of contents:
+#### 1. [DATA UPLOAD](#data-upload)
+#### 2. [DATA MODELLING](#data-modelling)
+#### 3. [OUTLIER SELECTION](#outlier-selection)
+#### 4. [DATA EXPLORATION](#data-exploration)
+#### 5. [CORRELATIONS](#correlations)
+#### 6. [PRINCIPLE COMPONENT ANALYSIS](#principle-component-analysis)
+#### 7. [CLUSTER ANALYSIS](#cluster-analysis)
 
+
+
+### 1. DATA UPLOAD
 
 #### How should I format my data?
 MVApp can handle all kinds of data. It only requires that your data be in .csv format, with at least the following:
@@ -44,7 +54,6 @@ Finally, click on the "Lock in raw dataset" button to finalise data upload with 
 ![mvapp_data_upload3](https://user-images.githubusercontent.com/14832460/32609362-7ff50520-c570-11e7-8191-d55065fbfdd6.png)
 
 ### 2. DATA MODELLING
-
 
 ####  Why model your data?
 If you have a continuous Independent Variable in your experiment, you might want to estimate how your Dependent Variables change across it. For example, you could investigate the the dynamics of plant/bacterial growth over time, or the dose dependency of a phenotypic response to a chemical treatment. [Fitting curves](https://en.wikipedia.org/wiki/Curve_fitting) will allow you to observe and model these response dynamics.
@@ -110,7 +119,6 @@ By scrolling further down, you will find a message containing the significance g
 
 
 ### 3. OUTLIER SELECTION
-
 
 #### Why identify potential outliers?
 For those familiar with large(ish) scale experiments, you have probably had to curate your data, removing [outlier](https://en.wikipedia.org/wiki/Outlier#Working_with_outliers) samples that stem from experimental errors or even mistakes made while recording data. This will help avoid making spurrious conclusions based on unrepresentative data. 
@@ -283,9 +291,7 @@ You can also choose to color your data points by choosing a certain independent 
 
 <img width="960" alt="screenshot4" src="https://user-images.githubusercontent.com/8470158/33008573-1125b578-cd80-11e7-9676-9ac52742f056.png">
 
-### 6. PCA
-
-
+### 6. PRINCIPLE COMPONENT ANALYSIS
 Principle component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, the PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or genotype) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
 
 #### Select data, subsets, and Dependent Variables
@@ -321,7 +327,7 @@ In the sub-tab 'Contribution per PC' the contribution of individual Dependent Va
 
 ![mvapp_pca_trait_contrib2](https://user-images.githubusercontent.com/14832460/32647216-78663bdc-c5f0-11e7-82ef-dd418670a6f8.png)
 
-### 7. Cluster analysis
+### 7. CLUSTER ANALYSIS
 
 #### Selecting the data
 
