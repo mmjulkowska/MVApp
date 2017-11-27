@@ -3266,7 +3266,7 @@ function(input, output) {
           label = "Dataset for PCA:",
           choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
   })  
- 
+  
   PCA_data_type <- eventReactive(input$Go_PCAdata,{
     if(input$PCA_data == "raw data"){
       PCA_data_type <- my_data()
@@ -3288,14 +3288,14 @@ function(input, output) {
     if ((input$Go_PCAdata == FALSE)) {
       return()
     } else
-    tagList(
-      selectizeInput(
-        inputId = "PCA_pheno",
-        label = "Phenotypes for the PCA",
-        choices = c(input$SelectDV),
-        multiple = T
+      tagList(
+        selectizeInput(
+          inputId = "PCA_pheno",
+          label = "Phenotypes for the PCA",
+          choices = c(input$SelectDV),
+          multiple = T
+        )
       )
-    )
   })
   output$PCA_subset_trait <- renderUI({
     if(input$PCA_data_subset == "full dataset"){
@@ -3346,21 +3346,22 @@ function(input, output) {
     temp <- data.frame(PCA_data_type())
     temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
     
-  if(input$PCA_data_subset == "subsetted dataset"){
-    subset_lista <- input$PCA_subset_T
-      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)
+    if(input$PCA_data_subset == "subsetted dataset"){
+      
+      subset_lista <- input$PCA_subset_T
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
       id_lista2 <- setdiff(id_lista, subset_lista)
-      temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
-      temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
-      temp2 <- subset(temp, temp$sub_id == input$PCA_subset_S)
-      temp2 <- subset(temp2, select = c("id", input$PCA_pheno))
-      }
-  if(input$PCA_data_subset == "full dataset"){
+      temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+      temp3 <- subset(temp, temp$subset_id == input$PCA_subset_S)
+      temp3$id <- do.call(paste,c(temp3[c(id_lista2, subset_lista)], sep="_"))
+      temp2 <- subset(temp3, select = c("id", input$PCA_pheno))
+    }
+    if(input$PCA_data_subset == "full dataset"){{
       temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
       temp2 <- subset(temp, select = c("id", input$PCA_pheno))
-    }
+    }}
     
-  return(temp2)
+    return(temp2)
   })
   
   output$PCA_final_table <- renderDataTable({
@@ -3380,11 +3381,12 @@ function(input, output) {
   output$PCA_eigen_plot <- renderPlot({
     eigenvalues <- PCA_eigen_data()
     barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
-          main = "Variances",
-          xlab = "Principal Components",
-          ylab = "Percentage of variances",
-          col ="steelblue")
-  lines(x = 1:nrow(eigenvalues), eigenvalues[, 2], 
+            main = "Variances",
+            xlab = "Principal Components",
+            ylab = "Percentage of variances",
+            col ="steelblue")
+    
+    lines(x = 1:nrow(eigenvalues), eigenvalues[, 2], 
           type="b", pch=19, col = "red")
   })
   
@@ -3473,8 +3475,8 @@ function(input, output) {
   })
   
   output$Contrib_trait_plot <- renderPlot({
-        beginCol <-
-        length(c(
+    beginCol <-
+      length(c(
         input$SelectIV,
         input$SelectGeno,
         input$SelectTime,
@@ -3486,18 +3488,13 @@ function(input, output) {
     res.pca <- PCA(PCA_ready, graph = FALSE)
     fviz_contrib(res.pca, choice = 'var', axes = c(as.numeric(input$Which_PC_contrib)), xtickslab.rt = 90)
   })
-
+  
   PCA_contrib_var <- eventReactive(input$Go_PCA,{
     beginCol <-2
     endCol <-ncol(PCA_final_data())
     PCA_ready <- PCA_final_data()
     PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
-    #for_labels <- PCA_final_data()
-    #for_labels <- for_labels[1:beginCol-1]
-    #new_stuff <- cbind(for_labels, res.pca$ind$contrib)
-    #plot(input$Which_PC1 ~ input$Which_PC2, data = new_stuff, fill = input$SelectIV)
-    #color <- input$SelectIV
     contrib_var <- res.pca$var$contrib
     contrib_var
   })
@@ -3507,7 +3504,7 @@ function(input, output) {
   })
   
   output$Contrib_download_var <- renderUI({
-    if(is.null(PCA_final_data())){
+    if(is.null(PCA_contrib_var())){
       return()}
     else
       downloadButton("contrib_var", label="Download PCA contribution by variable")
@@ -3516,7 +3513,7 @@ function(input, output) {
   output$contrib_var <- downloadHandler(
     filename = "PCA contrib var MVApp.csv",
     content <- function(file) {
-      write.csv(PCA_final_data(), file)}
+      write.csv(PCA_contrib_var(), file)}
   )
   
   output$PCA_colorby <- renderUI({
@@ -3532,8 +3529,6 @@ function(input, output) {
         )
       )
   })
-  
-  
   
   PCA_coord_ind <- eventReactive(input$Go_PCA,{
     beginCol <-
@@ -3553,20 +3548,27 @@ function(input, output) {
     temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
     
     if(input$PCA_data_subset == "subsetted dataset"){
-      subset_lista <- input$PCA_subset_T}
+      
+      subset_lista <- input$PCA_subset_T
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      id_lista2 <- setdiff(id_lista, subset_lista)
+      temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+      temp2 <- subset(temp, temp$subset_id == input$PCA_subset_S)
+      temp2$id <- do.call(paste,c(temp2[c(id_lista2, subset_lista)], sep="_"))
+    }
     if(input$PCA_data_subset == "full dataset"){{
       temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
       temp2 <- temp
     }}
     
     ##### END REFERENCE DATA HERE ######   
-    temp3 <- subset(temp2, select = c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID))
+    temp4 <- subset(temp2, select = c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID))
     
     temporary <- res.pca$ind$coord
     
-    Le_table <- cbind(temp3, temporary)
-    names(Le_table) <- gsub("Dim.", "", names(Le_table), fixed=T)
-    Le_table
+    la_table <- cbind(temp4, temporary)
+    names(la_table) <- gsub("Dim.", "", names(la_table), fixed=T)
+    la_table
   })
   
   output$PCA_coordinates_ind <- renderDataTable({
