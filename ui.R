@@ -27,6 +27,8 @@ fluidPage(
       br(),
       "We are aiming streamline the analysis of experiments containing multiple phenotypical measurements of the same sample, but you can easily use the app even if you have one phenotype.",
       br(),
+      "Using the MVApp is completely safe! The MVApp will not save any of your data on the server, ensuring that your rights to the uploaded data are perserved."
+      br(),
       h3("Our App empowers you to easily perform:"),
       br(),
       h4("1. Fitting the curves using simple functions (linear, quadratic, exponential and square root) as well as by fitting cubic and smoothed splines"),
