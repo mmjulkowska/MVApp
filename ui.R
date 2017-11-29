@@ -14,6 +14,10 @@ fluidPage(
         br(),
         "This app is meant to streamline the data analysis that is common in many biological studies - especially when screaning large populations such as diversity panels or comparing multiple mutant lines to wild type.", 
         "Our background is plant biology - so you know where our bias is ;).",br(),br(),
+        "The app is not published anywhere (yet - we are working on it), but if you wish to cite the app, please use the following:",
+        br(), br(),
+        "Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., MVApp.pre-release_v2.0 mmjulkowska/MVApp: MVApp.pre-release_v2.0, DOI: 10.5281/zenodo.1067974",
+        br(), br(),
         "The example dataset is available ", a("here", href = "https://drive.google.com/file/d/0B08MX6N7rXcZX0xQamtweUZCbDQ/view?usp=sharing", target = "_blank"),br(), br(),
         "Please - fill in the survey about the App - available ", a("here", href = "https://goo.gl/forms/kpMdpMpswdbb9BJv2", target = "_blank"),br(), br(),
         "If you have any problems / questions / ", span("suggestions how we can improve this APP so that YOU can do your analysis smoother", style="color:red") ,"- or simply you would like to tell us how amazing the App is - please contact ",span("Magdalena.Julkowska@kaust.edu.sa", style="color:blue")
