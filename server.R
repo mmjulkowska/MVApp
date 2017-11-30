@@ -2618,125 +2618,6 @@ function(input, output) {
   })
   
   
-  output$Tukeylisting <- renderPrint({
-    Chosen_tukey_threshold <- as.numeric(as.character(input$Chosenthreshold))
-    
-    if(input$plot_facet ==T){
-      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-      my_his_data[,2]<-as.factor(my_his_data[,2])
-      for (i in unique(my_his_data[,3])){
-        subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
-        fit_tukey<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
-        out<-HSD.test(fit_tukey, "subsetted_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
-        out_tukey<-as.data.frame(out$groups)
-        out_tukey$x<-row.names(out_tukey)
-        n_name<-rep(i, length(levels(subsetted_data[,2])))
-        out_tukey_n<-as.data.frame(cbind(out_tukey, n_name))
-        colnames(out_tukey_n)<-c(names(subsetted_data[1]), "Tukey's letters", names(subsetted_data)[2], names(subsetted_data[3]))
-        out_tukey_f<-out_tukey_n[c(4,3,2,1)]
-        print(as.data.frame(out_tukey_f), row.names=FALSE)
-      }
-    }
-    
-    if(input$plot_facet ==F){
-      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
-      my_his_data[,2]<-as.factor(my_his_data[,2])
-      fit_tukey<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
-      out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
-      out_tukey<-as.data.frame(out$groups)
-      out_tukey$x<-row.names(out_tukey)
-      colnames(out_tukey)<-c(names(my_his_data[1]), "Significant groups based on Tukey's pairwise comparison ", names(my_his_data)[2])
-      out_tukey_f<-out_tukey[c(3,1,2)]
-      print(out_tukey_f, row.names=FALSE)
-    }
-  })
-  
-  
-  #the margin needs to be fixed to be able to see the y-lab
-  output$Boxes <- renderPlotly({
-    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-    #groupIV<-input$HisIV
-    
-    if(input$plot_facet ==T){
-      facetIV<-input$Plotfacet_choice
-      my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
-      
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
-      box_graph<- box_graph + facet_wrap(~facetIV) + scale_fill_discrete(names(my_his_data[2]))
-    }
-    else{
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
-      box_graph<- box_graph + scale_fill_discrete(names(my_his_data[2]))
-    }
-    ggplotly(box_graph)
-  })
-  
-  
-  
-  
-  ####We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
-  # p.adjust.methods
-  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
-  #   "fdr", "none")
-  #OR maybe use anova(lm(~))?
-  ###ANOVA summary table output
-  output$ANOVAtest <- renderPrint({
-    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-    my_his_data[,2]<-as.factor(my_his_data[,2])
-    if(input$plot_facet ==T){
-      n_rows<-length(levels(my_his_data[,3]))
-      facetting<-rep(NA,n_rows)
-      p_values_anova<-rep(NA,n_rows)
-      interpret_anova<-rep(NA,n_rows)
-      # p_values_anovacorr<-rep(NA,n_rows)
-      for (i in unique(my_his_data[,3])){
-        subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
-        facetting[i]<-i
-        fit_anova<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
-        #print(fit_anova)
-        #print(summary(fit_anova))
-        p_values_anova[i]<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5) #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
-        #p_values_anovacorr[i]<-p.adjust(p, method = Chosenmultipletesting)
-        #print(paste("The p-value of the ANOVA test is", pvalue))
-        #temp_anova<-as.data.frame(cbind(facetting, p_values_anova, p_values_anovacorr))
-        if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
-          interpret_anova[i]<-"SIGNIFICANT difference in means"
-        } else {
-          interpret_anova[i]<-"NO significant difference in means"
-        }
-        temp_anova<-as.data.frame(cbind(facetting, p_values_anova,interpret_anova))
-      }
-      temp_anova<-na.omit(temp_anova)
-      colnames(temp_anova) <- c("", "p_value","")
-      #colnames(temp_anova) <- c("", "p_value", "p_value corrected")
-      cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
-      print(temp_anova, row.names=FALSE)
-    }
-    if(input$plot_facet ==F){ 
-      fit_anova <- aov(my_his_data[,1] ~ as.factor(my_his_data[,2]), data = my_his_data)
-      #print(fit_anova)
-      #br()
-      #print(summary(fit_anova))
-      pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
-      cat("ANOVA", "\n")
-      cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA,"\n", "\n", sep=""))
-      
-      
-      if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
-        cat("Significant difference in means")
-      } else {
-        cat("NO significant difference in means")
-      }
-    }
-  })
-  
-  
-  
-  
-  ####We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
-  # p.adjust.methods
-  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
-  #   "fdr", "none")
   
   ##Bartlett test
   output$Bartlett <- renderPrint({
@@ -2787,7 +2668,7 @@ function(input, output) {
     }
   })
   
-  
+  # = = = = = = = >> Testing Equal Variances << = = = = = = = = = = # 
   
   #######We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
   # p.adjust.methods
@@ -2840,6 +2721,183 @@ function(input, output) {
       }
     }
   })
+  
+  # = = = = = = = >> Testing Significant Differences << = = = = = = = = = = # 
+  
+  ####We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
+  # p.adjust.methods
+  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
+  #   "fdr", "none")
+  #OR maybe use anova(lm(~))?
+  ###ANOVA summary table output
+  output$ANOVAtest <- renderPrint({
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data[,2]<-as.factor(my_his_data[,2])
+    
+    if(input$plot_facet ==T){
+      n_rows<-length(levels(my_his_data[,3]))
+      facetting<-rep(NA,n_rows)
+      p_values_anova<-rep(NA,n_rows)
+      interpret_anova<-rep(NA,n_rows)
+      
+      for (i in unique(my_his_data[,3])){
+        subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
+        facetting[i]<-i
+        
+        if(input$Sig_diff_test == "ANOVA"){
+        fit_anova<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+        p_values_anova[i]<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5) #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
+        if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
+          interpret_anova[i]<-"SIGNIFICANT difference in means"
+        } else {
+          interpret_anova[i]<-"NO significant difference in means"
+        }}
+        
+        if(input$Sig_diff_test == "Kruskal-Wallis"){
+        fit_anova <- kruskal.test(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+        p_values_anova[i]<- fit_anova$p.value
+        if(fit_anova$p.value < as.numeric(as.character(input$Chosenthreshold))){
+          interpret_anova[i]<-"SIGNIFICANT difference in means"
+        } else{
+          interpret_anova[i] <- "NO significant difference in means"}
+        }
+        
+        temp_anova<-as.data.frame(cbind(facetting, p_values_anova,interpret_anova))
+      }
+      
+      temp_anova<-na.omit(temp_anova)
+      colnames(temp_anova) <- c("", "p_value","")
+      #colnames(temp_anova) <- c("", "p_value", "p_value corrected")
+      cat(paste("The p-value of the", input$Sig_diff_test, " test between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
+      print(temp_anova, row.names=FALSE)
+    }
+    
+    if(input$plot_facet ==F){ 
+      
+      if(input$Sig_diff_test == "ANOVA"){
+      fit_anova <- aov(my_his_data[,1] ~ as.factor(my_his_data[,2]), data = my_his_data)
+      pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
+      cat("ANOVA", "\n")
+      cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA,"\n", "\n", sep=""))
+      
+      
+      if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
+        cat("SIGNIFICANT difference in means")
+      } else {
+        cat("NO significant difference in means")
+      }}
+      
+      if(input$Sig_diff_test == "Kruskal-Wallis"){
+        fit_anova <- kruskal.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
+        cat("Kruskal-Wallis test", "\n")
+        cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, "S is ", fit_anova$p.value,"\n", "\n", sep=""))
+        
+        if(fit_anova$p.value < as.numeric(as.character(input$Chosenthreshold))){
+          cat("SIGNIFICANT difference in means")
+        } else{
+          cat("NO significant difference in means")}
+      }
+    }
+  })
+  
+  
+  output$Tukeylisting <- renderPrint({
+    Chosen_tukey_threshold <- as.numeric(as.character(input$Chosenthreshold))
+    
+    tri.to.squ<-function(x)
+    {
+      rn<-row.names(x)
+      cn<-colnames(x)
+      an<-unique(c(cn,rn))
+      myval<-x[!is.na(x)]
+      mymat<-matrix(1,nrow=length(an),ncol=length(an),dimnames=list(an,an))
+      for(ext in 1:length(cn))
+      {
+        for(int in 1:length(rn))
+        {
+          if(is.na(x[row.names(x)==rn[int],colnames(x)==cn[ext]])) next
+          mymat[row.names(mymat)==rn[int],colnames(mymat)==cn[ext]]<-x[row.names(x)==rn[int],colnames(x)==cn[ext]]
+          mymat[row.names(mymat)==cn[ext],colnames(mymat)==rn[int]]<-x[row.names(x)==rn[int],colnames(x)==cn[ext]]
+        }
+        
+      }
+      return(mymat)
+    }
+    
+    if(input$plot_facet ==T){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      my_his_data[,2]<-as.factor(my_his_data[,2])
+      
+      for (i in 1:length(unique(my_his_data[,3]))){
+        subsetted_data<- subset(my_his_data, my_his_data[,3]==unique(my_his_data[,3])[i])
+        
+        if(input$Sig_diff_test == "ANOVA"){
+          fit_tukey<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+        out<-HSD.test(fit_tukey, "subsetted_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+        out_tukey<-as.data.frame(out$groups)
+        out_tukey$x<-row.names(out_tukey)
+        n_name<-rep(i, length(levels(subsetted_data[,2])))
+        out_tukey_n<-as.data.frame(cbind(out_tukey, n_name))
+        colnames(out_tukey_n)<-c(names(subsetted_data[1]), "Tukey's letters", names(subsetted_data)[2], names(subsetted_data[3]))
+        out_tukey_f<-out_tukey_n[c(4,3,2,1)]
+        print(as.data.frame(out_tukey_f), row.names=FALSE)}
+        
+        if(input$Sig_diff_test == "Kruskal-Wallis"){
+          phenotypski <- subsetted_data[,1]
+          groupski <- subsetted_data[,2]
+          pp<-pairwise.wilcox.test(phenotypski, groupski)
+          mymat<-tri.to.squ(pp$p.value)
+          myletters<-multcompLetters(mymat,compare="<=",threshold=Chosen_tukey_threshold ,Letters=letters)
+          cat(paste("Pairwise Wilcoxon test / Whitney Houston test results", unique(my_his_data[,3])[i], "\n"))
+          print(myletters$Letters)}
+      }
+    }
+    
+    if(input$plot_facet ==F){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
+      my_his_data[,2]<-as.factor(my_his_data[,2])
+      
+      if(input$Sig_diff_test == "ANOVA"){
+      fit_tukey<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
+      out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+      out_tukey<-as.data.frame(out$groups)
+      out_tukey$x<-row.names(out_tukey)
+      colnames(out_tukey)<-c(names(my_his_data[1]), "Significant groups based on Tukey's pairwise comparison ", names(my_his_data)[2])
+      out_tukey_f<-out_tukey[c(3,1,2)]
+      print(out_tukey_f, row.names=FALSE)}
+      
+      if(input$Sig_diff_test == "Kruskal-Wallis"){
+        phenotypski <- my_his_data[,1]
+        groupski <- my_his_data[,2]
+        pp<-pairwise.wilcox.test(phenotypski, groupski, p.adjust.method = "none", paired = FALSE)
+        mymat<-tri.to.squ(pp$p.value)
+        myletters<-multcompLetters(mymat,compare="<=",threshold=Chosen_tukey_threshold ,Letters=letters)
+        cat(paste("Pairwise Wilcoxon test / Whitney Houston test results:", "\n"))
+        print(myletters)  
+      }
+    }
+  })
+  
+  
+  #the margin needs to be fixed to be able to see the y-lab
+  output$Boxes <- renderPlotly({
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    #groupIV<-input$HisIV
+    
+    if(input$plot_facet ==T){
+      facetIV<-input$Plotfacet_choice
+      my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
+      
+      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+      box_graph<- box_graph + facet_wrap(~facetIV) + scale_fill_discrete(names(my_his_data[2]))
+    }
+    else{
+      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+      box_graph<- box_graph + scale_fill_discrete(names(my_his_data[2]))
+    }
+    ggplotly(box_graph)
+  })
+  
   
   
   # - - - - - - - - >> >>  TWO WAY ANOVA  << << - - - - - - - # 

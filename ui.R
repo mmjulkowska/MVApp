@@ -282,21 +282,15 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                       tabPanel("Testing equal variance", icon=icon("area-chart"),
                                verbatimTextOutput("Bartlett"),
                                verbatimTextOutput("Levene")
-                               
+                           # Add bar graphs representing the variance with f-test    
                       ),
                       
-                      #tabPanel("Variance analysis", icon=icon("bar-chart-o"),
-                      #        verbatimTextOutput("Bartlett")
-                      #        #verbatimTextOutput("Levene")
-                      #),
-                      
                       tabPanel("Testing significant differences", icon=icon("sun-o"),
-                               # actionButton("Go_Boxplot", label = "Plot boxplots"),
-                               
+                               selectizeInput(inputId = "Sig_diff_test", 
+                                              label = "Test significant differences with:",
+                                              choices = c("ANOVA", "Kruskal-Wallis")),
                                verbatimTextOutput("ANOVAtest"),
                                plotlyOutput("Boxes"),
-                               #plotOutput("BoxesTukey", height=1000),
-                               #dataTableOutput("Tukeylisting")
                                verbatimTextOutput("Tukeylisting")
                       ),
                       
