@@ -2242,6 +2242,7 @@ function(input, output) {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> DATA EXPLORATION IN 5th TAB << - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
   ##select dataset
   output$Histo_Pheno_data <- renderUI({
     if(is.null(ItemList())){return()}
@@ -2518,6 +2519,7 @@ function(input, output) {
       return()
     }
   })
+  
   
   # Add here a conditional slider
   
@@ -2837,6 +2839,71 @@ function(input, output) {
         cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are NOT equal.", sep="")
       }
     }
+  })
+  
+  
+  # - - - - - - - - >> >>  TWO WAY ANOVA  << << - - - - - - - # 
+  
+  # - - - - - - - - - - input widgets - - - - - - - - - - - - - 
+  output$TWANOVA_IV1 <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
+    else{
+      tagList(
+        selectizeInput(
+          inputId= "TW_ANOVA_IV1",
+          label = "Select first Independent Variable (IV1) explaining the Dependent Variable",
+          choices = c(input$SelectGeno, input$SelectIV, input$SelectTime),
+          multiple = F))  
+    }
+  })
+  
+  output$TWANOVA_IV2 <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
+    else{
+      
+      lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      listb <- setdiff(lista, input$TW_ANOVA_IV1)
+      tagList(
+        selectizeInput(
+          inputId= "TW_ANOVA_IV2",
+          label = "Select second Independent Variable (IV2) explaining the Dependent Variable",
+          choices = listb,
+          multiple = F))  
+    }
+  })
+  
+  # - - - - - - - - - - output graphs / reports - - - - - - - - - - - - - 
+  
+  output$TW_ANOVA_interaction_plot <- renderPlot({
+    mydata <- Histo_data_type()
+    pheno <- mydata[,input$HisDV]
+    iv1 <- mydata[,input$TW_ANOVA_IV1]
+    iv2 <- mydata[,input$TW_ANOVA_IV2]
+    
+    interaction.plot(iv1, iv2, pheno, ylab = input$HisDV, trace.label = input$TW_ANOVA_IV2, xlab = input$TW_ANOVA_IV1)
+  })
+  
+  output$two_ANOVA_report <- renderPrint({
+    mydata <- Histo_data_type()
+    pheno <- mydata[,input$HisDV]
+    iv1 <- mydata[,input$TW_ANOVA_IV1]
+    iv2 <- mydata[,input$TW_ANOVA_IV2]
+    
+    resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
+    anova(resultados)
+  })
+  
+  output$TW_ANOVA_QQ_plot <- renderPlot({
+    mydata <- Histo_data_type()
+    pheno <- mydata[,input$HisDV]
+    iv1 <- mydata[,input$TW_ANOVA_IV1]
+    iv2 <- mydata[,input$TW_ANOVA_IV2]
+    resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
+    plot(resultados$fitted, resultados$res, xlab = "Fitted", ylab = "Residuals")
   })
   
   

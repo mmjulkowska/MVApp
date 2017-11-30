@@ -298,10 +298,15 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                                #plotOutput("BoxesTukey", height=1000),
                                #dataTableOutput("Tukeylisting")
                                verbatimTextOutput("Tukeylisting")
-                      )
+                      ),
                       
-                      #tabPanel("ANOVA plots", icon=icon("snowflake-o"),
-                      #        verbatimTextOutput("ANOVAtest"))
+                      tabPanel("two-way ANOVA", icon=icon("snowflake-o"),
+                              column(4, uiOutput("TWANOVA_IV1")),
+                              column(4, uiOutput("TWANOVA_IV2")),
+                              column(12, plotOutput("TW_ANOVA_interaction_plot")),
+                              verbatimTextOutput("two_ANOVA_report"),
+                              plotOutput("TW_ANOVA_QQ_plot")
+                              )
                       
            ))
          # end of Tab#5
