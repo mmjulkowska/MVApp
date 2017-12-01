@@ -2848,7 +2848,7 @@ function(input, output) {
           pp<-pairwise.wilcox.test(phenotypski, groupski)
           mymat<-tri.to.squ(pp$p.value)
           myletters<-multcompLetters(mymat,compare="<=",threshold=Chosen_tukey_threshold ,Letters=letters)
-          cat(paste("Pairwise Wilcoxon test / Whitney Houston test results", unique(my_his_data[,3])[i], "\n"))
+          cat(paste("Pairwise Wilcoxon test / Mann-Whitney test results", unique(my_his_data[,3])[i], "\n"))
           print(myletters$Letters)}
       }
     }
@@ -2872,7 +2872,7 @@ function(input, output) {
         pp<-pairwise.wilcox.test(phenotypski, groupski, p.adjust.method = "none", paired = FALSE)
         mymat<-tri.to.squ(pp$p.value)
         myletters<-multcompLetters(mymat,compare="<=",threshold=Chosen_tukey_threshold ,Letters=letters)
-        cat(paste("Pairwise Wilcoxon test / Whitney Houston test results:", "\n"))
+        cat(paste("Pairwise Wilcoxon test / Mann-Whitney test results:", "\n"))
         print(myletters)  
       }
     }
