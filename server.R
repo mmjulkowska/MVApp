@@ -228,9 +228,10 @@ function(input, output) {
   output$Spline_user_df <- renderUI({
     if(input$model == "smooth"){
       if(input$spline_df == "user defined"){
-        textInput(
-          inputId = "model_smooth_df",
-          label = "Number of degrees of freedom:"
+        sliderInput(
+          inputId = "model_smoothski_df",
+          label = "Number of degrees of freedom:",
+          min=1, max=15, value = 3
         )
       }
       else{
@@ -407,17 +408,16 @@ function(input, output) {
       
       if(input$model == "smooth"){
         if(input$spline_df == "user determined"){
-          fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], df= input$model_smooth_df)}
+          degree <- input$model_smoothski_df
+          fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], df=degree)}
         if(input$spline_df == "automatic"){
           fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], cv=T)}
         
         for(e in 1:length(fit_smooth$fit$coef)){
-          things_to_model[i,(3+e)] <- fit_smooth$fit$coef[e]
-        }
+          things_to_model[i,(3+e)] <- fit_smooth$fit$coef[e]}
         
         for(g in 1:length(unique(super_temp3[,4]))){
-          super_temp3[g,6] <- predict(fit_smooth, unique(super_temp3[,4])[g])$y
-        }
+          super_temp3[g,6] <- predict(fit_smooth, unique(super_temp3[,4])[g])$y}
         
         x <- super_temp3[,6]
         y <- super_temp3[,5]
@@ -2848,8 +2848,8 @@ function(input, output) {
           pp<-pairwise.wilcox.test(phenotypski, groupski)
           mymat<-tri.to.squ(pp$p.value)
           myletters<-multcompLetters(mymat,compare="<=",threshold=Chosen_tukey_threshold ,Letters=letters)
-          cat(paste("Pairwise Wilcoxon test / Mann-Whitney test results", unique(my_his_data[,3])[i], "\n"))
-          print(myletters$Letters)}
+          cat(paste("Pairwise Wilcoxon test / Whitney Houston test results", unique(my_his_data[,3])[i]), "\n")
+          print(myletters)}
       }
     }
     
@@ -2872,7 +2872,7 @@ function(input, output) {
         pp<-pairwise.wilcox.test(phenotypski, groupski, p.adjust.method = "none", paired = FALSE)
         mymat<-tri.to.squ(pp$p.value)
         myletters<-multcompLetters(mymat,compare="<=",threshold=Chosen_tukey_threshold ,Letters=letters)
-        cat(paste("Pairwise Wilcoxon test / Mann-Whitney test results:", "\n"))
+        cat(paste("Pairwise Wilcoxon test / Whitney Houston test results:", "\n"))
         print(myletters)  
       }
     }

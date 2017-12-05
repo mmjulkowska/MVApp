@@ -252,6 +252,8 @@ fluidPage(
 # Tab 5 = = = = = = = = = = = = = = >> DATA EXPLORATION << = = = = = = = = = = = = = = = = = =    
 
 tabPanel("Data exploration", icon=icon("binoculars"),
+      navbarPage("",
+      tabPanel("Numerical data analysis",
          sidebarPanel(
            fluidRow(
              uiOutput("Histo_Pheno_data"),
@@ -302,7 +304,22 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                               plotOutput("TW_ANOVA_QQ_plot")
                               )
                       
-           ))
+           ))),
+      tabPanel("Categorical data analysis",
+               sidebarPanel(
+                 "gadgets",
+                 "data_input",
+                 "Select Categorical variable",
+                 "Select p-value threshold"
+               ),
+               mainPanel(
+                 navbarPage("",
+                   tabPanel("Mosaic plots",
+                            "include 3-way contingency tables"),
+                   tabPanel("Two-way ANOVA?",
+                            "can we do it? Really???")
+                 )))
+               )
          # end of Tab#5
 ),
 
