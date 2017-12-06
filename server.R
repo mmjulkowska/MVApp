@@ -2731,13 +2731,13 @@ function(input, output) {
       selectizeInput(
         inputId = "OT_testski",
         label = "Test for significance:",
-        choices = c("One sample t-test", "One sample z-test")
+        choices = c("One sample t-test", "Send us your suggestion what else to include")
       )}
     if(input$One_two_test == "Two samples to each other"){
       selectizeInput(
         inputId = "OT_testski",
         label = "Test for significance:",
-        choices = c("Two sample t-test", "Two sample chi-squared test"))}
+        choices = c("Two sample t-test", "Two sample chi-squared test", "Fisher test"))}
   })
   
   output$OT_grouping_IVs <- renderUI({
@@ -2765,10 +2765,9 @@ function(input, output) {
       
       selectizeInput(
         inputId = "OT_compareski",
-        label = "Samples to compare",
+        label = "Enter your sample(s) to compare",
         choices = c(the_list),
-        multiple=T
-      )}
+          multiple=T)}
   })
   
   output$OT_what_mu <- renderUI({
@@ -2780,7 +2779,64 @@ function(input, output) {
         label = "Check if significantly different from (numerical values only):")}
   })
   
-  output$OT_test_results <- renderPrint({})
+  output$OT_test_results <- renderPrint({
+    subset_lista <- input$OT_grouping_IVskis
+    id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+    id_lista2 <- setdiff(id_lista, subset_lista)
+    data <- Histo_data_type()
+    data$subset_id <- do.call(paste,c(data[c(subset_lista)], sep="_"))
+    
+    data_sub <- subset(data, data$subset_id == input$OT_compareski)
+    data_sub$phenoski <- data_sub[,input$HisDV]
+    data_sub$idski <- data_sub$subset_id
+    
+    if(input$OT_testski == "One sample t-test"){
+      testski <- t.test(phenoski, mu = as.numerc(as.character(input$OT_muski)), data = data_sub)
+      if(testski$p.value < as.numeric(as.character(input$Chosentreshold))){
+        cat("According to one sample t-test with chosen p-value threshold (", input$Chosentreshold,"), the samples in ", input$OT_compareski, " is SIGNIFICANTLY different from ", input$OT_muski, " with p-value of ", testski$p.value)
+      }
+      if(testski$p.value > as.numeric(as.character(input$Chosentreshold))){
+        cat("According to one sample t-test with chosen p-value threshold (", input$Chosentreshold,"), the samples in ", input$OT_compareski, " is NOT significantly different from ", input$OT_muski, " with p-value of ", testski$p.value)
+      }}
+    
+    if(input$OT_testski == "Two sample t-test"){
+      if(length(unique(input$OT_compareski)) > 2){
+        cat("Dude! You selected more than two samples - go and to ANOVA or something like this")}
+      else{
+        testski <- t.test(phenoski ~ idski, data = data_sub, var.equal = T)
+        testski
+          cat("WARNING: This tests assumes equal variances. For non-equal variances I ll figure something out tomorrow.")
+        }
+      }
+    if(input$OT_testski == "Two sample chi-squared test"){
+      if(length(unique(input$OT_compareski)) > 2){
+        cat("Dude! You selected more than two samples - go and to ANOVA or something like this")}
+      else{
+        testski <- chisq.test(data_sub$phenoski, data_sub$idski)
+        
+        if(testski$p.value < as.numeric(as.character(input$Chosentreshold))){
+          cat("According to two sample chi-squared test with chosen p-value threshold (", input$Chosentreshold,"), the samples", input$OT_compareski, " are SIGNIFICANTLY different from eachother - p-value of ", testski$p.value)
+        }
+        if(testski$p.value > as.numeric(as.character(input$Chosentreshold))){
+          cat("According to two sample chi-squared test with chosen p-value threshold (", input$Chosentreshold,"), the samples", input$OT_compareski, " are NOT significantly different from eachother - p-value of ", testski$p.value)
+        }}
+    }
+    
+    if(input$OT_testski == "Fisher test"){
+      if(length(unique(input$OT_compareski)) > 2){
+        cat("Dude! You selected more than two samples - go and to ANOVA or something like this")}
+      else{
+        testski <- fisher.test(data_sub$phenoski, data_sub$idski)
+        
+        if(testski$p.value < as.numeric(as.character(input$Chosentreshold))){
+          cat("According to fisher test with chosen p-value threshold (", input$Chosentreshold,"), the samples", input$OT_compareski, " are SIGNIFICANTLY different from eachother - p-value of ", testski$p.value)
+        }
+        if(testski$p.value > as.numeric(as.character(input$Chosentreshold))){
+          cat("According to fisher test with chosen p-value threshold (", input$Chosentreshold,"), the samples", input$OT_compareski, " are NOT significantly different from eachother - p-value of ", testski$p.value)
+        }}
+    }
+    
+  })
   output$OT_graph <- renderPlotly({})
   
   
