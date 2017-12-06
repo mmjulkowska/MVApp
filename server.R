@@ -2756,12 +2756,30 @@ function(input, output) {
     if(is.null(ItemList())){
       return()}
     else{
+      subset_lista <- input$OT_grouping_IVskis
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      id_lista2 <- setdiff(id_lista, subset_lista)
+      data <- Histo_data_type()
+      data$subset_id <- do.call(paste,c(data[c(subset_lista)], sep="_"))
+      the_list <- unique(data$subset_id)
       
-      
-    }
+      selectizeInput(
+        inputId = "OT_compareski",
+        label = "Samples to compare",
+        choices = c(the_list),
+        multiple=T
+      )}
   })
   
-  output$OT_what_mu <- renderUI({})
+  output$OT_what_mu <- renderUI({
+    if(input$One_two_test == "Two samples to each other"){
+      return()}
+    if(input$One_two_test == "One sample to known value"){
+      textInput(
+        inputId = "OT_muski",
+        label = "Check if significantly different from (numerical values only):")}
+  })
+  
   output$OT_test_results <- renderPrint({})
   output$OT_graph <- renderPlotly({})
   
