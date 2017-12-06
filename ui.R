@@ -252,8 +252,9 @@ fluidPage(
 # Tab 5 = = = = = = = = = = = = = = >> DATA EXPLORATION << = = = = = = = = = = = = = = = = = =    
 
 
-navbarMenu("Data exploration", icon=icon("binoculars"),
-      tabPanel("Numerical data analysis",
+tabPanel("Data exploration", icon=icon("binoculars"),
+      navbarPage("",
+        tabPanel("Numerical data analysis",
          sidebarPanel(
            fluidRow(
              uiOutput("Histo_Pheno_data"),
@@ -263,10 +264,7 @@ navbarMenu("Data exploration", icon=icon("binoculars"),
              #uiOutput("Chosenmultipletest"),
              checkboxInput("plot_facet", "Would you like to facet the graph?"),
              uiOutput("Plotfacets")
-             
-             
            )),
-         
          mainPanel(
            navbarPage("",
                       tabPanel("Testing normal distribution", icon=icon("area-chart"),
@@ -278,15 +276,13 @@ navbarMenu("Data exploration", icon=icon("binoculars"),
                                column(4, checkboxInput("showShapirotest", "Would you like to see detailed Shapiro-Wilk test and QQplots?")),
                                column(4, uiOutput("QQplot_slider")),
                                column(4, uiOutput("QQplot_slider2")),
-                               column(12,plotOutput("QQplot", height=1000))
-                      ), 
+                               column(12,plotOutput("QQplot", height=1000))), 
                       
                       tabPanel("Testing equal variance", icon=icon("area-chart"),
                                verbatimTextOutput("Bartlett"),
                                verbatimTextOutput("Levene")
                            # Add bar graphs representing the variance with f-test    
-                      ),
-                      
+                           ),
                       tabPanel("One / two sample tests", icon = icon("hand-peace-o"),
                                selectizeInput(inputId = "One_two_test",
                                               label = "Compare:",
@@ -298,24 +294,19 @@ navbarMenu("Data exploration", icon=icon("binoculars"),
                                verbatimTextOutput("OT_test_results"),
                                plotlyOutput("OT_graph")
                                ),
-                      
                       tabPanel("Testing significant differences", icon=icon("sun-o"),
                                selectizeInput(inputId = "Sig_diff_test", 
                                               label = "Test significant differences with:",
                                               choices = c("ANOVA", "Kruskal-Wallis")),
                                verbatimTextOutput("ANOVAtest"),
                                plotlyOutput("Boxes"),
-                               verbatimTextOutput("Tukeylisting")
-                      ),
-                      
+                               verbatimTextOutput("Tukeylisting")),
                       tabPanel("two-way ANOVA", icon=icon("snowflake-o"),
                               column(4, uiOutput("TWANOVA_IV1")),
                               column(4, uiOutput("TWANOVA_IV2")),
                               column(12, plotOutput("TW_ANOVA_interaction_plot")),
                               verbatimTextOutput("two_ANOVA_report"),
-                              plotOutput("TW_ANOVA_QQ_plot")
-                              )
-                      
+                              plotOutput("TW_ANOVA_QQ_plot"))
            ))),
       tabPanel("Categorical data analysis",
                sidebarPanel(
@@ -330,7 +321,7 @@ navbarMenu("Data exploration", icon=icon("binoculars"),
                             "include 3-way contingency tables"),
                    tabPanel("Two-way ANOVA?",
                             "can we do it? Really???")
-                 )))
+                 ))))
          # end of Tab#5
 ),
 
@@ -338,11 +329,9 @@ navbarMenu("Data exploration", icon=icon("binoculars"),
 
 tabPanel("Correlations",
   icon = icon("compress"),
-  navbarPage(
-    "",
+  navbarPage("",
     tabPanel(
       "Correlation Plot",
-      
       sidebarPanel(
         uiOutput("cor_Pheno_data"),
         # which data set to use (summarized / na / original) selectize, multiple = F
@@ -355,19 +344,14 @@ tabPanel("Correlations",
         selectInput("corOrder", "Order the lables by:", choices = c("original", "AOE",  "FPC",  "hclust", "alphabet"))
         #actionButton("Go_table", label = "Click to see the correlation table with p value", icon = icon("play-circle"))
       ),
-      
-      
       mainPanel(
         verbatimTextOutput("tricky_table"),
         downloadButton('downloadCorrplot', label="Download Plot"),
         plotOutput("corrplot"),
-        
         uiOutput("cortable_button"),
         verbatimTextOutput("cor_table_text"),
-        dataTableOutput("cor_table")
-      )
+        dataTableOutput("cor_table"))
     ),
-    
     tabPanel(
       "Scatterplots",
       sidebarPanel(uiOutput("Pheno1"), uiOutput("Pheno2"), uiOutput("colorby")),
@@ -375,14 +359,13 @@ tabPanel("Correlations",
         textOutput("corrsq"),
         textOutput("corpval"),
         plotlyOutput("scatterplot")
-      )
-    )
-  )
+      )))
   # end of Tab#6
 ),
 # Tab 7 = = = = = = = = = = = = = = >> PCA ANALYSIS << = = = = = = = = = = = = = = = = = = 
 
-navbarMenu("reduction of dimentionality", icon = icon("object-group"),
+tabPanel("reduction of dimentionality", icon = icon("object-group"),
+navbarPage("",
   tabPanel("PCA",
   sidebarPanel(
     fluidRow(
@@ -425,14 +408,16 @@ navbarMenu("reduction of dimentionality", icon = icon("object-group"),
   tabPanel("Multidimensional Scaling",
            sidebarPanel("some gadgets"),
            mainPanel("some graphs")
-           )
+           ))
   # end Tab 7
 ),
 
 # Tab 8 = = = = = = = = = = = = = = >> CLUSTERING ANALYSIS << = = = = = = = = = = = = = = = = = = 
 
-tabPanel("Hierarchical Clustering",
-         icon = icon("sitemap"),
+tabPanel("Clustering", icon = icon("sitemap"),
+      navbarPage("",
+      tabPanel("Hierarchical clustering", 
+         
          sidebarPanel(
                                  uiOutput("Select_data_cluster"),
                                  uiOutput("Select_phenotypes_cluster"),
@@ -464,7 +449,8 @@ tabPanel("Hierarchical Clustering",
                                plotOutput("HotANOVA"),
                                hr(),
                                column(4, uiOutput("Select_data_cluster_validation")))
-           ))
+           ))),
+      tabPanel("K-means clustering"))
          # end of Tab #8
 )
 # end of App - final brackets
