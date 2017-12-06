@@ -2722,6 +2722,50 @@ function(input, output) {
     }
   })
   
+  
+  # = = = = = = = = = >> ONE / TWO SAMPLE TESTS << =  = = = = = = = = = = = #
+  
+  # - - - - - - - >> INPUT GADGETS << - - - - - - - - - - - #
+  output$OT_test <- renderUI({
+    if(input$One_two_test == "One sample to known value"){
+      selectizeInput(
+        inputId = "OT_testski",
+        label = "Test for significance:",
+        choices = c("One sample t-test", "One sample z-test")
+      )}
+    if(input$One_two_test == "Two samples to each other"){
+      selectizeInput(
+        inputId = "OT_testski",
+        label = "Test for significance:",
+        choices = c("Two sample t-test", "Two sample chi-squared test"))}
+  })
+  
+  output$OT_grouping_IVs <- renderUI({
+    if(is.null(ItemList())){
+      return()}
+    else{
+      selectizeInput(
+        inputId = "OT_grouping_IVskis",
+        label = "Group samples by:",
+        choices = c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID),
+        multiple = T
+      )}
+  })
+  
+  output$OT_which_compare <- renderUI({
+    if(is.null(ItemList())){
+      return()}
+    else{
+      
+      
+    }
+  })
+  
+  output$OT_what_mu <- renderUI({})
+  output$OT_test_results <- renderPrint({})
+  output$OT_graph <- renderPlotly({})
+  
+  
   # = = = = = = = >> Testing Significant Differences << = = = = = = = = = = # 
   
   ####We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))

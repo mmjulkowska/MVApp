@@ -251,8 +251,8 @@ fluidPage(
 
 # Tab 5 = = = = = = = = = = = = = = >> DATA EXPLORATION << = = = = = = = = = = = = = = = = = =    
 
-tabPanel("Data exploration", icon=icon("binoculars"),
-      navbarPage("",
+
+navbarMenu("Data exploration", icon=icon("binoculars"),
       tabPanel("Numerical data analysis",
          sidebarPanel(
            fluidRow(
@@ -287,6 +287,18 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                            # Add bar graphs representing the variance with f-test    
                       ),
                       
+                      tabPanel("One / two sample tests", icon = icon("hand-peace-o"),
+                               selectizeInput(inputId = "One_two_test",
+                                              label = "Compare:",
+                                              choices = "One sample to known value", "Two samples to each other"),
+                               uiOutput("OU_test"),
+                               uiOutput("OT_grouping_IVs"),
+                               uiOutput("OT_which_compare"),
+                               uiOutput("OT_what_mu"),
+                               verbatimTextOutput("OT_test_results"),
+                               plotlyOutput("OT_graph")
+                               ),
+                      
                       tabPanel("Testing significant differences", icon=icon("sun-o"),
                                selectizeInput(inputId = "Sig_diff_test", 
                                               label = "Test significant differences with:",
@@ -319,7 +331,6 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                    tabPanel("Two-way ANOVA?",
                             "can we do it? Really???")
                  )))
-               )
          # end of Tab#5
 ),
 
@@ -371,8 +382,8 @@ tabPanel("Correlations",
 ),
 # Tab 7 = = = = = = = = = = = = = = >> PCA ANALYSIS << = = = = = = = = = = = = = = = = = = 
 
-tabPanel("PCA",
-  icon = icon("object-group"),
+navbarMenu("reduction of dimentionality", icon = icon("object-group"),
+  tabPanel("PCA",
   sidebarPanel(
     fluidRow(
       uiOutput("PCA_Pheno_data"), # which phenotype data (summarized / na / original) selectize, multiple = F
@@ -410,7 +421,11 @@ tabPanel("PCA",
                         plotOutput("Contrib_trait_plot"),
                         uiOutput("Contrib_download_var"),
                         dataTableOutput("PCA_contribution_var"))
-    ))
+    ))),
+  tabPanel("Multidimensional Scaling",
+           sidebarPanel("some gadgets"),
+           mainPanel("some graphs")
+           )
   # end Tab 7
 ),
 
