@@ -2727,17 +2727,10 @@ function(input, output) {
   
   # - - - - - - - >> INPUT GADGETS << - - - - - - - - - - - #
   output$OT_test <- renderUI({
-    if(input$One_two_test == "One sample to known value"){
       selectizeInput(
         inputId = "OT_testski",
         label = "Test for significance:",
-        choices = c("One sample t-test", "One sample z-test")
-      )}
-    if(input$One_two_test == "Two samples to each other"){
-      selectizeInput(
-        inputId = "OT_testski",
-        label = "Test for significance:",
-        choices = c("Two sample t-test", "Two sample chi-squared test"))}
+        choices = c("One sample t-test", "Two sample t-test", "Two sample chi-squared test"))
   })
   
   output$OT_grouping_IVs <- renderUI({
@@ -2748,7 +2741,8 @@ function(input, output) {
         inputId = "OT_grouping_IVskis",
         label = "Group samples by:",
         choices = c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID),
-        multiple = T
+        multiple = T,
+        selected=c(input$SelectGeno, input$SelectIV, input$SelectTime)
       )}
   })
   
@@ -2765,23 +2759,87 @@ function(input, output) {
       
       selectizeInput(
         inputId = "OT_compareski",
-        label = "Samples to compare",
+        label = "Enter your sample(s) to compare",
         choices = c(the_list),
-        multiple=T
-      )}
+          multiple=T)}
   })
   
   output$OT_what_mu <- renderUI({
-    if(input$One_two_test == "Two samples to each other"){
-      return()}
-    if(input$One_two_test == "One sample to known value"){
+    if(input$OT_testski == "One sample t-test"){
       textInput(
         inputId = "OT_muski",
         label = "Check if significantly different from (numerical values only):")}
+    else{
+      return()}
   })
   
-  output$OT_test_results <- renderPrint({})
-  output$OT_graph <- renderPlotly({})
+  
+  output$OT_test_results <- renderPrint({
+    subset_lista <- input$OT_grouping_IVskis
+    id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+    id_lista2 <- setdiff(id_lista, subset_lista)
+    data <- Histo_data_type()
+    data$subset_id <- do.call(paste,c(data[c(subset_lista)], sep="_"))
+    real_list <- input$OT_compareski
+    data_sub <- data[data$subset_id %in% real_list,]
+    data_sub$chosen_DV <- data_sub[,input$HisDV]
+    data_sub$sample_id <- data_sub$subset_id 
+    
+    if(input$OT_testski == "One sample t-test"){
+      testski <- t.test(data_sub$chosen_DV, mu = as.numeric(as.character(input$OT_muski)))
+      p_val <- testski$p.value
+    }
+    if(input$OT_testski == "Two sample t-test"){
+      testski <- t.test(data_sub$chosen_DV ~ data_sub$sample_id, var.equal = T)
+      p_val <- testski$p.value
+    }
+    if(input$OT_testski == "Two sample chi-squared test"){
+      testski <- chisq.test(data_sub$chosen_DV, data_sub$sample_id)
+      p_val <- testski$p.value
+    }
+     
+    bam <- p_val
+    if(length(unique(input$OT_compareski)) > 2){
+      cat("Dude / Chica!!! You selected more than two samples - go and to ANOVA or something like this")
+      cat("\n")
+      cat("\n")
+      }
+    
+    if(bam < as.numeric(as.character(input$Chosenthreshold))){
+    cat(paste("The results of ", input$OT_testski, " are SIGNIFICANT"))}
+    if(bam > as.numeric(as.character(input$Chosenthreshold))){
+      cat(paste("The results of ", input$OT_testski, " are NOT significant"))}
+    cat("\n")
+    cat("\n")
+    cat(paste("The p-value of the test is ", bam))
+    cat("\n")
+    cat("\n")
+    print(testski)
+  })
+  
+ output$OT_graph <- renderPlotly({
+   if(is.null(input$OT_compareski)){
+     return()
+   }
+   else{
+   subset_lista <- input$OT_grouping_IVskis
+   id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+   id_lista2 <- setdiff(id_lista, subset_lista)
+   data <- Histo_data_type()
+   data$subset_id <- do.call(paste,c(data[c(subset_lista)], sep="_"))
+   real_list <- input$OT_compareski
+   data_sub <- data[data$subset_id %in% real_list,]
+   data_sub$chosen_DV <- data_sub[,input$HisDV]
+   data_sub$sample_id <- data_sub$subset_id
+     
+     bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, fill = sample_id))
+     bencki <- bencki + geom_boxplot()
+     bencki <- bencki + xlab(input$OT_grouping_IVskis)
+     bencki <- bencki + ylab(input$HisDV)
+     bencki
+   }
+  })
+  
   
   
   # = = = = = = = >> Testing Significant Differences << = = = = = = = = = = # 
