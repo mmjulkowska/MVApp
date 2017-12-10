@@ -579,7 +579,7 @@ function(input, output) {
       return()
     }
     else{
-      actionButton(inputId = "Go_fitplot", icon=icon("magic"), label="update fit-plot galery")
+      actionButton(inputId = "Go_fitplot", icon=icon("magic"), label="update fit-plot gallery")
     }
   })
   
