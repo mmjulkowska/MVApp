@@ -211,6 +211,37 @@ function(input, output) {
       return()
     }
   })
+  
+  output$Spline_df_select <- renderUI({
+    if(input$model == "smooth"){
+      selectizeInput(
+        inputId = "spline_df",
+        label = "The degrees of freedom are",
+        choices = c("automatic", "user defined")
+      )
+    }
+    else{
+      return()
+    }
+  })
+  
+  output$Spline_user_df <- renderUI({
+    if(input$model == "smooth"){
+      if(input$spline_df == "user defined"){
+        sliderInput(
+          inputId = "model_smoothski_df",
+          label = "Number of degrees of freedom:",
+          min=1, max=15, value = 3
+        )
+      }
+      else{
+        return()
+      }}
+    else{
+      return()
+    }
+  })
+  
   # - - - - - - - - -  >> PRE-calculations << - - - - - - - - - - 
   
   # making advice on which model type to chose based on the r-square values
@@ -362,7 +393,7 @@ function(input, output) {
         colnames(super_temp3)[4] <- "time"
         colnames(super_temp3)[5] <- "phenotype"
         fit_cub <- lm(phenotype ~ bs(time, knots=knoty), data=super_temp3)
-      
+        
         for(e in 1:length(fit_cub$coef)){
           things_to_model[i,(3+e)] <- fit_cub$coef[[e]]
         }
@@ -373,17 +404,20 @@ function(input, output) {
           colnames(things_to_model)[3+f] <- paste("Coef",f,sep="_")
         }
         colnames(things_to_model)[(4+length(fit_cub$coef))] <- "r_squared"
-        }
+      }
       
       if(input$model == "smooth"){
-        fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], cv=T)
+        if(input$spline_df == "user determined"){
+          degree <- input$model_smoothski_df
+          fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], df=degree)}
+        if(input$spline_df == "automatic"){
+          fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], cv=T)}
+        
         for(e in 1:length(fit_smooth$fit$coef)){
-          things_to_model[i,(3+e)] <- fit_smooth$fit$coef[e]
-        }
+          things_to_model[i,(3+e)] <- fit_smooth$fit$coef[e]}
         
         for(g in 1:length(unique(super_temp3[,4]))){
-          super_temp3[g,6] <- predict(fit_smooth, unique(super_temp3[,4])[g])$y
-        }
+          super_temp3[g,6] <- predict(fit_smooth, unique(super_temp3[,4])[g])$y}
         
         x <- super_temp3[,6]
         y <- super_temp3[,5]
@@ -391,11 +425,13 @@ function(input, output) {
         rsq <- cor(test,method="pearson")[1,2]^2
         things_to_model[i,(4 + e)] <- rsq
         colnames(things_to_model)[4 + e] <- "r_squared"
+        things_to_model[i,(5+e)] <- fit_smooth$df
+        colnames(things_to_model)[5 + e] <- "df"
         
         super_temp$predict  
         for(f in 1:length(fit_smooth$fit$coef)){
           colnames(things_to_model)[3+f] <- paste("Coef",f,sep="_")
-      }}
+        }}
     }
     things_to_model
   })
@@ -404,15 +440,18 @@ function(input, output) {
     if(is.null(Model_temp_data())){
       return()}
     else {
-    frajka <- Model_temp_data()
-    frajka_boom <- subset(frajka, select=c("r_squared"))
-    frajka_boom <- subset(frajka_boom, frajka_boom$r_squared < 0.7)                      
-    how_much <- nrow(frajka_boom)
-    
-    cat(paste("There are ", how_much, " samples with r-square value below 0.7."))
-    cat("\n")
-    cat("You should consider checking those samples using fit-plots and even going back to your original data.")
-    cat("\n")
+      frajka <- Model_temp_data()
+      frajka_boom <- subset(frajka, select=c("r_squared"))
+      frajka_boom <- subset(frajka_boom, frajka_boom$r_squared < 0.7)                      
+      how_much <- nrow(frajka_boom)
+      
+      cat(paste("There are ", how_much, " samples with r-square value below 0.7."))
+      cat("\n")
+      cat("You should consider checking those samples using fit-plots and even going back to your original data.")
+      cat("\n")
+      
+      
+      
     }
   })
   
@@ -627,7 +666,7 @@ function(input, output) {
     par(mfrow=c(4,5))
     
     
-      for(i in 1:length(real_list)){
+    for(i in 1:length(real_list)){
       super_temp <- subset(docelowy, docelowy$lista == real_list[i])  
       
       # The graph instruction from single plot - so should work :P
@@ -714,46 +753,11 @@ function(input, output) {
   
   # - - - - - - - - - - - - >> SUMMARY STATS ON MODELING DATA << - - - - - - - - - - - - - - - 
   
-  output$model_comparison_report <- renderPrint({
-    temp <- Model_temp_data()  
-    temp$facet <- temp[,input$model_facet_plot]
-    temp$color <- temp[,input$model_color_plot]
-    temp$phenotype <- temp[,input$model_trait_plot]
-    thres <- as.numeric(as.character(input$Model_threshold))
-    
-    amod <- aov(phenotype ~ facet + color + facet*color, data = temp)
-    cat("ANOVA report")
-    cat("\n")
-    if(summary(amod)[[1]][[5]][1] < thres){
-    cat("The effect of ", input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
-    }
-    if(summary(amod)[[1]][[5]][1] > thres){
-    cat("The effect of ", input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
-    }
-    
-    if(summary(amod)[[1]][[5]][2] < thres){
-    cat("\n")
-    cat("The effect of ", input$model_color_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
-    }
-    if(summary(amod)[[1]][[5]][2] > thres){
-      cat("\n")
-      cat("The effect of ", input$model_color_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
-    }
-    
-    if(summary(amod)[[1]][[5]][3] < thres){
-    cat("\n")
-    cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
-    }  
-    if(summary(amod)[[1]][[5]][3] > thres){
-      cat("\n")
-      cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
-    }
-  })
   
   # - - - - - - - - - - - - >> input gizmos << - -  - - - - - - - - - - - - - - - 
   output$Select_model_trait_to_plot <- renderUI({
     if(is.null(Model_temp_data())){
-    return()}
+      return()}
     else{
       taka <- Model_temp_data()  
       list <- colnames(taka)
@@ -780,10 +784,13 @@ function(input, output) {
           label = "Graph type",
           choices = c("box plot", "scatter plot", "bar graph"),
           multiple=F
-          ))}
+        ))}
   })
   
   output$Select_model_error_bar_to_plot <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
     if(input$model_graph_plot == "bar graph"){
       tagList(
         selectizeInput(
@@ -792,6 +799,9 @@ function(input, output) {
           choices = c("Standard Error", "Standard Deviation"),
           multiple = F
         ))}
+    else{
+      return()
+    }
   })
   
   output$Select_model_color_to_plot <- renderUI({
@@ -835,17 +845,7 @@ function(input, output) {
         ))
   })
   
-  output$Go_model_to_plot <- renderUI({
-    if(is.null(Model_temp_data())){
-      return()
-    }
-    else{
-      actionButton(
-        inputId = "Go_model_plot",
-        label = "Unleash model plot"
-      )
-    }
-  })
+  
   
   output$Select_model_color_scale_to_plot <- renderUI({
     if(is.null(Model_temp_data())){
@@ -880,7 +880,131 @@ function(input, output) {
   })
   
   
+  output$Model_Selection_of_colors <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    else
+      selectizeInput(
+        inputId = "Model_col_select_order",
+        label = "Show samples based on:",
+        choices = c("Order of the trait (increasing)", "Order of the trait (decreasing)", "Chose samples to plot")
+      )
+  }) 
+  
+  output$Select_number_of_colors <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      return()
+    }
+    else{
+      sliderInput(
+        inputId = "Model_col_number",
+        label = "Show ... number of samples",
+        min = 2,
+        max = 12,
+        value = 9)
+    }
+  })
+  
+  output$Select_portion_of_color <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      flop <- Model_temp_data()
+      list <- unique(flop[,input$model_color_plot])
+      selectizeInput(
+        inputId = "Model_spec_color",
+        label = "Plot specific samples:",
+        choices = list,
+        multiple = T
+      )
+    }
+    else{
+      flop <- Model_temp_data()
+      max0 <- (length(unique(flop[,input$model_color_plot])) - (input$Model_col_number-1))
+      sliderInput(
+        inputId = "Model_col_portion",
+        label = "Plot portion of the data starting from element number ...",
+        min = 1,
+        max = max0,
+        value = 1,
+        step = input$Model_col_number)}
+  }) 
+  
+  
   # - - - - - - - >> CALCULATIONS <<- - - - - - - - - - - - 
+  
+  output$model_comparison_report <- renderPrint({
+    temp <- Model_temp_data()
+    temp[,input$SelectID] <- NULL
+    
+    temp$colorek <- temp[,input$model_color_plot]
+    temp_sub <- subset(temp, select = c("colorek", input$model_trait_plot))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
+    
+    
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Model_spec_color)}
+    
+    if(input$Model_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    if(input$Model_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    dropski <- c("colorek")
+    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    temp <- from_sub
+    
+    temp$facet <- temp[,input$model_facet_plot]
+    temp$color <- temp[,input$model_color_plot]
+    temp$phenotype <- temp[,input$model_trait_plot]
+    thres <- as.numeric(as.character(input$Model_threshold))
+    
+    amod <- aov(phenotype ~ facet + color + facet*color, data = temp)
+    cat("ANOVA report")
+    cat("\n")
+    if(summary(amod)[[1]][[5]][1] < thres){
+      cat("The effect of ", input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
+    }
+    if(summary(amod)[[1]][[5]][1] > thres){
+      cat("The effect of ", input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
+    }
+    
+    if(summary(amod)[[1]][[5]][2] < thres){
+      cat("\n")
+      cat("The effect of ", input$model_color_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
+    }
+    if(summary(amod)[[1]][[5]][2] > thres){
+      cat("\n")
+      cat("The effect of ", input$model_color_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
+    }
+    
+    if(summary(amod)[[1]][[5]][3] < thres){
+      cat("\n")
+      cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
+    }  
+    if(summary(amod)[[1]][[5]][3] > thres){
+      cat("\n")
+      cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
+    }
+  })
   
   output$model_comparison_summary <- renderDataTable({
     temp <- Model_temp_data()
@@ -912,99 +1036,158 @@ function(input, output) {
   # - - - - - - - >> GRAPHS <<- - - - - - - - - - - - 
   
   output$model_comparison_plotski <- renderPlotly({
-  temp <- Model_temp_data()
-  temp[,input$SelectID] <- NULL
-  
-  if(input$model_graph_plot == "bar graph"){
+    temp <- Model_temp_data()
+    temp[,input$SelectID] <- NULL
+    temp$colorek <- temp[,input$model_color_plot]
+    temp_sub <- subset(temp, select = c("colorek", input$model_trait_plot))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
     
-    temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
-    temp_melt <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
-    temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
-    temp_sum$color <- temp_sum[,input$model_color_plot]
-    temp_sum$facet <- temp_sum[,input$model_facet_plot]
-    benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, fill = color))
-    benc <- benc + geom_bar(stat = "identity", position=position_dodge(1))
-    if(input$model_error_plot == "Standard Error"){
-      benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))
+    
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Model_spec_color)}
+    
+    if(input$Model_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
     }
-    if(input$model_error_plot == "Standard Deviation"){
-      benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
+    
+    if(input$Model_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
     }
-    benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
-    benc <- benc + scale_color_brewer(palette = input$Select_model_color_sc)
-  }
-  
-  temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
-  melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
-  melt_sub$id <- paste(melt_sub[,input$ModelIV], melt_sub[,input$ModelSubIV], sep="_")
-  melt_sub$color <- melt_sub[,input$model_color_plot]
-  melt_sub$facet <- melt_sub[,input$model_facet_plot]
-  no <- c(input$ModelIV, input$ModelSubIV)
-  no_fac <- setdiff(no, input$model_facet_plot)
-  melt_sub$no_facet <- paste(melt_sub[,no_fac], sep="_")
-  
-  if(input$model_graph_plot == "box plot"){
-        benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
-        benc <- benc + geom_boxplot()
-        benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
-        benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
+    
+    dropski <- c("colorek")
+    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    if(input$model_graph_plot == "bar graph"){
+      
+      temp_melt <- melt(from_sub, id=c(input$ModelIV, input$ModelSubIV))
+      temp_melt <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
+      temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
+      temp_sum$color <- temp_sum[,input$model_color_plot]
+      temp_sum$facet <- temp_sum[,input$model_facet_plot]
+      benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, fill = color))
+      benc <- benc + geom_bar(stat = "identity", position=position_dodge(1))
+      if(input$model_error_plot == "Standard Error"){
+        benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))
       }
-  
-  if(input$model_graph_plot == "scatter plot"){
-    benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
-    benc <- benc + geom_point()
+      if(input$model_error_plot == "Standard Deviation"){
+        benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))
+      }
+      benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
+      #benc <- benc + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
+    }
     
+    temp_melt <- melt(from_sub, id=c(input$ModelIV, input$ModelSubIV))
+    melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
+    melt_sub$id <- paste(melt_sub[,input$ModelIV], melt_sub[,input$ModelSubIV], sep="_")
+    melt_sub$color <- melt_sub[,input$model_color_plot]
+    melt_sub$facet <- melt_sub[,input$model_facet_plot]
+    no <- c(input$ModelIV, input$ModelSubIV)
+    no_fac <- setdiff(no, input$model_facet_plot)
+    melt_sub$no_facet <- paste(melt_sub[,no_fac], sep="_")
     
-    benc <- benc + facet_wrap(~ facet, scale = input$Select_model_facet_sc)
-      benc <- benc + scale_color_brewer(palette = input$Select_model_color_sc)
-  }
-  
-  if(input$Select_model_background == T){
-    benc <- benc + theme_minimal()}
-  if(input$Select_model_maj_grid == T){
-  benc <- benc + theme(panel.grid.major = element_blank())}
-
-  benc <- benc + ylab(input$model_trait_plot)
-  benc <- benc + xlab(input$model_color_plot)
-  
-  benc
+    if(input$model_graph_plot == "box plot"){
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
+      benc <- benc + geom_boxplot()
+      benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
+      # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
+    }
+    
+    if(input$model_graph_plot == "scatter plot"){
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
+      benc <- benc + geom_point()
+      
+      
+      benc <- benc + facet_wrap(~ facet, scale = input$Select_model_facet_sc)
+      #benc <- benc + scale_color_brewer(palette = input$Select_model_color_sc)
+    }
+    
+    if(input$Select_model_background == T){
+      benc <- benc + theme_minimal()}
+    if(input$Select_model_maj_grid == T){
+      benc <- benc + theme(panel.grid.major = element_blank())}
+    
+    benc <- benc + ylab(input$model_trait_plot)
+    benc <- benc + xlab(input$model_color_plot)
+    
+    benc <- benc + guides(fill=guide_legend(title= input$model_color_plot))
+    
+    benc <- benc + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    benc <- benc + xlab("")
+    benc <- benc + ylab(input$model_trait_plot)
+    
+    benc
   })
+  
   
   # - - - - - - - - - - >> TUKEY MESSAGE << - - - - - - - - 
   output$model_comparison_Tukey <- renderPrint({
     
-    Chosenpvalue<-as.numeric(as.character(input$Model_threshold))
     temp <- Model_temp_data()
     temp[,input$SelectID] <- NULL
     
+    temp$colorek <- temp[,input$model_color_plot]
+    temp_sub <- subset(temp, select = c("colorek", input$model_trait_plot))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
     
-    temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
-    melt_sub <- subset(temp_melt, temp_melt$variable == input$model_trait_plot)
-    melt_sub$color <- melt_sub[,input$model_color_plot]
-    melt_sub$facet <- melt_sub[,input$model_facet_plot]
     
-    final <- subset(melt_sub, select = c("facet", "color", "value"))
+    if(input$Model_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Model_spec_color)}
     
-    for (h in unique(final$facet)){
-      subset_melt <- subset(final, final$facet == h )
-      fit_tukey <- aov(subset_melt$value ~ subset_melt$color)
-      out <- HSD.test(fit_tukey, "subset_melt$color", group = T, alpha = Chosenpvalue)
+    if(input$Model_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    if(input$Model_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Model_col_portion))
+      max <- as.numeric(as.character(input$Model_col_portion)) + (input$Model_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    dropski <- c("colorek")
+    temp_ski <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    
+    temp_ski$facet <- temp_ski[,input$model_facet_plot]
+    temp_ski$color <- temp_ski[,input$model_color_plot]
+    temp_ski$phenotype <- temp_ski[,input$model_trait_plot]
+    thres <- as.numeric(as.character(input$Model_threshold))
+    
+    
+    for (h in unique(temp_ski$facet)){
+      subset_melt_ski <- subset(temp_ski, temp_ski$facet == h)
+      fit_tukey <- aov(subset_melt_ski$phenotype ~ subset_melt_ski$color)
+      out <- HSD.test(fit_tukey, "subset_melt_ski$color", group = T, alpha = thres)
       
       out_tukey<-as.data.frame(out$groups)
       out_tukey$x<-row.names(out_tukey)
-      n_name<-rep(h, length(levels(subset_melt$color)))
+      n_name<-rep(h, length(levels(subset_melt_ski$color)))
       out_tukey_n<-as.data.frame(cbind(out_tukey, n_name))
       colnames(out_tukey_n)[4] <- input$model_facet_plot
       colnames(out_tukey_n)[3] <- input$model_color_plot
       colnames(out_tukey_n)[1] <- input$model_trait_plot
       #colnames(out_tukey_n)<-c(input$model_facet_plot, input$model_trait_color, "Tukey's letters", input$model_trait_plot)
       out_tukey_f<-out_tukey_n[c(4,3,2,1)]
-      print(as.data.frame(out_tukey_f), row.names=FALSE)
+      print(as.data.frame(out_tukey_f))
     }
   })
   
   
-  # - - - - - - - >> DOWNLOAD BUTTONS <<- - - - - - - - - - - - 
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   #  - - - - - - - - - - >> DATA CURATION IN 4th TAB << - - - - - - - - - - - - - -
@@ -1125,25 +1308,24 @@ function(input, output) {
   })
   
   output$Select_outlier_background_color_to_plot <- renderUI({
-    if(is.null(Model_temp_data())){
+    if(is.null(input$Go_outliers)){
       return()}
-    else
+    else{
       tagList(
         checkboxInput(
           inputId = "Select_outl_background",
-          label = "Remove background"))
+          label = "Remove background"))}
   })
   
   output$Select_outlier_maj_grid_to_plot <- renderUI({
-    if(is.null(Model_temp_data())){
+    if(is.null(input$Go_outliers)){
       return()}
-    else
+    else{
       tagList(
         checkboxInput(
           inputId = "Select_outl_maj_grid",
-          label = "Remove major grid lines"))
+          label = "Remove major grid lines"))}
   })
-  
   
   # - - - - - - - - - - - - - >>  MAIN CALCULATIONS << - - - - - - - - - - - - - -
   
@@ -1485,6 +1667,62 @@ function(input, output) {
     return(data_blob)
   })
   
+  #   =   =   =   =   =   =   >>  # intermediate input widgets #  <<    =   =   =   =   =   =   =   =
+  
+  output$Outlier_Selection_of_colors <- renderUI({
+    if(is.null(input$Go_outliers)){
+      return()
+    }
+    else
+      selectizeInput(
+        inputId = "Outl_col_select_order",
+        label = "Show samples based on:",
+        choices = c("Order of the trait (increasing)", "Order of the trait (decreasing)", "Chose samples to plot")
+      )
+  }) 
+  
+  output$Select_number_of_colors_outl <- renderUI({
+    if(is.null(input$Go_outliers)){
+      return()
+    }
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      return()
+    }
+    else{
+      sliderInput(
+        inputId = "Outl_col_number",
+        label = "Show ... number of samples",
+        min = 2,
+        max = 12,
+        value = 9)
+    }
+  })
+  
+  output$Select_portion_of_color_outl <- renderUI({
+    if(is.null(input$Go_outliers)){
+      return()
+    }
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      flop <- Outliers_final_data()
+      list <- unique(flop[,input$SelectGeno])
+      selectizeInput(
+        inputId = "Outl_spec_color",
+        label = "Plot specific samples:",
+        choices = list,
+        multiple = T
+      )
+    }
+    else{
+      flop <- Outliers_final_data()
+      max0 <- (length(unique(flop[,input$SelectGeno])) - (input$Outl_col_number-1))
+      sliderInput(
+        inputId = "Outl_col_portion",
+        label = "Plot portion of the data starting from element number ...",
+        min = 1,
+        max = max0,
+        value = 1,
+        step = input$Outl_col_number)}
+  }) 
   
   # - - - - - - - - - - - - - >>  OUTPUT TABLES / GRAPHS / DOWNLOAD BUTTONS << - - - - - - - - - - - - - -
   
@@ -1516,7 +1754,7 @@ function(input, output) {
     cat("\n")
     cat("Please think twice before removing a sample from your data, as it might contain valuable information.") 
     cat("\n")
-    cat("We advice you to go back to your original data, look at the pictures (if you have them) and make sure that the sample is not representative for a VERY good reason.")
+    cat("We advise you to go back to your original data, look at the pictures (if you have them) and make sure that the sample is not representative for a VERY good reason.")
   })
   
   # Outlier free data (and table)
@@ -1635,7 +1873,43 @@ function(input, output) {
       data_outl <- my_data()
     }
     
-    outl <- subset(data_outl, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_graph_outliers))
+    # # # # >> START OF KINKY SECTION << # # # # #
+    
+    temp <- data_outl
+    
+    temp$colorek <- temp[,input$SelectGeno]
+    temp_sub <- subset(temp, select = c("colorek", input$DV_graph_outliers))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
+    
+    
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Outl_spec_color)}
+    
+    if(input$Outl_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Outl_col_portion))
+      max <- as.numeric(as.character(input$Outl_col_portion)) + (input$Outl_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    if(input$Outl_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Outl_col_portion))
+      max <- as.numeric(as.character(input$Outl_col_portion)) + (input$Outl_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    dropski <- c("colorek")
+    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    data_outl <- from_sub
+    
+    # # # END OF KINKY SECTION
+    
+    outl <- subset(data_outl, select=c(input$IV_outliers, input$DV_graph_outliers))
     lista <- input$IV_outliers
     
     if(input$outlier_facet == T){
@@ -1646,8 +1920,6 @@ function(input, output) {
     if(input$outlier_colour == T){
       listx <- input$Colour_choice
       outl$listx <- outl[,input$Colour_choice]
-      listax <- setdiff(lista, listx)
-      outl$listax <- do.call(paste,c(outl[listax], sep = "_"))
     }
     
     phenotype <- input$DV_graph_outliers
@@ -1660,18 +1932,26 @@ function(input, output) {
       outl$pheno <- as.numeric(outl$pheno)
       if(input$outlier_colour == T) {
         if(input$outlier_facet == F){
-        out_sum <- summaryBy(pheno ~ listax + listx, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-        taka <- ggplot(out_sum, aes(x = listax, y= pheno.m, fill = listx))
+
+        out_sum <- summaryBy(pheno ~ listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })
+        list_temp <- c(lista, listx)
+        out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
+        taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
         #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
       }
       if(input$outlier_facet == T){
-        out_sum <- summaryBy(pheno ~ listax + listx + listb, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-        taka <- ggplot(out_sum, aes(x = listax, y= pheno.m, fill = listx))
+        out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+        taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
       }}
+
       
       if(input$outlier_colour == F){
         if(input$outlier_facet == T){
           out_sum <- summaryBy(pheno ~ id_test + listb, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+          list_temp <- c(lista, listx)
+          out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+          
           taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))
         }
         if(input$outlier_facet == F){
@@ -1681,12 +1961,12 @@ function(input, output) {
       }
       
       taka <- taka + geom_bar(stat="identity", position=position_dodge(1))
-      taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)
+      #taka <- taka + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
       
       if(input$out_error_bar == "Standard Deviation"){
         taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.s, ymax=pheno.m+pheno.s), position=position_dodge(1))}
       if(input$out_error_bar == "Standard Error"){
-      taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.se, ymax=pheno.m+pheno.se), position=position_dodge(1))}
+        taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.se, ymax=pheno.m+pheno.se), position=position_dodge(1))}
     }
     
     
@@ -1699,7 +1979,8 @@ function(input, output) {
       }
       
       taka <- taka + geom_boxplot(position="dodge")
-      taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)}
+      #taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)
+    }
     
     if(input$outlier_graph_type == "scatter plot"){
       
@@ -1711,27 +1992,24 @@ function(input, output) {
       }
       
       taka <- taka + geom_point(position=position_dodge(1))
-      taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)}
-    
-    
+      #taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)
+    }
     
     if(input$outlier_facet == T){
-    taka <- taka + facet_wrap(~listb, ncol=input$out_graph_facet_col, scale = input$out_facet_scale)}
+      taka <- taka + facet_wrap(~listb, ncol=input$out_graph_facet_col, scale = input$out_facet_scale)}
+  
+    if(input$Select_outl_background == T){
+      taka <- taka + theme_minimal()}
+    if(input$Select_outl_maj_grid == T){
+      taka <- taka + theme(panel.grid.major = element_blank())}
     
     taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
     taka <- taka + xlab("")
     taka <- taka + ylab(input$DV_graph_outliers)
     
     if(input$outlier_colour == T){
-    taka <- taka + theme(legend.title=element_blank())
-    }
-  
-  if(input$Select_outl_background == T){
-    taka <- taka + theme_minimal()}
-  if(input$Select_outl_maj_grid == T){
-    taka <- taka + theme(panel.grid.major = element_blank())}
-  
-    
+    taka <- taka + guides(fill=guide_legend(title=listx))}
+
     taka
   })
   
@@ -1739,7 +2017,41 @@ function(input, output) {
   
   output$no_outliers_graph <- renderPlotly({
     data <- Outlier_free_data()
-    clean_data <- subset(data, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_graph_outliers))
+    
+    temp <- data
+    
+    temp$colorek <- temp[,input$SelectGeno]
+    temp_sub <- subset(temp, select = c("colorek", input$DV_graph_outliers))
+    names(temp_sub)[2] <- "pheno"
+    temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)
+    
+    
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      from_sub <- subset(temp, temp$colorek %in% input$Outl_spec_color)}
+    
+    if(input$Outl_col_select_order == "Order of the trait (increasing)"){
+      from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Outl_col_portion))
+      max <- as.numeric(as.character(input$Outl_col_portion)) + (input$Outl_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    if(input$Outl_col_select_order == "Order of the trait (decreasing)"){
+      from_sort <- temp_sum[order(temp_sum$pheno.mean),]  
+      min <- as.numeric(as.character(input$Outl_col_portion))
+      max <- as.numeric(as.character(input$Outl_col_portion)) + (input$Outl_col_number-1)
+      super_lista <- as.character(from_sort$colorek[min:max])
+      from_sub <- subset(temp, temp$colorek %in% super_lista)
+    }
+    
+    dropski <- c("colorek")
+    from_sub <- from_sub[, !(names(from_sub) %in% dropski)]
+    
+    data <- from_sub
+    
+    clean_data <- subset(data, select=c(input$IV_outliers, input$DV_graph_outliers))
+    
     lista <- input$IV_outliers
     
     if(input$outlier_facet == T){
@@ -1749,28 +2061,24 @@ function(input, output) {
     
     if(input$outlier_colour == T){
       listx <- input$Colour_choice
-      clean_data$listx <- clean_data[,input$Colour_choice]
-      listax <- setdiff(lista, listx)
-      clean_data$listax <- do.call(paste,c(clean_data[listax], sep = "_"))
-    }
+      clean_data$listx <- clean_data[,input$Colour_choice]}
+
     
     phenotype <- input$DV_graph_outliers
     clean_data$pheno <- clean_data[,input$DV_graph_outliers]
-    
-    
     clean_data$id_test <- do.call(paste,c(clean_data[lista], sep = "_"))
     
     if(input$outlier_graph_type == "bar plot"){
       clean_data$pheno <- as.numeric(clean_data$pheno)
       if(input$outlier_colour == T) {
         if(input$outlier_facet == F){
-          clean_sum <- summaryBy(pheno ~ listax + listx, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-          jaka <- ggplot(clean_sum, aes(x = listax, y= pheno.m, fill = listx))
+          clean_sum <- summaryBy(pheno ~ listx + id_test, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, fill = listx))
           #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
         }
         if(input$outlier_facet == T){
-          clean_sum <- summaryBy(pheno ~ listax + listx + listb, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-          jaka <- ggplot(clean_sum, aes(x = listax, y= pheno.m, fill = listx))
+          clean_sum <- summaryBy(pheno ~ id_test + listx + listb, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, fill = listx))
         }}
       
       if(input$outlier_colour == F){
@@ -1785,7 +2093,7 @@ function(input, output) {
       }
       
       jaka <- jaka + geom_bar(stat="identity", position=position_dodge(1))
-      jaka <- jaka + scale_color_brewer(palette = input$Select_outl_color_sc)
+      #jaka <- jaka + scale_fill_manual(values = colorRampPalette(brewer.pal(input$Select_model_color_sc)))
       
       if(input$out_error_bar == "Standard Deviation"){
         jaka <- jaka + geom_errorbar(aes(ymin=pheno.m-pheno.s, ymax=pheno.m+pheno.s), position=position_dodge(1))}
@@ -1802,7 +2110,7 @@ function(input, output) {
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
       }
       
-      jaka <- jaka + scale_fill_brewer(palette = input$Select_outl_color_sc)
+      #jaka <- jaka + scale_fill_brewer(palette = input$Select_outl_color_sc)
       jaka <- jaka + geom_boxplot(position="dodge")}
     
     if(input$outlier_graph_type == "scatter plot"){
@@ -1814,15 +2122,11 @@ function(input, output) {
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
       }
       jaka <- jaka + geom_point(position=position_dodge(1))
-      jaka <- jaka + scale_color_brewer(palette = input$Select_outl_color_sc)
+      #jaka <- jaka + scale_color_brewer(palette = input$Select_outl_color_sc)
     }
     
     if(input$outlier_facet == T){
       jaka <- jaka + facet_wrap(~listb, ncol=3, scale = input$out_facet_scale)}
-    
-    jaka <- jaka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-    jaka <- jaka + xlab("")
-    jaka <- jaka + ylab(input$DV_graph_outliers)
     
     if(input$outlier_colour == T){
       jaka <- jaka + theme(legend.title=element_blank())
@@ -1833,6 +2137,12 @@ function(input, output) {
     if(input$Select_outl_maj_grid == T){
       jaka <- jaka + theme(panel.grid.major = element_blank())}
     
+    if(input$outlier_colour == T){
+      jaka <- jaka + guides(fill=guide_legend(title=listx))}
+    
+    jaka <- jaka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    jaka <- jaka + xlab("")
+    jaka <- jaka + ylab(input$DV_graph_outliers)
     
     jaka
   })
@@ -1865,7 +2175,7 @@ function(input, output) {
     } else tagList(
       selectizeInput(inputId = "SelectSumm", 
                      label = "Calculations to perform:", 
-                     choices=c("Mean", "Median", "StdDev", "StdErr", "Min", "Max", "Sum"), multiple=T))
+                     choices=c("Mean", "Median", "StdDev", "StdErr", "Min", "Max", "Sum", "No.samples"), multiple=T))
   })
   
   
@@ -1876,7 +2186,8 @@ function(input, output) {
                  StdErr = function(x) std.error(x),
                  Min = function(x) min(x),
                  Max = function(x) max(x),
-                 Sum = function(x) sum(x))
+                 Sum = function(x) sum(x),
+                 No.samples = function(x) length(x))
   
   sum_data <- eventReactive(input$Go_SummaryStat, {
     if(input$SelectDataSumm == "raw data"){
@@ -1928,22 +2239,10 @@ function(input, output) {
   )
   
   
-<<<<<<< HEAD
-  output$Data_for_plots <- renderUI({
-    if(is.null(ItemList())){return()}
-    else
-      tagList(
-        selectizeInput(
-          inputId = "Data_plot",
-          label = "Select the dataset that you would like to use for plots",
-          choices = c("raw data", "NA removed", "outliers removed", "Summary Stats data"), multiple = F))
-  })  
-  
-  
-=======
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> DATA EXPLORATION IN 5th TAB << - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
   ##select dataset
   output$Histo_Pheno_data <- renderUI({
     if(is.null(ItemList())){return()}
@@ -1969,7 +2268,6 @@ function(input, output) {
   })
   
   #### HISTOGRAMS  
->>>>>>> 4d284139ae2faa3aa765c30a15add37cf3cda72a
   
   output$HisIV <- renderUI({
     if ((input$Go_Data == FALSE)) {
@@ -2006,20 +2304,6 @@ function(input, output) {
         )
       )
   })
- 
-  
-  output$Plot_facet <- renderUI({
-    if(input$Facet_check == T){
-      tagList(
-        selectizeInput("Plotfacet_choice", "Select variable for which to facet",
-                    choices = c(setdiff(list(input$SelectGeno, input$SelectIV, input$SelectTime), input$HisIV)), 
-                    multiple = F)
-      )
-    }
-    else{
-      return()
-    }
-  })
   
   output$Chosenthreshold <- renderUI({
     if ((input$Go_Data == FALSE)) {
@@ -2054,11 +2338,18 @@ function(input, output) {
   #})
   
   output$Plotfacets <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
     if(input$plot_facet == T){
+      if(input$TimeCheck == T){
+      Stephanies_list <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), input$HisIV)}
+      if(input$TimeCheck == F){
+        Stephanies_list <- setdiff(c(input$SelectGeno, input$SelectIV), input$HisIV)}
       tagList(
         selectInput("Plotfacet_choice", "Independent Variable to split the plots",
-                    choices = c(setdiff(list(input$SelectGeno, input$SelectIV, input$SelectTime),input$HisIV)))
-      )
+                    choices = c(Stephanies_list)
+      ))
     }
     else{
       return()
@@ -2086,60 +2377,6 @@ function(input, output) {
   
   
   output$HistPlot <- renderPlotly({
-<<<<<<< HEAD
-    my_his_data<-my_data()[,c(input$HisDV,input$HisIV, input$Plotfacet_choice)]
-    if (input$Facet_check == T){
-     listPlot<-input$Plotfacet_choice
-    my_his_data$listPlot <- my_his_data[,input$Plotfacet_choice]
-    if (input$HistType == "HistCount") {
-     fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") +  labs(fill=names(my_his_data[2]))
-        fit<-fit +  facet_wrap(~ listPlot)
-    }
-      if (input$HistType == "HistDensity") { 
-        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) +  labs(fill=names(my_his_data[2]))
-        fit<-fit +  facet_wrap(~listPlot)
-      }
-    }
-    
-    if (input$Facet_check == F){
-       if (input$HistType == "HistCount") {
-          fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") +  labs(fill=names(my_his_data[2]))
-           }
-   if (input$HistType == "HistDensity" ) { 
-   fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) +  labs(fill=names(my_his_data[2]))
-    
-    }
-      }
-    ggplotly(fit)
-     }) 
-  
-
-     
-    
-  
-  output$Boxes <- renderPlotly({
-    my_his_data<-my_data()[,c(input$HisDV,input$HisIV, input$Plotfacet_choice)]
-    if (input$Facet_check == T){
-      listPlot<-input$Plotfacet_choice
-      my_his_data$listPlot <- my_his_data[,input$Plotfacet_choice]
-      
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot() 
-      box_graph<-  box_graph + facet_wrap(~listPlot)
-      ggplotly(box_graph)
-    }
-    else{
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
-      ggplotly(box_graph)
-    }
-  })
-    ##STILL TO DO:
-        #       try to do subset by multiple variables
-   # output$Boxes <- renderPlotly({
-      
-     # box_graph <- ggplot(hisdata2, aes(x=hisdata2[,3], y=hisdata2[,4])) + xlab(names(hisdata2[2])) + ylab(names(hisdata2[1])) + geom_boxplot()
-    #  ggplotly(box_graph)
-    #})
-=======
     
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     #groupIV<-input$HisIV
@@ -2174,7 +2411,6 @@ function(input, output) {
       }
     }
     
->>>>>>> 4d284139ae2faa3aa765c30a15add37cf3cda72a
     
     if(input$plot_facet ==F){
       if (input$HistType == "Histogram with counts on y-axis") {
@@ -2207,9 +2443,9 @@ function(input, output) {
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
         if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
-          interpret_shapiro[i]<-"Data might NOT be normally distributed"
+          interpret_shapiro[i]<-"Data is NOT normally distributed"
         } else {
-          interpret_shapiro[i]<-"Data has NORMAL distribution"
+          interpret_shapiro[i]<-"Data is NORMALLY distributed"
         }
         
         temp_shapiro<-as.data.frame(cbind(facetting_shapiro,shapiro_pvalue, interpret_shapiro))
@@ -2222,7 +2458,7 @@ function(input, output) {
       cat("The data for ",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "does not show the normal distribution in the following samples:")
       cat("\n")
       cat(list_sig_shapiro, sep=", ")
-      #cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "do not have a normal distribution?!")
+      #cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "might NOT have a normal distribution")
       
       if(input$showShapirotest==T){
         cat("\n")
@@ -2245,9 +2481,9 @@ function(input, output) {
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
         if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
-          interpret_shapiro[i]<-"Data not normally distributed"
+          interpret_shapiro[i]<-"Data is NOT normally distributed"
         } else {
-          interpret_shapiro[i]<-"Cannot reject H0"
+          interpret_shapiro[i]<-"Data is NORMALLY distributed"
         }
         temp_shapiro<-as.data.frame(cbind(facetting_shapiro,shapiro_pvalue, interpret_shapiro))
       }
@@ -2259,7 +2495,7 @@ function(input, output) {
       #list_sha <- unique(list_sig_shapiro)
       #paste("<font color=\"#008080\"><b>",list_sha, "</b></font>")
       #print(colore)
-      cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "do not have a normal distribution?!")
+      cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "does NOT have a normal distribution")
       #paste(type='text/css', 'list_sig_shapiro, {color = "red"}')
       
       if(input$showShapirotest==T){
@@ -2283,6 +2519,7 @@ function(input, output) {
       return()
     }
   })
+  
   
   # Add here a conditional slider
   
@@ -2381,125 +2618,6 @@ function(input, output) {
   })
   
   
-  output$Tukeylisting <- renderPrint({
-    Chosenpvalue<-as.numeric(as.character(input$Chosenthreshold))
-    if(input$plot_facet ==T){
-      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-      my_his_data[,2]<-as.factor(my_his_data[,2])
-      for (i in unique(my_his_data[,3])){
-        subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
-        fit_tukey<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
-        out<-HSD.test(fit_tukey, "subsetted_data[, 2]", group=TRUE, alpha==Chosenpvalue) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
-        out_tukey<-as.data.frame(out$groups)
-        out_tukey$x<-row.names(out_tukey)
-        n_name<-rep(i, length(levels(subsetted_data[,2])))
-        out_tukey_n<-as.data.frame(cbind(out_tukey, n_name))
-        colnames(out_tukey_n)<-c(names(subsetted_data[1]), "Tukey's letters", names(subsetted_data)[2], names(subsetted_data[3]))
-        out_tukey_f<-out_tukey_n[c(4,3,2,1)]
-        print(as.data.frame(out_tukey_f), row.names=FALSE)
-      }
-    }
-    
-    if(input$plot_facet ==F){
-      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
-      my_his_data[,2]<-as.factor(my_his_data[,2])
-      fit_tukey<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
-      out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha==Chosenpvalue) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
-      out_tukey<-as.data.frame(out$groups)
-      out_tukey$x<-row.names(out_tukey)
-      colnames(out_tukey)<-c(names(my_his_data[1]), "Significant groups based on Tukey's pairwise comparison ", names(my_his_data)[2])
-      out_tukey_f<-out_tukey[c(3,1,2)]
-      print(out_tukey_f, row.names=FALSE)
-    }
-    
-  })
-  
-  
-  #the margin needs to be fixed to be able to see the y-lab
-  output$Boxes <- renderPlotly({
-    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-    #groupIV<-input$HisIV
-    
-    if(input$plot_facet ==T){
-      facetIV<-input$Plotfacet_choice
-      my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
-      
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
-      box_graph<- box_graph + facet_wrap(~facetIV) + scale_fill_discrete(names(my_his_data[2]))
-    }
-    else{
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
-      box_graph<- box_graph + scale_fill_discrete(names(my_his_data[2]))
-    }
-    ggplotly(box_graph)
-  })
-  
-  
-  
-  
-  ####We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
-  # p.adjust.methods
-  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
-  #   "fdr", "none")
-  #OR maybe use anova(lm(~))?
-  ###ANOVA summary table output
-  output$ANOVAtest <- renderPrint({
-    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-    my_his_data[,2]<-as.factor(my_his_data[,2])
-    if(input$plot_facet ==T){
-      n_rows<-length(levels(my_his_data[,3]))
-      facetting<-rep(NA,n_rows)
-      p_values_anova<-rep(NA,n_rows)
-      interpret_anova<-rep(NA,n_rows)
-      # p_values_anovacorr<-rep(NA,n_rows)
-      for (i in unique(my_his_data[,3])){
-        subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
-        facetting[i]<-i
-        fit_anova<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
-        #print(fit_anova)
-        #print(summary(fit_anova))
-        p_values_anova[i]<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5) #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
-        #p_values_anovacorr[i]<-p.adjust(p, method = Chosenmultipletesting)
-        #print(paste("The p-value of the ANOVA test is", pvalue))
-        #temp_anova<-as.data.frame(cbind(facetting, p_values_anova, p_values_anovacorr))
-        if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
-          interpret_anova[i]<-"Significant difference in means"
-        } else {
-          interpret_anova[i]<-"Cannot reject H0"
-        }
-        temp_anova<-as.data.frame(cbind(facetting, p_values_anova,interpret_anova))
-      }
-      temp_anova<-na.omit(temp_anova)
-      colnames(temp_anova) <- c("", "p_value","")
-      #colnames(temp_anova) <- c("", "p_value", "p_value corrected")
-      cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
-      print(temp_anova, row.names=FALSE)
-    }
-    if(input$plot_facet ==F){ 
-      fit_anova <- aov(my_his_data[,1] ~ as.factor(my_his_data[,2]), data = my_his_data)
-      #print(fit_anova)
-      #br()
-      #print(summary(fit_anova))
-      pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
-      cat("ANOVA", "\n")
-      cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA,"\n", "\n", sep=""))
-      
-      
-      if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
-        cat("Significant difference in means")
-      } else {
-        cat("NO significant difference in means")
-      }
-    }
-  })
-  
-  
-  
-  
-  ####We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
-  # p.adjust.methods
-  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
-  #   "fdr", "none")
   
   ##Bartlett test
   output$Bartlett <- renderPrint({
@@ -2550,7 +2668,7 @@ function(input, output) {
     }
   })
   
-  
+  # = = = = = = = >> Testing Equal Variances << = = = = = = = = = = # 
   
   #######We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
   # p.adjust.methods
@@ -2602,6 +2720,368 @@ function(input, output) {
         cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are NOT equal.", sep="")
       }
     }
+  })
+  
+  
+  # = = = = = = = = = >> ONE / TWO SAMPLE TESTS << =  = = = = = = = = = = = #
+  
+  # - - - - - - - >> INPUT GADGETS << - - - - - - - - - - - #
+  output$OT_test <- renderUI({
+      selectizeInput(
+        inputId = "OT_testski",
+        label = "Test for significance:",
+        choices = c("One sample t-test", "Two sample t-test", "Two sample chi-squared test"))
+  })
+  
+  output$OT_grouping_IVs <- renderUI({
+    if(is.null(ItemList())){
+      return()}
+    else{
+      selectizeInput(
+        inputId = "OT_grouping_IVskis",
+        label = "Group samples by:",
+        choices = c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID),
+        multiple = T,
+        selected=c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      )}
+  })
+  
+  output$OT_which_compare <- renderUI({
+    if(is.null(ItemList())){
+      return()}
+    else{
+      subset_lista <- input$OT_grouping_IVskis
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      id_lista2 <- setdiff(id_lista, subset_lista)
+      data <- Histo_data_type()
+      data$subset_id <- do.call(paste,c(data[c(subset_lista)], sep="_"))
+      the_list <- unique(data$subset_id)
+      
+      selectizeInput(
+        inputId = "OT_compareski",
+        label = "Enter your sample(s) to compare",
+        choices = c(the_list),
+          multiple=T)}
+  })
+  
+  output$OT_what_mu <- renderUI({
+    if(input$OT_testski == "One sample t-test"){
+      textInput(
+        inputId = "OT_muski",
+        label = "Check if significantly different from (numerical values only):")}
+    else{
+      return()}
+  })
+  
+  
+  output$OT_test_results <- renderPrint({
+    subset_lista <- input$OT_grouping_IVskis
+    id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+    id_lista2 <- setdiff(id_lista, subset_lista)
+    data <- Histo_data_type()
+    data$subset_id <- do.call(paste,c(data[c(subset_lista)], sep="_"))
+    real_list <- input$OT_compareski
+    data_sub <- data[data$subset_id %in% real_list,]
+    data_sub$chosen_DV <- data_sub[,input$HisDV]
+    data_sub$sample_id <- data_sub$subset_id 
+    
+    if(input$OT_testski == "One sample t-test"){
+      testski <- t.test(data_sub$chosen_DV, mu = as.numeric(as.character(input$OT_muski)))
+      p_val <- testski$p.value
+    }
+    if(input$OT_testski == "Two sample t-test"){
+      testski <- t.test(data_sub$chosen_DV ~ data_sub$sample_id, var.equal = T)
+      p_val <- testski$p.value
+    }
+    if(input$OT_testski == "Two sample chi-squared test"){
+      testski <- chisq.test(data_sub$chosen_DV, data_sub$sample_id)
+      p_val <- testski$p.value
+    }
+     
+    bam <- p_val
+    if(length(unique(input$OT_compareski)) > 2){
+      cat("Dude / Chica!!! You selected more than two samples - go and to ANOVA or something like this")
+      cat("\n")
+      cat("\n")
+      }
+    
+    if(bam < as.numeric(as.character(input$Chosenthreshold))){
+    cat(paste("The results of ", input$OT_testski, " are SIGNIFICANT"))}
+    if(bam > as.numeric(as.character(input$Chosenthreshold))){
+      cat(paste("The results of ", input$OT_testski, " are NOT significant"))}
+    cat("\n")
+    cat("\n")
+    cat(paste("The p-value of the test is ", bam))
+    cat("\n")
+    cat("\n")
+    print(testski)
+  })
+  
+ output$OT_graph <- renderPlotly({
+   if(is.null(input$OT_compareski)){
+     return()
+   }
+   else{
+   subset_lista <- input$OT_grouping_IVskis
+   id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+   id_lista2 <- setdiff(id_lista, subset_lista)
+   data <- Histo_data_type()
+   data$subset_id <- do.call(paste,c(data[c(subset_lista)], sep="_"))
+   real_list <- input$OT_compareski
+   data_sub <- data[data$subset_id %in% real_list,]
+   data_sub$chosen_DV <- data_sub[,input$HisDV]
+   data_sub$sample_id <- data_sub$subset_id
+     
+     bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, fill = sample_id))
+     bencki <- bencki + geom_boxplot()
+     bencki <- bencki + xlab(input$OT_grouping_IVskis)
+     bencki <- bencki + ylab(input$HisDV)
+     bencki
+   }
+  })
+  
+  
+  
+  # = = = = = = = >> Testing Significant Differences << = = = = = = = = = = # 
+  
+  ####We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
+  # p.adjust.methods
+  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
+  #   "fdr", "none")
+  #OR maybe use anova(lm(~))?
+  ###ANOVA summary table output
+  output$ANOVAtest <- renderPrint({
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data[,2]<-as.factor(my_his_data[,2])
+    
+    if(input$plot_facet ==T){
+      n_rows<-length(levels(my_his_data[,3]))
+      facetting<-rep(NA,n_rows)
+      p_values_anova<-rep(NA,n_rows)
+      interpret_anova<-rep(NA,n_rows)
+      
+      for (i in unique(my_his_data[,3])){
+        subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
+        facetting[i]<-i
+        
+        if(input$Sig_diff_test == "ANOVA"){
+        fit_anova<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+        p_values_anova[i]<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5) #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
+        if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
+          interpret_anova[i]<-"SIGNIFICANT difference in means"
+        } else {
+          interpret_anova[i]<-"NO significant difference in means"
+        }}
+        
+        if(input$Sig_diff_test == "Kruskal-Wallis"){
+        fit_anova <- kruskal.test(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+        p_values_anova[i]<- fit_anova$p.value
+        if(fit_anova$p.value < as.numeric(as.character(input$Chosenthreshold))){
+          interpret_anova[i]<-"SIGNIFICANT difference in means"
+        } else{
+          interpret_anova[i] <- "NO significant difference in means"}
+        }
+        
+        temp_anova<-as.data.frame(cbind(facetting, p_values_anova,interpret_anova))
+      }
+      
+      temp_anova<-na.omit(temp_anova)
+      colnames(temp_anova) <- c("", "p_value","")
+      #colnames(temp_anova) <- c("", "p_value", "p_value corrected")
+      cat(paste("The p-value of the", input$Sig_diff_test, " test between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
+      print(temp_anova, row.names=FALSE)
+    }
+    
+    if(input$plot_facet ==F){ 
+      
+      if(input$Sig_diff_test == "ANOVA"){
+      fit_anova <- aov(my_his_data[,1] ~ as.factor(my_his_data[,2]), data = my_his_data)
+      pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
+      cat("ANOVA", "\n")
+      cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA,"\n", "\n", sep=""))
+      
+      
+      if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
+        cat("SIGNIFICANT difference in means")
+      } else {
+        cat("NO significant difference in means")
+      }}
+      
+      if(input$Sig_diff_test == "Kruskal-Wallis"){
+        fit_anova <- kruskal.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
+        cat("Kruskal-Wallis test", "\n")
+        cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, "S is ", fit_anova$p.value,"\n", "\n", sep=""))
+        
+        if(fit_anova$p.value < as.numeric(as.character(input$Chosenthreshold))){
+          cat("SIGNIFICANT difference in means")
+        } else{
+          cat("NO significant difference in means")}
+      }
+    }
+  })
+  
+  
+  output$Tukeylisting <- renderPrint({
+    Chosen_tukey_threshold <- as.numeric(as.character(input$Chosenthreshold))
+    
+    tri.to.squ<-function(x)
+    {
+      rn<-row.names(x)
+      cn<-colnames(x)
+      an<-unique(c(cn,rn))
+      myval<-x[!is.na(x)]
+      mymat<-matrix(1,nrow=length(an),ncol=length(an),dimnames=list(an,an))
+      for(ext in 1:length(cn))
+      {
+        for(int in 1:length(rn))
+        {
+          if(is.na(x[row.names(x)==rn[int],colnames(x)==cn[ext]])) next
+          mymat[row.names(mymat)==rn[int],colnames(mymat)==cn[ext]]<-x[row.names(x)==rn[int],colnames(x)==cn[ext]]
+          mymat[row.names(mymat)==cn[ext],colnames(mymat)==rn[int]]<-x[row.names(x)==rn[int],colnames(x)==cn[ext]]
+        }
+        
+      }
+      return(mymat)
+    }
+    
+    if(input$plot_facet ==T){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      my_his_data[,2]<-as.factor(my_his_data[,2])
+      
+      for (i in 1:length(unique(my_his_data[,3]))){
+        subsetted_data<- subset(my_his_data, my_his_data[,3]==unique(my_his_data[,3])[i])
+        
+        if(input$Sig_diff_test == "ANOVA"){
+          fit_tukey<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+        out<-HSD.test(fit_tukey, "subsetted_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+        out_tukey<-as.data.frame(out$groups)
+        out_tukey$x<-row.names(out_tukey)
+        n_name<-rep(i, length(levels(subsetted_data[,2])))
+        out_tukey_n<-as.data.frame(cbind(out_tukey, n_name))
+        colnames(out_tukey_n)<-c(names(subsetted_data[1]), "Tukey's letters", names(subsetted_data)[2], names(subsetted_data[3]))
+        out_tukey_f<-out_tukey_n[c(4,3,2,1)]
+        print(as.data.frame(out_tukey_f), row.names=FALSE)}
+        
+        if(input$Sig_diff_test == "Kruskal-Wallis"){
+          phenotypski <- subsetted_data[,1]
+          groupski <- subsetted_data[,2]
+          pp<-pairwise.wilcox.test(phenotypski, groupski)
+          mymat<-tri.to.squ(pp$p.value)
+          myletters<-multcompLetters(mymat,compare="<=",threshold=Chosen_tukey_threshold ,Letters=letters)
+          cat(paste("Pairwise Wilcoxon test / Whitney Houston test results", unique(my_his_data[,3])[i]), "\n")
+          print(myletters)}
+      }
+    }
+    
+    if(input$plot_facet ==F){
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
+      my_his_data[,2]<-as.factor(my_his_data[,2])
+      
+      if(input$Sig_diff_test == "ANOVA"){
+      fit_tukey<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
+      out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+      out_tukey<-as.data.frame(out$groups)
+      out_tukey$x<-row.names(out_tukey)
+      colnames(out_tukey)<-c(names(my_his_data[1]), "Significant groups based on Tukey's pairwise comparison ", names(my_his_data)[2])
+      out_tukey_f<-out_tukey[c(3,1,2)]
+      print(out_tukey_f, row.names=FALSE)}
+      
+      if(input$Sig_diff_test == "Kruskal-Wallis"){
+        phenotypski <- my_his_data[,1]
+        groupski <- my_his_data[,2]
+        pp<-pairwise.wilcox.test(phenotypski, groupski, p.adjust.method = "none", paired = FALSE)
+        mymat<-tri.to.squ(pp$p.value)
+        myletters<-multcompLetters(mymat,compare="<=",threshold=Chosen_tukey_threshold ,Letters=letters)
+        cat(paste("Pairwise Wilcoxon test / Whitney Houston test results:", "\n"))
+        print(myletters)  
+      }
+    }
+  })
+  
+  
+  #the margin needs to be fixed to be able to see the y-lab
+  output$Boxes <- renderPlotly({
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    #groupIV<-input$HisIV
+    
+    if(input$plot_facet ==T){
+      facetIV<-input$Plotfacet_choice
+      my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
+      
+      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+      box_graph<- box_graph + facet_wrap(~facetIV) + scale_fill_discrete(names(my_his_data[2]))
+    }
+    else{
+      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+      box_graph<- box_graph + scale_fill_discrete(names(my_his_data[2]))
+    }
+    ggplotly(box_graph)
+  })
+  
+  
+  
+  # - - - - - - - - >> >>  TWO WAY ANOVA  << << - - - - - - - # 
+  
+  # - - - - - - - - - - input widgets - - - - - - - - - - - - - 
+  output$TWANOVA_IV1 <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
+    else{
+      tagList(
+        selectizeInput(
+          inputId= "TW_ANOVA_IV1",
+          label = "Select first Independent Variable (IV1) explaining the Dependent Variable",
+          choices = c(input$SelectGeno, input$SelectIV, input$SelectTime),
+          multiple = F))  
+    }
+  })
+  
+  output$TWANOVA_IV2 <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
+    else{
+      
+      lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      listb <- setdiff(lista, input$TW_ANOVA_IV1)
+      tagList(
+        selectizeInput(
+          inputId= "TW_ANOVA_IV2",
+          label = "Select second Independent Variable (IV2) explaining the Dependent Variable",
+          choices = listb,
+          multiple = F))  
+    }
+  })
+  
+  # - - - - - - - - - - output graphs / reports - - - - - - - - - - - - - 
+  
+  output$TW_ANOVA_interaction_plot <- renderPlot({
+    mydata <- Histo_data_type()
+    pheno <- mydata[,input$HisDV]
+    iv1 <- mydata[,input$TW_ANOVA_IV1]
+    iv2 <- mydata[,input$TW_ANOVA_IV2]
+    
+    interaction.plot(iv1, iv2, pheno, ylab = input$HisDV, trace.label = input$TW_ANOVA_IV2, xlab = input$TW_ANOVA_IV1)
+  })
+  
+  output$two_ANOVA_report <- renderPrint({
+    mydata <- Histo_data_type()
+    pheno <- mydata[,input$HisDV]
+    iv1 <- mydata[,input$TW_ANOVA_IV1]
+    iv2 <- mydata[,input$TW_ANOVA_IV2]
+    
+    resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
+    anova(resultados)
+  })
+  
+  output$TW_ANOVA_QQ_plot <- renderPlot({
+    mydata <- Histo_data_type()
+    pheno <- mydata[,input$HisDV]
+    iv1 <- mydata[,input$TW_ANOVA_IV1]
+    iv2 <- mydata[,input$TW_ANOVA_IV2]
+    resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
+    plot(resultados$fitted, resultados$res, xlab = "Fitted", ylab = "Residuals")
   })
   
   
@@ -2753,7 +3233,7 @@ function(input, output) {
     return(result)
   })
   
-  output$ cor_table_text <- renderPrint({
+  output$cor_table_text <- renderPrint({
     if(input$cor_data_subset == F){
       cat(paste("The", input$corMethod, "correlation coefficients and p values of your data are:"))
     }
@@ -2774,6 +3254,7 @@ function(input, output) {
   output$cortable_download_button <- downloadHandler(
     filename = paste("Correlation table using ", input$corrplotMethod, " MVApp.csv"),
     content <- function(file) {
+      
       beginCol <-
         length(c(
           input$SelectIV,
@@ -2810,7 +3291,8 @@ function(input, output) {
       }
       
       result <- flattenCorrMatrix(res$r, res$P)
-      write.csv(results, file)}
+      
+      write.csv(result, file)}
   )
   
   
@@ -2912,7 +3394,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Pheno1",
-          label = "Select the first dependent variable to be plotted",
+          label = "Select the first dependent variable to be plotted on the x-axis:",
           choices = input$SelectDV,
           multiple = F
         )
@@ -2926,7 +3408,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Pheno2",
-          label = "X-axis:",
+          label = "Select the first dependent variable to be plotted on the y-axis:",
           choices = input$SelectDV,
           multiple = F
         )
@@ -2941,8 +3423,8 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Color",
-          label = "Y-axis:",
-          choices = c(input$SelectIV, input$SelectGeno),
+          label = "Color the plot by:",
+          choices = c(input$SelectIV, input$SelectGeno, input$SelectTime),
           multiple = F
         )
       )
@@ -3029,7 +3511,7 @@ function(input, output) {
           label = "Dataset for PCA:",
           choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
   })  
- 
+  
   PCA_data_type <- eventReactive(input$Go_PCAdata,{
     if(input$PCA_data == "raw data"){
       PCA_data_type <- my_data()
@@ -3051,14 +3533,14 @@ function(input, output) {
     if ((input$Go_PCAdata == FALSE)) {
       return()
     } else
-    tagList(
-      selectizeInput(
-        inputId = "PCA_pheno",
-        label = "Phenotypes for the PCA",
-        choices = c(input$SelectDV),
-        multiple = T
+      tagList(
+        selectizeInput(
+          inputId = "PCA_pheno",
+          label = "Phenotypes for the PCA",
+          choices = c(input$SelectDV),
+          multiple = T
+        )
       )
-    )
   })
   output$PCA_subset_trait <- renderUI({
     if(input$PCA_data_subset == "full dataset"){
@@ -3109,39 +3591,22 @@ function(input, output) {
     temp <- data.frame(PCA_data_type())
     temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
     
-  if(input$PCA_data_subset == "subsetted dataset"){
-    subset_lista <- input$PCA_subset_T
-    if(input$PCA_data_avg == "individual values"){
-      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)
-      id_lista2 <- setdiff(id_lista, subset_lista)
-      temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
-      temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
-      temp2 <- subset(temp, temp$sub_id == input$PCA_subset_S)
-      temp2 <- subset(temp2, select = c("id", input$PCA_pheno))
-      }
-    if(input$PCA_data_avg == "average values per genotype / IVs / time"){
+    if(input$PCA_data_subset == "subsetted dataset"){
+      
+      subset_lista <- input$PCA_subset_T
       id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
       id_lista2 <- setdiff(id_lista, subset_lista)
-      temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
-      temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
-      temp <- subset(temp, temp$sub_id == input$PCA_subset_S)
-      temp <- subset(temp, select = c("id", input$PCA_pheno))
-      temp2 <- summaryBy(. ~ id, data=temp)
-      # Add remove .mean from column names 
-      }}
-  if(input$PCA_data_subset == "full dataset"){
-    if(input$PCA_data_avg == "individual values"){
+      temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+      temp3 <- subset(temp, temp$subset_id == input$PCA_subset_S)
+      temp3$id <- do.call(paste,c(temp3[c(id_lista2, subset_lista)], sep="_"))
+      temp2 <- subset(temp3, select = c("id", input$PCA_pheno))
+    }
+    if(input$PCA_data_subset == "full dataset"){{
       temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
       temp2 <- subset(temp, select = c("id", input$PCA_pheno))
-    }
-    if(input$PCA_data_avg == "average values per genotype / IVs / time"){
-      temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
-      temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
-      temp <- subset(temp, select = c("id", input$PCA_pheno))
-      temp2 <- summaryBy(. ~ id, data=temp)  
     }}
     
-  return(temp2)
+    return(temp2)
   })
   
   output$PCA_final_table <- renderDataTable({
@@ -3161,11 +3626,12 @@ function(input, output) {
   output$PCA_eigen_plot <- renderPlot({
     eigenvalues <- PCA_eigen_data()
     barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
-          main = "Variances",
-          xlab = "Principal Components",
-          ylab = "Percentage of variances",
-          col ="steelblue")
-  lines(x = 1:nrow(eigenvalues), eigenvalues[, 2], 
+            main = "Variances",
+            xlab = "Principal Components",
+            ylab = "Percentage of variances",
+            col ="steelblue")
+    
+    lines(x = 1:nrow(eigenvalues), eigenvalues[, 2], 
           type="b", pch=19, col = "red")
   })
   
@@ -3254,8 +3720,8 @@ function(input, output) {
   })
   
   output$Contrib_trait_plot <- renderPlot({
-        beginCol <-
-        length(c(
+    beginCol <-
+      length(c(
         input$SelectIV,
         input$SelectGeno,
         input$SelectTime,
@@ -3267,18 +3733,13 @@ function(input, output) {
     res.pca <- PCA(PCA_ready, graph = FALSE)
     fviz_contrib(res.pca, choice = 'var', axes = c(as.numeric(input$Which_PC_contrib)), xtickslab.rt = 90)
   })
-
+  
   PCA_contrib_var <- eventReactive(input$Go_PCA,{
     beginCol <-2
     endCol <-ncol(PCA_final_data())
     PCA_ready <- PCA_final_data()
     PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
-    #for_labels <- PCA_final_data()
-    #for_labels <- for_labels[1:beginCol-1]
-    #new_stuff <- cbind(for_labels, res.pca$ind$contrib)
-    #plot(input$Which_PC1 ~ input$Which_PC2, data = new_stuff, fill = input$SelectIV)
-    #color <- input$SelectIV
     contrib_var <- res.pca$var$contrib
     contrib_var
   })
@@ -3288,7 +3749,7 @@ function(input, output) {
   })
   
   output$Contrib_download_var <- renderUI({
-    if(is.null(PCA_final_data())){
+    if(is.null(PCA_contrib_var())){
       return()}
     else
       downloadButton("contrib_var", label="Download PCA contribution by variable")
@@ -3297,7 +3758,7 @@ function(input, output) {
   output$contrib_var <- downloadHandler(
     filename = "PCA contrib var MVApp.csv",
     content <- function(file) {
-      write.csv(PCA_final_data(), file)}
+      write.csv(PCA_contrib_var(), file)}
   )
   
   output$PCA_colorby <- renderUI({
@@ -3308,13 +3769,13 @@ function(input, output) {
         selectizeInput(
           inputId = "PCA_Color",
           label = "Color by:",
-          choices = c(input$SelectIV, input$SelectGeno, input$SelectTime), ### Need to change this input to reflect the PCA_final_data
+          choices = c(input$SelectIV, input$SelectGeno, input$SelectTime),
           multiple = F
         )
       )
   })
   
-  output$PCA_scatterplot <- renderPlotly({
+  PCA_coord_ind <- eventReactive(input$Go_PCA,{
     beginCol <-
       length(c(
         input$SelectIV,
@@ -3326,44 +3787,65 @@ function(input, output) {
     PCA_ready <- PCA_final_data()
     PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
-    mid1=median(res.pca$ind$contrib)
-    fviz_pca_ind(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.ind= 'contrib', repel=T, addlabels=F) +
-    scale_color_gradient2(low="grey", mid="purple", 
-                           high="red", midpoint=mid1)+
-     theme_minimal()
     
-   # G <- as.data.frame(res.pca$ind$contrib)
-   # ggplot(aes_string(G) + geom_point(aes_string(colour =input$PCA_Color)))
-   # ggplotly()
-    })
-  
-
-  PCA_contrib_ind <- eventReactive(input$Go_PCA,{
-    beginCol <-2
-    endCol <-ncol(PCA_final_data())
-    PCA_ready <- PCA_final_data()
-    PCA_ready <- PCA_ready[, beginCol : endCol]
-    res.pca <- PCA(PCA_ready, graph = FALSE)
-    contrib_ind <- res.pca$ind$contrib ### need to add the ID column from PCA_final_data and also separate Accession from Treatment
-    contrib_ind
+    ###### ADDING REFERENCE DATA HERE #######
+    temp <- data.frame(PCA_data_type())
+    temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
+    
+    if(input$PCA_data_subset == "subsetted dataset"){
+      
+      subset_lista <- input$PCA_subset_T
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      id_lista2 <- setdiff(id_lista, subset_lista)
+      temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+      temp2 <- subset(temp, temp$subset_id == input$PCA_subset_S)
+      temp2$id <- do.call(paste,c(temp2[c(id_lista2, subset_lista)], sep="_"))
+    }
+    if(input$PCA_data_subset == "full dataset"){{
+      temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+      temp2 <- temp
+    }}
+    
+    ##### END REFERENCE DATA HERE ######   
+    temp4 <- subset(temp2, select = c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID))
+    
+    temporary <- res.pca$ind$coord
+    
+    la_table <- cbind(temp4, temporary)
+    names(la_table) <- gsub("Dim.", "", names(la_table), fixed=T)
+    la_table
   })
   
-  output$PCA_contribution_ind <- renderDataTable({
-    PCA_contrib_ind()
+  output$PCA_coordinates_ind <- renderDataTable({
+    PCA_coord_ind()
   })
   
-  output$Contrib_ind_download <- renderUI({
-    if(is.null(PCA_final_data())){
+  output$Coord_download_ind <- renderUI({
+    if(is.null(PCA_coord_ind())){
       return()}
     else
-      downloadButton("contrib_ind", label="Download PCA contribution by indiviuals")
+      downloadButton("coord_ind", label="Download individual PCA coordinates")
   })
   
-  output$contrib_ind <- downloadHandler(
-    filename = "PCA contrib ind MVApp.csv",
+  output$coord_ind <- downloadHandler(
+    filename = "PCA coord ind MVApp.csv",
     content <- function(file) {
-      write.csv(PCA_final_data(), file)}
+      write.csv(PCA_coord_ind(), file)}
   )
+  
+  output$PCA_scatterplot <- renderPlotly({
+    la_table <- PCA_coord_ind()
+    PC_x_axis <- paste('Dim', input$Which_PC1)
+    PC_y_axis <- paste('Dim', input$Which_PC2)  
+    la_table$x_axis <- la_table[,input$Which_PC1]
+    la_table$y_axis <- la_table[,input$Which_PC2]
+    la_table$color <- la_table[,input$PCA_Color]
+    super_plot <- ggplot(data = la_table, aes(x = x_axis, y= y_axis, colour = color))
+    super_plot <- super_plot + geom_point()
+    super_plot <- super_plot + xlab(PC_x_axis)
+    super_plot <- super_plot + ylab(PC_y_axis)
+    super_plot
+  })
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> CLUSTER ANALYSIS IN 8th TAB << - - - - - - - - - - -
@@ -3378,17 +3860,6 @@ function(input, output) {
           inputId = "Cluster_data",
           label = "Dataset for clustering analysis",
           choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
-  })
-  
-  output$Select_cluster_method <- renderUI({
-    if(is.null(ItemList())){
-      return()}
-    else
-      tagList(
-        selectizeInput(
-          inputId = "Cluster_cor_method",
-          label = "Correlation method:",
-          choices = c("pearson", "kendall", "spearman"), multiple = F))
   })
   
   
@@ -3539,7 +4010,7 @@ function(input, output) {
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
-    clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+    clust_t_cor = cor(clust_t_matrix,method="pearson")
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     
@@ -3554,7 +4025,7 @@ function(input, output) {
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
-    clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+    clust_t_cor = cor(clust_t_matrix,method="pearson")
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
@@ -3571,7 +4042,7 @@ function(input, output) {
       row.names(clust_matrix) <- clust_temp$id
       clust_matrix = as.matrix(clust_matrix)
       clust_t_matrix = t(clust_matrix)
-      clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+      clust_t_cor = cor(clust_t_matrix,method="pearson")
       clust_t_dist = dist(clust_t_cor)
       clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
       cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
@@ -3593,7 +4064,7 @@ function(input, output) {
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
-    clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+    clust_t_cor = cor(clust_t_matrix,method="pearson")
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     
@@ -3665,7 +4136,7 @@ function(input, output) {
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
-    clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+    clust_t_cor = cor(clust_t_matrix,method="pearson")
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     
@@ -3734,9 +4205,9 @@ function(input, output) {
       amod <- aov(phenotype ~ cluster, data = to_test)
       
       if(summary(amod)[[1]][["Pr(>F)"]] < 0.05){
-        significantna_lista <- input$SelectDV[i]
+        one_of_your_cluster_contains_only_one_sample <- input$SelectDV[i]
       } 
-      sig_listxxx <- c(sig_listxxx, significantna_lista)
+      sig_listxxx <- c(sig_listxxx, one_of_your_cluster_contains_only_one_sample)
     }
     
     lista_cudow <- unique(sig_listxxx)
@@ -3756,7 +4227,7 @@ function(input, output) {
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
-    clust_t_cor = cor(clust_t_matrix,method=input$Cluster_cor_method)
+    clust_t_cor = cor(clust_t_matrix,method="pearson")
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     
