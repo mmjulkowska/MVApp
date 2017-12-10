@@ -2379,6 +2379,8 @@ function(input, output) {
   output$HistPlot <- renderPlotly({
     
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+    
     #groupIV<-input$HisIV
     
     if(input$plot_facet ==T){
