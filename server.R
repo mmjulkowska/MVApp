@@ -97,6 +97,7 @@ function(input, output) {
     } else{
       read.csv(input$your_data$datapath)
     }
+    test
   })
   
   output$uploaded_data_report <- renderText({
@@ -304,7 +305,13 @@ function(input, output) {
   })
   
   output$Model_estimation <- renderDataTable({
-    Model_est_data()
+    test <- Model_est_data()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   output$best_model_advice <- renderPrint({
@@ -312,7 +319,7 @@ function(input, output) {
     fraka1 <- colnames(fraka)[apply(fraka,1,which.max)]
     cat(paste("The model with the best fit is", fraka1[1]))
     cat("\n")
-    cat("The model estimation is based on the r2 values for Linear, Quadratic, Exponential and Square root functions, presented in the table below.")
+    cat("The model estimation is based on the R2 values for Linear, Quadratic, Exponential and Square root functions, presented in the table below.")
     cat("\n")
     cat("If your data contains many timepoints, you can consider fitting a polynomial curves, using smoothed / cubic splines available in the model menu.")
   })
@@ -457,7 +464,13 @@ function(input, output) {
   
   
   output$Model_data <- renderDataTable({
-    Model_temp_data()
+    test <- Model_temp_data()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   # Let's allow users to chose beteween one and multiple plot display
@@ -1011,7 +1024,13 @@ function(input, output) {
     temp[,input$SelectID] <- NULL
     temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
     temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = mean(x), sd = sd(x), se = std.error(x))})
-    temp_sum
+    test <- temp_sum
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   # Add download button here
@@ -1729,6 +1748,12 @@ function(input, output) {
   # Table with outliers marked out
   output$Outlier_overview_table <- renderDataTable({
     test <- Outliers_final_data()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   # Outlier report
@@ -1794,12 +1819,24 @@ function(input, output) {
   
   # Table without the outliers
   output$Outlier_free_table <- renderDataTable({
-    Outlier_free_data()
+    test <- Outlier_free_data()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   # Table containig only the outliers
   output$Outlier_only_table <- renderDataTable({
-    Outlier_only_data()
+    test <- Outlier_only_data()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   
@@ -2222,7 +2259,13 @@ function(input, output) {
   })
   
   output$sum_data <- renderDataTable({
-    sum_data()
+    test <- sum_data()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   output$Sum_download_button <- renderUI({
@@ -2430,6 +2473,8 @@ function(input, output) {
   output$Shapiro<- renderPrint({
     if(input$plot_facet ==T){
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+      
       groupedIV<-input$HisIV
       groupedFacet<-input$Plotfacet_choice
       my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
@@ -2472,6 +2517,8 @@ function(input, output) {
     
     if(input$plot_facet == F){
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
+      my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+      
       shapiroIV<-input$HisIV
       m_Frows<-length(levels(as.factor(my_his_data[,shapiroIV])))
       interpret_shapiro<-rep(NA,m_Frows)
@@ -2531,6 +2578,7 @@ function(input, output) {
     }
     else{
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     groupedIV<-input$HisIV
     groupedFacet<-input$Plotfacet_choice
     my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
@@ -2556,6 +2604,8 @@ function(input, output) {
       
       if(input$plot_facet ==T){
         my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+        my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+        
         groupedIV<-input$HisIV
         groupedFacet<-input$Plotfacet_choice
         my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
@@ -2602,6 +2652,8 @@ function(input, output) {
       
       if(input$plot_facet ==F){
         my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
+        my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+        
         shapiroIV<-input$HisIV
         my_his_data$shapiroIV<-my_his_data[,input$HisIV]
         par(mfrow=c(4,input$QQplots_graph_col))
@@ -2619,11 +2671,13 @@ function(input, output) {
     #ggplotly(QQ)
   })
   
+  # = = = = = = = >> Testing Equal Variances << = = = = = = = = = = # 
   
   
   ##Bartlett test
   output$Bartlett <- renderPrint({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     my_his_data[,2]<-as.factor(my_his_data[,2])
     
     if(input$plot_facet ==T){
@@ -2670,8 +2724,6 @@ function(input, output) {
     }
   })
   
-  # = = = = = = = >> Testing Equal Variances << = = = = = = = = = = # 
-  
   #######We need to correct for multiple testing p.adjust(p, method = p.adjust.methods, n = length(p))
   # p.adjust.methods
   # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
@@ -2680,6 +2732,7 @@ function(input, output) {
   ##Levene test
   output$Levene <- renderPrint({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     my_his_data[,2]<-as.factor(my_his_data[,2])
     
     if(input$plot_facet ==T){
@@ -2854,6 +2907,7 @@ function(input, output) {
   ###ANOVA summary table output
   output$ANOVAtest <- renderPrint({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     my_his_data[,2]<-as.factor(my_his_data[,2])
     
     if(input$plot_facet ==T){
@@ -2948,6 +3002,7 @@ function(input, output) {
     
     if(input$plot_facet ==T){
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
       my_his_data[,2]<-as.factor(my_his_data[,2])
       
       for (i in 1:length(unique(my_his_data[,3]))){
@@ -2977,6 +3032,7 @@ function(input, output) {
     
     if(input$plot_facet ==F){
       my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
+      my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
       my_his_data[,2]<-as.factor(my_his_data[,2])
       
       if(input$Sig_diff_test == "ANOVA"){
@@ -3004,6 +3060,7 @@ function(input, output) {
   #the margin needs to be fixed to be able to see the y-lab
   output$Boxes <- renderPlotly({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     #groupIV<-input$HisIV
     
     if(input$plot_facet ==T){
@@ -3060,7 +3117,7 @@ function(input, output) {
   
   output$TW_ANOVA_interaction_plot <- renderPlot({
     mydata <- Histo_data_type()
-    pheno <- mydata[,input$HisDV]
+    pheno <- as.numeric(as.character(mydata[,input$HisDV]))
     iv1 <- mydata[,input$TW_ANOVA_IV1]
     iv2 <- mydata[,input$TW_ANOVA_IV2]
     
@@ -3069,7 +3126,7 @@ function(input, output) {
   
   output$two_ANOVA_report <- renderPrint({
     mydata <- Histo_data_type()
-    pheno <- mydata[,input$HisDV]
+    pheno <- as.numeric(as.character(mydata[,input$HisDV]))
     iv1 <- mydata[,input$TW_ANOVA_IV1]
     iv2 <- mydata[,input$TW_ANOVA_IV2]
     
@@ -3079,7 +3136,7 @@ function(input, output) {
   
   output$TW_ANOVA_QQ_plot <- renderPlot({
     mydata <- Histo_data_type()
-    pheno <- mydata[,input$HisDV]
+    pheno <- as.numeric(as.character(mydata[,input$HisDV]))
     iv1 <- mydata[,input$TW_ANOVA_IV1]
     iv2 <- mydata[,input$TW_ANOVA_IV2]
     resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
@@ -3232,7 +3289,13 @@ function(input, output) {
     }
     
     result <- flattenCorrMatrix(res$r, res$P)
-    return(result)
+    test <- result
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   output$cor_table_text <- renderPrint({
@@ -3445,7 +3508,7 @@ function(input, output) {
     cor_data <- my_data()[, c(input$Pheno1, input$Pheno2)]
     correl <- lm(cor_data[, 1] ~ cor_data[, 2])
     r2 <- summary(correl)$r.squared
-    paste("The R square value is", signif(r2, 3))
+    paste("The R2 value is", signif(r2, 3))
   })
   
   
@@ -3528,7 +3591,13 @@ function(input, output) {
   })
   
   output$PCA_raw_table <- renderDataTable({
-    PCA_data_type()
+    test <- PCA_data_type()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   output$PCA_Select_pheno <- renderUI({
@@ -3612,7 +3681,13 @@ function(input, output) {
   })
   
   output$PCA_final_table <- renderDataTable({
-    PCA_final_data()
+    test <- PCA_final_data()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   PCA_eigen_data <- eventReactive(input$Go_PCA,{
@@ -3651,7 +3726,13 @@ function(input, output) {
   )
   
   output$Eigen_data_table <- renderDataTable({
-    PCA_eigen_data()
+    test <- PCA_eigen_data()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   
@@ -3747,7 +3828,13 @@ function(input, output) {
   })
   
   output$PCA_contribution_var <- renderDataTable({
-    PCA_contrib_var()
+    test <- PCA_contrib_var()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   output$Contrib_download_var <- renderUI({
@@ -3819,7 +3906,13 @@ function(input, output) {
   })
   
   output$PCA_coordinates_ind <- renderDataTable({
-    PCA_coord_ind()
+    test <- PCA_coord_ind()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   output$Coord_download_ind <- renderUI({
@@ -3904,7 +3997,14 @@ function(input, output) {
   })
   
   output$Data_cluster_table <- renderDataTable({
-    Data_for_cluster()
+    test <- Data_for_cluster()
+    
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+   test 
   })
   
   output$Select_phenotypes_cluster <- renderUI({
@@ -4000,7 +4100,13 @@ function(input, output) {
   })
   
   output$Final_cluster_table <- renderDataTable({
-    Final_data_cluster()
+    test <- Final_data_cluster()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
   })
   
   # = = = = = = = = = >> OUTPUT PLOTS AND SENTENCES << = = = = = = = = = = = = = = 
@@ -4127,7 +4233,13 @@ function(input, output) {
   
  
   output$Cluster_table <- renderDataTable({
-  Cluster_table_data()
+  test <- Cluster_table_data()
+  for(i in 1:ncol(test)){
+    if (class(test[,i]) == "numeric"){
+      test[,i] <- round(test[,i], digits = 4)
+    }
+  }
+  test
   })
   
   output$HotAnovaNews <- renderPrint({
