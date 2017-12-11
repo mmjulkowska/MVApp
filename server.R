@@ -270,19 +270,19 @@ function(input, output) {
         subset(super_temp2, super_temp2[, 3] == things_to_model[i, 3])
       
       # calculating r-squared for the linear model      
-      fit_lin <- lm(super_temp3[, 4] ~ super_temp3[, 5])
+      fit_lin <- lm(super_temp3[, 5] ~ super_temp3[, 4])
       things_to_model[i, 4] <- summary(fit_lin)$r.squared
       # calculating r-squared for the quadratic model
       super_temp3$sqrt_transformed <- sqrt(super_temp3[, 5])
-      fit_sqrt <- lm(super_temp3[, 4] ~ super_temp3$sqrt_transformed)
+      fit_sqrt <- lm(super_temp3$sqrt_transformed ~ super_temp3[, 4])
       things_to_model[i, 5] <- summary(fit_sqrt)$r.squared
       # calculating r-squared for the exponential model 
       super_temp3$log_transformed <- log(super_temp3[, 5])
-      fit_log <- lm(super_temp3[, 4] ~ super_temp3$log_transformed)
+      fit_log <- lm(super_temp3$log_transformed ~ super_temp3[, 4])
       things_to_model[i, 6] <- summary(fit_log)$r.squared
       # calculating r-squared for the square root model
       super_temp3$quad_transformed <- (super_temp3[, 5]) ^ 2
-      quad_fit <- lm(super_temp3[, 4] ~ super_temp3$quad_transformed)
+      quad_fit <- lm(super_temp3$quad_transformed ~ super_temp3[, 4])
       things_to_model[i, 7] <- summary(quad_fit)$r.squared
       # calculating r-squared for the cubic spline with one knot at the middle
       # calculating r-squared for the smoothed
@@ -347,7 +347,7 @@ function(input, output) {
         subset(super_temp2, super_temp2[, 3] == things_to_model[i, 3])
       
       if (input$model == "lin") {
-        fit_lin <- lm(super_temp3[, 4] ~ super_temp3[, 5])
+        fit_lin <- lm(super_temp3[, 5] ~ super_temp3[, 4])
         things_to_model[i, 4] <- coefficients(fit_lin)[2]
         things_to_model[i, 5] <- coefficients(fit_lin)[1]
         things_to_model[i, 6] <- summary(fit_lin)$r.squared
@@ -358,7 +358,7 @@ function(input, output) {
       
       if (input$model == "quad") {
         super_temp3$transformed <- sqrt(super_temp3[, 5])
-        fit_quad <- lm(super_temp3[, 4] ~ super_temp3$transformed)
+        fit_quad <- lm(super_temp3$transformed ~ super_temp3[, 4])
         things_to_model[i, 4] <- (coefficients(fit_quad)[2]) ^ 2
         things_to_model[i, 5] <- (coefficients(fit_quad)[1]) ^ 2
         things_to_model[i, 6] <- summary(fit_quad)$r.squared
@@ -369,7 +369,7 @@ function(input, output) {
       
       if (input$model == "exp") {
         super_temp3$transformed <- log(super_temp3[, 5])
-        fit_exp <- lm(super_temp3[, 4] ~ super_temp3$transformed)
+        fit_exp <- lm(super_temp3$transformed ~ super_temp3[, 4])
         things_to_model[i, 4] <- log(coefficients(fit_exp)[2])
         things_to_model[i, 5] <- coefficients(fit_exp)[1]
         things_to_model[i, 6] <- summary(fit_exp)$r.squared
@@ -380,7 +380,7 @@ function(input, output) {
       
       if (input$model == "sqr") {
         super_temp3$transformed <- (super_temp3[, 5]) ^ 2
-        fit_sq <- lm(super_temp3[, 4] ~ super_temp3$transformed)
+        fit_sq <- lm(super_temp3$transformed ~ super_temp3[, 4])
         things_to_model[i, 4] <- sqrt(coefficients(fit_sq)[2])
         things_to_model[i, 5] <- sqrt(coefficients(fit_sq)[1])
         things_to_model[i, 6] <- summary(fit_sq)$r.squared
@@ -2379,6 +2379,8 @@ function(input, output) {
   output$HistPlot <- renderPlotly({
     
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+    
     #groupIV<-input$HisIV
     
     if(input$plot_facet ==T){
