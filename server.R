@@ -3343,7 +3343,35 @@ output$downl_plot_MCP <- downloadHandler(
     filename = function(){paste("Correlation plot with ", input$corrplotMethod,", ", input$corType, " and ordered with ", input$corOrder, " MVApp.pdf")},
     content = function(file) {
       pdf(file)
-      biggie <- COR_BIG()
+      df <- cor_data_type()
+      
+      if (input$cor_data_subset) {
+        df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
+      }
+      
+      beginCol <-
+        length(c(
+          input$SelectIV,
+          input$SelectGeno,
+          input$SelectTime,
+          input$SelectID
+        )) + 1
+      endCol <-
+        length(c(
+          input$SelectIV,
+          input$SelectGeno,
+          input$SelectTime,
+          input$SelectID
+        )) + length(input$SelectDV)
+      
+      
+      biggie <- corrplot(
+        cor(df[, beginCol:endCol], method = input$corMethod),
+        method = input$corrplotMethod,
+        type = input$corType,
+        order = input$corOrder,
+        tl.col = 'black')
+      
       print(biggie)
       dev.off()
     })  
@@ -3788,7 +3816,16 @@ output$downl_plot_MCP <- downloadHandler(
     filename = function(){paste("PCA eigen values plot using ", input$PCA_data, " with ", input$PCA_pheno,  " subset of ", input$PCA_subset_S," MVApp.pdf")},
     content = function(file) {
       pdf(file)
-      eig <- PCA_eig()
+      eigenvalues <- PCA_eigen_data()
+      eig <- barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
+              main = "Variances",
+              xlab = "Principal Components",
+              ylab = "Percentage of variances",
+              col ="steelblue")
+      
+      eig <- eig + lines(x = 1:nrow(eigenvalues), eigenvalues[, 2], 
+                    type="b", pch=19, col = "red")
+      
       print(eig)
       dev.off()
     })
@@ -4252,7 +4289,19 @@ output$downl_plot_MCP <- downloadHandler(
     filename = function(){paste("Dendrogram of the samples used for hierarchical clustering using ", input$Cluster_data, " with ", input$Cluster_pheno, " MVApp.pdf")},
     content = function(file) {
       pdf(file)
-      dend <- Cluster_DENDRO()
+      
+      clust_temp <- Final_data_cluster()
+      clust_temp <- na.omit(clust_temp)
+      clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+      row.names(clust_matrix) <- clust_temp$id
+      clust_matrix = as.matrix(clust_matrix)
+      clust_t_matrix = t(clust_matrix)
+      clust_t_cor = cor(clust_t_matrix,method="pearson")
+      clust_t_dist = dist(clust_t_cor)
+      clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+      
+      dend <- plot(as.dendrogram(clust_t_clust), horiz=T)
+      
       print(dend)
       dev.off()
     })
@@ -4278,7 +4327,16 @@ output$downl_plot_MCP <- downloadHandler(
     filename = function(){paste("Heat map of the samples used for hierarchical clustering using ", input$Cluster_data, " with ", input$Cluster_pheno, " MVApp.pdf")},
     content = function(file) {
       pdf(file)
-      hhm <- HHeatMap()
+      clust_temp <- Final_data_cluster()
+      clust_temp <- na.omit(clust_temp)
+      clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+      row.names(clust_matrix) <- clust_temp$id
+      clust_matrix = as.matrix(clust_matrix)
+      clust_t_matrix = t(clust_matrix)
+      clust_t_cor = cor(clust_t_matrix,method="pearson")
+      clust_t_dist = dist(clust_t_cor)
+      clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+      hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
       print(hhm)
       dev.off()
     })
@@ -4563,7 +4621,81 @@ output$downl_plot_MCP <- downloadHandler(
     filename = function(){paste("ANOVA test for clusters identified using ", input$Cluster_data, " with ", input$Cluster_pheno, " for ", input$Clust_test, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
-      hanova <- HANOVA()
+      
+      clust_temp <- Final_data_cluster()
+      clust_temp <- na.omit(clust_temp)
+      clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+      row.names(clust_matrix) <- clust_temp$id
+      clust_matrix = as.matrix(clust_matrix)
+      clust_t_matrix = t(clust_matrix)
+      clust_t_cor = cor(clust_t_matrix,method="pearson")
+      clust_t_dist = dist(clust_t_cor)
+      clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+      
+      cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
+      names(cluster)[1] <- "cluster"
+      
+      # import the data containing ALL the phenotypes
+      
+      temp <- Data_for_cluster()
+      
+      # check whether you want to subset your data - IF YES 
+      if(input$Cluster_subset_Q == T){
+        # Subset data by this trait:
+        subset_lista <- input$Cluster_subset_T
+        # Check if you want to summarize your data - if no then:
+        if(input$Cluster_pre_calc == F){
+          # list of all possible identifiers
+          id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)
+          # extract which id is being used for subsetting
+          id_lista2 <- setdiff(id_lista, subset_lista)
+          # make one column with ids which are NOT used for subsetting
+          temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+          # make column with ONLY the ids being used for subseting
+          temp$sub_id <- temp[,input$Cluster_subset_T]
+          # subset for whatever value is chosen
+          temp2 <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+          #temp2 <- subset(temp, select != c("sub_id", input$SelectIV, input$SelectTime, input$SelectID))
+        }
+        if(input$Cluster_pre_calc == T){
+          id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+          id_lista2 <- setdiff(id_lista, subset_lista)
+          temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+          temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+          temp2 <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+          #temp2 <- subset(temp, select != c("sub_id", input$SelectIV, input$SelectTime, input$SelectID))
+          temp2 <- summaryBy(.~ id, data=temp2)
+          names(temp2) <- gsub(".mean", "", names(temp2))
+          #temp2 <- cSplit(temp2, "id", "_")
+        }
+      }
+      if(input$Cluster_subset_Q == F){
+        if(input$Cluster_pre_calc == F){
+          temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+          #temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+          temp2 <- temp
+        }
+        if(input$Cluster_pre_calc == T){
+          temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+          # temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+          temp2 <- summaryBy(.~ id, data=temp)
+          names(temp2) <- gsub(".mean", "", names(temp2))
+          #temp2 <- cSplit(temp2, "id", "_")
+        }}
+      
+      row.names(temp2) <- temp2$id
+      
+      new_shait <- merge(cluster, temp2, by="row.names")
+      
+      to_test <- new_shait[,c("cluster",input$Clust_test)]
+      names(to_test)[2] <- "phenotype"
+      to_test$cluster <- as.factor(to_test$cluster)
+      amod <- aov(phenotype ~ cluster, data = to_test)
+      tuk <- glht(amod, linfct = mcp(cluster = "Tukey"))
+      tuk.cld <- cld(tuk)   
+      old.par <- par( mai=c(1,1,1.25,1))
+      hanova <- plot(tuk.cld, las=1, col=topo.colors(n=length(unique(to_test$cluster))), ylab=input$Clust_test)
+      
       print(hanova)
       dev.off()
     })  
