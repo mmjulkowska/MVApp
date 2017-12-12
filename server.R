@@ -95,9 +95,9 @@ function(input, output) {
     if (is.null(input$your_data)) {
       return(NULL)
     } else{
-      read.csv(input$your_data$datapath)
+     test <- read.csv(input$your_data$datapath)
+     test
     }
-    test
   })
   
   output$uploaded_data_report <- renderText({
@@ -758,7 +758,7 @@ function(input, output) {
   })  
   
   output$Download_model_data <- downloadHandler(
-    filename = paste("Modelled ",input$ModelPheno, " with ", input$model ," MVApp.csv"),
+    filename = paste("Modelled ",input$ModelPheno, " using ", input$model ," MVApp.csv"),
     content <- function(file) {
       write.csv(Model_temp_data(), file)}
   )
@@ -1054,7 +1054,8 @@ function(input, output) {
   
   # - - - - - - - >> GRAPHS <<- - - - - - - - - - - - 
   
-  output$model_comparison_plotski <- renderPlotly({
+ 
+  MCP <- reactive({  
     temp <- Model_temp_data()
     temp[,input$SelectID] <- NULL
     temp$colorek <- temp[,input$model_color_plot]
@@ -1146,7 +1147,18 @@ function(input, output) {
     benc
   })
   
-  
+   output$model_comparison_plotski <- renderPlotly({
+    MCP()
+  })
+   
+   
+output$downl_plot_MCP <- downloadHandler(
+       filename = function(){paste("Model comparison plot MVApp", "pdf" , sep=".") },
+       content = function(file) {
+         pdf(file)
+         print(MCP())
+         dev.off()
+       })  
   # - - - - - - - - - - >> TUKEY MESSAGE << - - - - - - - - 
   output$model_comparison_Tukey <- renderPrint({
     
@@ -1902,7 +1914,8 @@ function(input, output) {
   })
   
   # = = = >> GRAPH CONTAINING ALL THE DATA << = = = 
-  output$outlier_graph <- renderPlotly({
+    
+  OutG <- reactive({  
     if(input$Go_omitna == T){
       data_outl <- my_data_nona()  
     }
@@ -2045,14 +2058,26 @@ function(input, output) {
     taka <- taka + ylab(input$DV_graph_outliers)
     
     if(input$outlier_colour == T){
-    taka <- taka + guides(fill=guide_legend(title=listx))}
-
+      taka <- taka + theme(legend.title=element_blank())
+    } 
     taka
   })
   
+  output$outlier_graph <- renderPlotly({
+    OutG()
+  })
+  
+  output$downl_plot_OutlPlot <- downloadHandler(
+    filename = function(){paste("Plot with outliers included based on ",input$Out_pheno_single_multi,"_", input$DV_outliers ," identified with ", input$outlier_method, " MVApp.pdf") },
+    content = function(file) {
+      pdf(file)
+      print(OutG())
+      dev.off()
+    })  
+  
   # = = = >> GRAPH WITH NO OUTLIERS << = = = 
   
-  output$no_outliers_graph <- renderPlotly({
+  NoOutG <- reactive({
     data <- Outlier_free_data()
     
     temp <- data
@@ -2184,6 +2209,18 @@ function(input, output) {
     jaka
   })
   
+  output$no_outliers_graph <- renderPlotly({
+    NoOutG()
+  })
+  
+  output$downl_no_outliers_graph <- downloadHandler(
+    filename = function(){paste("Plot with outliers excluded based on ",input$Out_pheno_single_multi,"_", input$DV_outliers ," identified with ", input$outlier_method, " MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      print(NoOutG())
+      dev.off()
+    })  
+  
   
   output$na_report <- renderText({
     if(input$Go_omitna == F){
@@ -2276,7 +2313,7 @@ function(input, output) {
   })
   
   output$data_sum <- downloadHandler(
-    filename = "Summary stats MVApp.csv",
+    filename = function(){paste("Summary statistics using ", input$SelectDataSum, " with ", input$SelectSum ,"calculated MVApp.csv")},
     content <- function(file) {
       write.csv(sum_data(), file)}
   )
@@ -2416,10 +2453,7 @@ function(input, output) {
       )
   })
   
-  
-  
-  
-  output$HistPlot <- renderPlotly({
+  HistoPl <- reactive({
     
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
@@ -2465,9 +2499,22 @@ function(input, output) {
         fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
       }
     }
-    ggplotly(fit)
+    fit
     
   }) 
+  
+  output$download_HistPlot <- downloadHandler(
+    filename = function(){paste("Plot of", input$HistType, " for ",input$HistDV, " splitted per ",  input$Plotfacet_choice, " MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      print(HistoPl())
+      dev.off()
+    })  
+  
+  
+  output$HistPlot <- renderPlotly({
+    HistoPl()
+  })
   
   
   output$Shapiro<- renderPrint({
@@ -2871,8 +2918,8 @@ function(input, output) {
     cat("\n")
     print(testski)
   })
-  
- output$OT_graph <- renderPlotly({
+ 
+ OTG <- reactive({
    if(is.null(input$OT_compareski)){
      return()
    }
@@ -2895,7 +2942,16 @@ function(input, output) {
    }
   })
   
-  
+ output$OT_graph_download <- downloadHandler(
+   filename = function(){paste("Plot for ", input$OT_testski, " comparing ", input$OT_compareski, "MVApp.pdf")},
+   content = function(file) {
+     pdf(file)
+     print(OTG())
+     dev.off()
+   })  
+ 
+ output$OT_graph <- renderPlotly({
+   OTG()})
   
   # = = = = = = = >> Testing Significant Differences << = = = = = = = = = = # 
   
@@ -3025,7 +3081,7 @@ function(input, output) {
           pp<-pairwise.wilcox.test(phenotypski, groupski)
           mymat<-tri.to.squ(pp$p.value)
           myletters<-multcompLetters(mymat,compare="<=",threshold=Chosen_tukey_threshold ,Letters=letters)
-          cat(paste("Pairwise Wilcoxon test / Whitney Houston test results", unique(my_his_data[,3])[i]), "\n")
+          cat(paste("Pairwise Wilcoxon test / Mann-Whitney test results", unique(my_his_data[,3])[i]), "\n")
           print(myletters)}
       }
     }
@@ -3050,7 +3106,7 @@ function(input, output) {
         pp<-pairwise.wilcox.test(phenotypski, groupski, p.adjust.method = "none", paired = FALSE)
         mymat<-tri.to.squ(pp$p.value)
         myletters<-multcompLetters(mymat,compare="<=",threshold=Chosen_tukey_threshold ,Letters=letters)
-        cat(paste("Pairwise Wilcoxon test / Whitney Houston test results:", "\n"))
+        cat(paste("Pairwise Wilcoxon test / Mann-Whitney test results:", "\n"))
         print(myletters)  
       }
     }
@@ -3058,7 +3114,7 @@ function(input, output) {
   
   
   #the margin needs to be fixed to be able to see the y-lab
-  output$Boxes <- renderPlotly({
+  BoxANOVA <- reactive({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     #groupIV<-input$HisIV
@@ -3074,10 +3130,20 @@ function(input, output) {
       box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
       box_graph<- box_graph + scale_fill_discrete(names(my_his_data[2]))
     }
-    ggplotly(box_graph)
+    box_graph
   })
   
   
+  output$ANOVA_graph_download <- downloadHandler(
+    filename = function(){paste("Plot of", input$Sig_diff_test, " comparison MVAPP", input$HisDV, "MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      print(BoxANOVA())
+      dev.off()
+    })  
+  
+  output$Boxes <- renderPlotly({
+    BoxANOVA()})
   
   # - - - - - - - - >> >>  TWO WAY ANOVA  << << - - - - - - - # 
   
@@ -3115,7 +3181,7 @@ function(input, output) {
   
   # - - - - - - - - - - output graphs / reports - - - - - - - - - - - - - 
   
-  output$TW_ANOVA_interaction_plot <- renderPlot({
+  TW_ANOVA <- reactive({
     mydata <- Histo_data_type()
     pheno <- as.numeric(as.character(mydata[,input$HisDV]))
     iv1 <- mydata[,input$TW_ANOVA_IV1]
@@ -3124,6 +3190,24 @@ function(input, output) {
     interaction.plot(iv1, iv2, pheno, ylab = input$HisDV, trace.label = input$TW_ANOVA_IV2, xlab = input$TW_ANOVA_IV1)
   })
   
+  output$TW_ANOVA_graph_download <- downloadHandler(
+      filename = function(){paste("Two way ANOVA interaction plot MVAPP", input$HisDV, "testing the effect of ", input$TW_ANOVA_IV1, " and ", input$TW_ANOVA_IV2, "and the interaction between them ", "MVApp.pdf")},
+      content = function(file) {
+        pdf(file)
+        mydata <- Histo_data_type()
+        pheno <- as.numeric(as.character(mydata[,input$HisDV]))
+        iv1 <- mydata[,input$TW_ANOVA_IV1]
+        iv2 <- mydata[,input$TW_ANOVA_IV2]
+        
+        twa <- interaction.plot(iv1, iv2, pheno, ylab = input$HisDV, trace.label = input$TW_ANOVA_IV2, xlab = input$TW_ANOVA_IV1)
+        print(twa)
+        dev.off()
+      })  
+  
+  
+  output$TW_ANOVA_interaction_plot <- renderPlot({
+    TW_ANOVA()})
+    
   output$two_ANOVA_report <- renderPrint({
     mydata <- Histo_data_type()
     pheno <- as.numeric(as.character(mydata[,input$HisDV]))
@@ -3218,7 +3302,8 @@ function(input, output) {
     )
   })
   
-  output$corrplot <- renderPlot({
+  COR_BIG <- reactive({
+  
     df <- cor_data_type()
     
     if (input$cor_data_subset) {
@@ -3249,6 +3334,47 @@ function(input, output) {
       tl.col = 'black'
     )
   })
+  
+  output$corrplot <- renderPlot({
+    COR_BIG()
+  })
+  
+  output$download_corrplot <- downloadHandler(
+    filename = function(){paste("Correlation plot with ", input$corrplotMethod,", ", input$corType, " and ordered with ", input$corOrder, " MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      df <- cor_data_type()
+      
+      if (input$cor_data_subset) {
+        df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
+      }
+      
+      beginCol <-
+        length(c(
+          input$SelectIV,
+          input$SelectGeno,
+          input$SelectTime,
+          input$SelectID
+        )) + 1
+      endCol <-
+        length(c(
+          input$SelectIV,
+          input$SelectGeno,
+          input$SelectTime,
+          input$SelectID
+        )) + length(input$SelectDV)
+      
+      
+      biggie <- corrplot(
+        cor(df[, beginCol:endCol], method = input$corMethod),
+        method = input$corrplotMethod,
+        type = input$corType,
+        order = input$corOrder,
+        tl.col = 'black')
+      
+      print(biggie)
+      dev.off()
+    })  
   
   ################ cor_table output###################
   
@@ -3317,7 +3443,7 @@ function(input, output) {
   })
   
   output$cortable_download_button <- downloadHandler(
-    filename = paste("Correlation table using ", input$corrplotMethod, " MVApp.csv"),
+    filename = paste("Correlation table using ", input$corrplotMethod, " subsetted per ", input$CorIV_val, " MVApp.csv"),
     content <- function(file) {
       
       beginCol <-
@@ -3495,12 +3621,23 @@ function(input, output) {
       )
   })
   
-  output$scatterplot <- renderPlotly({
+  scatter_cor <- reactive({
     my_data <- data.frame(my_data())
     my_data %>% ggplot(aes_string(input$Pheno1, input$Pheno2)) + geom_point(aes_string(colour =
                                                                                          input$Color))
-    ggplotly()
   })
+  
+  output$scatterplot <- renderPlotly({
+    scatter_cor()
+  })
+  
+  output$downl_scatter_corr <- downloadHandler(
+    filename = function(){paste("Scatter plot representing correlation of ", input$Pheno1," and ", input$Pheno2, " using ", input$cor_data, " subsetted per ", input$CorIV_val, " MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      print(scatter_cor())
+      dev.off()
+    })  
   
   # r2 and p-value ----------------------------------------------------------
   
@@ -3519,48 +3656,6 @@ function(input, output) {
     paste("The p-value is", signif(pval, 3))
   })
   
-  # make downloadButton for corplot -----------------------------------------
-  
-  
-  output$downloadCorrplot <- downloadHandler(
-    filename = function() {
-      paste0('corrplot-', Sys.Date(), '.png')
-    },
-    content = function(con) {
-      df <- cor_data_type()
-      
-      if (input$cor_data_subset) {
-        df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
-      }
-      
-      beginCol <-
-        length(c(
-          input$SelectIV,
-          input$SelectGeno,
-          input$SelectTime,
-          input$SelectID
-        )) + 1
-      endCol <-
-        length(c(
-          input$SelectIV,
-          input$SelectGeno,
-          input$SelectTime,
-          input$SelectID
-        )) + length(input$SelectDV)
-      
-      png(con, width = 800, height = 800)
-      
-      corrplot(
-        cor(df[, beginCol:endCol], method = input$corMethod),
-        method = input$corrplotMethod,
-        type = input$corType,
-        order = input$corOrder,
-        tl.col = 'black'
-      )
-      
-      dev.off()
-    }
-  )
   
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3700,7 +3795,8 @@ function(input, output) {
     eigenvalues
   })
   
-  output$PCA_eigen_plot <- renderPlot({
+    
+  PCA_eig <- reactive({  
     eigenvalues <- PCA_eigen_data()
     barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
             main = "Variances",
@@ -3712,6 +3808,28 @@ function(input, output) {
           type="b", pch=19, col = "red")
   })
   
+  output$PCA_eigen_plot <- renderPlot({
+    PCA_eig()
+  })
+  
+  output$downl_PCA_eigen_plot <- downloadHandler(  
+    filename = function(){paste("PCA eigen values plot using ", input$PCA_data, " with ", input$PCA_pheno,  " subset of ", input$PCA_subset_S," MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      eigenvalues <- PCA_eigen_data()
+      eig <- barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
+              main = "Variances",
+              xlab = "Principal Components",
+              ylab = "Percentage of variances",
+              col ="steelblue")
+      
+      eig <- eig + lines(x = 1:nrow(eigenvalues), eigenvalues[, 2], 
+                    type="b", pch=19, col = "red")
+      
+      print(eig)
+      dev.off()
+    })
+  
   output$Eigen_download_button <- renderUI({
     if(is.null(PCA_eigen_data())){
       return()}
@@ -3720,7 +3838,7 @@ function(input, output) {
   })
   
   output$Eigen_data <- downloadHandler(
-    filename = "Eigen values MVApp.csv",
+    filename = function(){paste("Eigen values using ", input$PCA_data, " with ", input$PCA_pheno, " subset of ", input$PCA_subset_S," MVApp.csv")},
     content <- function(file) {
       write.csv(PCA_eigen_data(), file)}
   )
@@ -3768,7 +3886,7 @@ function(input, output) {
     )
   })
   
-  output$PCA_contribution_plot <- renderPlot({
+  PCA_contrib <- reactive({
     beginCol <-
       length(c(
         input$SelectIV,
@@ -3786,6 +3904,18 @@ function(input, output) {
                             high="red", midpoint=mid)+theme_bw()
   })
   
+  output$PCA_contribution_plot <- renderPlot({
+    PCA_contrib()
+  })
+  
+  output$downl_PCA_contribution_plot <- downloadHandler(  
+    filename = function(){paste("PCA contribution plot using ", input$PCA_data, " with ", input$PCA_pheno, " subset of ", input$PCA_subset_S," MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      print(PCA_contrib())
+      dev.off()
+    })
+  
   output$PCA_contrib_select <- renderUI({
     if ((input$Go_PCAdata == FALSE)) {
       return()
@@ -3802,7 +3932,7 @@ function(input, output) {
     )
   })
   
-  output$Contrib_trait_plot <- renderPlot({
+  PCA_contrib_trait <- reactive({
     beginCol <-
       length(c(
         input$SelectIV,
@@ -3816,6 +3946,18 @@ function(input, output) {
     res.pca <- PCA(PCA_ready, graph = FALSE)
     fviz_contrib(res.pca, choice = 'var', axes = c(as.numeric(input$Which_PC_contrib)), xtickslab.rt = 90)
   })
+  
+  output$Contrib_trait_plot <- renderPlot({
+    PCA_contrib_trait()
+  })
+  
+  output$downl_Contrib_trait_plot <- downloadHandler(  
+    filename = function(){paste("PCA trait contribution plot for PC ",input$Which_PC_contrib, " using ", input$PCA_data, " with ", input$PCA_pheno, " subset of ", input$PCA_subset_S," MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      print(PCA_contrib_trait())
+      dev.off()
+    })
   
   PCA_contrib_var <- eventReactive(input$Go_PCA,{
     beginCol <-2
@@ -3845,7 +3987,7 @@ function(input, output) {
   })
   
   output$contrib_var <- downloadHandler(
-    filename = "PCA contrib var MVApp.csv",
+    filename = function(){paste("PCA trait contribution table for PC ",input$Which_PC_contrib, " using ", input$PCA_data, " with ", input$PCA_pheno, " subset of ", input$PCA_subset_S," MVApp.csv")},
     content <- function(file) {
       write.csv(PCA_contrib_var(), file)}
   )
@@ -3923,24 +4065,37 @@ function(input, output) {
   })
   
   output$coord_ind <- downloadHandler(
-    filename = "PCA coord ind MVApp.csv",
+    filename = function(){paste("PCA coord for individual samples using ", input$PCA_data, " with ", input$PCA_pheno," subset of ", input$PCA_subset_S, " MVApp.csv")},
     content <- function(file) {
       write.csv(PCA_coord_ind(), file)}
   )
   
-  output$PCA_scatterplot <- renderPlotly({
-    la_table <- PCA_coord_ind()
-    PC_x_axis <- paste('Dim', input$Which_PC1)
-    PC_y_axis <- paste('Dim', input$Which_PC2)  
-    la_table$x_axis <- la_table[,input$Which_PC1]
-    la_table$y_axis <- la_table[,input$Which_PC2]
-    la_table$color <- la_table[,input$PCA_Color]
-    super_plot <- ggplot(data = la_table, aes(x = x_axis, y= y_axis, colour = color))
-    super_plot <- super_plot + geom_point()
-    super_plot <- super_plot + xlab(PC_x_axis)
-    super_plot <- super_plot + ylab(PC_y_axis)
-    super_plot
+  PCA_scatter <- reactive({
+  la_table <- PCA_coord_ind()
+  PC_x_axis <- paste('Dim', input$Which_PC1)
+  PC_y_axis <- paste('Dim', input$Which_PC2)  
+  la_table$x_axis <- la_table[,input$Which_PC1]
+  la_table$y_axis <- la_table[,input$Which_PC2]
+  la_table$color <- la_table[,input$PCA_Color]
+  super_plot <- ggplot(data = la_table, aes(x = x_axis, y= y_axis, colour = color))
+  super_plot <- super_plot + geom_point()
+  super_plot <- super_plot + xlab(PC_x_axis)
+  super_plot <- super_plot + ylab(PC_y_axis)
+  super_plot
   })
+  
+  output$PCA_scatterplot <- renderPlotly({
+    PCA_scatter()
+  })
+  
+  output$downl_PCA_scatterplot <- downloadHandler(  
+    filename = function(){paste("PCA scatter plot of PC ",input$Which_PC1," and ", input$Which_PC2, " using ", input$PCA_data, " with ", input$PCA_pheno, " subset of ", input$PCA_subset_S," MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      bec <- PCA_scatter()
+      print(bec)
+      dev.off()
+    })
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> CLUSTER ANALYSIS IN 8th TAB << - - - - - - - - - - -
@@ -4111,7 +4266,7 @@ function(input, output) {
   
   # = = = = = = = = = >> OUTPUT PLOTS AND SENTENCES << = = = = = = = = = = = = = = 
   
-  output$ClusterTree <- renderPlot({
+  Cluster_DENDRO <- reactive({
     clust_temp <- Final_data_cluster()
     clust_temp <- na.omit(clust_temp)
     clust_matrix <- clust_temp[,2:ncol(clust_temp)]
@@ -4126,7 +4281,32 @@ function(input, output) {
     
   })
   
-  output$HotHeatMap <- renderPlot({
+  output$ClusterTree <- renderPlot({
+    Cluster_DENDRO()
+  })
+  
+  output$downl_ClusterTree <- downloadHandler(  
+    filename = function(){paste("Dendrogram of the samples used for hierarchical clustering using ", input$Cluster_data, " with ", input$Cluster_pheno, " MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      
+      clust_temp <- Final_data_cluster()
+      clust_temp <- na.omit(clust_temp)
+      clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+      row.names(clust_matrix) <- clust_temp$id
+      clust_matrix = as.matrix(clust_matrix)
+      clust_t_matrix = t(clust_matrix)
+      clust_t_cor = cor(clust_t_matrix,method="pearson")
+      clust_t_dist = dist(clust_t_cor)
+      clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+      
+      dend <- plot(as.dendrogram(clust_t_clust), horiz=T)
+      
+      print(dend)
+      dev.off()
+    })
+  
+  HHeatMap <- reactive({
     clust_temp <- Final_data_cluster()
     clust_temp <- na.omit(clust_temp)
     clust_matrix <- clust_temp[,2:ncol(clust_temp)]
@@ -4138,6 +4318,28 @@ function(input, output) {
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
     heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
   })
+  
+  output$HotHeatMap <- renderPlot({
+    HHeatMap()
+  })
+  
+  output$downl_HHeatMap <- downloadHandler(  
+    filename = function(){paste("Heat map of the samples used for hierarchical clustering using ", input$Cluster_data, " with ", input$Cluster_pheno, " MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      clust_temp <- Final_data_cluster()
+      clust_temp <- na.omit(clust_temp)
+      clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+      row.names(clust_matrix) <- clust_temp$id
+      clust_matrix = as.matrix(clust_matrix)
+      clust_t_matrix = t(clust_matrix)
+      clust_t_cor = cor(clust_t_matrix,method="pearson")
+      clust_t_dist = dist(clust_t_cor)
+      clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+      hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
+      print(hhm)
+      dev.off()
+    })
   
   output$Dendro_sentence <- renderPrint({
     if(is.null(Cluster_table_data())){
@@ -4333,8 +4535,7 @@ function(input, output) {
     
   })
   
-  
-  output$HotANOVA <- renderPlot({
+  HANOVA <- reactive({
     clust_temp <- Final_data_cluster()
     clust_temp <- na.omit(clust_temp)
     clust_matrix <- clust_temp[,2:ncol(clust_temp)]
@@ -4411,6 +4612,93 @@ function(input, output) {
     shaka_laka
   })
   
+  output$HotANOVA <- renderPlot({
+    HANOVA()
+    })
+  
+  output$downl_HotANOVA <- downloadHandler(
+    
+    filename = function(){paste("ANOVA test for clusters identified using ", input$Cluster_data, " with ", input$Cluster_pheno, " for ", input$Clust_test, "MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      
+      clust_temp <- Final_data_cluster()
+      clust_temp <- na.omit(clust_temp)
+      clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+      row.names(clust_matrix) <- clust_temp$id
+      clust_matrix = as.matrix(clust_matrix)
+      clust_t_matrix = t(clust_matrix)
+      clust_t_cor = cor(clust_t_matrix,method="pearson")
+      clust_t_dist = dist(clust_t_cor)
+      clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
+      
+      cluster <- as.data.frame(cutree(clust_t_clust,h=as.numeric(input$Split_cluster)))
+      names(cluster)[1] <- "cluster"
+      
+      # import the data containing ALL the phenotypes
+      
+      temp <- Data_for_cluster()
+      
+      # check whether you want to subset your data - IF YES 
+      if(input$Cluster_subset_Q == T){
+        # Subset data by this trait:
+        subset_lista <- input$Cluster_subset_T
+        # Check if you want to summarize your data - if no then:
+        if(input$Cluster_pre_calc == F){
+          # list of all possible identifiers
+          id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)
+          # extract which id is being used for subsetting
+          id_lista2 <- setdiff(id_lista, subset_lista)
+          # make one column with ids which are NOT used for subsetting
+          temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+          # make column with ONLY the ids being used for subseting
+          temp$sub_id <- temp[,input$Cluster_subset_T]
+          # subset for whatever value is chosen
+          temp2 <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+          #temp2 <- subset(temp, select != c("sub_id", input$SelectIV, input$SelectTime, input$SelectID))
+        }
+        if(input$Cluster_pre_calc == T){
+          id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+          id_lista2 <- setdiff(id_lista, subset_lista)
+          temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+          temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+          temp2 <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+          #temp2 <- subset(temp, select != c("sub_id", input$SelectIV, input$SelectTime, input$SelectID))
+          temp2 <- summaryBy(.~ id, data=temp2)
+          names(temp2) <- gsub(".mean", "", names(temp2))
+          #temp2 <- cSplit(temp2, "id", "_")
+        }
+      }
+      if(input$Cluster_subset_Q == F){
+        if(input$Cluster_pre_calc == F){
+          temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+          #temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+          temp2 <- temp
+        }
+        if(input$Cluster_pre_calc == T){
+          temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+          # temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+          temp2 <- summaryBy(.~ id, data=temp)
+          names(temp2) <- gsub(".mean", "", names(temp2))
+          #temp2 <- cSplit(temp2, "id", "_")
+        }}
+      
+      row.names(temp2) <- temp2$id
+      
+      new_shait <- merge(cluster, temp2, by="row.names")
+      
+      to_test <- new_shait[,c("cluster",input$Clust_test)]
+      names(to_test)[2] <- "phenotype"
+      to_test$cluster <- as.factor(to_test$cluster)
+      amod <- aov(phenotype ~ cluster, data = to_test)
+      tuk <- glht(amod, linfct = mcp(cluster = "Tukey"))
+      tuk.cld <- cld(tuk)   
+      old.par <- par( mai=c(1,1,1.25,1))
+      hanova <- plot(tuk.cld, las=1, col=topo.colors(n=length(unique(to_test$cluster))), ylab=input$Clust_test)
+      
+      print(hanova)
+      dev.off()
+    })  
   
   output$Cluster_download_button <- renderUI({
     if(is.null(Cluster_table_data())){
@@ -4420,7 +4708,7 @@ function(input, output) {
   })
   
   output$data_clustered <- downloadHandler(
-    filename = paste("Cluster analysis based on ", input$Cluster_pheno, " with split at ", input$Split_cluster, " MVApp.csv"),
+    filename = paste("Cluster analysis based on ", input$Cluster_data, " with ", input$Cluster_pheno, " with split at ", input$Split_cluster, " MVApp.csv"),
     content <- function(file) {
       
       write.csv(Cluster_table_data(), file)}
