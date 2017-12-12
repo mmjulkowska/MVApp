@@ -2824,6 +2824,78 @@ output$downl_plot_MCP <- downloadHandler(
     }
   })
   
+output$subset_Variance <- renderUI({  
+  if(input$plot_facet == F){
+    return()
+  }
+  else{
+    my_his_data<-Histo_data_type()
+    lista <- unique(my_his_data[,input$Plotfacet_choice])
+  selectizeInput(
+  inputId = "Show_subset_for_HovPlot",
+  label = "Show results for subset:",
+  choices = lista)
+    }
+})
+  
+  output$Var_graph <- renderPlot({
+    
+    my_his_data<-Histo_data_type()
+    my_his_data <- subset(my_his_data, select = c(input$HisDV,input$HisIV,input$Plotfacet_choice))
+    my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+    phenoski <- input$HisDV
+    idski <- input$HisIV
+    
+    if(input$plot_facet ==T){
+      my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
+      my_his_data <- subset(my_his_data, my_his_data$facetIV == input$Show_subset_for_HovPlot)
+      id <- my_his_data[,input$HisIV]
+      pheno <- my_his_data[,input$HisDV]
+      hovPlot.bf(pheno, id,  ## x is the response variable
+                 y.name = phenoski,
+                 group.name = idski)
+      }
+    else{
+      id <- my_his_data[,input$HisIV]
+      pheno <- my_his_data[,input$HisDV]
+      hovPlot.bf(pheno, id,  ## x is the response variable
+                 y.name = phenoski,
+                 group.name = idski)
+      }
+    })
+      
+  
+  output$downl_Variance <- downloadHandler(
+      filename = function(){paste("Variance plot for ",input$HistDV, " splitted per ",  input$Plotfacet_choice, " MVApp.pdf")},
+      content = function(file) {
+        pdf(file)
+        
+        my_his_data<-Histo_data_type()
+        my_his_data <- subset(my_his_data, select = c(input$HisDV,input$HisIV,input$Plotfacet_choice))
+        my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+        phenoski <- input$HisDV
+        idski <- input$HisIV
+        
+        if(input$plot_facet ==T){
+          my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
+          my_his_data <- subset(my_his_data, my_his_data$facetIV == input$Show_subset_for_HovPlot)
+          id <- my_his_data[,input$HisIV]
+          pheno <- my_his_data[,input$HisDV]
+          var <- hovPlot.bf(pheno, id,  ## x is the response variable
+                     y.name = phenoski,
+                     group.name = idski)
+        }
+        else{
+          id <- my_his_data[,input$HisIV]
+          pheno <- my_his_data[,input$HisDV]
+          var <- hovPlot.bf(pheno, id,  ## x is the response variable
+                     y.name = phenoski,
+                     group.name = idski)
+        }
+        prin(var)
+        dev.off()
+      })  
+    
   
   # = = = = = = = = = >> ONE / TWO SAMPLE TESTS << =  = = = = = = = = = = = #
   
@@ -2868,9 +2940,10 @@ output$downl_plot_MCP <- downloadHandler(
   
   output$OT_what_mu <- renderUI({
     if(input$OT_testski == "One sample t-test"){
-      textInput(
+      numericInput(
         inputId = "OT_muski",
-        label = "Check if significantly different from (numerical values only):")}
+        label = "Check if significantly different from:",
+        value = 0)}
     else{
       return()}
   })
@@ -3302,6 +3375,21 @@ output$downl_plot_MCP <- downloadHandler(
     )
   })
   
+  output$cor_sig_level_output <- renderUI({
+    if(input$cor_sig_show == F){
+      return()
+    }
+    if(input$cor_sig_show == T){
+      selectizeInput(
+        inputId = "cor_sig_threshold",
+        label = "p-value threshold:",
+        choices = c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1),
+        selected = 0.05,
+        multiple = F
+      )
+    }
+  })
+  
   COR_BIG <- reactive({
   
     df <- cor_data_type()
@@ -3325,14 +3413,31 @@ output$downl_plot_MCP <- downloadHandler(
         input$SelectID
       )) + length(input$SelectDV)
     
-    
+    if(input$cor_sig_show == F){
     corrplot(
       cor(df[, beginCol:endCol], method = input$corMethod),
       method = input$corrplotMethod,
       type = input$corType,
       order = input$corOrder,
       tl.col = 'black',
-      col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))
+      col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))}
+    
+    if(input$cor_sig_show == T){
+      thres <- as.numeric(as.character(input$cor_sig_threshold))
+      res1 <- cor.mtest(df[, beginCol:endCol], conf.level = (1-thres))
+      
+      
+      corrplot(
+        cor(df[, beginCol:endCol], method = input$corMethod),
+        p.mat = res1$p,
+        sig.level = thres,
+        
+        method = input$corrplotMethod,
+        type = input$corType,
+        order = input$corOrder,
+        tl.col = 'black',
+        col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))}
+    
   })
   
   output$corrplot <- renderPlot({
@@ -3365,13 +3470,30 @@ output$downl_plot_MCP <- downloadHandler(
         )) + length(input$SelectDV)
       
       
-      biggie <- corrplot(
-        cor(df[, beginCol:endCol], method = input$corMethod),
-        method = input$corrplotMethod,
-        type = input$corType,
-        order = input$corOrder,
-        tl.col = 'black',
-        col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))
+      if(input$cor_sig_show == F){
+       biggie <- corrplot(
+          cor(df[, beginCol:endCol], method = input$corMethod),
+          method = input$corrplotMethod,
+          type = input$corType,
+          order = input$corOrder,
+          tl.col = 'black',
+          col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))}
+      
+      if(input$cor_sig_show == T){
+        thres <- as.numeric(as.character(input$cor_sig_threshold))
+        res1 <- cor.mtest(df[, beginCol:endCol], conf.level = (1-thres))
+        
+        
+       biggie <- corrplot(
+          cor(df[, beginCol:endCol], method = input$corMethod),
+          p.mat = res1$p,
+          sig.level = thres,
+          
+          method = input$corrplotMethod,
+          type = input$corType,
+          order = input$corOrder,
+          tl.col = 'black',
+          col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))}
       
       print(biggie)
       dev.off()
