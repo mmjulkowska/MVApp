@@ -283,9 +283,11 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                                column(12,plotOutput("QQplot", height=1000))), 
                       
                       tabPanel("Testing equal variance", icon=icon("area-chart"),
+                               downloadButton("downl_Variance"),
+                               uiOutput("subset_Variance"), 
+                               plotOutput("Var_graph"),
                                verbatimTextOutput("Bartlett"),
                                verbatimTextOutput("Levene")
-                           # Add bar graphs representing the variance with f-test    
                            ),
                       tabPanel("One / two sample tests", icon = icon("hand-peace-o"),
                                column(3,uiOutput("OT_test")),
