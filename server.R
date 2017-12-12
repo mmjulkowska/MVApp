@@ -3331,8 +3331,8 @@ output$downl_plot_MCP <- downloadHandler(
       method = input$corrplotMethod,
       type = input$corType,
       order = input$corOrder,
-      tl.col = 'black'
-    )
+      tl.col = 'black',
+      col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))
   })
   
   output$corrplot <- renderPlot({
@@ -3370,7 +3370,8 @@ output$downl_plot_MCP <- downloadHandler(
         method = input$corrplotMethod,
         type = input$corType,
         order = input$corOrder,
-        tl.col = 'black')
+        tl.col = 'black',
+        col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))
       
       print(biggie)
       dev.off()
