@@ -3375,6 +3375,21 @@ output$subset_Variance <- renderUI({
     )
   })
   
+  output$cor_sig_level_output <- renderUI({
+    if(input$cor_sig_show == F){
+      return()
+    }
+    if(input$cor_sig_show == T){
+      selectizeInput(
+        inputId = "cor_sig_threshold",
+        label = "p-value threshold:",
+        choices = c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1),
+        selected = 0.05,
+        multiple = F
+      )
+    }
+  })
+  
   COR_BIG <- reactive({
   
     df <- cor_data_type()
@@ -3398,14 +3413,31 @@ output$subset_Variance <- renderUI({
         input$SelectID
       )) + length(input$SelectDV)
     
-    
+    if(input$cor_sig_show == F){
     corrplot(
       cor(df[, beginCol:endCol], method = input$corMethod),
       method = input$corrplotMethod,
       type = input$corType,
       order = input$corOrder,
       tl.col = 'black',
-      col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))
+      col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))}
+    
+    if(input$cor_sig_show == T){
+      thres <- as.numeric(as.character(input$cor_sig_threshold))
+      res1 <- cor.mtest(df[, beginCol:endCol], conf.level = (1-thres))
+      
+      
+      corrplot(
+        cor(df[, beginCol:endCol], method = input$corMethod),
+        p.mat = res1$p,
+        sig.level = thres,
+        
+        method = input$corrplotMethod,
+        type = input$corType,
+        order = input$corOrder,
+        tl.col = 'black',
+        col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))}
+    
   })
   
   output$corrplot <- renderPlot({
@@ -3438,13 +3470,30 @@ output$subset_Variance <- renderUI({
         )) + length(input$SelectDV)
       
       
-      biggie <- corrplot(
-        cor(df[, beginCol:endCol], method = input$corMethod),
-        method = input$corrplotMethod,
-        type = input$corType,
-        order = input$corOrder,
-        tl.col = 'black',
-        col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))
+      if(input$cor_sig_show == F){
+       biggie <- corrplot(
+          cor(df[, beginCol:endCol], method = input$corMethod),
+          method = input$corrplotMethod,
+          type = input$corType,
+          order = input$corOrder,
+          tl.col = 'black',
+          col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))}
+      
+      if(input$cor_sig_show == T){
+        thres <- as.numeric(as.character(input$cor_sig_threshold))
+        res1 <- cor.mtest(df[, beginCol:endCol], conf.level = (1-thres))
+        
+        
+       biggie <- corrplot(
+          cor(df[, beginCol:endCol], method = input$corMethod),
+          p.mat = res1$p,
+          sig.level = thres,
+          
+          method = input$corrplotMethod,
+          type = input$corType,
+          order = input$corOrder,
+          tl.col = 'black',
+          col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))}
       
       print(biggie)
       dev.off()
