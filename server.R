@@ -95,9 +95,9 @@ function(input, output) {
     if (is.null(input$your_data)) {
       return(NULL)
     } else{
-      read.csv(input$your_data$datapath)
+     test <- read.csv(input$your_data$datapath)
+     test
     }
-    test
   })
   
   output$uploaded_data_report <- renderText({

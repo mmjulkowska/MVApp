@@ -352,7 +352,7 @@ tabPanel("Correlations",
         selectInput("corMethod", "Correlation Method:", choices = c("pearson","spearman")),
         selectInput("corrplotMethod", "Plot Method:", choices = c("circle", "square", "ellipse", "number", "shade", "color", "pie")),
         selectInput("corType", "Plot Type:", choices = c("full", "lower", "upper")),
-        selectInput("corOrder", "Order the lables by:", choices = c("original", "AOE",  "FPC",  "hclust", "alphabet"))
+        selectInput("corOrder", "Order the lables by:", choices = list("Original order" = "original","Angular order of eigenvectors" = "AOE", "First Principal Component order"  = "FPC", "Hierarchical clustering order"  = "hclust", "Alphabetical order" = "alphabet"))
         #actionButton("Go_table", label = "Click to see the correlation table with p value", icon = icon("play-circle"))
       ),
       mainPanel(
