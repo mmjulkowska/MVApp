@@ -49,7 +49,7 @@ fluidPage(
       br(),
       h3("User guide (still in making) is available ", a("HERE!", href="https://mmjulkowska.github.io/MVApp/")),
       br(),
-      "Although our App is super cool and everything is now just ONE click away from you, please remember that the final output will depend on your data - as they say", tags$b(">> rubbish in - rubbish out <<"),
+      "Although our App is super cool and everything is now just ONE click away from you, please remember that the final output will depend on your data - as they say", tags$b(">> rubbish in - rubbish out <<", ", but of course we hope your data is all glam, glitter and rainbows! Happy Data analysis!"),
       br(),
       br(),
       img(src="bullshit_out.jpg", align="center"))
