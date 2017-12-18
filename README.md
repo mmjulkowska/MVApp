@@ -366,4 +366,4 @@ In the sub-tab 'Contribution per PC' the contribution of individual Dependent Va
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 8 QUANTILE REGRESSION (#8-quantile-regression)
+### 8. QUANTILE REGRESSION (#8-quantile-regression)
