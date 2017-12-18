@@ -1360,7 +1360,6 @@ output$downl_plot_MCP <- downloadHandler(
   
   # - - - - - - - - - - - - - >>  MAIN CALCULATIONS << - - - - - - - - - - - - - -
   
-  ## TESTING OMIT.NA     %% Mitch %%
   my_data_nona <- eventReactive(input$Go_omitna == T, {
     my_data_nona <- my_data()[complete.cases(my_data()),] #use na.omit instead maybe?
     return(my_data_nona)
@@ -2457,6 +2456,7 @@ output$downl_plot_MCP <- downloadHandler(
     
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+    my_his_data[,input$HisIV] <- as.factor(my_his_data[,input$HisIV])
     
     #groupIV<-input$HisIV
     
@@ -2843,6 +2843,7 @@ output$subset_Variance <- renderUI({
     my_his_data<-Histo_data_type()
     my_his_data <- subset(my_his_data, select = c(input$HisDV,input$HisIV,input$Plotfacet_choice))
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+    my_his_data[,input$HisIV] <- as.factor(my_his_data[,input$HisIV])
     phenoski <- input$HisDV
     idski <- input$HisIV
     
@@ -2873,6 +2874,7 @@ output$subset_Variance <- renderUI({
         my_his_data<-Histo_data_type()
         my_his_data <- subset(my_his_data, select = c(input$HisDV,input$HisIV,input$Plotfacet_choice))
         my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+        my_his_data[,input$HisIV] <- as.factor(my_his_data[,input$HisIV])
         phenoski <- input$HisDV
         idski <- input$HisIV
         
@@ -3190,6 +3192,7 @@ output$subset_Variance <- renderUI({
   BoxANOVA <- reactive({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+    my_his_data[,input$HisIV] <- as.factor(my_his_data[,input$HisIV])
     #groupIV<-input$HisIV
     
     if(input$plot_facet ==T){
@@ -3254,7 +3257,7 @@ output$subset_Variance <- renderUI({
   
   # - - - - - - - - - - output graphs / reports - - - - - - - - - - - - - 
   
-  TW_ANOVA <- reactive({
+  TW_ANOVA <- eventReactive(input$Go_TWANOVA,{
     mydata <- Histo_data_type()
     pheno <- as.numeric(as.character(mydata[,input$HisDV]))
     iv1 <- mydata[,input$TW_ANOVA_IV1]
@@ -3281,23 +3284,39 @@ output$subset_Variance <- renderUI({
   output$TW_ANOVA_interaction_plot <- renderPlot({
     TW_ANOVA()})
     
+  
+  TW_ANOVA_rep <- eventReactive(input$Go_TWANOVA,{
+  mydata <- Histo_data_type()
+  pheno <- as.numeric(as.character(mydata[,input$HisDV]))
+  iv1 <- mydata[,input$TW_ANOVA_IV1]
+  iv2 <- mydata[,input$TW_ANOVA_IV2]
+  
+  resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
+  anova(resultados)})
+  
   output$two_ANOVA_report <- renderPrint({
-    mydata <- Histo_data_type()
-    pheno <- as.numeric(as.character(mydata[,input$HisDV]))
-    iv1 <- mydata[,input$TW_ANOVA_IV1]
-    iv2 <- mydata[,input$TW_ANOVA_IV2]
-    
-    resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
-    anova(resultados)
+    message <- TW_ANOVA_rep()
+    message
   })
   
+  
+  
   output$TW_ANOVA_QQ_plot <- renderPlot({
+    if(input$Go_TWANOVA == F){
+      mydata <- Histo_data_type()
+      pheno <- as.numeric(as.character(mydata[,input$HisDV]))
+      iv1 <- mydata[,input$TW_ANOVA_IV1]
+      iv2 <- mydata[,input$TW_ANOVA_IV2]
+      plot(iv1 ~ iv2)
+    }
+    else{
     mydata <- Histo_data_type()
     pheno <- as.numeric(as.character(mydata[,input$HisDV]))
     iv1 <- mydata[,input$TW_ANOVA_IV1]
     iv2 <- mydata[,input$TW_ANOVA_IV2]
     resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
     plot(resultados$fitted, resultados$res, xlab = "Fitted", ylab = "Residuals")
+    }
   })
   
   
@@ -3746,6 +3765,7 @@ output$subset_Variance <- renderUI({
   
   scatter_cor <- reactive({
     my_data <- data.frame(my_data())
+    my_data[,input$Color] <- as.factor(my_data[,input$Color])
     my_data %>% ggplot(aes_string(input$Pheno1, input$Pheno2)) + geom_point(aes_string(colour =
                                                                                          input$Color))
   })
@@ -4852,7 +4872,7 @@ output$subset_Variance <- renderUI({
           choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
   })  
   
-  Herit_data_type <- eventReactive(exists(input$Herit_data),{
+  Herit_data_type <- reactive({
     if(input$Herit_data == "raw data"){
       Herit_data_type <- my_data()
     }
