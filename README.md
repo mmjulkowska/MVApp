@@ -34,6 +34,7 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 #
 [7. CLUSTER ANALYSIS](#7-cluster-analysis)
 #
+[8. QUANTILE REGRESSION](#8-quantile-regression)
 
 ### 1. DATA UPLOAD
 
@@ -364,3 +365,5 @@ In the sub-tab 'Contribution per PC' the contribution of individual Dependent Va
 ![mvapp_hcluster_clustervalidation](https://user-images.githubusercontent.com/14832460/32647239-8db955f0-c5f0-11e7-9e90-67fe21ae6f65.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
+### 8 QUANTILE REGRESSION (#8-quantile-regression)
