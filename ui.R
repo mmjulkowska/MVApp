@@ -489,7 +489,7 @@ tabPanel("Clustering", icon = icon("sitemap"),
 
 # Tab 9 = = = = = = = = = = = = = = >> HERITABILITY << = = = = = = = = = = = = = = = = = = 
 
-tabPanel("Heritability", icon=icon("binoculars"),
+tabPanel("Heritability", icon=icon("pagelines"),
          
          sidebarPanel("",
                       fluidRow(
