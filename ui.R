@@ -16,10 +16,9 @@ fluidPage(
         "Our background is plant biology - so you know where our bias is ;).",br(),br(),
         "The app is not published anywhere (yet - we are working on it), but if you wish to cite the app, please use the following:",
         br(), br(),
-        "Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., MVApp.pre-release_v2.0 mmjulkowska/MVApp: MVApp.pre-release_v2.0, DOI: 10.5281/zenodo.1067974",
+        "Julkowska, M.M., Saade, S., Aragwal, G., Gao, G., Morton, M.J.L., Awlia, M., Paillies, Y., Tester, M., MVApp.pre-release_v2.0 mmjulkowska/MVApp: MVApp.pre-release_v2.0, DOI: 10.5281/zenodo.1067974",
         br(), br(),
         "The example dataset is available ", a("here", href = "https://drive.google.com/file/d/0B08MX6N7rXcZX0xQamtweUZCbDQ/view?usp=sharing", target = "_blank"),br(), br(),
-        "Please - fill in the survey about the App - available ", a("here", href = "https://goo.gl/forms/kpMdpMpswdbb9BJv2", target = "_blank"),br(), br(),
         "If you have any problems / questions / ", span("suggestions how we can improve this APP so that YOU can do your analysis smoother", style="color:red") ,"- or simply you would like to tell us how amazing the App is - please contact ",span("Magdalena.Julkowska@kaust.edu.sa", style="color:blue")
       ),
       mainPanel(
@@ -45,9 +44,13 @@ fluidPage(
       br(),
       h4("7. Perform PCA analysis, examine which traits are contributing significantly to the most informative PCs and retrieve the coordinates of your samples."),
       br(),
-      h4("8. Cluster your samples based on the selected traits and perform cluster validation analysis."),
+      h4("8. Perform Multidimentional Scaling to detect the patterns in your data based on the relationships between your samples"),
       br(),
-      h3("User guide (still in making) is available ", a("HERE!", href="https://mmjulkowska.github.io/MVApp/")),
+      h4("9. Cluster your samples based on the selected traits and perform cluster validation analysis."),
+      br(),
+      h4("10. Use Quantile Regression to explore how individual phenotypes contribute to traits of major interest in different quantile classes"),
+      br(),
+      h3("User guide (still in making) is available ", a("HERE", href="https://mmjulkowska.github.io/MVApp/", target = "_blank"), "and you can leave the feedback ", a("HERE!!!", href = "https://goo.gl/forms/kpMdpMpswdbb9BJv2", target = "_blank")),
       br(),
       "Although our App is super cool and everything is now just ONE click away from you, please remember that the final output will depend on your data - as they say", tags$b(">> rubbish in - rubbish out <<"), ", but of course we hope your data is all glam, glitter and rainbows! Happy Data analysis!",
       br(),
@@ -383,7 +386,7 @@ tabPanel("Correlations",
 ),
 # Tab 7 = = = = = = = = = = = = = = >> PCA ANALYSIS << = = = = = = = = = = = = = = = = = = 
 
-tabPanel("reduction of dimentionality", icon = icon("object-group"),
+tabPanel("Reduction of dimentionality", icon = icon("object-group"),
 navbarPage("",
   tabPanel("PCA",
   sidebarPanel(
@@ -513,7 +516,17 @@ tabPanel("Heritability", icon=icon("pagelines"),
                                
                       )))
          # end of Tab #9 
-)                           
+),                           
+
+# Tab 10 = = = = = = = = = = = = = = >> HERITABILITY << = = = = = = = = = = = = = = = = = = 
+
+tabPanel("Quantile regression", icon = icon("paper-plane-o"),
+
+         "This tab is currently under construction - main contributors Gaurav Aragwal with some sateline help from Magdalena Julkowska", br(),
+         "Please be patient and send us an e mail in case you have some analysis you would like to include in the App", br(), br(),
+         "Chers & glittes data-analyst!"    
+
+         )
 
 # end of App - final brackets
   )
