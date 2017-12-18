@@ -485,7 +485,36 @@ tabPanel("Clustering", icon = icon("sitemap"),
                  "Chers & glittes data-analyst!"
                )))
          # end of Tab #8
-)
+),
+
+# Tab 9 = = = = = = = = = = = = = = >> HERITABILITY << = = = = = = = = = = = = = = = = = = 
+
+tabPanel("Heritability", icon=icon("binoculars"),
+         
+         sidebarPanel("",
+                      fluidRow(
+                        uiOutput("Herit_Pheno_data"),
+                        uiOutput("YearID"),
+                        uiOutput("LocationID"),
+                        textInput("RepID", label="Type in the number of replications per location per year"),
+                        uiOutput("HeritabilityDV"),
+                        checkboxInput("herit_facet", "Would you like to subset the data?"),
+                        uiOutput("Heritfacets")
+                        
+                      )),
+         mainPanel(
+           navbarPage("",
+                      tabPanel("Calculating heritability", icon=icon("area-chart"),
+                               #verbatimTextOutput("The model you used to calculate the borad-sense heritability is"),
+                               #br(),
+                               #uiOutput("HeritValue")
+                               dataTableOutput("Heri_table"),
+                               verbatimTextOutput("HeritValue")
+                               
+                      )))
+         # end of Tab #9 
+)                           
+
 # end of App - final brackets
   )
 )
