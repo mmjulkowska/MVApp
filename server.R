@@ -11,6 +11,22 @@ function(input, output) {
     return(colnames(d2))
   })
   
+  NumItems = reactive(if (is.null(input$your_data)){
+    return()
+  } else {
+    d2 = read.csv(input$your_data$datapath)
+    
+    num_list <- "none"
+    no <- "none"
+    for(i in 1:ncol(d2)){
+    if (class(d2[,i]) == "numeric"){
+      num_list <- c(num_list, colnames(d2)[i])
+    }}
+    num_list <- setdiff(num_list, no)
+    
+    return(num_list)
+  })
+  
   # - - - - - - - - - - - - - - - - - >> Reactive widgets << - - - - - - - - - - - -
 
 # Select Genotype
@@ -50,8 +66,8 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "SelectDV",
-          label = "Select columns containing Dependent Variables (Phenotypes)",
-          choices = ItemList(),
+          label = "Select columns containing Dependent Variables (MUST be numeric)",
+          choices = NumItems(),
           multiple = T
         )
       )
@@ -1151,6 +1167,14 @@ function(input, output) {
     MCP()
   })
    
+output$downl_plot_MCP_ui <- renderUI({
+  if(is.null(MCP())){
+    return()
+  }
+  else
+    downloadButton("downl_plot_MCP", "Download plot") 
+})
+   
    
 output$downl_plot_MCP <- downloadHandler(
        filename = function(){paste("Model comparison plot MVApp", "pdf" , sep=".") },
@@ -2066,6 +2090,15 @@ output$downl_plot_MCP <- downloadHandler(
     OutG()
   })
   
+  output$downl_plot_OutlPlot_ui <- renderUI({
+    if(is.null(OutG())){
+      return()
+    }
+    else
+      downloadButton("downl_plot_OutlPlot", "Download plot")    
+  })
+  
+  
   output$downl_plot_OutlPlot <- downloadHandler(
     filename = function(){paste("Plot with outliers included based on ",input$Out_pheno_single_multi,"_", input$DV_outliers ," identified with ", input$outlier_method, " MVApp.pdf") },
     content = function(file) {
@@ -2206,6 +2239,14 @@ output$downl_plot_MCP <- downloadHandler(
     jaka <- jaka + ylab(input$DV_graph_outliers)
     
     jaka
+  })
+  
+  output$downl_plot_NoOutlPlot_ui <- renderUI({
+    if(is.null(NoOutG())){
+      return()
+    }
+    else
+      downloadButton("downl_no_outliers_graph", "Download plot")    
   })
   
   output$no_outliers_graph <- renderPlotly({
@@ -2389,12 +2430,10 @@ output$downl_plot_MCP <- downloadHandler(
       return ()
     } else
       tagList(
-        selectizeInput(
+        numericInput(
           inputId = "Chosenthreshold",
           label = "p-value threshold:",
-          choices = c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1),
-          selected = 0.05,
-          multiple = F
+          value = 0.05
         )
       )
   })
@@ -2864,6 +2903,15 @@ output$subset_Variance <- renderUI({
                  group.name = idski)
       }
     })
+  
+  output$downl_Variance_ui <- renderUI({
+    if(is.null(Histo_data_type())){
+      return()
+    }
+    else(
+      downloadButton("downl_Variance", "Download plot" )
+    )
+  })
       
   
   output$downl_Variance <- downloadHandler(
@@ -2952,6 +3000,10 @@ output$subset_Variance <- renderUI({
   
   
   output$OT_test_results <- renderPrint({
+    if(is.null(OTG())){
+      return()
+    }
+    else
     subset_lista <- input$OT_grouping_IVskis
     id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
     id_lista2 <- setdiff(id_lista, subset_lista)
@@ -2965,17 +3017,25 @@ output$subset_Variance <- renderUI({
     if(input$OT_testski == "One sample t-test"){
       testski <- t.test(data_sub$chosen_DV, mu = as.numeric(as.character(input$OT_muski)))
       p_val <- testski$p.value
+      df <- testski$parameter[[1]]
+      stat <- testski$statistic[[1]]
     }
     if(input$OT_testski == "Two sample t-test"){
       testski <- t.test(data_sub$chosen_DV ~ data_sub$sample_id, var.equal = T)
       p_val <- testski$p.value
+      df <- testski$parameter[[1]]
+      stat <- testski$statistic[[1]]
     }
     if(input$OT_testski == "Two sample chi-squared test"){
       testski <- chisq.test(data_sub$chosen_DV, data_sub$sample_id)
       p_val <- testski$p.value
+      df <- testski$parameter[[1]]
+      stat <- testski$statistic[[1]]
     }
      
     bam <- p_val
+    bec <- df
+    bom <- stat 
     if(length(unique(input$OT_compareski)) > 2){
       cat("Dude / Chica!!! You selected more than two samples - go and to ANOVA or something like this")
       cat("\n")
@@ -2990,15 +3050,13 @@ output$subset_Variance <- renderUI({
     cat("\n")
     cat(paste("The p-value of the test is ", bam))
     cat("\n")
+    cat(paste("The degrees of freedom in the test: ", bec))
     cat("\n")
-    print(testski)
+    cat(paste("The value of the t-/chi-statistics in the test: ", bom))
+    
   })
  
  OTG <- reactive({
-   if(is.null(input$OT_compareski)){
-     return()
-   }
-   else{
    subset_lista <- input$OT_grouping_IVskis
    id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
    id_lista2 <- setdiff(id_lista, subset_lista)
@@ -3014,9 +3072,15 @@ output$subset_Variance <- renderUI({
      bencki <- bencki + xlab(input$OT_grouping_IVskis)
      bencki <- bencki + ylab(input$HisDV)
      bencki
-   }
   })
   
+output$OT_graph_download_ui <- renderUI({
+   if(is.null(OTG())){
+     return()}
+   else
+     downloadButton("OT_graph_download", label="Download plot")
+ }) 
+
  output$OT_graph_download <- downloadHandler(
    filename = function(){paste("Plot for ", input$OT_testski, " comparing ", input$OT_compareski, "MVApp.pdf")},
    content = function(file) {
@@ -3026,6 +3090,10 @@ output$subset_Variance <- renderUI({
    })  
  
  output$OT_graph <- renderPlotly({
+   if(is.null(OTG())){
+     return(NULL)
+   }
+   else
    OTG()})
   
   # = = = = = = = >> Testing Significant Differences << = = = = = = = = = = # 
@@ -3051,7 +3119,7 @@ output$subset_Variance <- renderUI({
         subsetted_data<- subset(my_his_data, my_his_data[,3]==i)
         facetting[i]<-i
         
-        if(input$Sig_diff_test == "ANOVA"){
+        if(input$Sig_diff_test == "ANOVA (parametric)"){
         fit_anova<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
         p_values_anova[i]<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5) #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
         if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
@@ -3060,7 +3128,7 @@ output$subset_Variance <- renderUI({
           interpret_anova[i]<-"NO significant difference in means"
         }}
         
-        if(input$Sig_diff_test == "Kruskal-Wallis"){
+        if(input$Sig_diff_test == "Kruskal-Wallis (non-parametric)"){
         fit_anova <- kruskal.test(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
         p_values_anova[i]<- fit_anova$p.value
         if(fit_anova$p.value < as.numeric(as.character(input$Chosenthreshold))){
@@ -3081,7 +3149,7 @@ output$subset_Variance <- renderUI({
     
     if(input$plot_facet ==F){ 
       
-      if(input$Sig_diff_test == "ANOVA"){
+      if(input$Sig_diff_test == "ANOVA (parametric)"){
       fit_anova <- aov(my_his_data[,1] ~ as.factor(my_his_data[,2]), data = my_his_data)
       pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
       cat("ANOVA", "\n")
@@ -3094,7 +3162,7 @@ output$subset_Variance <- renderUI({
         cat("NO significant difference in means")
       }}
       
-      if(input$Sig_diff_test == "Kruskal-Wallis"){
+      if(input$Sig_diff_test == "Kruskal-Wallis (non-parametric)"){
         fit_anova <- kruskal.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
         cat("Kruskal-Wallis test", "\n")
         cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, "S is ", fit_anova$p.value,"\n", "\n", sep=""))
@@ -3139,7 +3207,7 @@ output$subset_Variance <- renderUI({
       for (i in 1:length(unique(my_his_data[,3]))){
         subsetted_data<- subset(my_his_data, my_his_data[,3]==unique(my_his_data[,3])[i])
         
-        if(input$Sig_diff_test == "ANOVA"){
+        if(input$Sig_diff_test == "ANOVA (parametric)"){
           fit_tukey<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
         out<-HSD.test(fit_tukey, "subsetted_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
         out_tukey<-as.data.frame(out$groups)
@@ -3150,7 +3218,7 @@ output$subset_Variance <- renderUI({
         out_tukey_f<-out_tukey_n[c(4,3,2,1)]
         print(as.data.frame(out_tukey_f), row.names=FALSE)}
         
-        if(input$Sig_diff_test == "Kruskal-Wallis"){
+        if(input$Sig_diff_test == "Kruskal-Wallis (non-parametric)"){
           phenotypski <- subsetted_data[,1]
           groupski <- subsetted_data[,2]
           pp<-pairwise.wilcox.test(phenotypski, groupski)
@@ -3166,7 +3234,7 @@ output$subset_Variance <- renderUI({
       my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
       my_his_data[,2]<-as.factor(my_his_data[,2])
       
-      if(input$Sig_diff_test == "ANOVA"){
+      if(input$Sig_diff_test == "ANOVA (parametric)"){
       fit_tukey<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
       out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
       out_tukey<-as.data.frame(out$groups)
@@ -3175,7 +3243,7 @@ output$subset_Variance <- renderUI({
       out_tukey_f<-out_tukey[c(3,1,2)]
       print(out_tukey_f, row.names=FALSE)}
       
-      if(input$Sig_diff_test == "Kruskal-Wallis"){
+      if(input$Sig_diff_test == "Kruskal-Wallis (non-parametric)"){
         phenotypski <- my_his_data[,1]
         groupski <- my_his_data[,2]
         pp<-pairwise.wilcox.test(phenotypski, groupski, p.adjust.method = "none", paired = FALSE)
@@ -3209,6 +3277,12 @@ output$subset_Variance <- renderUI({
     box_graph
   })
   
+  output$ANOVA_graph_download_ui <- renderUI({
+    if(is.null(BoxANOVA())){
+      return()}
+    else
+      downloadButton("ANOVA_graph_download", label="Download plot")
+  }) 
   
   output$ANOVA_graph_download <- downloadHandler(
     filename = function(){paste("Plot of", input$Sig_diff_test, " comparison MVAPP", input$HisDV, "MVApp.pdf")},
@@ -3266,6 +3340,13 @@ output$subset_Variance <- renderUI({
     interaction.plot(iv1, iv2, pheno, ylab = input$HisDV, trace.label = input$TW_ANOVA_IV2, xlab = input$TW_ANOVA_IV1)
   })
   
+  output$TW_ANOVA_graph_download_ui <- renderUI({
+    if(is.null(TW_ANOVA())){
+      return()}
+    else
+      downloadButton("TW_ANOVA_graph_download", label="Download plot")
+  }) 
+  
   output$TW_ANOVA_graph_download <- downloadHandler(
       filename = function(){paste("Two way ANOVA interaction plot MVAPP", input$HisDV, "testing the effect of ", input$TW_ANOVA_IV1, " and ", input$TW_ANOVA_IV2, "and the interaction between them ", "MVApp.pdf")},
       content = function(file) {
@@ -3282,7 +3363,11 @@ output$subset_Variance <- renderUI({
   
   
   output$TW_ANOVA_interaction_plot <- renderPlot({
-    TW_ANOVA()})
+    if(is.null(TW_ANOVA())){
+      return()}
+    else
+      TW_ANOVA()
+    })
     
   
   TW_ANOVA_rep <- eventReactive(input$Go_TWANOVA,{
@@ -3315,7 +3400,7 @@ output$subset_Variance <- renderUI({
     iv1 <- mydata[,input$TW_ANOVA_IV1]
     iv2 <- mydata[,input$TW_ANOVA_IV2]
     resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
-    plot(resultados$fitted, resultados$res, xlab = "Fitted", ylab = "Residuals")
+    plot(resultados$fitted, resultados$res, xlab = "Fitted", ylab = "Residuals", main="Residual plot")
     }
   })
   
@@ -3399,12 +3484,10 @@ output$subset_Variance <- renderUI({
       return()
     }
     if(input$cor_sig_show == T){
-      selectizeInput(
+      numericInput(
         inputId = "cor_sig_threshold",
         label = "p-value threshold:",
-        choices = c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1),
-        selected = 0.05,
-        multiple = F
+        value = 0.05
       )
     }
   })
@@ -3774,6 +3857,15 @@ output$subset_Variance <- renderUI({
     scatter_cor()
   })
   
+  output$downl_scatter_corr_ui <- renderUI({
+    if(is.null(scatter_cor())){
+      return()
+    }
+    else{
+      downloadButton("downl_scatter_corr", "Download plot")
+    }
+  })
+  
   output$downl_scatter_corr <- downloadHandler(
     filename = function(){paste("Scatter plot representing correlation of ", input$Pheno1," and ", input$Pheno2, " using ", input$cor_data, " subsetted per ", input$CorIV_val, " MVApp.pdf")},
     content = function(file) {
@@ -3955,6 +4047,15 @@ output$subset_Variance <- renderUI({
     PCA_eig()
   })
   
+  output$downl_PCA_eigen_plot_ui <- renderUI({
+    if(is.null(PCA_eig())){
+      return()
+    }
+    else{
+      downloadButton("downl_PCA_eigen_plot", "Download plot")
+    }
+  })
+  
   output$downl_PCA_eigen_plot <- downloadHandler(  
     filename = function(){paste("PCA eigen values plot using ", input$PCA_data, " with ", input$PCA_pheno,  " subset of ", input$PCA_subset_S," MVApp.pdf")},
     content = function(file) {
@@ -4051,6 +4152,14 @@ output$subset_Variance <- renderUI({
     PCA_contrib()
   })
   
+  output$downl_PCA_contribution_plot_ui <- renderUI({
+    if(is.null(PCA_contrib())){
+      return()
+    }
+    else
+      downloadButton("downl_PCA_contribution_plot", "Download plot")
+  })
+  
   output$downl_PCA_contribution_plot <- downloadHandler(  
     filename = function(){paste("PCA contribution plot using ", input$PCA_data, " with ", input$PCA_pheno, " subset of ", input$PCA_subset_S," MVApp.pdf")},
     content = function(file) {
@@ -4092,6 +4201,14 @@ output$subset_Variance <- renderUI({
   
   output$Contrib_trait_plot <- renderPlot({
     PCA_contrib_trait()
+  })
+  
+  output$downl_Contrib_trait_plot_ui <- renderUI({
+    if(is.null(PCA_contrib_trait())){
+      return()
+    }
+    else
+      downloadButton("downl_Contrib_trait_plot", "Download plot")
   })
   
   output$downl_Contrib_trait_plot <- downloadHandler(  
@@ -4219,7 +4336,7 @@ output$subset_Variance <- renderUI({
   PC_y_axis <- paste('Dim', input$Which_PC2)  
   la_table$x_axis <- la_table[,input$Which_PC1]
   la_table$y_axis <- la_table[,input$Which_PC2]
-  la_table$color <- la_table[,input$PCA_Color]
+  la_table$color <- as.factor(la_table[,input$PCA_Color])
   super_plot <- ggplot(data = la_table, aes(x = x_axis, y= y_axis, colour = color))
   super_plot <- super_plot + geom_point()
   super_plot <- super_plot + xlab(PC_x_axis)
@@ -4229,6 +4346,14 @@ output$subset_Variance <- renderUI({
   
   output$PCA_scatterplot <- renderPlotly({
     PCA_scatter()
+  })
+  
+  output$downl_PCA_scatterplot_ui <- renderUI({
+    if(is.null(PCA_scatter())){
+      return()
+    }
+    else
+      downloadButton("downl_PCA_scatterplot", "Download button")
   })
   
   output$downl_PCA_scatterplot <- downloadHandler(  
@@ -4428,6 +4553,13 @@ output$subset_Variance <- renderUI({
     Cluster_DENDRO()
   })
   
+  output$ClusterTree_ui <- renderUI({
+    if(is.null(Final_data_cluster())){
+      return()}
+    else
+      downloadButton("downl_ClusterTree", label="Download plot")
+  })  
+  
   output$downl_ClusterTree <- downloadHandler(  
     filename = function(){paste("Dendrogram of the samples used for hierarchical clustering using ", input$Cluster_data, " with ", input$Cluster_pheno, " MVApp.pdf")},
     content = function(file) {
@@ -4465,6 +4597,14 @@ output$subset_Variance <- renderUI({
   output$HotHeatMap <- renderPlot({
     HHeatMap()
   })
+  
+  output$HotHeatMap_ui <- renderUI({
+    if(is.null(Final_data_cluster())){
+      return()}
+    else
+      downloadButton("downl_HHeatMap", label="Download plot")
+  })  
+
   
   output$downl_HHeatMap <- downloadHandler(  
     filename = function(){paste("Heat map of the samples used for hierarchical clustering using ", input$Cluster_data, " with ", input$Cluster_pheno, " MVApp.pdf")},
@@ -4759,6 +4899,13 @@ output$subset_Variance <- renderUI({
     HANOVA()
     })
   
+  output$HotANOVA_ui <- renderUI({
+    if(is.null(Final_data_cluster())){
+      return()}
+    else
+      downloadButton("downl_HotANOVA", label="Download plot")
+  })  
+  
   output$downl_HotANOVA <- downloadHandler(
     
     filename = function(){paste("ANOVA test for clusters identified using ", input$Cluster_data, " with ", input$Cluster_pheno, " for ", input$Clust_test, "MVApp.pdf")},
@@ -4894,7 +5041,7 @@ output$subset_Variance <- renderUI({
       tagList(
         selectizeInput(
           inputId = "SelectYear",
-          label = "Select column containing year",
+          label = "Select column containing experimental batch / year",
           choices = c("none", input$SelectIV, input$SelectTime),
           multiple = F
         )
@@ -4975,7 +5122,7 @@ output$subset_Variance <- renderUI({
   output$HeritValue<-renderPrint({
     heritdata2<-Herit_data_type()
     Repnum<-as.numeric(input$RepID)
-    cat(paste("The number of replications is",Repnum, sep=":"))
+    cat(paste("The number of replicas is",Repnum, sep=":"))
     cat("\n")
     if(input$herit_facet == F){
       if(input$SelectYear != "none" & input$SelectLocation != "none")  { 
@@ -4983,11 +5130,11 @@ output$subset_Variance <- renderUI({
         heritdata<-na.omit(heritdata_na)
         Year<-heritdata[,input$SelectYear]
         uniYear<-unique(Year)
-        cat("Unique year values are:") 
+        cat("Unique experimental batch / year values are:") 
         cat(uniYear)
         cat("\n")
         Yearnum<-as.numeric(length(unique(Year)))
-        cat(paste("The number of years is", Yearnum, sep=":"))
+        cat(paste("The number of experimental batches / years is", Yearnum, sep=":"))
         cat("\n")
         
         Location<-heritdata[,input$SelectLocation]
@@ -5018,7 +5165,7 @@ output$subset_Variance <- renderUI({
         cat(uniYear)
         cat("\n")
         Yearnum<-as.numeric(length(unique(Year)))
-        cat(paste("The number of years is", Yearnum, sep=":"))
+        cat(paste("The number of experimental batches / years is", Yearnum, sep=":"))
         cat("\n")
         
         Accession <- heritdata[,input$SelectGeno]
@@ -5101,14 +5248,15 @@ output$subset_Variance <- renderUI({
           heritvariance<- heritvar1$vcov
           heritability<-(heritvariance[4]/ (heritvariance[4] + (heritvariance[2]/(Yearnum))+ (heritvariance[3]/(Locationnum)) + (heritvariance[7]/(Yearnum*Locationnum*Repnum))))*100
           heritability2<- round(heritability, digits=2)
-          
+          cat("\n")
+          cat("\n")
           cat("For ")
           cat(i)
           cat("\n")
-          cat("Unique year values are:") 
+          cat("Unique experimental batch / year values are:") 
           cat(uniYear)
           cat("\n")
-          cat(paste("The number of years is", Yearnum, sep=":"))
+          cat(paste("The number of experimental batches / years is", Yearnum, sep=":"))
           cat("\n")
           cat("Unique location values are:") 
           cat(uniLocation)
@@ -5148,13 +5296,15 @@ output$subset_Variance <- renderUI({
           heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Yearnum) + (heritvariance[4]/(Yearnum*Repnum))))*100
           heritability2<- round(heritability, digits=2)
           
+          cat("\n")
+          cat("\n")
           cat("For ")
           cat(i)
           cat("\n")
-          cat("Unique year values are:") 
+          cat("Unique experimental batch / year values are:") 
           cat(uniYear)
           cat("\n")
-          cat(paste("The number of years is", Yearnum, sep=":"))
+          cat(paste("The number of experimental batches / years is", Yearnum, sep=":"))
           cat("\n")
           cat("The model used is:")
           cat("\n")
@@ -5187,6 +5337,8 @@ output$subset_Variance <- renderUI({
           heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Locationnum) + (heritvariance[4]/(Locationnum*Repnum))))*100
           heritability2<- round(heritability, digits=2)
           
+          cat("\n")
+          cat("\n")
           cat("For ")
           cat(i)
           cat("\n")
@@ -5227,6 +5379,8 @@ output$subset_Variance <- renderUI({
           heritability<-(heritvariance[1]/ (heritvariance[1] + (heritvariance[2]/(Repnum))))*100
           heritability2<- round(heritability, digits=2)
           
+          cat("\n")
+          cat("\n")
           cat("For ")
           cat(i)
           cat("\n")
