@@ -5076,7 +5076,15 @@ output$OT_graph_download_ui <- renderUI({
       return()
     }
       else{
-    KMC_data_type()}
+        
+    test <- KMC_data_type()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
+    }
   })
   
   KMC_data_for_matrix <- reactive({
@@ -5422,7 +5430,7 @@ output$OT_graph_download_ui <- renderUI({
       tagList(
         checkboxInput(
           inputId = "KMC_split_barplot",
-          label = "Would you like to facet/split the graph?"))
+          label = "Split the graph?"))
   })
   
   output$Select_KMC_facet_barplot <- renderUI({
@@ -5605,7 +5613,7 @@ output$OT_graph_download_ui <- renderUI({
       tagList(
         checkboxInput(
           inputId = "KMC_split_scatterplot",
-          label = "Would you like to facet/split the scatterplot?"))
+          label = "Split the graph?"))
   })
   
   output$Select_KMC_facet_to_plot <- renderUI({
