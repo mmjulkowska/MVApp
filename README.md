@@ -1,6 +1,14 @@
 # MVApp
 Glittery multi-variate analysis platform for all kinds of data
 
+The app is available [here](http://mvapp.kaust.edu.sa/MVApp/) or you can run it locally from your device by typing the following command in your R window:
+
+`install.packages(shiny)`
+`library(shiny)`
+`shiny::runGitHub("mmjulkowska/Salt_NV_RootApp", "mmjulkowska")`
+
+(....it will take some time for the first time to upload all the libraries)
+
 ## Purpose - What is MVApp for?
 MVApp was created to streamline data analysis for all kinds of biological queries - from investigating mutant phenotypes or the effects of an experimental treatment, to studying natural variation. 
 
