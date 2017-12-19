@@ -360,7 +360,7 @@ tabPanel("Correlations",
         selectInput("corType", "Plot Type:", choices = c("full", "lower", "upper")),
         selectInput("corOrder", "Order the lables by:", choices = list("Original order" = "original","Angular order of eigenvectors" = "AOE", "First Principal Component order"  = "FPC", "Hierarchical clustering order"  = "hclust", "Alphabetical order" = "alphabet")),
         numericInput("Cor_Big_steps", "Number of levels:", value = 10, min = 3, max = 10),
-        selectizeInput("Cor_color_palette", "Palette:", choices = list("Spectral" = "Spectral", "Red-Yellow-Green" = "RdYlGn", "Red-Yellow-Blue" = "RdYlBu", "Red-Grey" = "RdGy", "Red-Blue" = "RdBu", "Purple-Orange" = "PuOr", "Purple-Green" = "PUGn", "Pink-Green" = "PiYG", "Brown-Blue-Green" = "BrBG"))
+        selectizeInput("Cor_color_palette", "Palette:", choices = list("Spectral" = "Spectral", "Red-Yellow-Green" = "RdYlGn", "Red-Yellow-Blue" = "RdYlBu", "Red-Grey" = "RdGy", "Red-Blue" = "RdBu", "Purple-Orange" = "PuOr", "Purple-Green" = "PRGn", "Pink-Green" = "PiYG", "Brown-Blue-Green" = "BrBG"))
         #actionButton("Go_table", label = "Click to see the correlation table with p value", icon = icon("play-circle"))
       ),
       mainPanel(
@@ -480,12 +480,75 @@ tabPanel("Clustering", icon = icon("sitemap"),
                                hr(),
                                column(4, uiOutput("Select_data_cluster_validation")))
            ))),
-      tabPanel("K-means clustering",
-               mainPanel(
-                 "This tab is currently under construction - main contributors Yveline Pailles with some sateline help from Magdalena Julkowska", br(),
-                 "Please be patient and send us an e mail in case you have some analysis you would like to include in the App", br(), br(),
-                 "Chers & glittes data-analyst!"
-               )))
+      tabPanel("K-means Clustering", icon = icon("barcode"),
+            sidebarPanel(
+                          uiOutput("Select_data_K_mean_cluster"),
+                          uiOutput("Select_DV_KMC"),
+                          checkboxInput(inputId = "KMCluster_scale_Q", label = "Scale the data prior to clustering"),
+                          checkboxInput("KMC_use_means", label = "Perform K-means cluster analysis on mean values?"),
+                          actionButton(inputId= "Select_data_KMC", label = "Set the dataset"),
+                          uiOutput("Select_best_cluster_number_advice_method"),
+                          actionButton(inputId="Go_KMClustering_advise", label = "Unleash optimal cluster number estimation"),
+                          hr(),
+                          uiOutput("Select_numer_of_cluster_to_perform"),
+                          numericInput("kmclusters", "Cluster number", 3,
+                                       min = 1, max = 9),
+                          actionButton(inputId="Go_KMClustering", label = "Unleash k-means clustering")
+                        ),
+                        
+             mainPanel(
+                          navbarPage("KMC",
+                                     tabPanel("Optimal number of clusters",
+                                              dataTableOutput("KMC_data_table"),
+                                              verbatimTextOutput("indices_majority_KMC"),
+                                              #dataTableOutput("KMCluster_test"),
+                                              column(12,  uiOutput("downl_indices_plots_KMC_3_ui"),
+                                                          plotOutput("indices_plots_KMC_3")),
+                                              column(6, uiOutput("downl_elbow_graph_KMC_ui"),
+                                                        plotOutput("elbow_graph_KMC")),
+                                              column(6, uiOutput("downl_silhouette_graph_KMC_ui"),
+                                                        plotOutput("silhouette_graph_KMC"))
+                                              #plotOutput("gapstat_graph_KMC"),
+                                             # This worked with Yveline but isnt working now - dont know why - I ll hash it for now 
+                                              # column(12,uiOutput("downl_indices_plots_KMC_1_ui"),
+                                             #           plotOutput("indices_plots_KMC_1")),
+                                              # column(12, uiOutput("downl_indices_plots_KMC_2_ui"),
+                                              #            plotOutput("indices_plots_KMC_2"))
+                                     ),
+                                     tabPanel("K means clustering results",
+                                              column(4, uiOutput("Select_KMC_trait")),
+                                              column(4, uiOutput("facet_barplot_of_KMC"),
+                                                        uiOutput("Select_KMC_facet_barplot")),
+                                              column(4, uiOutput("Select_KMC_scale_barplot"),
+                                              #actionButton(inputId= "Show_table", label = "Show barplot table"),
+                                              #dataTableOutput("KMC_test1"),
+                                                        uiOutput("Select_KMC_background_barplot"),
+                                                        uiOutput("Select_KMC_grid_barplot")),
+                                              column(12,uiOutput("downl_kmeans_barplots_ui")),
+                                              column(12,plotlyOutput("kmeans_barplots")),
+                                              hr(),
+                                              column(4,uiOutput("xcol_kmeans_scatter"),
+                                                       uiOutput("ycol_kmeans_scatter")),
+                                              column(4,uiOutput("facet_scatterplot_of_KMC"),
+                                                       uiOutput("Select_KMC_facet_to_plot")),
+                                              column(4,uiOutput("Select_KMC_facet_scale"),
+                                                       uiOutput("Select_KMC_background_to_plot"),
+                                                       uiOutput("Select_KMC_grid_to_plot")),
+                                              #dataTableOutput("KMC_test2"),
+                                              column(12, uiOutput("downl_kmeans_scatter_plot_ui")),
+                                              column(12,plotlyOutput("kmeans_scatter_plot")),
+                                              column(12,uiOutput("downl_KMC_test_ui")),
+                                              dataTableOutput("KMC_test")
+                                     )
+                                     #   tabPanel("Cluster validation",
+                                     #         verbatimTextOutput("kmcAnovaNews"),
+                                     
+                                     #   plotOutput("kmcANOVA"),
+                                     #   hr(),
+                                     #     column(4, uiOutput("Select_data_cluster_validation")))
+                                     
+                          ))         
+               ))
          # end of Tab #8
 ),
 

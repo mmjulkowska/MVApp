@@ -5004,6 +5004,697 @@ output$OT_graph_download_ui <- renderUI({
       write.csv(Cluster_table_data(), file)}
   )
   
+  
+  # = = = = = = = = = = = = = = >>> K MEANS CLUSTERING <<< =  = = = = = = = = = = = = = = = = #
+  
+  # input gadgets:
+  
+  output$Select_data_K_mean_cluster <- renderUI({
+    if(is.null(ItemList())){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "KMCluster_data",
+          label = "Dataset for clustering analysis",
+          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
+  })
+  
+  output$Select_DV_KMC <- renderUI({
+    if(is.null(ItemList())){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "KMC_pheno",
+          label = "Numerical variables for clustering analysis",
+          choices = c(input$SelectDV),
+          multiple = T
+        ))
+  })
+  
+  
+  KMC_data_type <- eventReactive(input$Select_data_KMC,{
+    if(input$KMCluster_data == "raw data"){
+      KMC_data_type <- my_data()
+    }
+    if(input$KMCluster_data == "missing values removed"){
+      KMC_data_type <- my_data_nona()
+    }
+    if(input$KMCluster_data == "outliers removed"){
+      KMC_data_type <- Outlier_free_data()
+    }
+    
+    if(input$KMC_use_means == T){
+      #KMC_data_type$id <- do.call(paste,c(KMC_data_type[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+      #final_set <- subset(KMC_data_type, select = c("id", input$KMC_pheno))
+      #final_set <- summaryBy(.~ id, data=final_set) 
+      #final_set <- summaryBy(.~ id, data=KMC_data_type)  
+      final_set <- subset(KMC_data_type, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$SelectDV))
+      genotype<-c(input$SelectGeno)
+      #indvar<-names(input$SelectIV)
+      #time<-names(input$SelectTime)
+      #ID<-names(input$SelectID)
+      #final_set <- summaryBy(.~ ACCESSION+TREATMENT, data=final_set, FUN=mean)  
+      final_set <- summaryBy(list(c(input$SelectDV),c(input$SelectGeno, input$SelectIV, input$SelectTime)), data=final_set, id=c(input$SelectID),FUN=mean)  
+      #final_set <- data.frame(do.call('rbind', strsplit(as.character(sum$id),"_",fixed=TRUE)))
+      #within(final_set, id<-data.frame(do.call('rbind', strsplit(as.character(final_set$id),"_", fixed=TRUE))))
+      #rename(d, c("beta"="two", "gamma"="three"))
+      
+    }
+    
+    if(input$KMC_use_means == F){
+      
+      final_set <- subset(KMC_data_type, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$SelectDV))
+      #final_set <-KMC_data_type()
+      
+    }
+    final_set   
+    
+  })
+  
+  output$KMC_data_table <- renderDataTable({
+    if(is.null(KMC_data_type())){
+      return()
+    }
+      else{
+    KMC_data_type()}
+  })
+  
+  KMC_data_for_matrix <- reactive({
+    object <- KMC_data_type()
+    if(input$KMC_use_means == T){
+      pheno<-paste(input$KMC_pheno,"mean", sep = ".")
+      sel <- subset(object, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,pheno))
+    }
+    
+    if(input$KMC_use_means == F){
+      
+      sel <- subset(object, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,input$KMC_pheno))
+      
+    }
+    
+    beginCol <-
+      length(c(
+        input$SelectIV,
+        input$SelectGeno,
+        input$SelectTime,
+        input$SelectID
+      )) + 1
+    
+    endCol <- ncol(sel)
+    
+    for_matrix <- sel[,(beginCol:endCol)]
+    for_matrix <- na.omit(for_matrix) 
+    
+    if(input$KMCluster_scale_Q == T){
+      for_matrix <- scale(for_matrix) 
+    }
+    
+    for_matrix
+  })
+  
+  
+  
+  
+  Optimal_cluster_number <- eventReactive(input$Go_KMClustering_advise, {
+    
+    mydata <- KMC_data_for_matrix()
+    mydata
+  })
+  
+  KMClusters <- eventReactive(input$Go_KMClustering,{
+    mydata <- KMC_data_for_matrix()
+    set.seed(20)
+    kmeans(mydata, input$kmclusters,nstart = 20)
+    
+  })
+  
+  
+  
+  # = = = = == = = = = >> MAIN CALCULATIONS / DATA OUTPUT << = = =  
+  output$KMCluster_test <- renderDataTable({
+    KMC_data_for_matrix()
+  })
+  
+  
+  # - - - - - - - >> ADVICE PLOTS << - - - - - - - - - 
+  
+  output$elbow_graph_KMC <- renderPlot({
+    if(is.null(Optimal_cluster_number())){return()}
+    else
+      mydata <- KMC_data_for_matrix()
+    # Elbow method
+    plot <- fviz_nbclust(mydata, kmeans, method = "wss") +
+      labs(subtitle = "Elbow method")
+    print(plot)
+  })
+  
+  output$downl_elbow_graph_KMC_ui <- renderUI({
+    if(is.null(Optimal_cluster_number())){return()}
+    else
+      downloadButton("downl_elbow_graph_KMC", "Download plot")
+  })
+  
+  output$downl_elbow_graph_KMC <- downloadHandler(
+    filename = function(){paste("Elbow graph for K-means clustering ", "MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      
+      mydata <- KMC_data_for_matrix()
+      # Elbow method
+      plot <- fviz_nbclust(mydata, kmeans, method = "wss") +
+        labs(subtitle = "Elbow method")
+      print(plot)
+      
+      dev.off()
+    })
+  
+  
+  output$silhouette_graph_KMC <- renderPlot({
+    if(is.null(Optimal_cluster_number())){return()}
+    else
+      mydata <- KMC_data_for_matrix()
+    # Silhouette method
+    plot <- fviz_nbclust(mydata, kmeans, method = "silhouette")+
+      labs(subtitle = "Silhouette method")
+    print(plot)
+    
+  })
+  
+  output$downl_silhouette_graph_KMC_ui <- renderUI({
+    if(is.null(Optimal_cluster_number())){return()}
+    else
+      downloadButton("downl_silhouette_graph_KMC", "Download plot")
+  })
+  
+  output$downl_silhouette_graph_KMC <- downloadHandler(
+    filename = function(){paste("Silhouette graph for K-means clustering ", "MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      
+      mydata <- KMC_data_for_matrix()
+      # Silhouette method
+      plot <- fviz_nbclust(mydata, kmeans, method = "silhouette")+
+        labs(subtitle = "Silhouette method")
+      print(plot)
+      dev.off()
+    })
+  
+#  output$indices_plots_KMC_1 <- renderPlot({
+#    if(is.null(Optimal_cluster_number())){return()}
+#    else
+#      mydata <- KMC_data_for_matrix()
+#    #Majority of 30 indices
+#    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+#                  max.nc = 10, method = "kmeans", index = "hubert")
+#    plot <- fviz_nbclust(nb)
+#    print(plot)
+#  })
+  
+#  output$downl_indices_plots_KMC_1_ui <- renderUI({
+#    if(is.null(Optimal_cluster_number())){return()}
+#    else
+#      downloadButton("downl_indices_plots_KMC_1", "Download plot")
+#  })
+  
+#  output$downl_indices_plots_KMC_1 <- downloadHandler(
+#    filename = function(){paste("Advice plot for K-means clustering using Hubert index", "MVApp.pdf")},
+#    content = function(file) {
+#      pdf(file)
+      
+#      mydata <- KMC_data_for_matrix()
+#      mydata <- as.matrix(mydata)
+      #Majority of 30 indices
+#      nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+#                    max.nc = 10, method = "kmeans", index = "hubert")
+#      plot <- fviz_nbclust(nb)
+#      print(plot)
+      
+#      dev.off()
+#    })
+  
+#  output$indices_plots_KMC_2 <- renderPlot({
+#    if(is.null(Optimal_cluster_number())){return()}
+#    else
+#      mydata <- KMC_data_for_matrix()
+#      mydata <- as.matrix(mydata)
+#    #Majority of 30 indices
+#    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+#                  max.nc = 10, method = "kmeans", index = "dindex")
+#    plot <- fviz_nbclust(nb)
+#    print(plot)
+    
+#  })
+  
+#  output$downl_indices_plots_KMC_2_ui <- renderUI({
+#    if(is.null(Optimal_cluster_number())){return()}
+#    else
+#      downloadButton("downl_indices_plots_KMC_2", "Download plot")
+#  })
+  
+#  output$downl_indices_plots_KMC_2 <- downloadHandler(
+#    filename = function(){paste("Advice plot for K-means clustering using d index ", "MVApp.pdf")},
+#    content = function(file) {
+#      pdf(file)
+      
+#      mydata <- KMC_data_for_matrix()
+#      mydata <- as.matrix(mydata)
+#      #Majority of 30 indices
+#      nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+#                    max.nc = 10, method = "kmeans", index = "dindex")
+#      plot <- fviz_nbclust(nb)
+#      print(plot)
+      
+#      dev.off()
+#    })
+  
+  output$indices_plots_KMC_3 <- renderPlot({
+    if(is.null(Optimal_cluster_number())){return()}
+    else
+        mydata <- KMC_data_for_matrix()
+        mydata <- as.matrix(mydata)
+    #Majority of 30 indices
+    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+                  max.nc = 10, method = "kmeans")
+    plot <- fviz_nbclust(nb)
+    print(plot)
+    
+  })
+  
+  output$downl_indices_plots_KMC_3_ui <- renderUI({
+    if(is.null(Optimal_cluster_number())){return()}
+    else
+      downloadButton("downl_indices_plots_KMC_3", "Download plot")
+  })
+  
+  output$downl_indices_plots_KMC_3 <- downloadHandler(
+    filename = function(){paste("Advice plot for K-means clustering for majority of 30 indices", "MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      
+      mydata <- KMC_data_for_matrix()
+      mydata <- as.matrix(mydata)
+      #Majority of 30 indices
+      nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+                    max.nc = 10, method = "kmeans")
+      plot <- fviz_nbclust(nb)
+      print(plot)
+      
+      dev.off()
+    })
+  
+  # - - - - - - - >> ADVICE << - - - - - - - - 
+  
+  output$indices_majority_KMC <- renderPrint({
+    if(is.null(Optimal_cluster_number())){return()}
+    else
+      mydata <- KMC_data_for_matrix()
+    #Majority of 30 indices
+    
+    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+                  max.nc = 10, method = "kmeans")
+    
+  })
+  
+  ###  BARPLOTS K-MEANS CLUSTERING 
+  
+  KMC_data_for_barplot <- reactive({
+    mydata1 <- KMC_data_type()
+    mydata2 <- KMClusters()
+    mydata1$cluster <- mydata2$cluster
+    mydata1
+  })
+  
+  output$KMC_test <- renderDataTable({
+    test <- KMC_data_for_barplot()
+    
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
+    }
+    test
+  })
+  
+  # - - - - - >> DOWNLOAD TABLE << - - - - - - - - 
+  
+  
+  output$downl_KMC_test_ui <- renderUI({
+    if(is.null(KMC_data_for_barplot())){
+      return()}
+    else
+      downloadButton("downl_KMC_test", label="Download data")
+  })  
+  
+  output$downl_KMC_test <- downloadHandler(
+    filename = paste("K-means clustering with ", input$kmclusters, " MVApp.csv"),
+    content <- function(file) {
+      temp <- KMC_data_for_barplot()
+      write.csv(temp, file)}
+  )
+  
+  
+  
+  choice_of_variables<- reactive({
+    temp<-KMC_data_for_barplot()
+    temp$id <- temp$cluster<-NULL
+    exclude <-names(temp) %in% c(
+      input$SelectIV,
+      input$SelectGeno,
+      input$SelectTime,
+      input$SelectID
+    )
+    temp2<-temp[!exclude]
+    variables <- names(temp2)
+    variables
+  })
+  
+  output$Select_KMC_trait <- renderUI({
+    if(is.null(KMClusters())){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "KMC_trait_to_plot",
+          label = "Variable to plot",
+          choices = c(choice_of_variables()),
+          multiple = F
+        )
+      )
+  })
+  
+  # Use the selected variable for a new data frame
+  
+  # barplotData <- reactive({
+  #   if(input$KMC_use_means == T){
+  #      df <- KMC_data_for_barplot()
+  #decreasing <- reorder("id",-df[,input$KMC_trait_to_plot])
+  #     bd <- df[, (c("id", input$KMC_trait_to_plot,"cluster"))]
+  #  }
+  
+  #  if(input$KMC_use_means == F){
+  #   df <- KMC_data_for_barplot()
+  #decreasing <- reorder(input$SelectGeno,-df[,input$KMC_trait_to_plot])
+  #  bd <- df[, (c(input$SelectGeno, input$KMC_trait_to_plot,"cluster"))]
+  
+  #    }
+  # bd
+  
+  # })
+  
+  
+  
+  #output$kmeans_barplots <- renderPlotly({
+  # if(is.null(barplotData())){return()}
+  #else
+  # df <- barplotData()
+  #decreasing <- reorder("id",-df[,input$KMC_trait_to_plot])
+  # p<-  ggplot(df, aes(x=deacreasing,y=df[,input$KMC_trait_to_plot],fill=df$cluster) )+ geom_bar(stat="identity") + 
+  # theme_classic() +xlab("") + ylab(colnames(df)[,input$KMC_trait_to_plot])+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+  theme(legend.position="none")
+  #p
+  #p <- plot_ly(df, x = ~[,1], y = ~[,2] color = ~[,3], type = "bar")
+  #p
+  
+  # })  
+  
+  
+  output$facet_barplot_of_KMC <- renderUI({
+    if(is.null(KMClusters())){return()}
+    else
+      tagList(
+        checkboxInput(
+          inputId = "KMC_split_barplot",
+          label = "Would you like to facet/split the graph?"))
+  })
+  
+  output$Select_KMC_facet_barplot <- renderUI({
+    if(input$KMC_split_barplot == F){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "facet_KMC_barplot",
+          label = "Split the barplot by",
+          choices = c(input$SelectIV,input$SelectGeno,input$SelectTime,input$SelectID),
+          multiple = F,
+          selected= input$SelectIV))
+  })
+  
+  
+  output$Select_KMC_scale_barplot <- renderUI({
+    if(input$KMC_split_barplot == F){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "Select_KMC_barplot_sc",
+          label = "Scale of the split barplot",
+          choices = c("fixed", "free"),
+          selected = "fixed"
+        ))
+    
+  })
+  
+  output$Select_KMC_background_barplot <- renderUI({
+    if(is.null(KMClusters())){return()}
+    else
+      tagList(
+        checkboxInput(
+          inputId = "Select_KMC_background_barplot",
+          label = "Remove background"))
+  })
+  
+  output$Select_KMC_grid_barplot <- renderUI({
+    if(is.null(KMClusters())){return()}
+    else
+      tagList(
+        checkboxInput(
+          inputId = "Select_KMC_grid_barplot",
+          label = "Remove grid lines"))
+  })
+  
+  # Use the selected variable for a new data frame
+  
+  barplotData <- reactive({
+    #eventReactive(input$Show_table,{
+    #if (input$KMC_split_barplot == T){
+    # if (input$KMC_split_barplot == T){
+    bpd<-KMC_data_for_barplot()
+    listIV<-c(input$SelectGeno, input$SelectIV, input$SelectTime)
+    facet<-input$facet_KMC_barplot
+    listNonSel<-setdiff(listIV,facet)
+    #KMC_data_type$id <- do.call(paste,c(KMC_data_type[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+    if(input$KMC_split_barplot == T){
+      bpd$id <- do.call(paste, c(bpd[c(listNonSel)], sep="_"))}
+    if(input$KMC_split_barplot == F){
+      bpd$id <- do.call(paste, c(bpd[c(listIV)], sep="_"))}
+    # d <- barplotData()
+    #final_set <- subset(KMC_data_type, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$SelectDV))
+    # bd <-subset(bpd,select=c("id",input$KMC_trait_to_plot,"cluster"))
+    
+    # bd <- KMC_data_for_barplot()[,c("id", input$KMC_trait_to_plot,"cluster",input$facet_KMC_barplot)]
+    bpd
+    
+    #  }
+    #  if(input$KMC_split_barplot == F) {return()}
+  })
+  
+  output$KMC_test1 <- renderDataTable({
+    barplotData()
+  })
+  
+  
+  # - - - - - - - - - - - >> BAR PLOT << - - - - - - - - - - - 
+  
+  
+  kmeans_BP <- reactive({
+    if(input$KMC_use_means == T){
+      df <- barplotData()
+      df$cluster <-as.factor(df$cluster)
+      #df<-d[order(-d[,input$KMC_trait_to_plot]),]
+      p <- ggplot(df, aes(x =reorder(id,-df[,input$KMC_trait_to_plot])  , y = df[,input$KMC_trait_to_plot], fill = cluster) )+ 
+        geom_bar(stat="identity")+xlab(" ") +ylab(" ") +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      if(input$KMC_split_barplot == T){
+        p<-p + facet_wrap(~ df[,input$facet_KMC_barplot], scale = input$Select_KMC_barplot_sc)}
+      if(input$Select_KMC_background_barplot == T){
+        p <- p + theme_minimal()}
+      if(input$Select_KMC_grid_barplot == T){
+        p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1),panel.grid.major = element_blank())}
+      
+    }
+    if(input$KMC_use_means == F){
+      df <- barplotData()
+      df$cluster <-as.factor(df$cluster)
+      # df<-reorder(df,-df[,input$KMC_trait_to_plot])
+      p <- ggplot(df, aes(x = reorder(id,-df[,input$KMC_trait_to_plot]), y = df[,input$KMC_trait_to_plot], color = cluster)) + 
+        geom_point() +xlab(" ") +ylab(" ") 
+      if(input$KMC_split_barplot == T){
+        p<-p + facet_wrap(~ df[,input$facet_KMC_barplot], scale = input$Select_KMC_barplot_sc)}
+      if(input$Select_KMC_background_barplot == T){
+        p <- p + theme_minimal()}
+      if(input$Select_KMC_grid_barplot == T){
+        p <- p + theme(panel.grid.major = element_blank())}
+    }
+    p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    p
+  })
+  
+  output$kmeans_barplots <- renderPlotly({
+    plot <- kmeans_BP()
+    plot
+  })
+  
+  # - - - - - - - - - - - >> DOWNLOAD BAR PLOT << - - - - - - - - - - - 
+  
+  output$downl_kmeans_barplots_ui <- renderUI({
+    if(is.null(barplotData())){return()}
+    else
+      downloadButton("downl_kmeans_barplots", "Download plot")
+  })
+  
+  
+  
+  output$downl_kmeans_barplots <- downloadHandler(
+    filename = function(){paste("Plot representing K-means clustering with ", input$kmclusters, " clusters for ", input$KMC_trait_to_plot, " MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      plot <- kmeans_BP()
+      print(plot)
+      dev.off()
+    })
+  
+  
+  ##SCATTER PLOTS K-MEANS CLUSTERING 
+  
+  output$xcol_kmeans_scatter <- renderUI({
+    if(is.null(KMClusters())){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "xcol_kmeans",
+          label = "X-axis variable",
+          choices = c(choice_of_variables()),
+          multiple = F
+        )
+      )
+  })
+  
+  output$ycol_kmeans_scatter <- renderUI({
+    if(is.null(KMClusters())){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "ycol_kmeans",
+          label = "Y-axis variable",
+          choices = c(choice_of_variables()),
+          selected = choice_of_variables()[2],
+          multiple = F
+        )
+      )
+  })
+  
+  # Combine the selected variables into a new data frame
+  # selectedData <- reactive({
+  #  mydata2 <- KMC_data_type()
+  # mydata2[, c(input$xcol_kmeans, input$ycol_kmeans)]
+  # })
+  
+  # output$KMC_test2 <- renderDataTable({
+  #  selectedData()
+  # })
+  output$facet_scatterplot_of_KMC <- renderUI({
+    if(is.null(KMClusters())){return()}
+    else
+      tagList(
+        checkboxInput(
+          inputId = "KMC_split_scatterplot",
+          label = "Would you like to facet/split the scatterplot?"))
+  })
+  
+  output$Select_KMC_facet_to_plot <- renderUI({
+    if(input$KMC_split_scatterplot == F){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "facet_KMC_plot",
+          label = "Split the scatterplot by",
+          choices = c(input$SelectIV,input$SelectGeno,input$SelectTime,input$SelectID),
+          multiple = F,
+          selected= input$SelectIV))
+  })
+  
+  
+  output$Select_KMC_facet_scale <- renderUI({
+    if(input$KMC_split_scatterplot == F){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "Select_KMC_facet_sc",
+          label = "Scale of the split plot",
+          choices = c("fixed", "free"),
+          selected = "fixed"
+        ))
+  })
+  
+  output$Select_KMC_background_to_plot <- renderUI({
+    if(is.null(KMClusters())){return()}
+    else
+      tagList(
+        checkboxInput(
+          inputId = "Select_KMC_background",
+          label = "Remove background"))
+  })
+  
+  output$Select_KMC_grid_to_plot <- renderUI({
+    if(is.null(KMClusters())){return()}
+    else
+      tagList(
+        checkboxInput(
+          inputId = "Select_KMC_grid",
+          label = "Remove grid lines"))
+  })
+  
+  
+# - - - - - - - - ->> SCATTER PLOT << - - - - - - - - - - 
+  
+  kmeans_SCP <- reactive({
+    df <- barplotData()
+    df$cluster <-as.factor(df$cluster)
+    p <- ggplot(df, aes(x = df[,input$xcol_kmeans], y = df[,input$ycol_kmeans], color = cluster)) + 
+      geom_point()+
+      xlab(input$xcol_kmeans) +ylab(input$ycol_kmeans) 
+    if(input$KMC_split_scatterplot == T){
+      p<- p+ facet_wrap(~ df[,input$facet_KMC_plot], scale = input$Select_KMC_facet_sc)}
+    if(input$Select_KMC_background == T){
+      p <- p + theme_minimal()}
+    if(input$Select_KMC_grid == T){
+      p <- p + theme(panel.grid.major = element_blank())}
+    
+    p
+  })
+  
+  
+  output$kmeans_scatter_plot <- renderPlotly({
+    plot <- kmeans_SCP()
+    plot
+  })
+  
+  # - - - - - - - - - >> DOWNLOAD SCATTER PLOT << - - - - - - - - - - 
+  
+  output$downl_kmeans_scatter_plot_ui <- renderUI({
+    if(is.null(barplotData())){return()}
+    else
+      downloadButton("downl_kmeans_scatter_plot", "Download plot")
+  })
+  
+  
+  
+  output$downl_kmeans_scatter_plot <- downloadHandler(
+    filename = function(){paste("Plot representing K-means clustering with ", input$kmclusters, " clusters representing correlation between ", input$xcol_kmeans, " and ", input$ycol_kmeans, " MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      plot <- kmeans_SCP()
+      print(plot)
+      dev.off()
+    })
+  
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - >> HERITABILITY IN 9th TAB << - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
