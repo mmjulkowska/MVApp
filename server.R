@@ -11,22 +11,6 @@ function(input, output) {
     return(colnames(d2))
   })
   
-  NumItems = reactive(if (is.null(input$your_data)){
-    return()
-  } else {
-    d2 = read.csv(input$your_data$datapath)
-    
-    num_list <- "none"
-    no <- "none"
-    for(i in 1:ncol(d2)){
-    if (class(d2[,i]) == "numeric"){
-      num_list <- c(num_list, colnames(d2)[i])
-    }}
-    num_list <- setdiff(num_list, no)
-    
-    return(num_list)
-  })
-  
   # - - - - - - - - - - - - - - - - - >> Reactive widgets << - - - - - - - - - - - -
 
 # Select Genotype
@@ -67,7 +51,7 @@ function(input, output) {
         selectizeInput(
           inputId = "SelectDV",
           label = "Select columns containing Dependent Variables (MUST be numeric)",
-          choices = NumItems(),
+          choices = ItemList(),
           multiple = T
         )
       )
@@ -3892,11 +3876,12 @@ output$OT_graph_download_ui <- renderUI({
   })
   
   
-  
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # - - - - - - - - - - - - - - >> PCA IN 7th TAB <<- - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - >> PCA + MDS IN 7th TAB <<- - - - - - - - - - - - - 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
+  
+  # - - - - - - - - - - - - - - >> PCA <<- - - - - - - - - - - - - 
   output$PCA_Pheno_data <- renderUI({
     if(is.null(ItemList())){return()}
     else
@@ -3921,13 +3906,7 @@ output$OT_graph_download_ui <- renderUI({
   })
   
   output$PCA_raw_table <- renderDataTable({
-    test <- PCA_data_type()
-    for(i in 1:ncol(test)){
-      if (class(test[,i]) == "numeric"){
-        test[,i] <- round(test[,i], digits = 4)
-      }
-    }
-    test
+    PCA_data_type()
   })
   
   output$PCA_Select_pheno <- renderUI({
@@ -3937,7 +3916,7 @@ output$OT_graph_download_ui <- renderUI({
       tagList(
         selectizeInput(
           inputId = "PCA_pheno",
-          label = "Phenotypes for the PCA",
+          label = "Dependent Variables for PCA",
           choices = c(input$SelectDV),
           multiple = T
         )
@@ -4007,31 +3986,31 @@ output$OT_graph_download_ui <- renderUI({
       temp2 <- subset(temp, select = c("id", input$PCA_pheno))
     }}
     
-    return(temp2)
+    
+    temp3 <- as.matrix(temp2[,2:ncol(temp2)])
+    row.names(temp3) <- temp2$id
+    
+    #### CHECK 
+    if(input$PCA_Scale_Q == T){
+      temp3 <- scale(temp3)
+      #colnames(temp2)[1] <- "id"
+    }
+    
+    return(temp3)
   })
   
   output$PCA_final_table <- renderDataTable({
-    test <- PCA_final_data()
-    for(i in 1:ncol(test)){
-      if (class(test[,i]) == "numeric"){
-        test[,i] <- round(test[,i], digits = 4)
-      }
-    }
-    test
+    PCA_final_data()
   })
   
   PCA_eigen_data <- eventReactive(input$Go_PCA,{
-    beginCol <-2
-    endCol <-ncol(PCA_final_data())
     PCA_ready <- PCA_final_data()
-    PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
     eigenvalues <- res.pca$eig
     eigenvalues
   })
   
-    
-  PCA_eig <- reactive({  
+  output$PCA_eigen_plot <- renderPlot({
     eigenvalues <- PCA_eigen_data()
     barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
             main = "Variances",
@@ -4043,37 +4022,6 @@ output$OT_graph_download_ui <- renderUI({
           type="b", pch=19, col = "red")
   })
   
-  output$PCA_eigen_plot <- renderPlot({
-    PCA_eig()
-  })
-  
-  output$downl_PCA_eigen_plot_ui <- renderUI({
-    if(is.null(PCA_eig())){
-      return()
-    }
-    else{
-      downloadButton("downl_PCA_eigen_plot", "Download plot")
-    }
-  })
-  
-  output$downl_PCA_eigen_plot <- downloadHandler(  
-    filename = function(){paste("PCA eigen values plot using ", input$PCA_data, " with ", input$PCA_pheno,  " subset of ", input$PCA_subset_S," MVApp.pdf")},
-    content = function(file) {
-      pdf(file)
-      eigenvalues <- PCA_eigen_data()
-      eig <- barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
-              main = "Variances",
-              xlab = "Principal Components",
-              ylab = "Percentage of variances",
-              col ="steelblue")
-      
-      eig <- eig + lines(x = 1:nrow(eigenvalues), eigenvalues[, 2], 
-                    type="b", pch=19, col = "red")
-      
-      print(eig)
-      dev.off()
-    })
-  
   output$Eigen_download_button <- renderUI({
     if(is.null(PCA_eigen_data())){
       return()}
@@ -4082,19 +4030,13 @@ output$OT_graph_download_ui <- renderUI({
   })
   
   output$Eigen_data <- downloadHandler(
-    filename = function(){paste("Eigen values using ", input$PCA_data, " with ", input$PCA_pheno, " subset of ", input$PCA_subset_S," MVApp.csv")},
+    filename = "Eigen values MVApp.csv",
     content <- function(file) {
       write.csv(PCA_eigen_data(), file)}
   )
   
   output$Eigen_data_table <- renderDataTable({
-    test <- PCA_eigen_data()
-    for(i in 1:ncol(test)){
-      if (class(test[,i]) == "numeric"){
-        test[,i] <- round(test[,i], digits = 4)
-      }
-    }
-    test
+    PCA_eigen_data()
   })
   
   
@@ -4130,43 +4072,14 @@ output$OT_graph_download_ui <- renderUI({
     )
   })
   
-  PCA_contrib <- reactive({
-    beginCol <-
-      length(c(
-        input$SelectIV,
-        input$SelectGeno,
-        input$SelectTime,
-        input$SelectID
-      )) 
-    endCol <-ncol(PCA_final_data())
+  output$PCA_contribution_plot <- renderPlot({
     PCA_ready <- PCA_final_data()
-    PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
     mid=median(res.pca$var$contrib)
     fviz_pca_var(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.var="contrib", geom ="auto", labelsize = 4, repel=T, label="var", addlabels=T, invisible = "none") +
       scale_color_gradient2(low="grey", mid="purple", 
                             high="red", midpoint=mid)+theme_bw()
   })
-  
-  output$PCA_contribution_plot <- renderPlot({
-    PCA_contrib()
-  })
-  
-  output$downl_PCA_contribution_plot_ui <- renderUI({
-    if(is.null(PCA_contrib())){
-      return()
-    }
-    else
-      downloadButton("downl_PCA_contribution_plot", "Download plot")
-  })
-  
-  output$downl_PCA_contribution_plot <- downloadHandler(  
-    filename = function(){paste("PCA contribution plot using ", input$PCA_data, " with ", input$PCA_pheno, " subset of ", input$PCA_subset_S," MVApp.pdf")},
-    content = function(file) {
-      pdf(file)
-      print(PCA_contrib())
-      dev.off()
-    })
   
   output$PCA_contrib_select <- renderUI({
     if ((input$Go_PCAdata == FALSE)) {
@@ -4184,59 +4097,21 @@ output$OT_graph_download_ui <- renderUI({
     )
   })
   
-  PCA_contrib_trait <- reactive({
-    beginCol <-
-      length(c(
-        input$SelectIV,
-        input$SelectGeno,
-        input$SelectTime,
-        input$SelectID
-      )) 
-    endCol <-ncol(PCA_final_data())
+  output$Contrib_trait_plot <- renderPlot({
     PCA_ready <- PCA_final_data()
-    PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
     fviz_contrib(res.pca, choice = 'var', axes = c(as.numeric(input$Which_PC_contrib)), xtickslab.rt = 90)
   })
   
-  output$Contrib_trait_plot <- renderPlot({
-    PCA_contrib_trait()
-  })
-  
-  output$downl_Contrib_trait_plot_ui <- renderUI({
-    if(is.null(PCA_contrib_trait())){
-      return()
-    }
-    else
-      downloadButton("downl_Contrib_trait_plot", "Download plot")
-  })
-  
-  output$downl_Contrib_trait_plot <- downloadHandler(  
-    filename = function(){paste("PCA trait contribution plot for PC ",input$Which_PC_contrib, " using ", input$PCA_data, " with ", input$PCA_pheno, " subset of ", input$PCA_subset_S," MVApp.pdf")},
-    content = function(file) {
-      pdf(file)
-      print(PCA_contrib_trait())
-      dev.off()
-    })
-  
   PCA_contrib_var <- eventReactive(input$Go_PCA,{
-    beginCol <-2
-    endCol <-ncol(PCA_final_data())
     PCA_ready <- PCA_final_data()
-    PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
     contrib_var <- res.pca$var$contrib
     contrib_var
   })
   
   output$PCA_contribution_var <- renderDataTable({
-    test <- PCA_contrib_var()
-    for(i in 1:ncol(test)){
-      if (class(test[,i]) == "numeric"){
-        test[,i] <- round(test[,i], digits = 4)
-      }
-    }
-    test
+    PCA_contrib_var()
   })
   
   output$Contrib_download_var <- renderUI({
@@ -4247,7 +4122,7 @@ output$OT_graph_download_ui <- renderUI({
   })
   
   output$contrib_var <- downloadHandler(
-    filename = function(){paste("PCA trait contribution table for PC ",input$Which_PC_contrib, " using ", input$PCA_data, " with ", input$PCA_pheno, " subset of ", input$PCA_subset_S," MVApp.csv")},
+    filename = "PCA contrib var MVApp.csv",
     content <- function(file) {
       write.csv(PCA_contrib_var(), file)}
   )
@@ -4267,16 +4142,7 @@ output$OT_graph_download_ui <- renderUI({
   })
   
   PCA_coord_ind <- eventReactive(input$Go_PCA,{
-    beginCol <-
-      length(c(
-        input$SelectIV,
-        input$SelectGeno,
-        input$SelectTime,
-        input$SelectID
-      )) + 1
-    endCol <-ncol(PCA_final_data())
     PCA_ready <- PCA_final_data()
-    PCA_ready <- PCA_ready[, beginCol : endCol]
     res.pca <- PCA(PCA_ready, graph = FALSE)
     
     ###### ADDING REFERENCE DATA HERE #######
@@ -4308,13 +4174,7 @@ output$OT_graph_download_ui <- renderUI({
   })
   
   output$PCA_coordinates_ind <- renderDataTable({
-    test <- PCA_coord_ind()
-    for(i in 1:ncol(test)){
-      if (class(test[,i]) == "numeric"){
-        test[,i] <- round(test[,i], digits = 4)
-      }
-    }
-    test
+    PCA_coord_ind()
   })
   
   output$Coord_download_ind <- renderUI({
@@ -4325,46 +4185,363 @@ output$OT_graph_download_ui <- renderUI({
   })
   
   output$coord_ind <- downloadHandler(
-    filename = function(){paste("PCA coord for individual samples using ", input$PCA_data, " with ", input$PCA_pheno," subset of ", input$PCA_subset_S, " MVApp.csv")},
+    filename = "PCA coord ind MVApp.csv",
     content <- function(file) {
       write.csv(PCA_coord_ind(), file)}
   )
   
-  PCA_scatter <- reactive({
-  la_table <- PCA_coord_ind()
-  PC_x_axis <- paste('Dim', input$Which_PC1)
-  PC_y_axis <- paste('Dim', input$Which_PC2)  
-  la_table$x_axis <- la_table[,input$Which_PC1]
-  la_table$y_axis <- la_table[,input$Which_PC2]
-  la_table$color <- as.factor(la_table[,input$PCA_Color])
-  super_plot <- ggplot(data = la_table, aes(x = x_axis, y= y_axis, colour = color))
-  super_plot <- super_plot + geom_point()
-  super_plot <- super_plot + xlab(PC_x_axis)
-  super_plot <- super_plot + ylab(PC_y_axis)
-  super_plot
-  })
-  
   output$PCA_scatterplot <- renderPlotly({
-    PCA_scatter()
+    la_table <- PCA_coord_ind()
+    PC_x_axis <- paste('Dim', input$Which_PC1)
+    PC_y_axis <- paste('Dim', input$Which_PC2)  
+    la_table$x_axis <- la_table[,input$Which_PC1]
+    la_table$y_axis <- la_table[,input$Which_PC2]
+    la_table$color <- la_table[,input$PCA_Color]
+    super_plot <- ggplot(data = la_table, aes(x = x_axis, y= y_axis, colour = color))
+    super_plot <- super_plot + geom_point()
+    super_plot <- super_plot + xlab(PC_x_axis)
+    super_plot <- super_plot + ylab(PC_y_axis)
+    super_plot
   })
   
-  output$downl_PCA_scatterplot_ui <- renderUI({
-    if(is.null(PCA_scatter())){
+  # - -  - - - - - - - >> Categorical PCA <<- - - - - - - - - - - - 
+  
+  
+  
+  
+  
+  # - - - - - - - - - - - - - - >> MDS <<- - - - - - - - - - - - - 
+  
+  output$MDS_Pheno_data <- renderUI({
+    if(is.null(ItemList())){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "MDS_data",
+          label = "Dataset for MDS:",
+          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
+  }) 
+  
+  MDS_data_type <- eventReactive(input$Go_MDSdata,{
+    if(input$MDS_data == "raw data"){
+      MDS_data_type <- my_data()
+    }
+    if(input$MDS_data == "missing values removed"){
+      MDS_data_type <- my_data_nona()
+    }
+    if(input$MDS_data == "outliers removed"){
+      MDS_data_type <- Outlier_free_data()
+    }
+    MDS_data_type
+  })
+  
+  output$MDS_raw_table <- renderDataTable({
+    MDS_data_type()
+  })
+  
+  output$MDS_Select_pheno <- renderUI({
+    if(is.null(ItemList())){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "MDS_pheno",
+          label = "Dependent Variables for the MDS",
+          choices = c(input$SelectDV),
+          multiple = T
+        ))
+  })
+  
+  output$MDS_subset_trait <- renderUI({
+    if(input$MDS_subset_Q == "Full dataset"){
       return()
     }
-    else
-      downloadButton("downl_PCA_scatterplot", "Download button")
+    else{
+      tagList(
+        selectizeInput(
+          inputId = "MDS_subset_T",
+          label = "Independent Variables to subset the data",
+          choices=c(input$SelectGeno, input$SelectIV, input$SelectTime),
+          multiple=T
+        ))}
   })
   
-  output$downl_PCA_scatterplot <- downloadHandler(  
-    filename = function(){paste("PCA scatter plot of PC ",input$Which_PC1," and ", input$Which_PC2, " using ", input$PCA_data, " with ", input$PCA_pheno, " subset of ", input$PCA_subset_S," MVApp.pdf")},
+  lista_MDS <- eventReactive(input$MDS_subset_T,{
+    subset_lista <- input$MDS_subset_T
+    id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+    id_lista2 <- setdiff(id_lista, subset_lista)
+    temp <- MDS_data_type()
+    temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+    the_list <- unique(temp$subset_id)
+    the_list
+  })
+  
+  output$MDS_subset_specific <- renderUI({
+    if(is.null(input$MDS_subset_T)){
+      return()
+    }
+    else{
+      subset_lista <- input$MDS_subset_T
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      id_lista2 <- setdiff(id_lista, subset_lista)
+      temp <- MDS_data_type()
+      temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+      the_list <- unique(temp$subset_id)
+      
+      tagList(
+        selectizeInput(
+          inputId = "MDS_subset_S",
+          label = "Select subset:",
+          choices=c(the_list),
+          multiple=F
+        ))}
+  })
+  
+  output$MDS_KMC_number <- renderUI({
+    if(input$MDS_KMC_Q == F){
+      return()
+    }
+    else(
+      numericInput(
+        inputId = "MDS_cluster_number",
+        label = "Number of k-mean clusters:",
+        value = 3
+      )
+    )
+  })
+  
+  MDS_final_data <- eventReactive(input$Go_MDS,{
+    temp <- data.frame(MDS_data_type())
+    temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$MDS_pheno))
+    
+    if(input$MDS_subset_Q == "Subsetted dataset"){
+      
+      subset_lista <- input$MDS_subset_T
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      id_lista2 <- setdiff(id_lista, subset_lista)
+      temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+      temp3 <- subset(temp, temp$subset_id == input$MDS_subset_S)
+      temp3$id <- do.call(paste,c(temp3[c(id_lista2)], sep="_"))
+      temp2 <- subset(temp3, select = c("id", input$MDS_pheno))
+    }
+    if(input$MDS_subset_Q == "Full dataset"){{
+      temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
+      temp2 <- subset(temp, select = c("id", input$MDS_pheno))
+    }}
+    
+    temp3 <- as.matrix(temp2[,2:ncol(temp2)])
+    row.names(temp3) <- temp2$id
+    
+    #### CHECK 
+    if(input$MDS_Scale_Q == T){
+      temp3 <- scale(temp3)
+      #colnames(temp2)[1] <- "id"
+    }
+    
+    return(temp3)
+  })
+  
+  output$MDS_final_table <- renderDataTable({
+    MDS_final_data()
+  })
+  
+  MDS_Calculations <- eventReactive(input$Go_MDS,{
+    data <- MDS_final_data()
+    
+    mds <- data %>%
+      dist() %>%          
+      cmdscale() %>%
+      as_tibble()
+    colnames(mds) <- c("Dim.1", "Dim.2")
+    
+    if(input$MDS_KMC_Q == T){
+      clust_number <- as.numeric(as.character(input$MDS_cluster_number))
+      clust <- kmeans(mds, clust_number)$cluster %>%
+        as.factor()
+      mds <- mds %>%
+        mutate(groups = clust)
+    }
+    
+    data_df <- as.data.frame(data)
+    data_df$id <- row.names(data)
+    
+    data_df$Dim1 <- mds$Dim.1
+    data_df$Dim2 <- mds$Dim.2
+    if(input$MDS_KMC_Q == T){
+      data_df$K_cluster <- mds$groups
+    }
+    
+    return(data_df)
+  })
+  
+  output$MDS_sample_graph <- renderPlotly({
+    data <- MDS_Calculations()
+    
+    if(input$MDS_KMC_Q == T){
+      super_plot <- ggplot(data = data, aes(x = Dim1, y= Dim2, colour = K_cluster))
+    }
+    
+    else{
+      super_plot <- ggplot(data = data, aes(x = Dim1, y= Dim2))
+    }
+    
+    super_plot <- super_plot + geom_point()
+    super_plot <- super_plot + xlab("Dimension 1")
+    super_plot <- super_plot + ylab("Dimension 2")
+    super_plot
+    
+  })
+  
+  output$MDS_plot_download <- downloadHandler(
+    filename = function(){paste("MDS plot MVApp", "pdf" , sep=".") },
     content = function(file) {
       pdf(file)
-      bec <- PCA_scatter()
-      print(bec)
+      data <- MDS_Calculations()
+      
+      if(input$MDS_KMC_Q == T){
+        super_plot <- ggplot(data = data, aes(x = Dim1, y= Dim2, colour = K_cluster))
+      }
+      
+      else{
+        super_plot <- ggplot(data = data, aes(x = Dim1, y= Dim2))
+      }
+      
+      super_plot <- super_plot + geom_point()
+      super_plot <- super_plot + xlab("Dimension 1")
+      super_plot <- super_plot + ylab("Dimension 2")
+      
+      
+      print(super_plot)
       dev.off()
-    })
+    })  
   
+  output$MDS_table_samples  <- renderDataTable({
+    data <- MDS_Calculations()
+    data
+  })
+  
+  output$MDS_download_samples <- renderUI({
+    if(is.null(MDS_Calculations())){
+      return()}
+    else
+      downloadButton("data_MDS", label="Download MDS data")
+  })
+  
+  output$MDS_downl_data <- downloadHandler(
+    filename = "MDS samples_MVApp.csv",
+    content <- function(file) {
+      write.csv(MDS_Calculations(), file)}
+  )
+  
+  # >> Transposed MDS << 
+  
+  MDS_Calculations_transposed <- eventReactive(input$Go_MDS,{
+    data <- MDS_final_data()
+    tdatam <- t(data)
+    
+    mds <- tdatam %>%
+      dist() %>%          
+      cmdscale() %>%
+      as_tibble()
+    colnames(mds) <- c("Dim.1", "Dim.2")
+    
+    if(input$MDS_KMC_Q == T){
+      clust_number <- as.numeric(as.character(input$MDS_cluster_number))
+      clust <- kmeans(mds, clust_number)$cluster %>%
+        as.factor()
+      mds <- mds %>%
+        mutate(groups = clust)
+    }
+    
+    tdatam_df <- as.data.frame(tdatam) 
+    tdatam_df$Dim1 <- mds$Dim.1
+    tdatam_df$Dim2 <- mds$Dim.2
+    
+    if(input$MDS_KMC_Q == T){
+      tdatam_df$K_cluster <- mds$groups
+    }
+    
+    tdatam_df$id <- input$MDS_pheno
+    
+    tdatam_df
+  })
+  
+  output$MDS_sample_table_transposed_dt <- renderDataTable({
+    data <- MDS_Calculations_transposed()
+    
+    if(input$MDS_KMC_Q == T){
+      data_sub <- subset(data, select = c(Dim1, Dim2, K_cluster))
+    }
+    else{
+      data_sub <- subset(data, select = c(Dim1, Dim2))
+    }
+    data_sub
+  })
+  
+  output$MDS_download_transposed <- renderUI({
+    if(is.null(MDS_Calculations_transposed())){
+      return()}
+    else
+      downloadButton("data_MDS", label="Download transposed MDS data")
+  })
+  
+  output$data_MDS <- downloadHandler(
+    filename = "MDS samples transposed_MVApp.csv",
+    content <- function(file) {
+      
+      data <- MDS_Calculations_transposed()
+      
+      if(input$MDS_KMC_Q == T){
+        data_sub <- subset(data, select = c(id, Dim1, Dim2, K_cluster))
+      }
+      if(input$MDS_KMC_Q == F){
+        data_sub <- subset(data, select = c(id, Dim1, Dim2))
+      }
+      colnames(data_sub)[1] <- "Dependent Variable"
+      row.names(data_sub) <- NULL
+      
+      write.csv(data_sub, file)}
+  )
+  
+  output$MDS_sample_graph_transposed <- renderPlot({
+    data <- MDS_Calculations_transposed()
+    
+    if(input$MDS_KMC_Q == T){
+      super_plot <- ggplot(data = data, aes(x = Dim1, y= Dim2, colour = K_cluster, label = data$id))
+    }
+    
+    else{
+      super_plot <- ggplot(data = data, aes(x = Dim1, y= Dim2, label = data$id))
+    }
+    
+    super_plot <- super_plot + geom_point()
+    super_plot <- super_plot + geom_text_repel()
+    super_plot <- super_plot + xlab("Dimension 1")
+    super_plot <- super_plot + ylab("Dimension 2")
+    super_plot
+    
+  })
+  
+  output$MDS_plot_download_transposed <- downloadHandler(
+    filename = function(){paste("MDS plot_transposed MVApp", "pdf" , sep=".") },
+    content = function(file) {
+      pdf(file)
+      data <- MDS_Calculations_transposed()
+      if(input$MDS_KMC_Q == T){
+        super_plot <- ggplot(data = data, aes(x = Dim1, y= Dim2, colour = K_cluster, label = data$id))
+      }
+      
+      else{
+        super_plot <- ggplot(data = data, aes(x = Dim1, y= Dim2, label = data$id))
+      }
+      
+      super_plot <- super_plot + geom_point()
+      super_plot <- super_plot + geom_text_repel()
+      super_plot <- super_plot + xlab("Dimension 1")
+      super_plot <- super_plot + ylab("Dimension 2")
+      
+      print(super_plot)
+      dev.off()
+    }) 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> CLUSTER ANALYSIS IN 8th TAB << - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

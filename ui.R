@@ -394,6 +394,7 @@ navbarPage("",
       uiOutput("PCA_Pheno_data"), # which phenotype data (summarized / na / original) selectize, multiple = F
       actionButton("Go_PCAdata", label = "set the dataset"),
       uiOutput("PCA_Select_pheno"), # which traits would you like to use? selectize, multiple = T
+      checkboxInput("PCA_Scale_Q", "Scale the data?"),
       selectizeInput("PCA_data_subset", label = "Dataset", choices=c("full dataset", "subsetted dataset")),
       uiOutput("PCA_subset_trait"),
       uiOutput("PCA_subset_specific"),
@@ -432,13 +433,41 @@ navbarPage("",
                         dataTableOutput("PCA_contribution_var"))
     ))),
   tabPanel("Multidimensional Scaling",
-           sidebarPanel("some gadgets"),
-           mainPanel("some graphs",br(),
-                     "This tab is currently under construction - main contributors Mariam Awlia & Magdalena Julkowska", br(),
-                     "Please be patient and send us an e mail in case you have some analysis you would like to include in the App", br(), br(),
-                     "Chers & glittes data-analyst!"
-                     )
-           ))
+           sidebarPanel(
+             
+             fluidRow(
+               uiOutput("MDS_Pheno_data"), #
+               actionButton("Go_MDSdata", label = "Set the data for MDS"),
+               uiOutput("MDS_Select_pheno"), #
+               checkboxInput("MDS_Scale_Q", "Scale the data?"),
+               selectizeInput("MDS_subset_Q", label = "Perform MDS on:", choices=c("Full dataset", "Subsetted dataset")),
+               uiOutput("MDS_subset_trait"),
+               uiOutput("MDS_subset_specific"),
+               
+               br(),
+               checkboxInput("MDS_KMC_Q", label = "Cluster the samples using k-means?"),
+               uiOutput("MDS_KMC_number"),
+               actionButton("Go_MDS", label = "Unleash the power of Multidimensional Scaling"))),
+           
+           
+           mainPanel(
+             navbarPage("MDS",
+                        tabPanel("Selected dataset",
+                                 dataTableOutput("MDS_raw_table")),
+                        tabPanel("Final dataset for MDS",
+                                 dataTableOutput("MDS_final_table")),
+                        tabPanel("MDS of the samples",
+                                 downloadButton("MDS_plot_download", "Download plot"),
+                                 plotlyOutput("MDS_sample_graph"),
+                                 uiOutput("MDS_download_samples"),
+                                 dataTableOutput("MDS_table_samples")),
+                        tabPanel("Scaling of the Dependent Variables",
+                                 downloadButton("MDS_plot_download_transposed", "Download plot"),
+                                 plotOutput("MDS_sample_graph_transposed")
+                                 #uiOutput("MDS_download_transposed"),
+                                 #dataTableOutput("MDS_sample_table_transposed_dt")
+                        )
+             ))))
   # end Tab 7
 ),
 
