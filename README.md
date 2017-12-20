@@ -361,13 +361,13 @@ Multi-dimensional scaling [(MDS)](https://en.wikipedia.org/wiki/Multidimensional
 #### Select data, subsets, and Dependent Variables
 Select the dataset to analyse from the dropdown menu at the top of the side panel and click "Set the dataset":
 
-![mds 1 dataset](https://user-images.githubusercontent.com/20439594/34162978-888284ac-e4e6-11e7-9b3c-b800ee0cc59f.png)
+![mds 1 dataset](https://user-images.githubusercontent.com/20439594/34207571-1f057c3a-e59c-11e7-92ec-b62246f26761.png)
 
 You can see your selected datasets in the first two sub-tabs.
 
 Then, select which Dependent Variables you want to use in the MDS. You have the option of clicking the checkbox to scale the data. Then, click "Unleash the power of Multidimensional scaling":
 
-![mds 2 dv](https://user-images.githubusercontent.com/20439594/34162979-88bd2968-e4e6-11e7-923e-e2308b6dec34.png)
+![mds 2 dv](https://user-images.githubusercontent.com/20439594/34207572-1f2706ca-e59c-11e7-8444-6a05b01734ca.png)
 
 #### MDS of the samples
 In the third sub-tab, a scatter plot showing the two dimensions resulting from the MDS is displayed. If the clustering option was checked, the clusters would be highlighted in different colors on the graph. This plot can be downloaded as a .png file.
