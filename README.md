@@ -361,29 +361,29 @@ Multi-dimensional scaling [(MDS)](https://en.wikipedia.org/wiki/Multidimensional
 #### Select data, subsets, and Dependent Variables
 Select the dataset to analyse from the dropdown menu at the top of the side panel and click "Set the dataset":
 
-![mds 1 dataset](https://user-images.githubusercontent.com/20439594/34162978-888284ac-e4e6-11e7-9b3c-b800ee0cc59f.png)
+![mds 1 dataset](https://user-images.githubusercontent.com/20439594/34207879-528ece2a-e59d-11e7-9e5e-5ac61043b839.png)
 
 You can see your selected datasets in the first two sub-tabs.
 
 Then, select which Dependent Variables you want to use in the MDS. You have the option of clicking the checkbox to scale the data. Then, click "Unleash the power of Multidimensional scaling":
 
-![mds 2 dv](https://user-images.githubusercontent.com/20439594/34162979-88bd2968-e4e6-11e7-923e-e2308b6dec34.png)
+![mds 2 dv](https://user-images.githubusercontent.com/20439594/34207880-52b47abc-e59d-11e7-8f84-ff4e970db7c3.png)
 
 #### MDS of the samples
 In the third sub-tab, a scatter plot showing the two dimensions resulting from the MDS is displayed. If the clustering option was checked, the clusters would be highlighted in different colors on the graph. This plot can be downloaded as a .png file.
 
-![mds 3 run](https://user-images.githubusercontent.com/20439594/34162980-88dd68b8-e4e6-11e7-92d0-a71e954642a4.png)
+![mds 3 run](https://user-images.githubusercontent.com/20439594/34207882-52d380ce-e59d-11e7-91b3-bd4a99c72564.png)
 
 You can also click on the checkbox to perform K-means clustering of the MDS results. The default number of clusters is 3, but you can adjust it as required.
 
-![mds 4 cluster](https://user-images.githubusercontent.com/20439594/34162981-88fded22-e4e6-11e7-9b0b-d08c12b447c8.png)
+![mds 4 cluster](https://user-images.githubusercontent.com/20439594/34207883-52f35944-e59d-11e7-828e-5edc765811c0.png)
 
 The table summarizing the dimensions of the MDS results are shown, with the K-clusters if the option was chosen. The table can be downloaded as a .csv file.
 
 #### MDS on the individuals
 In the sub-tab 'Scaling of the Dependent Variables' the dataset is transposed to perform the MDS with reference to each Dependent Variable. The plot showing the coordinates of each variable is displayed and color-coded by cluster number if that option was included.
 
-![mds 5 scaling dv](https://user-images.githubusercontent.com/20439594/34162983-89240cb4-e4e6-11e7-9075-d7cade2637a8.png)
+![mds 5 scaling dv](https://user-images.githubusercontent.com/20439594/34207884-53192764-e59d-11e7-8c92-094b134ad743.png)
 
 The table below the plot summarizes the coordinates of each Dependent Variable with regards to the two MDS dimensions, with the K-cluster number for each variable if the clustering option was chosen. The table can be downloaded as a .csv file.
 
