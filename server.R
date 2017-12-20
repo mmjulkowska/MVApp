@@ -67,7 +67,7 @@ function(input, output) {
         selectizeInput(
           inputId = "SelectDV",
           label = "Select columns containing Dependent Variables (MUST be numeric)",
-          choices = NumItems(),
+          choices = ItemList(),
           multiple = T
         )
       )
