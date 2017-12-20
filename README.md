@@ -1,6 +1,14 @@
 # MVApp
 Glittery multi-variate analysis platform for all kinds of data
 
+The app is available [here](http://mvapp.kaust.edu.sa/MVApp/) or you can run it locally from your device by typing the following command in your R window:
+
+`install.packages(shiny)`
+`library(shiny)`
+`shiny::runGitHub("mmjulkowska/Salt_NV_RootApp", "mmjulkowska")`
+
+(....it will take some time for the first time to upload all the libraries)
+
 ## Purpose - What is MVApp for?
 MVApp was created to streamline data analysis for all kinds of biological queries - from investigating mutant phenotypes or the effects of an experimental treatment, to studying natural variation. 
 
@@ -30,7 +38,7 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 #
 [5. CORRELATIONS](#5-correlations)
 #
-[6. PRINCIPLE COMPONENT ANALYSIS](#6-principle-component-analysis)
+[6. REDUCTION IN DIMENSIONALITY](#6-reduction-in-dimensionality)
 #
 [7. CLUSTER ANALYSIS](#7-cluster-analysis)
 #
@@ -308,8 +316,10 @@ You can also choose to color your data points by choosing a certain independent 
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 6. PRINCIPLE COMPONENT ANALYSIS
-Principle component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, the PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or genotype) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
+### 6. REDUCTION IN DIMENSIONALITY
+
+#### PRINCIPLE COMPONENT ANALYSIS
+Principle component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or genotype) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
 
 #### Select data, subsets, and Dependent Variables
 Select the dataset to analyse from the dropdown menu at the top of the side panel and click "Set the dataset":
@@ -327,7 +337,7 @@ In the third sub-tab, [Eigenvalues](https://en.wikipedia.org/wiki/Eigenvalues_an
 
 ![mvapp_pca_eigen](https://user-images.githubusercontent.com/14832460/32647217-788202b8-c5f0-11e7-9f1d-85f44ccc6a10.png)
 
-The table summarizing the eigenvalues of each Principle Component (PC), their percentage of variance EXPLAINED and the cumulative percentages that add to 100% can be found below the plot and can be downloaded as a .csv file.
+The table summarizing the eigenvalues of each Principle Component (PC), their percentage of variance EXPLAINED and the cumulative percentages that add to 100% can be found below the plot. The table can be downloaded as a .csv file.
 
 #### Visualize the general contribution of DVs per PC
 The 'Contribution per variable' sub-tab displays the contribution of the chosen Dependent Variables with respect to two PCs at a time. You can select individual PCs to be plotted on x- and y-axis from the two dropdown menus.
@@ -343,6 +353,39 @@ By scrolling down, you can see the PC coordinates of the individual samples. The
 In the sub-tab 'Contribution per PC' the contribution of individual Dependent Variable for each PC are displayed. You can download the specific percentange contribution data per PC below the graph:
 
 ![mvapp_pca_trait_contrib2](https://user-images.githubusercontent.com/14832460/32647216-78663bdc-c5f0-11e7-82ef-dd418670a6f8.png)
+
+
+#### MULTI-DIMENSIONAL SCALING
+Multi-dimensional scaling [(MDS)](https://en.wikipedia.org/wiki/Multidimensional_scaling) is a multivariate data analysis approach that is used to visualize the similarity/dissimilarity between samples by plotting points in two dimensional plots. The input data for MDS is a dissimilarity matrix representing the distances between pairs of objects. MDS is mathematically and conceptually similar to PCA and factor analysis. PCA is more focused on the dimensions themselves, and seek to maximize explained variance, whereas MDS is more focused on relations among the scaled objects.
+
+#### Select data, subsets, and Dependent Variables
+Select the dataset to analyse from the dropdown menu at the top of the side panel and click "Set the dataset":
+
+![mds 1 dataset](https://user-images.githubusercontent.com/20439594/34162978-888284ac-e4e6-11e7-9b3c-b800ee0cc59f.png)
+
+You can see your selected datasets in the first two sub-tabs.
+
+Then, select which Dependent Variables you want to use in the MDS. You have the option of clicking the checkbox to scale the data. Then, click "Unleash the power of Multidimensional scaling":
+
+![mds 2 dv](https://user-images.githubusercontent.com/20439594/34162979-88bd2968-e4e6-11e7-923e-e2308b6dec34.png)
+
+#### MDS of the samples
+In the third sub-tab, a scatter plot showing the two dimensions resulting from the MDS is displayed. If the clustering option was checked, the clusters would be highlighted in different colors on the graph. This plot can be downloaded as a .png file.
+
+![mds 3 run](https://user-images.githubusercontent.com/20439594/34162980-88dd68b8-e4e6-11e7-92d0-a71e954642a4.png)
+
+You can also click on the checkbox to perform K-means clustering of the MDS results. The default number of clusters is 3, but you can adjust it as required.
+
+![mds 4 cluster](https://user-images.githubusercontent.com/20439594/34162981-88fded22-e4e6-11e7-9b0b-d08c12b447c8.png)
+
+The table summarizing the dimensions of the MDS results are shown, with the K-clusters if the option was chosen. The table can be downloaded as a .csv file.
+
+#### MDS on the individuals
+In the sub-tab 'Scaling of the Dependent Variables' the dataset is transposed to perform the MDS with reference to each Dependent Variable. The plot showing the coordinates of each variable is displayed and color-coded by cluster number if that option was included.
+
+![mds 5 scaling dv](https://user-images.githubusercontent.com/20439594/34162983-89240cb4-e4e6-11e7-9075-d7cade2637a8.png)
+
+The table below the plot summarizes the coordinates of each Dependent Variable with regards to the two MDS dimensions, with the K-cluster number for each variable if the clustering option was chosen. The table can be downloaded as a .csv file.
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
@@ -366,4 +409,4 @@ In the sub-tab 'Contribution per PC' the contribution of individual Dependent Va
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 8. QUANTILE REGRESSION (#8-quantile-regression)
+### 8. QUANTILE REGRESSION
