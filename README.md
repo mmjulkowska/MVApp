@@ -410,3 +410,6 @@ The table below the plot summarizes the coordinates of each Dependent Variable w
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 ### 8. QUANTILE REGRESSION
+
+#### Selecting the data
+
