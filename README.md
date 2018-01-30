@@ -414,7 +414,7 @@ The table below the plot summarizes the coordinates of each Dependent Variable w
 [Quantile regression](https://en.wikipedia.org/wiki/Quantile_regression) is a way to estimate the conditional quantiles of a response variable distribution in the linear model that provides a complete view of possible causal relationships between variables. Quantile regression minimizes absolute errors and can provide a more comprehensive analysis of the effect of the predictors on the response variable than mean regression. Linear quantile regression is related to linear least-squares regression as both try to study the relationship between the predictor variables and the response variable, the only difference being that least-squares involves modeling the conditional mean of the response variable, whereas, quantile regression models the conditional quantile of response. It is especially useful in applications where extremes are important, such as environmental studies where upper quantiles of yield are critical.
 
 #### Selecting the data
-![select dataset](https://user-images.githubusercontent.com/34129392/35572605-080e38b8-05e6-11e8-9160-c9302cd56ac6.png)
+![select dataset](https://user-images.githubusercontent.com/34129392/35572618-09d7ca24-05e6-11e8-93c6-caa1f074dd12.png)
 
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
