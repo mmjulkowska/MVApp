@@ -422,24 +422,38 @@ Select which dataset you would like to use to perform quantile regression. You c
 #### Select reponse, explanatory variable, subsets
 
 Select the phenotype you want as response of your quantile regression, you can only choose one variable. Select the independent varaibles to subset the data, you can choose a maximum of two variables. Then choose the explanatory variables of your quantile regression model, you can choose any number of explanatory variables. You can choose a p-value threshold to test the significance of the explantory variables. You have the option to scale the data which might be useful if your variables are in different units.
+
 ![select options](https://user-images.githubusercontent.com/34129392/35572617-0980bc3e-05e6-11e8-9dc7-f2477b3b8d3d.png)
 
 Once you are done choosing the data, you can click on "Click to set the data" and the final data will be locked for further analysis and a set of quantile regression model will be run, based on your chosen variables and subsets of the data.
+
 ![click to set](https://user-images.githubusercontent.com/34129392/35572616-091a773a-05e6-11e8-900f-9a1cccb206f4.png)
 
-The final data used for analysis can be seen from the tab "Final data for analysis".
+The final data used for analysis can be seen in the sub-tab 'Final data for analysis'.
+
 ![final data](https://user-images.githubusercontent.com/34129392/35572615-08f9c8e6-05e6-11e8-8134-638e82a5c0e4.png)
 
+The result of the quantile regression model can be seen in the sub-tab 'Modelled data'. The message box displays the significant phenotypes for lower, median and upper quantiles of the response for the particular subset chosen from the drop down list. You can choose the subset whose result you want to see in the message box. 
 
 ![modelled data](https://user-images.githubusercontent.com/34129392/35572612-08cc6658-05e6-11e8-966c-c1160c2c9e32.png)
 
+The results from all the quantile regression models for different subsets are tabulated. The table can be downloaded as a .csv will all the results. You can also search for a particular subset or a particular quantile level from the 'Search:' box if you want to look at a particular result.
+
 ![data table](https://user-images.githubusercontent.com/34129392/35572610-089b8074-05e6-11e8-8f81-b434390a042d.png)
+
+The plots of the regression models can be seen in the sub-tab 'Quantile plots'. You can choose the independent variable by which you want to group your plot. For example if you want to compare how a particular phenotype behaves in salt and control condition, then you can group your plot by Treatment. If you have chosen two independent variables to subset your data, then you can also choose the value of your another subset variable whose result you want to see. If you want to view a single plot, then choose the particular phenotype you want to view. If you want to view the results of all your phenotypes the you can choose 'multiple plots' from "View plots as:". Finallly click on "View plot(s)" button to display the plot(s).
 
 ![quantile plots](https://user-images.githubusercontent.com/34129392/35572609-0875f714-05e6-11e8-8092-caa76b3f762a.png)
 
+If you choose to view your plot as single plot, the quantile plot of the phenotype chosen will be displayed. The coefficients of the phenotype are plotted against the quantile level. The colored dots represent that the variable is significant for the particular quantile level and the cross sign represent that it is not significant. The different colors represent the different unique realizations of the grouping variable. The different lines can be used to compare the behavior of phenotypes in different conditions or different days, depending on the grouping variable. The plot can be downloade by using the "Download plot" button at the bottom.
+
 ![single plot](https://user-images.githubusercontent.com/34129392/35572608-0852d162-05e6-11e8-82b9-98582869480c.png)
 
+If you choose to view your plots as multiple plots, the quantile plots of all the phenotypes will be displayed. You can download these plots using the "Download plot" button at the bottom.
+
 ![multiple plots](https://user-images.githubusercontent.com/34129392/35572607-0832032e-05e6-11e8-884f-b708e1aad2b7.png)
+
+If you have more than four explanatory variables, then you can use the slider to view more plots.
 
 ![multiple plots slider](https://user-images.githubusercontent.com/34129392/35572605-080e38b8-05e6-11e8-9160-c9302cd56ac6.png)
 
