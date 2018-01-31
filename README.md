@@ -427,13 +427,19 @@ Select the phenotype you want as response of your quantile regression, you can o
 
 Once you are done choosing the data, you can click on "Click to set the data" and the final data will be locked for further analysis and a set of quantile regression model will be run, based on your chosen variables and subsets of the data.
 
+#### Set the data
+
 ![click to set](https://user-images.githubusercontent.com/34129392/35572616-091a773a-05e6-11e8-900f-9a1cccb206f4.png)
 
 The final data used for analysis can be seen in the sub-tab 'Final data for analysis'.
 
+#### Final data for analysis
+
 ![final data](https://user-images.githubusercontent.com/34129392/35572615-08f9c8e6-05e6-11e8-8134-638e82a5c0e4.png)
 
-The result of the quantile regression model can be seen in the sub-tab 'Modelled data'. The message box displays the significant phenotypes for lower, median and upper quantiles of the response for the particular subset chosen from the drop down list. You can choose the subset whose result you want to see in the message box. 
+The result of the quantile regression model can be seen in the sub-tab 'Modelled data'. The message box displays the significant phenotypes for lower, median and upper quantiles of the response for the particular subset chosen from the drop down list. You can choose the subset whose result you want to see in the message box.
+
+#### Results of quantile regression
 
 ![modelled data](https://user-images.githubusercontent.com/34129392/35572612-08cc6658-05e6-11e8-966c-c1160c2c9e32.png)
 
@@ -442,6 +448,8 @@ The results from all the quantile regression models for different subsets are ta
 ![data table](https://user-images.githubusercontent.com/34129392/35572610-089b8074-05e6-11e8-8f81-b434390a042d.png)
 
 The plots of the regression models can be seen in the sub-tab 'Quantile plots'. You can choose the independent variable by which you want to group your plot. For example if you want to compare how a particular phenotype behaves in salt and control condition, then you can group your plot by Treatment. If you have chosen two independent variables to subset your data, then you can also choose the value of your another subset variable whose result you want to see. If you want to view a single plot, then choose the particular phenotype you want to view. If you want to view the results of all your phenotypes the you can choose 'multiple plots' from "View plots as:". Finallly click on "View plot(s)" button to display the plot(s).
+
+#### Visualize the results
 
 ![quantile plots](https://user-images.githubusercontent.com/34129392/35572609-0875f714-05e6-11e8-8092-caa76b3f762a.png)
 
