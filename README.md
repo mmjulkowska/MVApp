@@ -457,6 +457,8 @@ The plots of the regression models can be seen in the sub-tab 'Quantile plots'. 
 
 ![quantile plots](https://user-images.githubusercontent.com/34129392/35572609-0875f714-05e6-11e8-8092-caa76b3f762a.png)
 
+#### Quantile plots
+
 If you choose to view your plot as single plot, the quantile plot of the phenotype chosen will be displayed. The coefficients of the phenotype are plotted against the quantile level. The colored dots represent that the variable is significant for the particular quantile level and the cross sign represent that it is not significant. The different colors represent the different unique realizations of the grouping variable. The different lines can be used to compare the behavior of phenotypes in different conditions or different days, depending on the grouping variable. The plot can be downloade by using the "Download plot" button at the bottom.
 
 ![single plot](https://user-images.githubusercontent.com/34129392/35572608-0852d162-05e6-11e8-82b9-98582869480c.png)
