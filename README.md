@@ -414,7 +414,28 @@ The table below the plot summarizes the coordinates of each Dependent Variable w
 [Quantile regression](https://en.wikipedia.org/wiki/Quantile_regression) is a way to estimate the conditional quantiles of a response variable distribution in the linear model that provides a complete view of possible causal relationships between variables. Quantile regression minimizes absolute errors and can provide a more comprehensive analysis of the effect of the predictors on the response variable than mean regression. Linear quantile regression is related to linear least-squares regression as both try to study the relationship between the predictor variables and the response variable, the only difference being that least-squares involves modeling the conditional mean of the response variable, whereas, quantile regression models the conditional quantile of response. It is especially useful in applications where extremes are important, such as environmental studies where upper quantiles of yield are critical.
 
 #### Selecting the data
-![select dataset](https://user-images.githubusercontent.com/34129392/35572618-09d7ca24-05e6-11e8-93c6-caa1f074dd12.png)
+![select dataset](https://user-images.githubusercontent.com/34129392/35613562-8e494a70-067d-11e8-8411-66407a9de61d.png)
+
+![select options](https://user-images.githubusercontent.com/34129392/35572617-0980bc3e-05e6-11e8-9dc7-f2477b3b8d3d.png)
+
+![click to set](https://user-images.githubusercontent.com/34129392/35572616-091a773a-05e6-11e8-900f-9a1cccb206f4.png)
+
+![final data](https://user-images.githubusercontent.com/34129392/35572615-08f9c8e6-05e6-11e8-8134-638e82a5c0e4.png)
+
+![modelled data](https://user-images.githubusercontent.com/34129392/35572612-08cc6658-05e6-11e8-966c-c1160c2c9e32.png)
+
+![data table](https://user-images.githubusercontent.com/34129392/35572610-089b8074-05e6-11e8-8f81-b434390a042d.png)
+
+![quantile plots](https://user-images.githubusercontent.com/34129392/35572609-0875f714-05e6-11e8-8092-caa76b3f762a.png)
+
+![single plot](https://user-images.githubusercontent.com/34129392/35572608-0852d162-05e6-11e8-82b9-98582869480c.png)
+
+![multiple plots](https://user-images.githubusercontent.com/34129392/35572607-0832032e-05e6-11e8-884f-b708e1aad2b7.png)
+
+![multiple plots slider](https://user-images.githubusercontent.com/34129392/35572605-080e38b8-05e6-11e8-9160-c9302cd56ac6.png)
+
+
+
 
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
