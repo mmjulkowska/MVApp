@@ -413,14 +413,23 @@ The table below the plot summarizes the coordinates of each Dependent Variable w
 
 [Quantile regression](https://en.wikipedia.org/wiki/Quantile_regression) is a way to estimate the conditional quantiles of a response variable distribution in the linear model that provides a complete view of possible causal relationships between variables. Quantile regression minimizes absolute errors and can provide a more comprehensive analysis of the effect of the predictors on the response variable than mean regression. Linear quantile regression is related to linear least-squares regression as both try to study the relationship between the predictor variables and the response variable, the only difference being that least-squares involves modeling the conditional mean of the response variable, whereas, quantile regression models the conditional quantile of response. It is especially useful in applications where extremes are important, such as environmental studies where upper quantiles of yield are critical.
 
-#### Selecting the data
+#### Select the dataset
+
+Select which dataset you would like to use to perform quantile regression. You can choose from the following options: raw data: use your selected data from “Upload your data” tab, you can check the data from the Data Magic - New data tab missing values removed: use data without rows with missing values outliers removed: use outlier-free data from “Data curation” tab. The dataset you chose to explore will be displayed in the 'Selected dataset' sub-tab.
+
 ![select dataset](https://user-images.githubusercontent.com/34129392/35613562-8e494a70-067d-11e8-8411-66407a9de61d.png)
 
+#### Select reponse, explanatory variable, subsets
+
+Select the phenotype you want as response of your quantile regression, you can only choose one variable. Select the independent varaibles to subset the data, you can choose a maximum of two variables. Then choose the explanatory variables of your quantile regression model, you can choose any number of explanatory variables. You can choose a p-value threshold to test the significance of the explantory variables. You have the option to scale the data which might be useful if your variables are in different units.
 ![select options](https://user-images.githubusercontent.com/34129392/35572617-0980bc3e-05e6-11e8-9dc7-f2477b3b8d3d.png)
 
+Once you are done choosing the data, you can click on "Click to set the data" and the final data will be locked for further analysis and a set of quantile regression model will be run, based on your chosen variables and subsets of the data.
 ![click to set](https://user-images.githubusercontent.com/34129392/35572616-091a773a-05e6-11e8-900f-9a1cccb206f4.png)
 
+The final data used for analysis can be seen from the tab "Final data for analysis".
 ![final data](https://user-images.githubusercontent.com/34129392/35572615-08f9c8e6-05e6-11e8-8134-638e82a5c0e4.png)
+
 
 ![modelled data](https://user-images.githubusercontent.com/34129392/35572612-08cc6658-05e6-11e8-966c-c1160c2c9e32.png)
 
