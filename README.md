@@ -1,5 +1,5 @@
 # MVApp
-Glittery multi-variate analysis platform for all kinds of data
+Glittery multivariate analysis platform for all kinds of data
 
 The app is available [here](http://mvapp.kaust.edu.sa/MVApp/) or you can run it locally from your device by typing the following command in your R window:
 
@@ -318,8 +318,8 @@ You can also choose to color your data points by choosing a certain independent 
 
 ### 6. REDUCTION IN DIMENSIONALITY
 
-#### PRINCIPLE COMPONENT ANALYSIS
-Principle component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or genotype) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
+#### PRINCIPAL COMPONENT ANALYSIS
+Principal component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or genotype) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
 
 #### Select data, subsets, and Dependent Variables
 Select the dataset to analyse from the dropdown menu at the top of the side panel and click "Set the dataset":
@@ -333,7 +333,7 @@ Then, select which Dependent Variables you want to use in the PCA and click "Unl
 You can see your selected datasets in the first two sub-tabs.
 
 #### Visualize the PCs
-In the third sub-tab, [Eigenvalues](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors), the ["Scree plot"](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) are displayed showing the main principle components generated from the PCA in decreasing order of percentage variance explained by each Principle Component.
+In the third sub-tab, [Eigenvalues](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors), the ["Scree plot"](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) are displayed showing the main principal components generated from the PCA in decreasing order of percentage variance explained by each Principal Component.
 
 ![mvapp_pca_eigen](https://user-images.githubusercontent.com/14832460/32647217-788202b8-c5f0-11e7-9f1d-85f44ccc6a10.png)
 
