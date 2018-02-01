@@ -337,7 +337,7 @@ In the third sub-tab, [Eigenvalues](https://en.wikipedia.org/wiki/Eigenvalues_an
 
 ![mvapp_pca_eigen](https://user-images.githubusercontent.com/14832460/32647217-788202b8-c5f0-11e7-9f1d-85f44ccc6a10.png)
 
-The table summarizing the eigenvalues of each Principle Component (PC), their percentage of variance EXPLAINED and the cumulative percentages that add to 100% can be found below the plot. The table can be downloaded as a .csv file.
+The table summarizing the eigenvalues of each principal component (PC), their percentage of variance EXPLAINED and the cumulative percentages that add to 100% can be found below the plot. The table can be downloaded as a .csv file.
 
 #### Visualize the general contribution of DVs per PC
 The 'Contribution per variable' sub-tab displays the contribution of the chosen Dependent Variables with respect to two PCs at a time. You can select individual PCs to be plotted on x- and y-axis from the two dropdown menus.
