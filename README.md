@@ -355,8 +355,8 @@ In the sub-tab 'Contribution per PC' the contribution of individual Dependent Va
 ![mvapp_pca_trait_contrib2](https://user-images.githubusercontent.com/14832460/32647216-78663bdc-c5f0-11e7-82ef-dd418670a6f8.png)
 
 
-#### MULTI-DIMENSIONAL SCALING
-Multi-dimensional scaling [(MDS)](https://en.wikipedia.org/wiki/Multidimensional_scaling) is a multivariate data analysis approach that is used to visualize the similarity/dissimilarity between samples by plotting points in two dimensional plots. The input data for MDS is a dissimilarity matrix representing the distances between pairs of objects. MDS is mathematically and conceptually similar to PCA and factor analysis. PCA is more focused on the dimensions themselves, and seek to maximize explained variance, whereas MDS is more focused on relations among the scaled objects.
+#### MULTIDIMENSIONAL SCALING
+Multidimensional scaling [(MDS)](https://en.wikipedia.org/wiki/Multidimensional_scaling) is a multivariate data analysis approach that is used to visualize the similarity/dissimilarity between samples by plotting points in two dimensional plots. The input data for MDS is a dissimilarity matrix representing the distances between pairs of objects. MDS is mathematically and conceptually similar to PCA and factor analysis. PCA is more focused on the dimensions themselves, and seek to maximize explained variance, whereas MDS is more focused on relations among the scaled objects.
 
 #### Select data, subsets, and Dependent Variables
 Select the dataset to analyse from the dropdown menu at the top of the side panel and click "Set the dataset":
