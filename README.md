@@ -1,5 +1,5 @@
 # MVApp
-Glittery multi-variate analysis platform for all kinds of data
+Glittery multivariate analysis platform for all kinds of data
 
 The app is available [here](http://mvapp.kaust.edu.sa/MVApp/) or you can run it locally from your device by typing the following command in your R window:
 
@@ -318,8 +318,8 @@ You can also choose to color your data points by choosing a certain independent 
 
 ### 6. REDUCTION IN DIMENSIONALITY
 
-#### PRINCIPLE COMPONENT ANALYSIS
-Principle component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or genotype) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
+#### PRINCIPAL COMPONENT ANALYSIS
+Principal component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or genotype) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
 
 #### Select data, subsets, and Dependent Variables
 Select the dataset to analyse from the dropdown menu at the top of the side panel and click "Set the dataset":
@@ -333,11 +333,11 @@ Then, select which Dependent Variables you want to use in the PCA and click "Unl
 You can see your selected datasets in the first two sub-tabs.
 
 #### Visualize the PCs
-In the third sub-tab, [Eigenvalues](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors), the ["Scree plot"](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) are displayed showing the main principle components generated from the PCA in decreasing order of percentage variance explained by each Principle Component.
+In the third sub-tab, [Eigenvalues](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors), the ["Scree plot"](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) are displayed showing the main principal components generated from the PCA in decreasing order of percentage variance explained by each Principal Component.
 
 ![mvapp_pca_eigen](https://user-images.githubusercontent.com/14832460/32647217-788202b8-c5f0-11e7-9f1d-85f44ccc6a10.png)
 
-The table summarizing the eigenvalues of each Principle Component (PC), their percentage of variance EXPLAINED and the cumulative percentages that add to 100% can be found below the plot. The table can be downloaded as a .csv file.
+The table summarizing the eigenvalues of each principal component (PC), their percentage of variance EXPLAINED and the cumulative percentages that add to 100% can be found below the plot. The table can be downloaded as a .csv file.
 
 #### Visualize the general contribution of DVs per PC
 The 'Contribution per variable' sub-tab displays the contribution of the chosen Dependent Variables with respect to two PCs at a time. You can select individual PCs to be plotted on x- and y-axis from the two dropdown menus.
@@ -355,8 +355,8 @@ In the sub-tab 'Contribution per PC' the contribution of individual Dependent Va
 ![mvapp_pca_trait_contrib2](https://user-images.githubusercontent.com/14832460/32647216-78663bdc-c5f0-11e7-82ef-dd418670a6f8.png)
 
 
-#### MULTI-DIMENSIONAL SCALING
-Multi-dimensional scaling [(MDS)](https://en.wikipedia.org/wiki/Multidimensional_scaling) is a multivariate data analysis approach that is used to visualize the similarity/dissimilarity between samples by plotting points in two dimensional plots. The input data for MDS is a dissimilarity matrix representing the distances between pairs of objects. MDS is mathematically and conceptually similar to PCA and factor analysis. PCA is more focused on the dimensions themselves, and seek to maximize explained variance, whereas MDS is more focused on relations among the scaled objects.
+#### MULTIDIMENSIONAL SCALING
+Multidimensional scaling [(MDS)](https://en.wikipedia.org/wiki/Multidimensional_scaling) is a multivariate data analysis approach that is used to visualize the similarity/dissimilarity between samples by plotting points in two dimensional plots. The input data for MDS is a dissimilarity matrix representing the distances between pairs of objects. MDS is mathematically and conceptually similar to PCA and factor analysis. PCA is more focused on the dimensions themselves, and seek to maximize explained variance, whereas MDS is more focused on relations among the scaled objects.
 
 #### Select data, subsets, and Dependent Variables
 Select the dataset to analyse from the dropdown menu at the top of the side panel and click "Set the dataset":
@@ -410,3 +410,70 @@ The table below the plot summarizes the coordinates of each Dependent Variable w
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 ### 8. QUANTILE REGRESSION
+
+[Quantile regression](https://en.wikipedia.org/wiki/Quantile_regression) is a way to estimate the conditional quantiles of a response variable distribution in the linear model that provides a complete view of possible causal relationships between variables. Quantile regression minimizes absolute errors and can provide a more comprehensive analysis of the effect of the predictors on the response variable than mean regression. Linear quantile regression is related to linear least-squares regression as both try to study the relationship between the predictor variables and the response variable, the only difference being that least-squares involves modeling the conditional mean of the response variable, whereas, quantile regression models the conditional quantile of response. It is especially useful in applications where extremes are important, such as environmental studies where upper quantiles of yield are critical.
+
+#### When should you use it?
+
+Quantile regression estimates are more robust against outliers in the response, so if your response variable has potential outliers or extreme data, then ordinary least squares (OLS) regression is more effected as mean is more effected by outliers, you can use median regression as a substitute. If your errors are non-normal then OLS is inefficient, but quantile regression is robust. If your data fails to satisfy the assumption of homoscedatcity of the error terms, then you can use this technique, as there is no such assumption required here. Beyond that,  quantile regression also provides a richer characterization of the data, allowing us to consider the impact of aan explantory variable on the entire distribution of response, not merely its conditional mean.
+
+#### Select the dataset
+
+Select which dataset you would like to use to perform quantile regression. You can choose from the following options: raw data: use your selected data from “Upload your data” tab, you can check the data from the Data Magic - New data tab missing values removed: use data without rows with missing values outliers removed: use outlier-free data from “Data curation” tab. The dataset you chose to explore will be displayed in the 'Selected dataset' sub-tab.
+
+![select dataset](https://user-images.githubusercontent.com/34129392/35613562-8e494a70-067d-11e8-8411-66407a9de61d.png)
+
+#### Select reponse, explanatory variable, subsets
+
+Select the phenotype you want as response of your quantile regression, you can only choose one variable. Select the independent varaibles to subset the data, you can choose a maximum of two variables. Then choose the explanatory variables of your quantile regression model, you can choose any number of explanatory variables. You can choose a p-value threshold to test the significance of the explantory variables. You have the option to scale the data which might be useful if your variables are in different units.
+
+![select options](https://user-images.githubusercontent.com/34129392/35572617-0980bc3e-05e6-11e8-9dc7-f2477b3b8d3d.png)
+
+#### Set the data
+
+Once you are done choosing the data, you can click on "Click to set the data" and the final data will be locked for further analysis and a set of quantile regression model will be run, based on your chosen variables and subsets of the data.
+
+![click to set](https://user-images.githubusercontent.com/34129392/35572616-091a773a-05e6-11e8-900f-9a1cccb206f4.png)
+
+#### Final data for analysis
+
+The final data used for analysis can be seen in the sub-tab 'Final data for analysis'.
+
+![final data](https://user-images.githubusercontent.com/34129392/35572615-08f9c8e6-05e6-11e8-8134-638e82a5c0e4.png)
+
+#### Results of quantile regression
+
+The result of the quantile regression model can be seen in the sub-tab 'Modelled data'. The message box displays the significant phenotypes for lower, median and upper quantiles of the response for the particular subset chosen from the drop down list. You can choose the subset whose result you want to see in the message box.
+
+![modelled data](https://user-images.githubusercontent.com/34129392/35572612-08cc6658-05e6-11e8-966c-c1160c2c9e32.png)
+
+The results from all the quantile regression models for different subsets are tabulated. The table can be downloaded as a .csv will all the results. You can also search for a particular subset or a particular quantile level from the 'Search:' box if you want to look at a particular result.
+
+![data table](https://user-images.githubusercontent.com/34129392/35572610-089b8074-05e6-11e8-8f81-b434390a042d.png)
+
+#### Visualize the results
+
+The plots of the regression models can be seen in the sub-tab 'Quantile plots'. You can choose the independent variable by which you want to group your plot. For example if you want to compare how a particular phenotype behaves in salt and control condition, then you can group your plot by Treatment. If you have chosen two independent variables to subset your data, then you can also choose the value of your another subset variable whose result you want to see. If you want to view a single plot, then choose the particular phenotype you want to view. If you want to view the results of all your phenotypes the you can choose 'multiple plots' from "View plots as:". Finallly click on "View plot(s)" button to display the plot(s).
+
+![quantile plots](https://user-images.githubusercontent.com/34129392/35572609-0875f714-05e6-11e8-8092-caa76b3f762a.png)
+
+#### Quantile plots
+
+If you choose to view your plot as single plot, the quantile plot of the phenotype chosen will be displayed. The coefficients of the phenotype are plotted against the quantile level. The colored dots represent that the variable is significant for the particular quantile level and the cross sign represent that it is not significant. The different colors represent the different unique realizations of the grouping variable. The different lines can be used to compare the behavior of phenotypes in different conditions or different days, depending on the grouping variable. The plot can be downloade by using the "Download plot" button at the bottom.
+
+![single plot](https://user-images.githubusercontent.com/34129392/35572608-0852d162-05e6-11e8-82b9-98582869480c.png)
+
+If you choose to view your plots as multiple plots, the quantile plots of all the phenotypes will be displayed. You can download these plots using the "Download plot" button at the bottom.
+
+![multiple plots](https://user-images.githubusercontent.com/34129392/35572607-0832032e-05e6-11e8-884f-b708e1aad2b7.png)
+
+If you have more than four explanatory variables, then you can use the slider to view more plots.
+
+![multiple plots slider](https://user-images.githubusercontent.com/34129392/35572605-080e38b8-05e6-11e8-9160-c9302cd56ac6.png)
+
+
+
+
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
