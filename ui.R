@@ -182,7 +182,6 @@ fluidPage(
                            tabPanel("Outlier selection",            
                                     selectizeInput("Outlier_on_data", label = "Use the following dataset for outlier selelction", 
                                                    choices =c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted and missing values removed data")),
-                                    checkboxInput("Go_omitna", label = "Remove rows containing missing data prior to outlier selection"),
                                     br(),
                                     uiOutput("IV_outliers_selection"),
                                     selectizeInput("Out_pheno_single_multi", label = "Select outliers based on", choices=c("All phenotypes", "Single phenotype"), multiple = F),
