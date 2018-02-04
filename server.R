@@ -456,11 +456,49 @@ function(input, output) {
       cat("\n")
       cat("You should consider checking those samples using fit-plots and even going back to your original data.")
       cat("\n")
-      
-      
-      
     }
   })
+  
+  
+  
+  
+  good_r2 <- reactive({
+    subselection <- Model_temp_data()
+    subselection$plant_id <- paste(subselection[,input$IVModelIV], subselection[,input$IVModelSubIV], subselection[,input$SelectID], sep="_")    
+    subselection <- subset(subselection, subselection$r_squared > 0.7)
+
+    
+    data <- my_data()
+    data$plant_id <- paste(data[,input$IVModelIV], data[,input$IVModelSubIV], data[,input$SelectID], sep="_")
+    
+    good_r2 <- subset(data, data$plant_id %in% subselection$plant_id)
+    good_r2 <- good_r2[, !(names(good_r2) == "plant_id")]
+    good_r2
+    })
+  
+  output$Good_r2_table <- renderDataTable({
+    if(is.null(Model_temp_data())){
+      return(NULL)
+    }
+    else
+    good_r2 <- good_r2()
+    good_r2
+  })
+  
+  
+  output$Download_good_r2_table_button <- renderUI({
+    if(is.null(Model_temp_data())){
+      return(NULL)}
+    else
+      downloadButton("Download_good_r2_data", label = "Download curated data with r2 > 0.7")
+  })
+  
+  output$Download_good_r2_data <- downloadHandler(
+    filename = function(){paste("Data curated based on modelling of ", input$ModelPheno, " using ", input$model, " with r2 > 0.7 MVApp", ".csv" , sep="") },
+    content <- function(file){
+      good_r2 <- good_r2()
+      write.csv(good_r2, file)
+      })
   
   
   output$Model_data <- renderDataTable({
@@ -1518,21 +1556,19 @@ output$downl_plot_MCP <- downloadHandler(
   
   # - - - - - - - - - - - - - >>  MAIN CALCULATIONS << - - - - - - - - - - - - - -
   
-  my_data_nona <- eventReactive(input$Go_omitna == T, {
-    my_data_nona <- my_data()[complete.cases(my_data()),] #use na.omit instead maybe?
-    return(my_data_nona)
-  })
   
   # General outlier testing table => highlighting the plants with problems in multiple traits:
   Outlier_overview <- eventReactive(input$Go_outliers,{
-    if(input$Go_omitna == T){
-      faka_boom <- my_data_nona()  
-    }
-    if(input$Go_omitna == F){
-      faka_boom <- my_data()
-    }
-    faka_boom$id_test <- do.call(paste,c(faka_boom[c(input$IV_outliers)], sep = "_"))
+    if(input$Outlier_on_data == "raw data"){
+      faka_boom <- my_data()}
+    if(input$Outlier_on_data == "r2 fitted curves curated data"){
+      faka_boom <- good_r2()}
+    if(input$Outlier_on_data == "missing values removed data"){  
+      faka_boom <- my_data()[complete.cases(my_data()),]}
+    if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+      faka_boom <- good_r2()[complete.cases(my_data()),]}
     
+    faka_boom$id_test <- do.call(paste,c(faka_boom[c(input$IV_outliers)], sep = "_"))
     
     
     for(i in 1:length(input$SelectDV)){
@@ -1697,12 +1733,14 @@ output$downl_plot_MCP <- downloadHandler(
   
   Outlier_data <- eventReactive(input$Go_outliers, {
     
-    if(input$Go_omitna == T){
-      data_outl <- my_data_nona()  
-    }
-    if(input$Go_omitna == F){
-      data_outl <- my_data()
-    }
+    if(input$Outlier_on_data == "raw data"){
+      data_outl <- my_data()}
+    if(input$Outlier_on_data == "r2 fitted curves curated data"){
+      data_outl <- good_r2()}
+    if(input$Outlier_on_data == "missing values removed data"){  
+      data_outl <- my_data()[complete.cases(my_data()),]}
+    if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+      data_outl <- good_r2()[complete.cases(my_data()),]}
     
     outl <- subset(data_outl, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$DV_outliers))
     outl$id_test <- do.call(paste,c(outl[c(input$IV_outliers)], sep = "_"))
@@ -2073,12 +2111,15 @@ output$downl_plot_MCP <- downloadHandler(
   # = = = >> GRAPH CONTAINING ALL THE DATA << = = = 
     
   OutG <- reactive({  
-    if(input$Go_omitna == T){
-      data_outl <- my_data_nona()  
-    }
-    if(input$Go_omitna == F){
-      data_outl <- my_data()
-    }
+    
+    if(input$Outlier_on_data == "raw data"){
+      data_outl <- my_data()}
+    if(input$Outlier_on_data == "r2 fitted curves curated data"){
+      data_outl <- good_r2()}
+    if(input$Outlier_on_data == "missing values removed data"){  
+      data_outl <- my_data()[complete.cases(my_data()),]}
+    if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+      data_outl <- good_r2()[complete.cases(my_data()),]}
     
     # # # # >> START OF KINKY SECTION << # # # # #
     
@@ -2397,13 +2438,20 @@ output$downl_plot_MCP <- downloadHandler(
   
   
   output$na_report <- renderText({
-    if(input$Go_omitna == F){
-      return()
-    }
-    else{
-      sum_na<-nrow(my_data())-nrow(my_data_nona())
+    if(input$Outlier_on_data == "missing values removed data"){
+      my_data_nona <- my_data()[complete.cases(my_data()),] 
+      sum_na<-nrow(my_data())-nrow(my_data_nona)
       return(paste(sum_na, " rows containing missing values that were removed.")) 
     }
+    
+    if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+    my_data_nona <- good_r2()[complete.cases(good_r2()),]
+    sum_na <- nrow(good_r2()) - nrow(my_data_nona)  
+    return(paste(sum_na, " rows containing missing values that were removed.")) }
+    
+    else{
+      return()
+  }
   })
   
   # = = = = = = >> SUMMARY STATS << = = = = = = = = = 
@@ -2415,7 +2463,7 @@ output$downl_plot_MCP <- downloadHandler(
     } else tagList(
       selectizeInput(inputId = "SelectDataSumm",
                      label = "Dataset to be used for the summary stats",
-                     choices= c("raw data", "missing values removed", "outliers removed"), selected="raw data", multiple = F))
+                     choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   })
   
   output$CustomSumm <- renderUI({
@@ -2425,7 +2473,6 @@ output$downl_plot_MCP <- downloadHandler(
                      label = "Calculations to perform:", 
                      choices=c("Mean", "Median", "StdDev", "StdErr", "Min", "Max", "Sum", "No.samples"), multiple=T))
   })
-  
   
   ## Added list of summary functions "summfuns"   %% Mitch %%
   summfuns<-list(Mean = function(x) mean(x),
@@ -2444,13 +2491,26 @@ output$downl_plot_MCP <- downloadHandler(
       melted_icecream <- melted_icecream[ , !(names(melted_icecream)%in% drops)]
       melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))
     }
-    if(input$SelectDataSumm == "missing values removed"){
-      melted_icecream <- my_data_nona()
+    
+    if(input$SelectDataSumm == "r2 fitted curves curated data"){
+      melted_icecream <- good_r2()
       drops <-input$SelectID
       melted_icecream <- melted_icecream[ , !(names(melted_icecream)%in% drops)]
       melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))
     }
-    if(input$SelectDataSumm == "outliers removed"){
+    if(input$SelectDataSumm == "missing values removed data"){  
+      melted_icecream <- my_data()[complete.cases(my_data()),]
+      drops <-input$SelectID
+      melted_icecream <- melted_icecream[ , !(names(melted_icecream)%in% drops)]
+      melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))
+    }
+    if(input$SelectDataSumm == "r2 fitted curves curated data with missing values removed"){
+      melted_icecream <- good_r2()[complete.cases(good_r2()),]
+      drops <-input$SelectID
+      melted_icecream <- melted_icecream[ , !(names(melted_icecream)%in% drops)]
+      melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))
+    }
+    if(input$SelectDataSumm == "outliers removed data"){
       melted_icecream <- Outlier_free_data()
       drops <-c(input$SelectID, "outlier")
       melted_icecream <- melted_icecream[ , !(names(melted_icecream)%in% drops)]
@@ -2505,17 +2565,25 @@ output$downl_plot_MCP <- downloadHandler(
         selectizeInput(
           inputId = "Histo_data",
           label = "Dataset to explore:",
-          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
+          choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   })  
   
   Histo_data_type <- eventReactive(exists(input$Histo_data),{
-    if(input$Histo_data == "raw data"){
+    
+    
+    if (input$Histo_data == "raw data") {
       Histo_data_type <- my_data()
     }
-    if(input$Histo_data == "missing values removed"){
-      Histo_data_type <- my_data_nona()
+    if (input$Histo_data == "missing values removed data") {
+      Histo_data_type <- my_data()[complete.cases(my_data()),]
     }
-    if(input$Histo_data == "outliers removed"){
+    if (input$Histo_data == "r2 fitted curves curated data") {
+      Histo_data_type <- good_r2()
+    }
+    if (input$Histo_data == "r2 fitted curves curated data with missing values removed") {
+      Histo_data_type <- good_r2()[complete.cases(good_r2()),]
+    }
+    if (input$Histo_data == "outliers removed data") {
       Histo_data_type <- Outlier_free_data()
     }
     Histo_data_type
@@ -3556,20 +3624,23 @@ output$OT_graph_download_ui <- renderUI({
         selectizeInput(
           inputId = "cor_data",
           label = "Dataset to correlate:",
-          choices = c("raw data", "missing values removed", "outliers removed"),
-          multiple = F
-        )
-      )
+          choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   })
   
   cor_data_type <- eventReactive(input$cor_data, {
     if (input$cor_data == "raw data") {
       cor_data_type <- my_data()
     }
-    if (input$cor_data == "missing values removed") {
-      cor_data_type <- my_data_nona()
+    if (input$cor_data == "missing values removed data") {
+      cor_data_type <- my_data()[complete.cases(my_data()),]
     }
-    if (input$cor_data == "outliers removed") {
+    if (input$cor_data == "r2 fitted curves curated data") {
+      cor_data_type <- good_r2()
+    }
+    if (input$cor_data == "r2 fitted curves curated data with missing values removed") {
+      cor_data_type <- good_r2()[complete.cases(good_r2()),]
+    }
+    if (input$cor_data == "outliers removed data") {
       cor_data_type <- Outlier_free_data()
     }
     cor_data_type
@@ -4040,15 +4111,21 @@ output$OT_graph_download_ui <- renderUI({
         selectizeInput(
           inputId = "PCA_data",
           label = "Dataset for PCA:",
-          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
+          choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   })  
   
   PCA_data_type <- eventReactive(input$Go_PCAdata,{
     if(input$PCA_data == "raw data"){
       PCA_data_type <- my_data()
     }
-    if(input$PCA_data == "missing values removed"){
-      PCA_data_type <- my_data_nona()
+    if(input$PCA_data == "missing values removed data"){
+      PCA_data_type <- my_data()[complete.cases(my_data()),]
+    }
+    if(input$PCA_data == "r2 fitted curves curated data"){
+      PCA_data_type <- good_r2()
+    }
+    if(input$PCA_data == "r2 fitted curves curated data with missing values removed"){
+      PCA_data_type <- good_r2()[complete.cases(good_r2()),]
     }
     if(input$PCA_data == "outliers removed"){
       PCA_data_type <- Outlier_free_data()
@@ -4370,21 +4447,28 @@ output$OT_graph_download_ui <- renderUI({
         selectizeInput(
           inputId = "MDS_data",
           label = "Dataset for MDS:",
-          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
+          choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   }) 
   
+
   MDS_data_type <- eventReactive(input$Go_MDSdata,{
-    if(input$MDS_data == "raw data"){
-      MDS_data_type <- my_data()
-    }
-    if(input$MDS_data == "missing values removed"){
-      MDS_data_type <- my_data_nona()
-    }
-    if(input$MDS_data == "outliers removed"){
-      MDS_data_type <- Outlier_free_data()
-    }
+  if(input$MDS_data == "raw data"){
+    MDS_data_type <- my_data()
+  }
+  if(input$MDS_data == "missing values removed data"){
+    MDS_data_type <- my_data()[complete.cases(my_data()),]
+  }
+  if(input$MDS_data == "r2 fitted curves curated data"){
+    MDS_data_type <- good_r2()
+  }
+  if(input$MDS_data == "r2 fitted curves curated data with missing values removed"){
+    MDS_data_type <- good_r2()[complete.cases(good_r2()),]
+  }
+  if(input$MDS_data == "outliers removed"){
+    MDS_data_type <- Outlier_free_data()
+  }
     MDS_data_type
-  })
+})
   
   output$MDS_raw_table <- renderDataTable({
     MDS_data_type()
@@ -4705,9 +4789,27 @@ output$OT_graph_download_ui <- renderUI({
         selectizeInput(
           inputId = "Cluster_data",
           label = "Dataset for clustering analysis",
-          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
+          choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   })
   
+  Data_for_cluster <- eventReactive(exists(input$Cluster_data),{
+    if(input$Cluster_data == "raw data"){
+      Data_for_cluster <- my_data()
+    }
+    if(input$Cluster_data == "missing values removed data"){
+      Data_for_cluster <- my_data()[complete.cases(my_data()),]
+    }
+    if(input$Cluster_data == "r2 fitted curves curated data"){
+      Data_for_cluster <- good_r2()
+    }
+    if(input$Cluster_data == "r2 fitted curves curated data with missing values removed"){
+      Data_for_cluster <- good_r2()[complete.cases(good_r2()),]
+    }
+    if(input$Cluster_data == "outliers removed"){
+      Data_for_cluster <- Outlier_free_data()
+    }
+    Data_for_cluster
+  })
   
   output$Select_clustering_method <- renderUI({
     if(is.null(ItemList())){return()}
@@ -4718,6 +4820,7 @@ output$OT_graph_download_ui <- renderUI({
           label = "Clustering method:",
           choices = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"), multiple = F))
   })   
+
   
   output$Select_data_cluster_validation <- renderUI({
     if(is.null(input$Split_cluster)){
@@ -4734,18 +4837,7 @@ output$OT_graph_download_ui <- renderUI({
     }
   })
   
-  Data_for_cluster <- eventReactive(exists(input$Cluster_data),{
-    if(input$Cluster_data == "raw data"){
-      cluster_data <- my_data()
-    }  
-    if(input$Cluster_data == "missing values removed"){
-      cluster_data <- my_data_nona()
-    }
-    if(input$Cluster_data == "outliers removed"){
-      cluster_data <- Outlier_free_data()
-    }
-    return(cluster_data)
-  })
+ 
   
   output$Data_cluster_table <- renderDataTable({
     test <- Data_for_cluster()
@@ -5344,33 +5436,27 @@ output$OT_graph_download_ui <- renderUI({
         selectizeInput(
           inputId = "KMCluster_data",
           label = "Dataset for clustering analysis",
-          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
+          choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   })
   
-  output$Select_DV_KMC <- renderUI({
-    if(is.null(ItemList())){return()}
-    else
-      tagList(
-        selectizeInput(
-          inputId = "KMC_pheno",
-          label = "Numerical variables for clustering analysis",
-          choices = c(input$SelectDV),
-          multiple = T
-        ))
-  })
-  
-  
+
   KMC_data_type <- eventReactive(input$Select_data_KMC,{
-    if(input$KMCluster_data == "raw data"){
-      KMC_data_type <- my_data()
-    }
-    if(input$KMCluster_data == "missing values removed"){
-      KMC_data_type <- my_data_nona()
-    }
-    if(input$KMCluster_data == "outliers removed"){
-      KMC_data_type <- Outlier_free_data()
-    }
-    
+  if(input$KMCluster_data == "raw data"){
+    KMC_data_type <- my_data()
+  }
+  if(input$KMCluster_data == "missing values removed data"){
+    KMC_data_type <- my_data()[complete.cases(my_data()),]
+  }
+  if(input$KMCluster_data == "r2 fitted curves curated data"){
+    KMC_data_type <- good_r2()
+  }
+  if(input$KMCluster_data == "r2 fitted curves curated data with missing values removed"){
+    KMC_data_type <- good_r2()[complete.cases(good_r2()),]
+  }
+  if(input$KMCluster_data == "outliers removed"){
+    KMC_data_type <- Outlier_free_data()
+  }
+  
     if(input$KMC_use_means == T){
       #KMC_data_type$id <- do.call(paste,c(KMC_data_type[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
       #final_set <- subset(KMC_data_type, select = c("id", input$KMC_pheno))
@@ -5395,9 +5481,22 @@ output$OT_graph_download_ui <- renderUI({
       #final_set <-KMC_data_type()
       
     }
-    final_set   
+    final_set     
     
+})
+  
+  output$Select_DV_KMC <- renderUI({
+    if(is.null(ItemList())){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "KMC_pheno",
+          label = "Numerical variables for clustering analysis",
+          choices = c(input$SelectDV),
+          multiple = T
+        ))
   })
+  
   
   output$KMC_data_table <- renderDataTable({
     if(is.null(KMC_data_type())){
@@ -6043,15 +6142,22 @@ output$OT_graph_download_ui <- renderUI({
         selectizeInput(
           inputId = "Herit_data",
           label = "Dataset used to calculate heritability:",
-          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
+          choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   })  
+  
   
   Herit_data_type <- reactive({
     if(input$Herit_data == "raw data"){
       Herit_data_type <- my_data()
     }
-    if(input$Herit_data == "missing values removed"){
-      Herit_data_type <- my_data_nona()
+    if(input$Herit_data == "missing values removed data"){
+      Herit_data_type <- my_data()[complete.cases(my_data()),]
+    }
+    if(input$Herit_data == "r2 fitted curves curated data"){
+      Herit_data_type <- good_r2()
+    }
+    if(input$Herit_data == "r2 fitted curves curated data with missing values removed"){
+      Herit_data_type <- good_r2()[complete.cases(good_r2()),]
     }
     if(input$Herit_data == "outliers removed"){
       Herit_data_type <- Outlier_free_data()
@@ -6437,7 +6543,7 @@ output$OT_graph_download_ui <- renderUI({
         selectizeInput(
           inputId = "data_to_use",
           label = "Dataset to explore:",
-          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
+          choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   })  
   
   
@@ -6445,8 +6551,14 @@ output$OT_graph_download_ui <- renderUI({
     if(input$data_to_use == "raw data"){
       QA_data <- my_data()
     }
-    if(input$data_to_use == "missing values removed"){
-      QA_data <- my_data_nona()
+    if(input$data_to_use == "missing values removed data"){
+      QA_data <- my_data()[complete.cases(my_data()),]
+    }
+    if(input$data_to_use == "r2 fitted curves curated data"){
+      QA_data <- good_r2()
+    }
+    if(input$data_to_use == "r2 fitted curves curated data with missing values removed"){
+      QA_data <- good_r2()[complete.cases(good_r2()),]
     }
     if(input$data_to_use == "outliers removed"){
       QA_data <- Outlier_free_data()
