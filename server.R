@@ -3088,7 +3088,7 @@ output$subset_Variance <- renderUI({
       selectizeInput(
         inputId = "OT_testski",
         label = "Test for significance:",
-        choices = c("One sample t-test", "Two sample t-test", "Two sample chi-squared test"))
+        choices = c("One sample t-test", "Two sample t-test", "Kolmogorov-Smirnof test"))
   })
   
   output$OT_grouping_IVs <- renderUI({
@@ -3160,11 +3160,12 @@ output$subset_Variance <- renderUI({
       df <- testski$parameter[[1]]
       stat <- testski$statistic[[1]]
     }
-    if(input$OT_testski == "Two sample chi-squared test"){
-      testski <- chisq.test(data_sub$chosen_DV, data_sub$sample_id)
-      p_val <- testski$p.value
-      df <- testski$parameter[[1]]
-      stat <- testski$statistic[[1]]
+    if(input$OT_testski == "Kolmogorov-Smirnof test"){
+      x <- subset(data_sub, data_sub$sample_id == data_sub$subset_id[1])
+      y <- subset(data_sub, data_sub$sample_id == data_sub$subset_id[2])
+      p_val <- ks.test(x$chosen_DV, y$chosen_DV)$p.value
+      df <- "Kolmogorov-Smirnof test does not have degrees of freedom"
+      stat <- ks.test(x$chosen_DV, y$chosen_DV)$statistic[[1]]
     }
      
     bam <- p_val
@@ -3186,7 +3187,7 @@ output$subset_Variance <- renderUI({
     cat("\n")
     cat(paste("The degrees of freedom in the test: ", bec))
     cat("\n")
-    cat(paste("The value of the t-/chi-statistics in the test: ", bom))
+    cat(paste("The value of the t-/Kolmogorov-Smirnof statistics in the test: ", bom))
     
   })
  
