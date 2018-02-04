@@ -597,8 +597,8 @@ function(input, output) {
       timelims <- range(time)
       time.grid <- seq(from = timelims[1], to = timelims[2])
       plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
-      points(time.grid, predict(fit_cub, newdata=list(time = time.grid)), col = "darkgreen")
-      abline(v=c(input$cubic_knots), lty=2, col="darkgreen")
+      points(time.grid, predict(fit_cub, newdata=list(time = time.grid)), col = "hotpink3")
+      abline(v=c(input$cubic_knots), lty=2, col="hotpink3")
     }
     
     if(input$model == "smooth"){
@@ -726,8 +726,8 @@ function(input, output) {
         timelims <- range(time)
         time.grid <- seq(from = timelims[1], to = timelims[2])
         plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
-        points(time.grid, predict(fit_cub, newdata=list(time = time.grid)), col = "darkgreen")
-        abline(v=c(input$cubic_knots), lty=2, col="darkgreen")
+        points(time.grid, predict(fit_cub, newdata=list(time = time.grid)), col = "hotpink3")
+        abline(v=c(input$cubic_knots), lty=2, col="hotpink3")
       }
       
       if(input$model == "smooth"){
@@ -749,6 +749,156 @@ function(input, output) {
       Fit_plot_multi_graphs()
     }
   })
+  
+  output$Model_fit_graph_download_button <- renderUI({
+    if(is.null(Model_temp_data())){
+      return()
+    }
+    else
+      downloadButton("Download_model_fit_graph", label = "Download fit-plot(s)")
+  })
+  
+  output$Download_model_fit_graph <- downloadHandler(
+    filename = function(){paste("Modelled ", input$ModelPheno, " using ", input$model, " MVApp", ".pdf" , sep="") },
+    content <- function(file){
+      pdf(file)
+      
+      if(input$Select_model_type_plot == "single plot"){
+       
+        
+        docelowy <- data_model_plot()
+        
+        if(input$model == "lin"){
+          pheno <- docelowy[,input$ModelPheno]
+          time <- docelowy[,input$SelectTime]
+          title <- unique(docelowy$selection)
+          print(plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime))
+          abline(lm(pheno ~ time), col="red")
+        }
+        
+        if (input$model == "quad") {
+          docelowy$helper <- sqrt(docelowy[, input$ModelPheno])
+          pheno <- docelowy$helper
+          time <- docelowy[,input$SelectTime]
+          title <- unique(docelowy$selection)
+          print(plot(pheno ~ time, main = title, ylab = paste("sqrt(",input$ModelPheno,")"), xlab = input$SelectTime))
+          abline(lm(pheno ~ time), col="red")
+        }
+        
+        if (input$model == "exp") {
+          docelowy$helper <- log(docelowy[, input$ModelPheno])
+          pheno <- docelowy$helper
+          time <- docelowy[,input$SelectTime]
+          title <- unique(docelowy$selection)
+          print(plot(pheno ~ time, main = title, ylab = paste("log(",input$ModelPheno,")"), xlab = input$SelectTime))
+          abline(lm(pheno ~ time), col="red")
+        }
+        
+        if (input$model == "sqr") {
+          docelowy$helper <- (docelowy[, input$ModelPheno])^2
+          pheno <- docelowy$helper
+          time <- docelowy[,input$SelectTime]
+          title <- unique(docelowy$selection)
+          print(plot(pheno ~ time, main = title, ylab = paste(input$ModelPheno, "^2"), xlab = input$SelectTime))
+          abline(lm(pheno ~ time), col="red")
+        }
+        
+        if(input$model == "cubic"){
+          pheno <- docelowy[,input$ModelPheno]
+          time <- docelowy[,input$SelectTime]
+          fit_cub <- lm(pheno ~ bs(time, knots = input$cubic_knots))
+          title <- unique(docelowy$selection)
+          timelims <- range(time)
+          time.grid <- seq(from = timelims[1], to = timelims[2])
+          print(plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime))
+          points(time.grid, predict(fit_cub, newdata=list(time = time.grid)), col = "hotpink3")
+          abline(v=c(input$cubic_knots), lty=2, col="hotpink3")
+        }
+        
+        if(input$model == "smooth"){
+          fit_smooth <- smooth.spline(x = docelowy[,4], y = docelowy[,5], cv=T)
+          pheno <- docelowy[,input$ModelPheno]
+          time <- docelowy[,input$SelectTime]
+          title <- unique(docelowy$selection)
+          print(plot(docelowy[,5] ~ docelowy[,4], main = title, ylab = input$ModelPheno, xlab = input$SelectTime))
+          lines(fit_smooth, col="purple", lwd=2)
+        } 
+        
+        
+      }
+      
+      if(input$Select_model_type_plot == "multiple plots"){
+        
+        docelowy <- example_model()
+        real_list <- unique(docelowy$lista)
+        
+        par(mfrow=c(4,5))
+        
+        
+        for(i in 1:length(real_list)){
+          super_temp <- subset(docelowy, docelowy$lista == real_list[i])  
+          
+          # The graph instruction from single plot - so should work :P
+          if(input$model == "lin"){
+            pheno <- super_temp[,input$ModelPheno]
+            time <- super_temp[,input$SelectTime]
+            title <- real_list[i]
+            print(plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime))
+            abline(lm(pheno ~ time), col="red")
+          }
+          
+          if (input$model == "quad") {
+            super_temp$helper <- sqrt(super_temp[, input$ModelPheno])
+            pheno <- super_temp$helper
+            time <- super_temp[,input$SelectTime]
+            title <- real_list[i]
+            print(plot(pheno ~ time, main = title, ylab = paste("sqrt(",input$ModelPheno,")"), xlab = input$SelectTime))
+            abline(lm(pheno ~ time), col="red")
+          }
+          
+          if (input$model == "exp") {
+            super_temp$helper <- log(super_temp[, input$ModelPheno])
+            pheno <- super_temp$helper
+            time <- super_temp[,input$SelectTime]
+            title <- real_list[i]
+            print(plot(pheno ~ time, main = title, ylab = paste("log(",input$ModelPheno,")"), xlab = input$SelectTime))
+            abline(lm(pheno ~ time), col="red")
+          }
+          
+          if (input$model == "sqr") {
+            super_temp$helper <- (super_temp[, input$ModelPheno])^2
+            pheno <- super_temp$helper
+            time <- super_temp[,input$SelectTime]
+            title <- real_list[i]
+            print(plot(pheno ~ time, main = title, ylab = paste(input$ModelPheno, "^2"), xlab = input$SelectTime))
+            abline(lm(pheno ~ time), col="red")
+          }
+          
+          if(input$model == "cubic"){
+            pheno <- super_temp[,input$ModelPheno]
+            time <- super_temp[,input$SelectTime]
+            fit_cub <- lm(pheno ~ bs(time, knots = input$cubic_knots))
+            title <- real_list[i]
+            timelims <- range(time)
+            time.grid <- seq(from = timelims[1], to = timelims[2])
+            print(plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime))
+            points(time.grid, predict(fit_cub, newdata=list(time = time.grid)), col = "hotpink3")
+            abline(v=c(input$cubic_knots), lty=2, col="hotpink3")
+          }
+          
+          if(input$model == "smooth"){
+            fit_smooth <- smooth.spline(x = super_temp[,4], y = super_temp[,5], cv=T)
+            pheno <- super_temp[,input$ModelPheno]
+            time <- super_temp[,input$SelectTime]
+            title <- real_list[i]
+            print(plot(super_temp[,5] ~ super_temp[,4], main = title, ylab = input$ModelPheno, xlab = input$SelectTime))
+            lines(fit_smooth, col="purple", lwd=2)
+          }
+        }
+      }
+      dev.off()
+    }
+  )
   
   output$Model_download_button <- renderUI({
     if(is.null(Model_temp_data())){
@@ -6274,6 +6424,667 @@ output$OT_graph_download_ui <- renderUI({
     }
     
   })
+  
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - >>  Quantile Analysis in 10th TAB <<- - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##select dataset
+  output$QA_data_type <- renderUI({
+    if(is.null(ItemList())){return()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "data_to_use",
+          label = "Dataset to explore:",
+          choices = c("raw data", "missing values removed", "outliers removed"), multiple = F))
+  })  
+  
+  
+  QA_data<- eventReactive(exists(input$data_to_use),{
+    if(input$data_to_use == "raw data"){
+      QA_data <- my_data()
+    }
+    if(input$data_to_use == "missing values removed"){
+      QA_data <- my_data_nona()
+    }
+    if(input$data_to_use == "outliers removed"){
+      QA_data <- Outlier_free_data()
+    }
+    QA_data
+  })
+  
+  output$QA_raw_table <- renderDataTable({
+    QA_data()
+  })
+  
+  ##setting the response
+  output$Pheno_Response <- renderUI({
+    if ((is.null(input$SelectDV)) ) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "ResponsePheno",
+          label = "Select Phenotype to be used as Response Variable",
+          choices = c(input$SelectDV),
+          multiple = F
+        )
+      )
+  })
+  
+  ##subsetting the data
+  output$QA_subset_trait <- renderUI({
+    tagList(
+      selectizeInput(
+        inputId = "QA_subset",
+        label = "Independent Variables to subset the data",
+        choices=c(input$SelectGeno, input$SelectIV, input$SelectTime),
+        multiple=T,
+        options = list(maxItems = 2)
+      ))
+  })
+  
+  # Select explanatory Variables (phenotypes)
+  output$Pheno_explanatory <- renderUI({
+    if (is.null(input$SelectDV)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "ExplanatoryPheno",
+          label = "Select Phenotype(s) to be used as explanatory variables",
+          choices = setdiff(input$SelectDV, input$ResponsePheno),
+          multiple = T
+        )
+      )
+  })
+  
+  ## select p-value threshold
+  output$p_value_thresh <- renderUI({
+    
+    tagList(
+      selectizeInput(
+        inputId = "p_value_threshold",
+        label = "p-value threshold:",
+        choices = c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1),
+        selected = 0.05,
+        multiple = F
+      )
+    )
+  })
+  
+  QA_final_data_display <- eventReactive(input$Go_data,{
+    temp <- data.frame(QA_data())
+    
+    
+    if(input$Scale_QA==T){
+      
+      temp1 <- subset(temp, select=c(input$SelectGeno, input$SelectIV, 
+                                     input$SelectTime, input$SelectID))
+      
+      temp2 <- subset(temp, select=c(input$ResponsePheno, input$ExplanatoryPheno))
+      temp2 = scale(temp2)                
+      temp= cbind(temp1, temp2)                
+    } else {
+      temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, 
+                                    input$SelectTime, input$SelectID, input$ResponsePheno, input$ExplanatoryPheno))
+    }
+    
+    return(temp)
+  })
+  
+  
+  
+  output$QA_final_table <- renderDataTable({
+    QA_final_data_display()
+  })
+  
+  
+  list_cluster <- eventReactive(input$QA_subset,{
+    subset_lista <- input$QA_subset
+    id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+    id_lista2 <- setdiff(id_lista, subset_lista)
+    temp <- QA_data()
+    temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+    the_list <- unique(temp$subset_id)
+    the_list
+  })
+  
+  
+  output$Choose_subset_specific <- renderUI({
+    if(is.null(input$QA_subset)){
+      return()
+    }
+    else{
+      subset_lista <- input$QA_subset
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      id_lista2 <- setdiff(id_lista, subset_lista)
+      temp <- QA_data()
+      temp$subset_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+      the_list <- unique(temp$subset_id)
+      
+      tagList(
+        selectizeInput(
+          inputId = "QA_subset_S",
+          label = "Subset:",
+          choices=c(the_list),
+          multiple=F
+        ))}
+  })
+  
+  
+  
+  output$Choose_quantile_level <- renderUI({
+    #if ((input$Go_QA == FALSE)) {
+    #  return ()
+    #} else
+    tagList(
+      selectizeInput(
+        inputId = "quantile_level",
+        label = "Show tabulated result for quantile level",
+        choices = c(0.25, 0.5, 0.75),
+        selected = 0.25,
+        multiple = F
+      )
+    )
+  })
+  
+  
+  ## fittting the models
+  Model_est_QA <- eventReactive(input$Go_QA, {
+    
+    temp <-
+      subset(
+        QA_final_data_display(),
+        select = c(
+          input$QA_subset,
+          input$ResponsePheno,
+          input$ExplanatoryPheno
+        )
+      )
+    sub_set <- input$QA_subset
+    things_to_model_QA <- unique(temp[sub_set])
+    tau = c(0.25,0.5,0.75)
+    fit_qr=list()
+    
+    for (i in 1:nrow(things_to_model_QA)) {
+      if(ncol(things_to_model_QA)==1){
+        super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+        
+      } else 
+      {
+        super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+        
+      } 
+      super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+      colnames(super_temp2)[1]= "y"
+      fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+      
+    }
+    
+    return(fit_qr)
+  })
+  
+  ##printing the significant variables for the three quantile levels for the particular choosen subset
+  output$significant_variables <- renderPrint({
+    temp <-
+      subset(
+        QA_final_data_display(),
+        select = c(
+          input$QA_subset,
+          input$ResponsePheno,
+          input$ExplanatoryPheno
+        )
+      )
+    sub_set <- input$QA_subset
+    things_to_model_QA <- unique(temp[sub_set])
+    tau = c(0.25,0.5,0.75)
+    fit_qr=list()
+    
+    for (i in 1:nrow(things_to_model_QA)) {
+      if(ncol(things_to_model_QA)==1){
+        super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+        
+      } else 
+      {
+        super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+        
+      } 
+      super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+      colnames(super_temp2)[1]= "y"
+      fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+      
+    }
+    
+    sub_set <- input$QA_subset
+    things_to_model_QA <- unique(temp[sub_set])
+    
+    things_to_model_QA$subsetid= do.call(paste,c(things_to_model_QA[input$QA_subset], sep="_"))
+    index= which(input$QA_subset_S == things_to_model_QA$subsetid )
+    
+    
+    summary= summary(fit_qr[[index]], se="boot")
+    significant_df_0.25=data.frame(summary[[1]]$coef[summary[[1]]$coef[,4] <= as.numeric(as.character(input$p_value_threshold)), 4])
+    var0.25 = c(rownames(significant_df_0.25))
+    if(var0.25[1] == "(Intercept)") {var0.25 =var0.25[-1]} else {var0.25= var0.25}
+    
+    significant_df_0.5=data.frame(summary[[2]]$coef[summary[[2]]$coef[,4] <= as.numeric(as.character(input$p_value_threshold)), 4])
+    var0.5 = c(rownames(significant_df_0.5))
+    if(var0.5[1] == "(Intercept)") {var0.5 =var0.5[-1]} else {var0.5= var0.5}
+    
+    significant_df_0.75=data.frame(summary[[3]]$coef[summary[[3]]$coef[,4] <= as.numeric(as.character(input$p_value_threshold)), 4])
+    var0.75 = c(rownames(significant_df_0.75))
+    if(var0.75[1] == "(Intercept)") {var0.75 =var0.75[-1]} else {var0.75= var0.75}
+    
+    cat(paste("The variables significant for different quantiles levels are:"))
+    cat("\n")
+    cat(paste("Lower quantile (0.25):"), paste(var0.25, collapse = ", "))
+    cat("\n")
+    cat(paste("Median quantile (0.5):"), paste(var0.5, collapse = ", "))
+    cat("\n")
+    cat(paste("Upper quantile (0.75):"), paste(var0.75, collapse = ", "))
+    
+  })
+  
+  
+  ## table with cooefficent value and p value
+  Calculate_table <- eventReactive(input$Go_data, {
+    
+    temp <-
+      subset(
+        QA_final_data_display(),
+        select = c(
+          input$QA_subset,
+          input$ResponsePheno,
+          input$ExplanatoryPheno
+        )
+      )
+    sub_set <- input$QA_subset
+    things_to_model_QA <- unique(temp[sub_set])
+    tau = c(0.25,0.5,0.75)
+    fit_qr=list()
+    
+    for (i in 1:nrow(things_to_model_QA)) {
+      if(ncol(things_to_model_QA)==1){
+        super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+        
+      } else 
+      {
+        super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+        
+      } 
+      super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+      colnames(super_temp2)[1]= "y"
+      fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+      
+    }
+    
+    sub_set <- input$QA_subset
+    things_to_model_QA <- unique(temp[sub_set])
+    
+    
+    things_to_model_QA$subsetid= do.call(paste,c(things_to_model_QA[input$QA_subset], sep="_"))
+    index= which(input$QA_subset_S == things_to_model_QA$subsetid )
+    
+    tempexpl <-
+      subset(
+        QA_final_data_display(),
+        select = c(
+          input$ExplanatoryPheno
+        )
+      )
+    
+    summary = summary(fit_qr[[1]], se="boot")
+    tablesum = data.frame(cbind(round(coef(summary[[1]])[,"Value"], digits = 4), round(coef(summary[[1]])[,"Pr(>|t|)"], digits = 4), rep(0.25, ncol(tempexpl)), rep(things_to_model_QA$subsetid[1],ncol(tempexpl))))
+    tablesum =rbind(tablesum,data.frame(cbind(round(coef(summary[[2]])[,"Value"], digits = 4), round(coef(summary[[1]])[,"Pr(>|t|)"], digits = 4), rep(0.5, ncol(tempexpl)), rep(things_to_model_QA$subsetid[1],ncol(tempexpl)))))
+    tablesum =rbind(tablesum,data.frame(cbind(round(coef(summary[[3]])[,"Value"], digits = 4), round(coef(summary[[1]])[,"Pr(>|t|)"], digits = 4), rep(0.75, ncol(tempexpl)), rep(things_to_model_QA$subsetid[1],ncol(tempexpl)))))
+    
+    for(i in 2:nrow(things_to_model_QA)){
+      summary = summary(fit_qr[[i]], se="boot")
+      tablesum = rbind(tablesum,data.frame(cbind(round(coef(summary[[1]])[,"Value"], digits = 4), round(coef(summary[[1]])[,"Pr(>|t|)"], digits = 4), rep(0.25, ncol(tempexpl)), rep(things_to_model_QA$subsetid[i],ncol(tempexpl)))))
+      tablesum = rbind(tablesum,data.frame(cbind(round(coef(summary[[2]])[,"Value"], digits = 4), round(coef(summary[[1]])[,"Pr(>|t|)"], digits = 4), rep(0.5, ncol(tempexpl)), rep(things_to_model_QA$subsetid[i],ncol(tempexpl)))))
+      tablesum = rbind(tablesum,data.frame(cbind(round(coef(summary[[3]])[,"Value"], digits = 4), round(coef(summary[[1]])[,"Pr(>|t|)"], digits = 4), rep(0.75, ncol(tempexpl)), rep(things_to_model_QA$subsetid[i],ncol(tempexpl)))))
+      
+    }
+    
+    
+    colnames(tablesum)[1] = "Coefficient value"
+    colnames(tablesum)[2] = "p-value"
+    colnames(tablesum)[3] = "Quantile"
+    colnames(tablesum)[4] = "Subset"
+    rownames(tablesum) = NULL
+    variable_names = rep(c("Intercept",colnames(tempexpl)), times=nrow(things_to_model_QA)*3 )
+    tablesum = cbind(variable_names, tablesum)
+    colnames(tablesum)[1] = "Variable"
+    return(tablesum)
+  })
+  
+  output$Result_table <- renderDataTable({
+    if(is.null(Calculate_table())){
+      return()}
+    else
+      Calculate_table()
+    
+  })
+  
+  output$table_download_button <- renderUI({
+    #if(is.null(Model_est_QA())){
+    #  return()}
+    #else
+    downloadButton("Download_table_data", label="Download modelled data")
+  })  
+  
+  output$Download_table_data <- downloadHandler(
+    filename = paste("Modelled data from quantile regression using MVApp.csv"),
+    content <- function(file) {
+      write.csv(Calculate_table(), file)}
+  )
+  
+  ################## plots of quantile model ##################################
+  
+  output$Group_plot <- renderUI({
+    
+    tagList(
+      selectizeInput(
+        inputId = "group_plot_by",
+        label = "Group plot by:",
+        choices = input$QA_subset,
+        multiple=F
+      )
+    )
+  })
+  
+  output$subset_plot <- renderUI({
+    tempQA_subset <-
+      subset(
+        QA_final_data_display(),
+        select = c(
+          input$QA_subset
+        )
+      )
+    
+    if(ncol(tempQA_subset)==1){
+      return()}
+    else
+      
+      temp <-
+        subset(
+          QA_final_data_display(),
+          select = c(
+            input$QA_subset)
+        )
+    sub_set <- setdiff(input$QA_subset, input$group_plot_by)
+    list <- unique(temp[sub_set])
+    
+    
+    tagList(
+      selectizeInput(
+        inputId = "plot_subset",
+        label = "Choose subset:",
+        choices = list,
+        multiple=F
+      )
+    )
+  })
+  
+  output$model_plot_type <- renderUI({
+    
+    tagList(
+      selectizeInput(
+        inputId = "model_type_plot",
+        label = "View plots as:",
+        choices = c("single plot", "multiple plots")
+      )
+    )
+  })
+  
+  # Interactive user input for Plots - to select specific varaible 
+  output$Select_model_variable <- renderUI({
+    if (input$model_type_plot == "multiple plots") {
+      return ()
+    } else
+      
+      tagList(
+        selectizeInput(
+          inputId = "Model_variable_select",
+          label = "Select a specific Phenotype to view",
+          choices = input$ExplanatoryPheno,
+          multiple = F
+        )
+      )
+  })
+  
+  
+  # Plots - single 
+  QA_plot_single <- eventReactive(input$Go_plot,{
+    
+    temp <-
+      subset(
+        QA_final_data_display(),
+        select = c(
+          input$QA_subset,
+          input$ResponsePheno,
+          input$ExplanatoryPheno
+        )
+      )
+    sub_set <- input$QA_subset
+    things_to_model_QA <- unique(temp[sub_set])
+    tau = c(0.25,0.5,0.75)
+    fit_qr=list()
+    
+    for (i in 1:nrow(things_to_model_QA)) {
+      if(ncol(things_to_model_QA)==1){
+        super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+        
+      } else 
+      {
+        super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+        
+      } 
+      super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+      colnames(super_temp2)[1]= "y"
+      fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+      
+    }
+    sub= setdiff(input$QA_subset, input$group_plot_by)
+    
+    if(is_empty(sub)){
+      index=c(1:nrow(things_to_model_QA))
+    }else{
+      index = which( things_to_model_QA[,sub] == input$plot_subset)
+    }
+    
+    listgroupby <- unique(as.matrix(temp[input$group_plot_by]))
+    
+    tau= c(0.25, 0.5, 0.75)
+    
+    pvalues=rep(0, length(tau))
+    plist= list()
+    
+    for(k in 1:nrow(listgroupby)){
+      for(i in 1:length(tau)){
+        pvalues[i]=cbind(coef(summary(fit_qr[[index[k]]],se="boot")[[i]])[input$Model_variable_select, "Pr(>|t|)"])
+      }
+      plist[[k]]= pvalues
+    }
+    
+    coeffi=matrix(0,nrow(listgroupby),length(tau))
+    for(i in 1:nrow(listgroupby)){
+      coeffi[i,]=coef(fit_qr[[index[i]]])[input$Model_variable_select,] 
+    }
+    
+    col= rainbow(nrow(listgroupby))
+    
+    par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
+    plot(tau,coef(fit_qr[[index[1]]])[input$Model_variable_select,],
+         pch=ifelse(plist[[1]]< as.numeric(as.character(input$p_value_threshold)) ,20,4),
+         col=ifelse(plist[[1]]< as.numeric(as.character(input$p_value_threshold)) ,col[1],"black"),
+         cex=1.5, xlab = "Quantiles", ylab = "Coefficient",
+         cex.main=1.5, cex.lab=1.5, main=input$Model_variable_select,
+         ylim=c(min(coeffi), max(coeffi)))
+    
+    lines(tau,coef(fit_qr[[index[1]]])[input$Model_variable_select,],col=col[1], cex=1.5)
+    
+    for(k in 2:nrow(listgroupby)){
+      points (tau,coef(fit_qr[[index[k]]])[input$Model_variable_select,],
+              col=ifelse(plist[[k]]< as.numeric(as.character(input$p_value_threshold)) ,col[k],"black"),
+              pch=ifelse(plist[[k]]<as.numeric(as.character(input$p_value_threshold)) ,20,4),cex=1.5)
+      lines (tau,coef(fit_qr[[index[k]]])[input$Model_variable_select,],col=col[k],cex=1.5)
+    }
+    
+    legend("topright",inset=c(-0.15,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
+           bty = "n",xpd=NA,cex=1)
+    
+  })
+  
+  
+  ## slider
+  output$QA_plot_slider_input <- renderUI({
+    if(input$model_type_plot == "single plot"){
+      return()
+    }
+    else{
+      temp <-
+        subset(
+          QA_final_data_display(),
+          select = c(
+            input$ExplanatoryPheno
+          )
+        )
+      temp_expl <- subset(
+        QA_final_data_display(),
+        select = c(
+          input$ExplanatoryPheno
+        )
+      )
+      expl= colnames(temp_expl)
+      maxi <- ncol(temp_expl)
+      sliderInput(inputId = "QA_plot_slider", label = "Show plot of variables starting from:", min=1, max=maxi, value=1, step=4)
+    }
+  })
+  
+  
+  
+  
+  # PLOTS - multiple 
+  QA_plot_multi <- eventReactive(input$Go_plot,{
+    
+    temp <-
+      subset(
+        QA_final_data_display(),
+        select = c(
+          input$QA_subset,
+          input$ResponsePheno,
+          input$ExplanatoryPheno
+        )
+      )
+    sub_set <- input$QA_subset
+    things_to_model_QA <- unique(temp[sub_set])
+    tau = c(0.25,0.5,0.75)
+    fit_qr=list()
+    
+    for (i in 1:nrow(things_to_model_QA)) {
+      if(ncol(things_to_model_QA)==1){
+        super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+        
+      } else 
+      {
+        super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+        
+      } 
+      super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+      colnames(super_temp2)[1]= "y"
+      fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+      
+    }
+    
+    sub= setdiff(input$QA_subset, input$group_plot_by)
+    if(is_empty(sub)){
+      index=c(1:nrow(things_to_model_QA))
+    }else{
+      index = which( things_to_model_QA[,sub] == input$plot_subset)
+    }    
+    
+    listgroupby <- unique(as.matrix(temp[input$group_plot_by]))
+    
+    tau= c(0.25, 0.5, 0.75)
+    
+    pvalues=rep(0, length(tau))
+    plist= list()
+    
+    
+    temp_expl <- subset(
+      QA_final_data_display(),
+      select = c(
+        input$ExplanatoryPheno
+      )
+    )
+    expl= colnames(temp_expl)
+    
+    par(mfrow=c(2,2))
+    var = min(length(expl), input$QA_plot_slider+3)
+    for(j in input$QA_plot_slider:var){
+      
+      for(k in 1:nrow(listgroupby)){
+        for(i in 1:length(tau)){
+          pvalues[i]=cbind(coef(summary(fit_qr[[index[k]]],se="boot")[[i]])[expl[j], "Pr(>|t|)"])
+        }
+        plist[[k]]= pvalues
+      }
+      
+      coeffi=matrix(0,nrow(listgroupby),length(tau))
+      for(i in 1:nrow(listgroupby)){
+        coeffi[i,]=coef(fit_qr[[index[i]]])[expl[j],] 
+      }
+      
+      col= rainbow(nrow(listgroupby))
+      
+      par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
+      plot(tau,coef(fit_qr[[index[1]]])[expl[j],],
+           pch=ifelse(plist[[1]]<as.numeric(as.character(input$p_value_threshold)) ,20,4),
+           col=ifelse(plist[[1]]<as.numeric(as.character(input$p_value_threshold)) ,col[1],"black"),
+           cex=1.5, xlab = "Quantiles", ylab = "Coefficient",
+           cex.main=1.5, cex.lab=1.5, main=expl[j],
+           ylim=c(min(coeffi), max(coeffi)))
+      
+      lines(tau,coef(fit_qr[[index[1]]])[expl[j],],col=col[1], cex=1.5)
+      
+      for(k in 2:nrow(listgroupby)){
+        points (tau,coef(fit_qr[[index[k]]])[expl[j],],
+                col=ifelse(plist[[k]]< as.numeric(as.character(input$p_value_threshold)) ,col[k],"black"),
+                pch=ifelse(plist[[k]]<0.05 ,20,4),cex=1.5)
+        lines (tau,coef(fit_qr[[index[k]]])[expl[j],],col=col[k],cex=1.5)
+      }
+      
+      legend("topright",inset=c(-0.3,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
+             bty = "n",xpd=NA,cex=1)
+      
+    }
+    
+  })
+  
+  # output$downl_plot_QA <-  
+  #    downloadHandler(
+  
+  #   filename = function(){paste("Quantile plots MVApp", "pdf" , sep=".") },
+  #  content = function(file) {
+  #    pdf(file)
+  #    print(QA_plot_multi())
+  #    dev.off()
+  #  } 
+  #)  
+  
+  output$QA_plot <- renderPlot({
+    if(input$model_type_plot == "single plot"){
+      QA_plot_single()
+    }
+    
+    if(input$model_type_plot == "multiple plots"){
+      QA_plot_multi()
+    }
+    
+  })
+  
   
   # end of the script
 }

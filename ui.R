@@ -131,12 +131,12 @@ fluidPage(
                                   uiOutput("Model_download_button"),
                                   dataTableOutput("Model_data")),
                          tabPanel("Fit-Plot",
-                                  column(4, uiOutput("Select_model_plot_type")),
+                                  column(4, uiOutput("Select_model_plot_type"),
+                                         uiOutput("Go_fitplot_model"),
+                                            uiOutput("Model_fit_graph_download_button")),
                                   column(4, uiOutput("Select_modelPlot")),
                                   column(4, uiOutput("Model_graph_fit_select_multi_input")),
                                   column(4, uiOutput("Fit_plot_slider_input")),
-                                  
-                                  uiOutput("Go_fitplot_model"),
                                   plotOutput("Fit_plot_only_graph",height = 750)),
                          tabPanel("Examine differences",
                                   verbatimTextOutput("model_comparison_report"),
@@ -605,15 +605,60 @@ tabPanel("Heritability", icon=icon("pagelines"),
          # end of Tab #9 
 ),                           
 
-# Tab 10 = = = = = = = = = = = = = = >> HERITABILITY << = = = = = = = = = = = = = = = = = = 
+# Tab 10 = = = = = = = = = = = = = = >> QUANTILE ANALYSIS << = = = = = = = = = = = = = = = = = = 
 
 tabPanel("Quantile regression", icon = icon("paper-plane-o"),
-
-         "This tab is currently under construction - main contributors Gaurav Aragwal with some sateline help from Magdalena Julkowska", br(),
-         "Please be patient and send us an e mail in case you have some analysis you would like to include in the App", br(), br(),
-         "Chers & glittes data-analyst!"    
-
-         )
+         sidebarPanel(
+           fluidRow(
+             uiOutput("QA_data_type"),
+             uiOutput("Pheno_Response"),
+             uiOutput("QA_subset_trait"),
+             uiOutput("Pheno_explanatory"),
+             uiOutput("p_value_thresh"),
+             checkboxInput("Scale_QA", label = "Scale the data for quantile analysis?"),
+             actionButton("Go_data", label = "Click to set the data ")
+           )), # end of sidebar panel
+         mainPanel(
+           navbarPage("Analyze it",
+                      tabPanel("Selected Dataset", 
+                               dataTableOutput("QA_raw_table")
+                      ),
+                      tabPanel("Final data for analysis", 
+                               dataTableOutput("QA_final_table")
+                      ),
+                      tabPanel("Modelled data", 
+                               uiOutput("Choose_subset_specific"),
+                               #actionButton("Go_QA", label = "Unleash model estimation"),
+                               verbatimTextOutput("significant_variables"),
+                               uiOutput("table_download_button"),
+                               dataTableOutput("Result_table")
+                      ),
+                      
+                      tabPanel("Quantile plots", 
+                               fluidRow(
+                                 column(4,uiOutput("Group_plot")),
+                                 column(4,uiOutput("subset_plot"))
+                               ),
+                               br(),
+                               
+                               fluidRow(
+                                 column(4,uiOutput("model_plot_type")),
+                                 column(4,uiOutput("Select_model_variable")),
+                                 column(4,uiOutput("QA_plot_slider_input"))
+                                 
+                               ),
+                               actionButton("Go_plot", label = "View plot(s):"),
+                               
+                               plotOutput("QA_plot", height = 425),
+                               downloadButton("downl_plot_QA", "Download plot")
+                               #          br(),
+                               #           uiOutput("QA_plot_download")
+                               
+                      )
+           )  
+         ) # end of main panel
+         
+) # end of quantile tab
 
 # end of App - final brackets
   )
