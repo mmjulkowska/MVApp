@@ -42,7 +42,9 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 #
 [7. CLUSTER ANALYSIS](#7-cluster-analysis)
 #
-[8. QUANTILE REGRESSION](#8-quantile-regression)
+[8. Heritability](#8-Heritability)
+#
+[9. QUANTILE REGRESSION](#9-quantile-regression)
 
 
 ### 1. DATA UPLOAD
@@ -410,7 +412,17 @@ The table below the plot summarizes the coordinates of each Dependent Variable w
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 8. QUANTILE REGRESSION
+### 8. Heritability
+Heritability is the proportion of the phenotypic variance that can be attributed to genetic variance. This statistic is important in the fields of genetics in order to assess if a trait is heritable (genetically controlled). MVapp allows you to calculate the broad-sense heritability, which is the ratio of total genetic variance to total phenotypic variance (https://www.ncbi.nlm.nih.gov/books/NBK21866/). 
+
+Make sure you enter the "Year" and/or "Location" as independent variables when you upload the data. Enter the number of replicates per year/per location. If year and/or location is missing, you can choose the option "none" from the drop-down lists. You can also use to subset the data, by treatment for example, to calculate heritability within for each treatment. 
+In the example below, we have a column for Year but none for location (experiment is replicated across years in the same location). There are two replicates per accession per year.
+
+The output as shown below gives the summary of the information entered (number of replications, number of years/locations and unique values per year/location) and the summary of the model used to calculate heritability.
+
+
+
+### 9. QUANTILE REGRESSION
 
 [Quantile regression](https://en.wikipedia.org/wiki/Quantile_regression) is a way to estimate the conditional quantiles of a response variable distribution in the linear model that provides a complete view of possible causal relationships between variables. Quantile regression minimizes absolute errors and can provide a more comprehensive analysis of the effect of the predictors on the response variable than mean regression. Linear quantile regression is related to linear least-squares regression as both try to study the relationship between the predictor variables and the response variable, the only difference being that least-squares involves modeling the conditional mean of the response variable, whereas, quantile regression models the conditional quantile of response. It is especially useful in applications where extremes are important, such as environmental studies where upper quantiles of yield are critical.
 
