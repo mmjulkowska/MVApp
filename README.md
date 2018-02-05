@@ -412,14 +412,16 @@ The table below the plot summarizes the coordinates of each Dependent Variable w
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 8. Heritability
+### 8. HERITABILITY
 Heritability is the proportion of the phenotypic variance that can be attributed to genetic variance. This statistic is important in the fields of genetics in order to assess if a trait is heritable (genetically controlled). MVapp allows you to calculate the broad-sense heritability, which is the ratio of total genetic variance to total phenotypic variance (https://www.ncbi.nlm.nih.gov/books/NBK21866/). 
 
 Make sure you enter the "Year" and/or "Location" as independent variables when you upload the data. Enter the number of replicates per year/per location. If year and/or location is missing, you can choose the option "none" from the drop-down lists. You can also use to subset the data, by treatment for example, to calculate heritability within for each treatment. 
 In the example below, we have a column for Year but none for location (experiment is replicated across years in the same location). There are two replicates per accession per year.
+<img width="663" alt="heritability_1" src="https://user-images.githubusercontent.com/15339112/35803543-33443980-0a85-11e8-8973-67a87b97cf14.png">
 
 The output as shown below gives the summary of the information entered (number of replications, number of years/locations and unique values per year/location) and the summary of the model used to calculate heritability.
 
+<img width="794" alt="heritability2" src="https://user-images.githubusercontent.com/15339112/35803546-351dcb5e-0a85-11e8-9679-19729266b66e.png">
 
 
 ### 9. QUANTILE REGRESSION
