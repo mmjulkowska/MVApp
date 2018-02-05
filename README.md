@@ -421,7 +421,7 @@ In the example below, we have a column for Year but none for location (experimen
 
 The output as shown below gives the summary of the information entered (number of replications, number of years/locations and unique values per year/location) and the summary of the model used to calculate heritability.
 
-<img width="794" alt="heritability2" src="https://user-images.githubusercontent.com/15339112/35803546-351dcb5e-0a85-11e8-9679-19729266b66e.png">
+<img width="667" alt="heritability2_a" src="https://user-images.githubusercontent.com/15339112/35804191-c54e73c0-0a87-11e8-8e55-6cf50569d389.png">
 
 
 ### 9. QUANTILE REGRESSION
