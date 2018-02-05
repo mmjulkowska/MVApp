@@ -16,7 +16,7 @@ fluidPage(
         "Our background is plant biology - so you know where our bias is ;).",br(),br(),
         "The app is not published anywhere (yet - we are working on it), but if you wish to cite the app, please use the following:",
         br(), br(),
-        "Julkowska, M.M., Saade, S., Aragwal, G., Gao, G., Morton, M.J.L., Awlia, M., Paillies, Y., Tester, M., MVApp.pre-release_v2.0 mmjulkowska/MVApp: MVApp.pre-release_v2.0, DOI: 10.5281/zenodo.1067974",
+        "Julkowska, M.M., Saade, S., Agarwal, G., Gao, G., Morton, M.J.L., Awlia, M., Paillies, Y., Tester, M., MVApp.pre-release_v2.0 mmjulkowska/MVApp: MVApp.pre-release_v2.0, DOI: 10.5281/zenodo.1067974",
         br(), br(),
         "The example dataset is available ", a("here", href = "https://drive.google.com/file/d/0B08MX6N7rXcZX0xQamtweUZCbDQ/view?usp=sharing", target = "_blank"),br(), br(),
         "If you have any problems / questions / ", span("suggestions how we can improve this APP so that YOU can do your analysis smoother", style="color:red") ,"- or simply you would like to tell us how amazing the App is - please contact ",span("Magdalena.Julkowska@kaust.edu.sa", style="color:blue")

@@ -6260,7 +6260,7 @@ output$OT_graph_download_ui <- renderUI({
   output$HeritValue<-renderPrint({
     heritdata2<-Herit_data_type()
     Repnum<-as.numeric(input$RepID)
-    cat(paste("The number of replicas is",Repnum, sep=":"))
+    cat(paste("The number of replicates is",Repnum, sep=":"))
     cat("\n")
     if(input$herit_facet == F){
       if(input$SelectYear != "none" & input$SelectLocation != "none")  { 
