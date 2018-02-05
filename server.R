@@ -414,7 +414,7 @@ function(input, output) {
       }
       
       if(input$model == "smooth"){
-        if(input$spline_df == "user determined"){
+        if(input$spline_df == "user defined"){
           degree <- input$model_smoothski_df
           fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], df=degree)}
         if(input$spline_df == "automatic"){
@@ -2019,6 +2019,11 @@ output$downl_plot_MCP <- downloadHandler(
     if(input$Out_pheno_single_multi == "Single phenotype"){
       bad_shit <- Outliers_final_data() 
       bad_shit2 <- subset(bad_shit, bad_shit$outlier == TRUE)
+    }
+    if(input$Out_pheno_single_multi == "Some phenotypes"){
+      bad_shit <- Outliers_final_data() 
+      bad_shit2 <- subset(bad_shit, bad_shit$Add_outliers >= input$outlier_cutoff)
+      # AND THEN IN HERE - MAYBE I CAN DO SOME FUNKY SELECTION OF THE YES / NO OUTLIER COLUMNS? BASED ON THE SELECTED TRAITS?
     }
     
     return(bad_shit2)
