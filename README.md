@@ -44,6 +44,7 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 #
 [8. QUANTILE REGRESSION](#8-quantile-regression)
 
+
 ### 1. DATA UPLOAD
 
 #### How should I format my data?
@@ -415,7 +416,7 @@ The table below the plot summarizes the coordinates of each Dependent Variable w
 
 #### When should you use it?
 
-Quantile regression estimates are more robust against outliers in the response, so if your response variable has potential outliers or extreme data, then ordinary least squares (OLS) regression is more effected as mean is more effected by outliers, you can use median regression as a substitute. If your errors are non-normal then OLS is inefficient, but quantile regression is robust. If your data fails to satisfy the assumption of homoscedatcity of the error terms, then you can use this technique, as there is no such assumption required here. Beyond that,  quantile regression also provides a richer characterization of the data, allowing us to consider the impact of aan explantory variable on the entire distribution of response, not merely its conditional mean.
+Quantile regression estimates are more robust against outliers in the response, so if your response variable has potential outliers or extreme data, then ordinary least squares (OLS) regression is more effected as mean is more effected by outliers, you can use median regression as a substitute. If your errors are non-normal then OLS is inefficient, but quantile regression is robust. If your data fails to satisfy the assumption of homoscedatcity of the error terms, then you can use this technique, as there is no such assumption required here. Beyond that,  quantile regression also provides a richer characterization of the data, allowing us to consider the impact of an explantory variable on the entire distribution of response, not merely its conditional mean.
 
 #### Select the dataset
 
