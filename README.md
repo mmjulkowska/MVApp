@@ -42,7 +42,7 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 #
 [7. CLUSTER ANALYSIS](#7-cluster-analysis)
 #
-[8. HERITABILITY](#8-Heritability)
+[8. HERITABILITY](#8-heritability)
 #
 [9. QUANTILE REGRESSION](#9-quantile-regression)
 
