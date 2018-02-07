@@ -1416,6 +1416,7 @@ output$downl_plot_MCP <- downloadHandler(
   
   
   
+  
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   #  - - - - - - - - - - >> DATA CURATION IN 4th TAB << - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1453,13 +1454,17 @@ output$downl_plot_MCP <- downloadHandler(
   
   output$Pheno_outliers <- renderUI({
     if(is.null(ItemList()) | (input$Out_pheno_single_multi == "All phenotypes")){return()}
-    else
-      tagList(
-        selectizeInput("DV_outliers",
-                       label = "Selected phenotype for the outlier selection",
-                       choices= input$SelectDV,
-                       multiple=F)
-      )})
+    if(input$Out_pheno_single_multi == "Single phenotype"){
+      selectizeInput("DV_outliers",
+                     label = "Selected phenotype for the outlier selection",
+                     choices= input$SelectDV,
+                     multiple=F)}
+    else{
+      selectizeInput("DV_outliers",
+                     label = "Selected phenotype for the outlier selection",
+                     choices= input$SelectDV,
+                     multiple=T)}
+  })
   
   # Chose the phenotype for the graphs
   
@@ -1882,6 +1887,164 @@ output$downl_plot_MCP <- downloadHandler(
     
   })
   
+  # testing outliers based on SOME phenotypes
+  
+  Outlier_some <- reactive({
+    
+    if(input$Outlier_on_data == "raw data"){
+      data_outl <- my_data()}
+    if(input$Outlier_on_data == "r2 fitted curves curated data"){
+      data_outl <- good_r2()}
+    if(input$Outlier_on_data == "missing values removed data"){  
+      data_outl <- my_data()[complete.cases(my_data()),]}
+    if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+      data_outl <- good_r2()[complete.cases(my_data()),]}
+    
+    outl <- data_outl
+    outl$id_test <- do.call(paste,c(outl[c(input$IV_outliers)], sep = "_"))
+    
+    list <- input$DV_outliers
+    
+    for(i in 1:length(list)){
+      pheno <- list[i]
+      outl$pheno <- outl[,pheno]
+      
+      # outliers based on 1.5IQR
+      if(input$outlier_method == "1.5*IQR away from the mean (default)"){
+        
+        bad_shit <- boxplot(outl[,pheno] ~ outl$id_test)$out
+        # Adding all the outliers as a column "outlier" with 1/0 values 
+        for(e in 1:nrow(outl)){
+          if(outl[,pheno][e] %in% bad_shit){
+            outl$outlier[e] <- TRUE }
+          else{ 
+            outl$outlier[e] <- FALSE }
+        }}
+      
+      # outliers based on Cooks distance
+      if(input$outlier_method == "Cook's Distance"){
+        
+        mod <- lm(outl[,pheno] ~ outl$id_test)
+        cooksd <- cooks.distance(mod)
+        outl$outlier <- cooksd > 4*mean(cooksd)
+      }
+      
+      # outliers based on car::outlierTest
+      if(input$outlier_method == "Bonferonni outlier test"){
+        
+        mod <- lm(outl[,pheno] ~ outl$id_test)
+        baddies <- car::outlierTest(mod)
+        bad_shit <- names(baddies[[1]])
+        bad_shit <- as.numeric(bad_shit)
+        outl$outlier <- FALSE
+        outl[bad_shit,]$outlier <- TRUE
+      }
+      
+      # outliers based on mean + SD  
+      
+      if(input$outlier_method == "1xStDev from the median"){
+        
+        out_sum <- summaryBy(pheno ~ id_test, data = outl, FUN=function(x) {c(median = median(x), sd = sd(x))})
+        out_sum$min <- (out_sum$pheno.median - (1*out_sum$pheno.sd))
+        out_sum$max <- (out_sum$pheno.median + (1*out_sum$pheno.sd))
+        out_sum <- subset(out_sum, select=c("id_test", "min", "max"))
+        outl <- merge(outl, out_sum, by="id_test")
+        for(i in 1:nrow(outl)){
+          if(outl$pheno[i] > outl$max[i]){
+            outl$outlier[i] <- TRUE
+          }
+          if(outl$pheno[i] < outl$min[i]){
+            outl$outlier[i] <- TRUE
+          }
+          else{
+            outl$outlier[i] <- FALSE
+          }}
+        drops <- c("min","max", "pheno")
+        outl <- outl[ , !(names(outl) %in% drops)]
+      }
+      
+      # outliers based on mean + 2*SD  
+      
+      if(input$outlier_method == "2xStDev from the median"){
+        
+        out_sum <- summaryBy(pheno ~ id_test, data = outl, FUN=function(x) {c(median = median(x), sd = sd(x))})
+        out_sum$min <- (out_sum$pheno.median - (2*out_sum$pheno.sd))
+        out_sum$max <- (out_sum$pheno.median + (2*out_sum$pheno.sd))
+        out_sum <- subset(out_sum, select=c("id_test", "min", "max"))
+        outl <- merge(outl, out_sum, by="id_test")
+        for(i in 1:nrow(outl)){
+          if(outl$pheno[i] > outl$max[i]){
+            outl$outlier[i] <- TRUE
+          }
+          if(outl$pheno[i] < outl$min[i]){
+            outl$outlier[i] <- TRUE
+          }
+          else{
+            outl$outlier[i] <- FALSE
+          }}
+        drops <- c("min","max", "pheno")
+        outl <- outl[ , !(names(outl) %in% drops)]
+      }
+      
+      # outliers based on mean + 2.5*SD  
+      
+      if(input$outlier_method == "2.5xStDev from the median"){
+        
+        out_sum <- summaryBy(pheno ~ id_test, data = outl, FUN=function(x) {c(median = median(x), sd = sd(x))})
+        out_sum$min <- (out_sum$pheno.median - (2.5*out_sum$pheno.sd))
+        out_sum$max <- (out_sum$pheno.median + (2.5*out_sum$pheno.sd))
+        out_sum <- subset(out_sum, select=c("id_test", "min", "max"))
+        outl <- merge(outl, out_sum, by="id_test")
+        for(i in 1:nrow(outl)){
+          if(outl$pheno[i] > outl$max[i]){
+            outl$outlier[i] <- TRUE
+          }
+          if(outl$pheno[i] < outl$min[i]){
+            outl$outlier[i] <- TRUE
+          }
+          else{
+            outl$outlier[i] <- FALSE
+          }}
+        drops <- c("min","max", "pheno")
+        outl <- outl[ , !(names(outl) %in% drops)]
+      }
+      
+      # outliers based on mean + 3*SD  
+      
+      if(input$outlier_method == "3xStDev from the median"){
+        
+        out_sum <- summaryBy(pheno ~ id_test, data = outl, FUN=function(x) {c(median = median(x), sd = sd(x))})
+        out_sum$min <- (out_sum$pheno.median - (3*out_sum$pheno.sd))
+        out_sum$max <- (out_sum$pheno.median + (3*out_sum$pheno.sd))
+        out_sum <- subset(out_sum, select=c("id_test", "min", "max"))
+        outl <- merge(outl, out_sum, by="id_test")
+        for(i in 1:nrow(outl)){
+          if(outl$pheno[i] > outl$max[i]){
+            outl$outlier[i] <- TRUE
+          }
+          if(outl$pheno[i] < outl$min[i]){
+            outl$outlier[i] <- TRUE
+          }
+          else{
+            outl$outlier[i] <- FALSE
+          }}
+        drops <- c("min","max", "pheno")
+        outl <- outl[ , !(names(outl) %in% drops)]
+      }
+      drops <- c("pheno")
+      outl <- outl[ , !(names(outl) %in% drops)]
+      colnames(outl)[which(names(outl) == "outlier")] <- paste("out", pheno, sep="_")
+      
+    }
+    drops <- c("id_test")
+    outl <- outl[ , !(names(outl) %in% drops)]
+    
+    data_outl <- outl
+    # data_outl$outlier <- outl$outlier
+    return(data_outl)
+    
+  })
+  
   
   Outliers_final_data <- eventReactive(input$Go_outliers,{
     if(input$Out_pheno_single_multi == "All phenotypes"){
@@ -1889,6 +2052,9 @@ output$downl_plot_MCP <- downloadHandler(
     }
     if(input$Out_pheno_single_multi == "Single phenotype"){
       data_blob <- Outlier_data()  
+    }
+    if(input$Out_pheno_single_multi == "Some phenotypes"){
+      data_blob <- Outlier_some()
     }
     return(data_blob)
   })
@@ -1980,6 +2146,23 @@ output$downl_plot_MCP <- downloadHandler(
       pheno <-paste(input$DV_outliers)
       method <- paste(input$outlier_method)
     }
+    if(input$Out_pheno_single_multi == "Some phenotypes"){
+      
+      size <- length(input$DV_outliers)
+      start_row <- (dim(tescior)[2] - size + 1)
+      end_row <- dim(tescior)[2]
+      
+      for(x in 1:nrow(tescior)){
+        z <- tescior[x,start_row:end_row]
+        tescior$Add_outliers[x] <- length(z[z==TRUE]) 
+      }
+      number0 <- subset(tescior, tescior$Add_outliers >= 1)
+      
+      number <- nrow(number0)
+      pheno <-paste(input$DV_outliers)
+      method <- paste(input$outlier_method)
+    }
+    
     cat(paste("There are ", number," outliers identified based on", pheno, "using", method))
     cat("\n")
     cat("DISCLAIMER:") 
@@ -1991,22 +2174,94 @@ output$downl_plot_MCP <- downloadHandler(
   
   # Outlier free data (and table)
   Outlier_free_data <- eventReactive(input$Go_outliers,{
+    
+    good_shit <- Outliers_final_data()
+    
     if(input$Out_pheno_single_multi == "All phenotypes"){
-      good_shit <- Outliers_final_data()
-      good_shit2 <- subset(good_shit, good_shit$Add_outliers < input$outlier_cutoff)
+      
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        for(i in 1:length(input$SelectDV)){
+          element <- input$SelectDV[i] 
+          selector <- paste("out", input$SelectDV[i], sep = "_")
+          
+          for(e in 1:nrow(good_shit)){
+            if(good_shit[e,selector] == TRUE)
+            {good_shit[e,element] <- NA }
+          }
+        }
+        good_shit2 <- good_shit
+      }
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        good_shit2 <- subset(good_shit, good_shit$Add_outliers < input$outlier_cutoff)
+        
+      }
+      
       to_trash <- paste("out", input$SelectDV[1], sep = "_")
+      
       for(i in 2:length(input$SelectDV)){
         new_trash <- paste("out", input$SelectDV[i], sep = "_")
-        to_trash <- c(to_trash, new_trash)
-      }
+        to_trash <- c(to_trash, new_trash)}
       to_trash <- c(to_trash, "Add_outliers")
     }
+    
     if(input$Out_pheno_single_multi == "Single phenotype"){
-      good_shit <-  Outliers_final_data()
-      good_shit2 <- subset(good_shit, good_shit$outlier == FALSE)
+      
+      element <- input$DV_outliers
+      
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        for(e in 1:nrow(good_shit)){
+          if(good_shit[e,"outlier"] == TRUE)
+          {good_shit[e,element] <- NA}
+        }
+        good_shit2 <- good_shit
+      }
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        good_shit2 <- subset(good_shit, good_shit$outlier == FALSE)
+      }
       to_trash <- "outlier"
     }
+    
+    if(input$Out_pheno_single_multi == "Some phenotypes"){
+      
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        
+        list <- input$DV_outliers
+        
+        for(i in 1:length(list)){
+          element <- list[i] 
+          selector <- paste("out", element, sep="_")
+          
+          for(e in 1:nrow(good_shit)){
+            if(good_shit[e,selector] == TRUE)
+            {good_shit[e,element] <- NA}
+          }}
+        good_shit2 <- good_shit
+      }
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        size <- length(input$DV_outliers)
+        start_row <- (dim(good_shit)[2] - size + 1)
+        end_row <- dim(good_shit)[2]
+        
+        for(x in 1:nrow(good_shit)){
+          z <- good_shit[x,start_row:end_row]
+          good_shit$Add_outliers[x] <- length(z[z==TRUE]) 
+        }
+        good_shit2 <- subset(good_shit, good_shit$Add_outliers < 1)
+      }
+      
+      to_trash <- paste("out", input$DV_outliers[1], sep = "_")
+      
+      for(i in 2:length(input$DV_outliers)){
+        new_trash <- paste("out", input$DV_outliers[i], sep = "_")
+        to_trash <- c(to_trash, new_trash)
+        to_trash <- c(to_trash, "Add_outliers")
+      }}
+    
     good_shit2 <- good_shit2[, !(names(good_shit2)) %in% to_trash]
+    
     return(good_shit2)
   })
   
@@ -2016,14 +2271,24 @@ output$downl_plot_MCP <- downloadHandler(
       bad_shit <- Outliers_final_data() 
       bad_shit2 <- subset(bad_shit, bad_shit$Add_outliers >= input$outlier_cutoff)
     }
+    if(input$Out_pheno_single_multi == "Some phenotypes"){
+      bad_shit <- Outliers_final_data() 
+      size <- length(input$DV_outliers)
+      start_row <- dim(bad_shit)[2] - size + 1
+      end_row <- dim(bad_shit)[2]
+      
+      for(x in 1:nrow(bad_shit)){
+        z <- bad_shit[x,start_row:end_row]
+        bad_shit$Add_outliers[x] <- length(z[z==TRUE]) 
+      }
+      bad_shit2 <- subset(bad_shit, bad_shit$Add_outliers > 0)
+      to_trash <- ("Add_outliers")
+      bad_shit2 <- bad_shit2[, !(names(bad_shit2)) %in% to_trash]
+      
+    }
     if(input$Out_pheno_single_multi == "Single phenotype"){
       bad_shit <- Outliers_final_data() 
       bad_shit2 <- subset(bad_shit, bad_shit$outlier == TRUE)
-    }
-    if(input$Out_pheno_single_multi == "Some phenotypes"){
-      bad_shit <- Outliers_final_data() 
-      bad_shit2 <- subset(bad_shit, bad_shit$Add_outliers >= input$outlier_cutoff)
-      # AND THEN IN HERE - MAYBE I CAN DO SOME FUNKY SELECTION OF THE YES / NO OUTLIER COLUMNS? BASED ON THE SELECTED TRAITS?
     }
     
     return(bad_shit2)

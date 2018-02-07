@@ -173,6 +173,7 @@ fluidPage(
               ))
             # end of Tab3
    ),
+   
    # Tab 4 = = = = = = = = = = = = = = >> DATA CURATION << = = = = = = = = = = = = = = = = = =   
    
    tabPanel("Data curation", icon = icon("gavel"),
@@ -184,7 +185,7 @@ fluidPage(
                                                    choices =c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted and missing values removed data")),
                                     br(),
                                     uiOutput("IV_outliers_selection"),
-                                    selectizeInput("Out_pheno_single_multi", label = "Select outliers based on", choices=c("All phenotypes","Some phenotypes","Single phenotype"), multiple = F),
+                                    selectizeInput("Out_pheno_single_multi", label = "Select outliers based on", choices=c("All phenotypes", "Some phenotypes", "Single phenotype"), multiple = F),
                                     
                                     selectizeInput("outlier_method", label="Method for the outlier selection", 
                                                    choices = list(
@@ -197,6 +198,7 @@ fluidPage(
                                                      "3xStDev from the median" 
                                                    ), multiple = F),
                                     br(),
+                                    selectInput("What_happens_to_outliers", label = "Points identified as outliers:", choices = c("replaced by NA", "removed together with entire row")),
                                     uiOutput("Pheno_outliers"),
                                     uiOutput("Outliers_selection_pheno"),
                                     br(),
@@ -257,7 +259,6 @@ fluidPage(
               ))
             # end of Tab#4         
    ), 
-   
 
 # Tab 5 = = = = = = = = = = = = = = >> DATA EXPLORATION << = = = = = = = = = = = = = = = = = =    
 
