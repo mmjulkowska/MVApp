@@ -423,6 +423,7 @@ The output as shown below gives the summary of the information entered (number o
 
 <img width="667" alt="heritability2_a" src="https://user-images.githubusercontent.com/15339112/35804191-c54e73c0-0a87-11e8-8e55-6cf50569d389.png">
 
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 ### 9. QUANTILE REGRESSION
 
