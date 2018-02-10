@@ -7446,16 +7446,189 @@ output$OT_graph_download_ui <- renderUI({
     
   })
   
-  # output$downl_plot_QA <-  
-  #    downloadHandler(
+   output$downl_plot_QA <-  
+      downloadHandler(
   
-  #   filename = function(){paste("Quantile plots MVApp", "pdf" , sep=".") },
-  #  content = function(file) {
-  #    pdf(file)
-  #    print(QA_plot_multi())
-  #    dev.off()
-  #  } 
-  #)  
+     filename = function(){paste("Quantile plots MVApp", "pdf" , sep=".") },
+    content = function(file) {
+      pdf(file)
+      
+      if(input$model_type_plot == "single plot"){
+      temp <-
+        subset(
+          QA_final_data_display(),
+          select = c(
+            input$QA_subset,
+            input$ResponsePheno,
+            input$ExplanatoryPheno
+          )
+        )
+      sub_set <- input$QA_subset
+      things_to_model_QA <- unique(temp[sub_set])
+      tau = c(0.25,0.5,0.75)
+      fit_qr=list()
+      
+      for (i in 1:nrow(things_to_model_QA)) {
+        if(ncol(things_to_model_QA)==1){
+          super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+          
+        } else 
+        {
+          super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+          
+        } 
+        super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+        colnames(super_temp2)[1]= "y"
+        fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+        
+      }
+      sub= setdiff(input$QA_subset, input$group_plot_by)
+      
+      if(is_empty(sub)){
+        index=c(1:nrow(things_to_model_QA))
+      }else{
+        index = which( things_to_model_QA[,sub] == input$plot_subset)
+      }
+      
+      listgroupby <- unique(as.matrix(temp[input$group_plot_by]))
+      
+      tau= c(0.25, 0.5, 0.75)
+      
+      pvalues=rep(0, length(tau))
+      plist= list()
+      
+      for(k in 1:nrow(listgroupby)){
+        for(i in 1:length(tau)){
+          pvalues[i]=cbind(coef(summary(fit_qr[[index[k]]],se="boot")[[i]])[input$Model_variable_select, "Pr(>|t|)"])
+        }
+        plist[[k]]= pvalues
+      }
+      
+      coeffi=matrix(0,nrow(listgroupby),length(tau))
+      for(i in 1:nrow(listgroupby)){
+        coeffi[i,]=coef(fit_qr[[index[i]]])[input$Model_variable_select,] 
+      }
+      
+      col= rainbow(nrow(listgroupby))
+      
+      par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
+      plot(tau,coef(fit_qr[[index[1]]])[input$Model_variable_select,],
+           pch=ifelse(plist[[1]]< as.numeric(as.character(input$p_value_threshold)) ,20,4),
+           col=ifelse(plist[[1]]< as.numeric(as.character(input$p_value_threshold)) ,col[1],"black"),
+           cex=1.5, xlab = "Quantiles", ylab = "Coefficient",
+           cex.main=1.5, cex.lab=1.5, main=input$Model_variable_select,
+           ylim=c(min(coeffi), max(coeffi)))
+      
+      lines(tau,coef(fit_qr[[index[1]]])[input$Model_variable_select,],col=col[1], cex=1.5)
+      
+      for(k in 2:nrow(listgroupby)){
+        points (tau,coef(fit_qr[[index[k]]])[input$Model_variable_select,],
+                col=ifelse(plist[[k]]< as.numeric(as.character(input$p_value_threshold)) ,col[k],"black"),
+                pch=ifelse(plist[[k]]<as.numeric(as.character(input$p_value_threshold)) ,20,4),cex=1.5)
+        lines (tau,coef(fit_qr[[index[k]]])[input$Model_variable_select,],col=col[k],cex=1.5)
+      }
+      
+      legend("topright",inset=c(-0.32,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
+             bty = "n",xpd=NA,cex=1)
+      }
+      
+      if(input$model_type_plot == "multiple plots"){
+        temp <-
+          subset(
+            QA_final_data_display(),
+            select = c(
+              input$QA_subset,
+              input$ResponsePheno,
+              input$ExplanatoryPheno
+            )
+          )
+        sub_set <- input$QA_subset
+        things_to_model_QA <- unique(temp[sub_set])
+        tau = c(0.25,0.5,0.75)
+        fit_qr=list()
+        
+        for (i in 1:nrow(things_to_model_QA)) {
+          if(ncol(things_to_model_QA)==1){
+            super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+            
+          } else 
+          {
+            super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+            
+          } 
+          super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+          colnames(super_temp2)[1]= "y"
+          fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+          
+        }
+        
+        sub= setdiff(input$QA_subset, input$group_plot_by)
+        if(is_empty(sub)){
+          index=c(1:nrow(things_to_model_QA))
+        }else{
+          index = which( things_to_model_QA[,sub] == input$plot_subset)
+        }    
+        
+        listgroupby <- unique(as.matrix(temp[input$group_plot_by]))
+        
+        tau= c(0.25, 0.5, 0.75)
+        
+        pvalues=rep(0, length(tau))
+        plist= list()
+        
+        
+        temp_expl <- subset(
+          QA_final_data_display(),
+          select = c(
+            input$ExplanatoryPheno
+          )
+        )
+        expl= colnames(temp_expl)
+        
+        par(mfrow=c(2,2))
+        var = min(length(expl), input$QA_plot_slider+3)
+        for(j in input$QA_plot_slider:var){
+          
+          for(k in 1:nrow(listgroupby)){
+            for(i in 1:length(tau)){
+              pvalues[i]=cbind(coef(summary(fit_qr[[index[k]]],se="boot")[[i]])[expl[j], "Pr(>|t|)"])
+            }
+            plist[[k]]= pvalues
+          }
+          
+          coeffi=matrix(0,nrow(listgroupby),length(tau))
+          for(i in 1:nrow(listgroupby)){
+            coeffi[i,]=coef(fit_qr[[index[i]]])[expl[j],] 
+          }
+          
+          col= rainbow(nrow(listgroupby))
+          
+          par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
+          plot(tau,coef(fit_qr[[index[1]]])[expl[j],],
+               pch=ifelse(plist[[1]]<as.numeric(as.character(input$p_value_threshold)) ,20,4),
+               col=ifelse(plist[[1]]<as.numeric(as.character(input$p_value_threshold)) ,col[1],"black"),
+               cex=1.5, xlab = "Quantiles", ylab = "Coefficient",
+               cex.main=1.5, cex.lab=1.5, main=expl[j],
+               ylim=c(min(coeffi), max(coeffi)))
+          
+          lines(tau,coef(fit_qr[[index[1]]])[expl[j],],col=col[1], cex=1.5)
+          
+          for(k in 2:nrow(listgroupby)){
+            points (tau,coef(fit_qr[[index[k]]])[expl[j],],
+                    col=ifelse(plist[[k]]< as.numeric(as.character(input$p_value_threshold)) ,col[k],"black"),
+                    pch=ifelse(plist[[k]]<0.05 ,20,4),cex=1.5)
+            lines (tau,coef(fit_qr[[index[k]]])[expl[j],],col=col[k],cex=1.5)
+          }
+          
+          legend("topright",inset=c(-0.8,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
+                 bty = "n",xpd=NA,cex=1)
+          
+        }
+      }
+      
+      dev.off()
+    } 
+  )  
   
   output$QA_plot <- renderPlot({
     if(input$model_type_plot == "single plot"){
