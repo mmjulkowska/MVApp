@@ -5454,6 +5454,7 @@ output$OT_graph_download_ui <- renderUI({
         temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
         temp2 <- summaryBy(.~ id, data=temp2)  
       }}
+    
     return(temp2)
   })
   
@@ -5473,6 +5474,9 @@ output$OT_graph_download_ui <- renderUI({
     clust_temp <- Final_data_cluster()
     clust_temp <- na.omit(clust_temp)
     clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+    if(input$Hcluster_scale_Q == T){
+      clust_matrix <- scale(clust_matrix)
+    }
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
@@ -5503,6 +5507,8 @@ output$OT_graph_download_ui <- renderUI({
       clust_temp <- Final_data_cluster()
       clust_temp <- na.omit(clust_temp)
       clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+      if(input$Hcluster_scale_Q == T){
+        clust_matrix <- scale(clust_matrix)}
       row.names(clust_matrix) <- clust_temp$id
       clust_matrix = as.matrix(clust_matrix)
       clust_t_matrix = t(clust_matrix)
@@ -5520,6 +5526,8 @@ output$OT_graph_download_ui <- renderUI({
     clust_temp <- Final_data_cluster()
     clust_temp <- na.omit(clust_temp)
     clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+    if(input$Hcluster_scale_Q == T){
+      clust_matrix <- scale(clust_matrix)}
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
@@ -5531,6 +5539,99 @@ output$OT_graph_download_ui <- renderUI({
   
   output$HotHeatMap <- renderPlot({
     HHeatMap()
+  })
+  
+  # Figure legend:
+  output$HHCC_legend_show <- renderUI({
+    if(input$show_HHMCC_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_HHCC")
+    }
+  })
+  
+  output$Legend_HHCC <- renderPrint({
+    which_data <- input$Cluster_data  
+    phenotypes_HHCC <- input$Cluster_pheno
+    if(input$Cluster_pre_calc == T){
+      value <- "mean"}
+    if(input$Cluster_pre_calc == F){
+      value <- "value"}
+    
+    # Data curation:
+    if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
+      
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
+    
+    # replica number
+    if(input$Cluster_pre_calc == T){
+      temp <- Data_for_cluster()
+      
+      if(input$Cluster_subset_Q == T){
+        subset_lista <- input$Cluster_subset_T
+          id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+          id_lista2 <- setdiff(id_lista, subset_lista)
+          temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+          temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+          temp <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+          temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+          colnames(temp2)[2] <- "pheno"
+          temp2 <- na.omit(temp2)
+          sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})}
+      
+      if(input$Cluster_subset_Q == F){
+          temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+          temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+          colnames(temp2)[2] <- "pheno"
+          temp2 <- na.omit(temp2)
+          sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})}
+    
+      reps <- mean(sum_temp2$pheno.n)
+      }
+    
+    cat("# # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    cat("The heatmap representing", phenotypes_HHCC, "used for clustering.") 
+    if(input$Cluster_subset_Q == T){
+      cat(" The data was subsetted per", input$Cluster_subset_T, "and the heatmap represents", input$Cluster_subset_S, "subset.")}
+    cat(" Traits and individual samples are clustered using", input$Cluster_method, "method. Columns represent the", value, "of individual samples, while the rows are representing selected phenotypes (", phenotypes_HHCC,").")
+    cat(" The presented heatmap was calculated using", which_data) 
+
+    # Data curation:
+    if(input$Cluster_data == "outliers removed"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(how_many == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
+    
+    # number of replicas:
+    if(input$Cluster_pre_calc == T){
+      cat(" The average number of replicates is", round(reps, digits=2),".")}
+    if(input$Hcluster_scale_Q == T){
+      cat(" The samples were scaled prior to clutering.")}
+    cat(" Red and blue represent high and low trait value respectively. The values of individual samples are normalized per trait using z-Fisher transformation.")  
+    
   })
   
   output$HotHeatMap_ui <- renderUI({
@@ -5548,6 +5649,8 @@ output$OT_graph_download_ui <- renderUI({
       clust_temp <- Final_data_cluster()
       clust_temp <- na.omit(clust_temp)
       clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+      if(input$Hcluster_scale_Q == T){
+        clust_matrix <- scale(clust_matrix)}
       row.names(clust_matrix) <- clust_temp$id
       clust_matrix = as.matrix(clust_matrix)
       clust_t_matrix = t(clust_matrix)
@@ -5567,6 +5670,8 @@ output$OT_graph_download_ui <- renderUI({
       clust_temp <- Final_data_cluster()
       clust_temp <- na.omit(clust_temp)
       clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+      if(input$Hcluster_scale_Q == T){
+        clust_matrix <- scale(clust_matrix)}
       row.names(clust_matrix) <- clust_temp$id
       clust_matrix = as.matrix(clust_matrix)
       clust_t_matrix = t(clust_matrix)
@@ -5589,6 +5694,8 @@ output$OT_graph_download_ui <- renderUI({
     clust_temp <- Final_data_cluster()
     clust_temp <- na.omit(clust_temp)
     clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+    if(input$Hcluster_scale_Q == T){
+      clust_matrix <- scale(clust_matrix)}
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
@@ -5667,6 +5774,8 @@ output$OT_graph_download_ui <- renderUI({
     clust_temp <- Final_data_cluster()
     clust_temp <- na.omit(clust_temp)
     clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+    if(input$Hcluster_scale_Q == T){
+      clust_matrix <- scale(clust_matrix)}
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
@@ -5757,6 +5866,8 @@ output$OT_graph_download_ui <- renderUI({
     clust_temp <- Final_data_cluster()
     clust_temp <- na.omit(clust_temp)
     clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+    if(input$Hcluster_scale_Q == T){
+      clust_matrix <- scale(clust_matrix)}
     row.names(clust_matrix) <- clust_temp$id
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
@@ -5850,6 +5961,8 @@ output$OT_graph_download_ui <- renderUI({
       clust_temp <- Final_data_cluster()
       clust_temp <- na.omit(clust_temp)
       clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+      if(input$Hcluster_scale_Q == T){
+        clust_matrix <- scale(clust_matrix)}
       row.names(clust_matrix) <- clust_temp$id
       clust_matrix = as.matrix(clust_matrix)
       clust_t_matrix = t(clust_matrix)
