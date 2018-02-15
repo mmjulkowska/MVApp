@@ -2477,21 +2477,6 @@ output$downl_plot_MCP <- downloadHandler(
       write.csv(Outlier_free_data(), file)}
   )
   
-  # Lock the no-outlier data for further analysis:
-  output$Outliers_save <- renderUI({
-    if(is.null(Outliers_final_data())){
-      return()
-    }
-    else{
-      actionButton("lock_outliers", icon=icon("thumbs-down"), label = "Lock this outlier-free data for further analysis")
-    }
-  })
-  
-  no_outliers <- eventReactive(input$lock_outliers,{
-    tratata <- Outlier_free_data()
-    return(tratata)
-  })
-  
   # = = = >> GRAPH CONTAINING ALL THE DATA << = = = 
     
   OutG <- reactive({  
@@ -3084,8 +3069,6 @@ output$downl_plot_MCP <- downloadHandler(
   })  
   
   Histo_data_type <- eventReactive(exists(input$Histo_data),{
-    
-    
     if (input$Histo_data == "raw data") {
       Histo_data_type <- my_data()
     }
@@ -3190,8 +3173,6 @@ output$downl_plot_MCP <- downloadHandler(
       return()
     }
   })
-  
-  
   
   output$HistType <- renderUI({
     if ((input$Go_Data == FALSE)) {
@@ -4629,7 +4610,8 @@ output$OT_graph_download_ui <- renderUI({
           choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   })  
   
-  PCA_data_type <- eventReactive(input$Go_PCAdata,{
+  
+   PCA_data_type <- eventReactive(input$Go_PCAdata,{
     if(input$PCA_data == "raw data"){
       PCA_data_type <- my_data()
     }
@@ -4642,7 +4624,7 @@ output$OT_graph_download_ui <- renderUI({
     if(input$PCA_data == "r2 fitted curves curated data with missing values removed"){
       PCA_data_type <- good_r2()[complete.cases(good_r2()),]
     }
-    if(input$PCA_data == "outliers removed"){
+    if(input$PCA_data == "outliers removed data"){
       PCA_data_type <- Outlier_free_data()
     }
     PCA_data_type
@@ -4979,7 +4961,7 @@ output$OT_graph_download_ui <- renderUI({
   if(input$MDS_data == "r2 fitted curves curated data with missing values removed"){
     MDS_data_type <- good_r2()[complete.cases(good_r2()),]
   }
-  if(input$MDS_data == "outliers removed"){
+  if(input$MDS_data == "outliers removed data"){
     MDS_data_type <- Outlier_free_data()
   }
     MDS_data_type
@@ -5320,7 +5302,7 @@ output$OT_graph_download_ui <- renderUI({
     if(input$Cluster_data == "r2 fitted curves curated data with missing values removed"){
       Data_for_cluster <- good_r2()[complete.cases(good_r2()),]
     }
-    if(input$Cluster_data == "outliers removed"){
+    if(input$Cluster_data == "outliers removed data"){
       Data_for_cluster <- Outlier_free_data()
     }
     Data_for_cluster
@@ -5422,6 +5404,10 @@ output$OT_graph_download_ui <- renderUI({
         ))}
   })
   
+  output$data_HClust_table <- renderDataTable({
+    Data_for_cluster()
+  })
+  
   # = = = = = = = = = = = >> MAIN CALCULATIONS AND TABLES << = = = = = = = = = = = = = = = 
   
   Final_data_cluster <- eventReactive(input$Go_cluster,{
@@ -5434,7 +5420,8 @@ output$OT_graph_download_ui <- renderUI({
         temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
         temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
         temp2 <- subset(temp, temp$sub_id == input$Cluster_subset_S)
-        temp2 <- subset(temp2, select = c("id", input$Cluster_pheno))}
+        temp2 <- subset(temp2, select = c("id", input$Cluster_pheno))
+        temp2 <- na.omit(temp2)}
       if(input$Cluster_pre_calc == T){
         id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
         id_lista2 <- setdiff(id_lista, subset_lista)
@@ -5442,19 +5429,31 @@ output$OT_graph_download_ui <- renderUI({
         temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
         temp <- subset(temp, temp$sub_id == input$Cluster_subset_S)
         temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        temp2 <- na.omit(temp2)
         temp2 <- summaryBy(.~ id, data=temp2)}
     }
     if(input$Cluster_subset_Q == F){
       if(input$Cluster_pre_calc == F){
         temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
         temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        temp2 <- na.omit(temp2)
       }
       if(input$Cluster_pre_calc == T){
         temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
         temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        temp2 <- na.omit(temp2)
         temp2 <- summaryBy(.~ id, data=temp2)  
       }}
-    return(temp2)
+    
+    
+    clust_temp <- temp2
+    clust_temp <- na.omit(clust_temp)
+    clust_matrix <- clust_temp[,2:ncol(clust_temp)]
+    if(input$Hcluster_scale_Q == T){
+      clust_matrix <- scale(clust_matrix)
+    }
+    row.names(clust_matrix) <- clust_temp$id
+    return(clust_matrix)
   })
   
   output$Final_cluster_table <- renderDataTable({
@@ -5470,10 +5469,7 @@ output$OT_graph_download_ui <- renderUI({
   # = = = = = = = = = >> OUTPUT PLOTS AND SENTENCES << = = = = = = = = = = = = = = 
   
   Cluster_DENDRO <- reactive({
-    clust_temp <- Final_data_cluster()
-    clust_temp <- na.omit(clust_temp)
-    clust_matrix <- clust_temp[,2:ncol(clust_temp)]
-    row.names(clust_matrix) <- clust_temp$id
+    clust_matrix <- Final_data_cluster()
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
     clust_t_cor = cor(clust_t_matrix,method="pearson")
@@ -5488,6 +5484,99 @@ output$OT_graph_download_ui <- renderUI({
     Cluster_DENDRO()
   })
   
+  
+  # Figure legend:
+  output$Dendro_legend_show <- renderUI({
+    if(input$show_Dendro_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_Dendro")
+    }
+  })
+  
+  output$Legend_Dendro <- renderPrint({
+    which_data <- input$Cluster_data  
+    phenotypes_HHCC <- input$Cluster_pheno
+    if(input$Cluster_pre_calc == T){
+      value <- "mean"}
+    if(input$Cluster_pre_calc == F){
+      value <- "value"}
+    
+    # Data curation:
+    if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
+      
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
+    
+    # replica number
+    if(input$Cluster_pre_calc == T){
+      temp <- Data_for_cluster()
+      
+      if(input$Cluster_subset_Q == T){
+        subset_lista <- input$Cluster_subset_T
+        id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+        id_lista2 <- setdiff(id_lista, subset_lista)
+        temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+        temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+        temp <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+        temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        colnames(temp2)[2] <- "pheno"
+        temp2 <- na.omit(temp2)
+        sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})}
+      
+      if(input$Cluster_subset_Q == F){
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+        temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        colnames(temp2)[2] <- "pheno"
+        temp2 <- na.omit(temp2)
+        sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})}
+      
+      reps <- mean(sum_temp2$pheno.n)
+    }
+    
+    cat("# # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    cat("The dendrogram representing the clustering of the samples based on", phenotypes_HHCC, ".") 
+    if(input$Cluster_subset_Q == T){
+      cat(" The data was subsetted per", input$Cluster_subset_T, "and the dendrogram represents", input$Cluster_subset_S, "subset.")}
+    cat(" Samples are clustered using", input$Cluster_method, "method.")
+    cat(" The presented dendrogram was calculated using", which_data,".") 
+    
+    # Data curation:
+    if(input$Cluster_data == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(how_many == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
+    
+    # number of replicas:
+    if(input$Cluster_pre_calc == T){
+      cat(" The individual samples are representative of the each pre-defined group calculated from ", round(reps, digits=2),"replicates on average.")}
+    if(input$Hcluster_scale_Q == T){
+      cat(" The samples were scaled prior to clutering.")}
+  })
+  
+  
   output$ClusterTree_ui <- renderUI({
     if(is.null(Final_data_cluster())){
       return()}
@@ -5500,10 +5589,7 @@ output$OT_graph_download_ui <- renderUI({
     content = function(file) {
       pdf(file)
       
-      clust_temp <- Final_data_cluster()
-      clust_temp <- na.omit(clust_temp)
-      clust_matrix <- clust_temp[,2:ncol(clust_temp)]
-      row.names(clust_matrix) <- clust_temp$id
+      clust_matrix <- Final_data_cluster()
       clust_matrix = as.matrix(clust_matrix)
       clust_t_matrix = t(clust_matrix)
       clust_t_cor = cor(clust_t_matrix,method="pearson")
@@ -5517,10 +5603,7 @@ output$OT_graph_download_ui <- renderUI({
     })
   
   HHeatMap <- reactive({
-    clust_temp <- Final_data_cluster()
-    clust_temp <- na.omit(clust_temp)
-    clust_matrix <- clust_temp[,2:ncol(clust_temp)]
-    row.names(clust_matrix) <- clust_temp$id
+    clust_matrix <- Final_data_cluster()
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
     clust_t_cor = cor(clust_t_matrix,method="pearson")
@@ -5531,6 +5614,99 @@ output$OT_graph_download_ui <- renderUI({
   
   output$HotHeatMap <- renderPlot({
     HHeatMap()
+  })
+  
+  # Figure legend:
+  output$HHCC_legend_show <- renderUI({
+    if(input$show_HHMCC_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_HHCC")
+    }
+  })
+  
+  output$Legend_HHCC <- renderPrint({
+    which_data <- input$Cluster_data  
+    phenotypes_HHCC <- input$Cluster_pheno
+    if(input$Cluster_pre_calc == T){
+      value <- "mean"}
+    if(input$Cluster_pre_calc == F){
+      value <- "value"}
+    
+    # Data curation:
+    if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
+      
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
+    
+    # replica number
+    if(input$Cluster_pre_calc == T){
+      temp <- Data_for_cluster()
+      
+      if(input$Cluster_subset_Q == T){
+        subset_lista <- input$Cluster_subset_T
+          id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+          id_lista2 <- setdiff(id_lista, subset_lista)
+          temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+          temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+          temp <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+          temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+          colnames(temp2)[2] <- "pheno"
+          temp2 <- na.omit(temp2)
+          sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})}
+      
+      if(input$Cluster_subset_Q == F){
+          temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+          temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+          colnames(temp2)[2] <- "pheno"
+          temp2 <- na.omit(temp2)
+          sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})}
+    
+      reps <- mean(sum_temp2$pheno.n)
+      }
+    
+    cat("# # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    cat("The heatmap representing", phenotypes_HHCC, "used for clustering.") 
+    if(input$Cluster_subset_Q == T){
+      cat(" The data was subsetted per", input$Cluster_subset_T, "and the heatmap represents", input$Cluster_subset_S, "subset.")}
+    cat(" Traits and individual samples are clustered using", input$Cluster_method, "method. Columns represent the", value, "of individual samples, while the rows are representing selected phenotypes (", phenotypes_HHCC,").")
+    cat(" The presented heatmap was calculated using", which_data) 
+
+    # Data curation:
+    if(input$Cluster_data == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(how_many == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
+    
+    # number of replicas:
+    if(input$Cluster_pre_calc == T){
+      cat(" The average number of replicates is", round(reps, digits=2),".")}
+    if(input$Hcluster_scale_Q == T){
+      cat(" The samples were scaled prior to clutering.")}
+    cat(" Red and blue represent high and low trait value respectively. The values of individual samples are normalized per trait using z-Fisher transformation.")  
+    
   })
   
   output$HotHeatMap_ui <- renderUI({
@@ -5545,10 +5721,8 @@ output$OT_graph_download_ui <- renderUI({
     filename = function(){paste("Heat map of the samples used for hierarchical clustering using ", input$Cluster_data, " with ", input$Cluster_pheno, " MVApp.pdf")},
     content = function(file) {
       pdf(file)
-      clust_temp <- Final_data_cluster()
-      clust_temp <- na.omit(clust_temp)
-      clust_matrix <- clust_temp[,2:ncol(clust_temp)]
-      row.names(clust_matrix) <- clust_temp$id
+      
+      clust_matrix <- Final_data_cluster()
       clust_matrix = as.matrix(clust_matrix)
       clust_t_matrix = t(clust_matrix)
       clust_t_cor = cor(clust_t_matrix,method="pearson")
@@ -5564,10 +5738,7 @@ output$OT_graph_download_ui <- renderUI({
       cat("NUMERIC value at which to cut the dendrogram to segregate the samples into separate clusters:")
     }
     else{
-      clust_temp <- Final_data_cluster()
-      clust_temp <- na.omit(clust_temp)
-      clust_matrix <- clust_temp[,2:ncol(clust_temp)]
-      row.names(clust_matrix) <- clust_temp$id
+      clust_matrix <- Final_data_cluster()
       clust_matrix = as.matrix(clust_matrix)
       clust_t_matrix = t(clust_matrix)
       clust_t_cor = cor(clust_t_matrix,method="pearson")
@@ -5586,10 +5757,7 @@ output$OT_graph_download_ui <- renderUI({
 
   Cluster_table_data <- eventReactive(input$Split_cluster,{
     # perform clustering on the selected dataset  
-    clust_temp <- Final_data_cluster()
-    clust_temp <- na.omit(clust_temp)
-    clust_matrix <- clust_temp[,2:ncol(clust_temp)]
-    row.names(clust_matrix) <- clust_temp$id
+    clust_matrix <- Final_data_cluster()
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
     clust_t_cor = cor(clust_t_matrix,method="pearson")
@@ -5664,10 +5832,7 @@ output$OT_graph_download_ui <- renderUI({
   
   output$HotAnovaNews <- renderPrint({
     
-    clust_temp <- Final_data_cluster()
-    clust_temp <- na.omit(clust_temp)
-    clust_matrix <- clust_temp[,2:ncol(clust_temp)]
-    row.names(clust_matrix) <- clust_temp$id
+    clust_matrix <- Final_data_cluster()
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
     clust_t_cor = cor(clust_t_matrix,method="pearson")
@@ -5754,10 +5919,7 @@ output$OT_graph_download_ui <- renderUI({
   })
   
   HANOVA <- reactive({
-    clust_temp <- Final_data_cluster()
-    clust_temp <- na.omit(clust_temp)
-    clust_matrix <- clust_temp[,2:ncol(clust_temp)]
-    row.names(clust_matrix) <- clust_temp$id
+    clust_matrix <- Final_data_cluster()
     clust_matrix = as.matrix(clust_matrix)
     clust_t_matrix = t(clust_matrix)
     clust_t_cor = cor(clust_t_matrix,method="pearson")
@@ -5834,6 +5996,97 @@ output$OT_graph_download_ui <- renderUI({
     HANOVA()
     })
   
+  # HC ANOVA Figure legend:
+  
+  # Figure legend:
+  output$HCANOVA_legend_show <- renderUI({
+    if(input$show_HCANOVA_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_HCANOVA")
+    }
+  })
+  
+  output$Legend_HCANOVA <- renderPrint({
+    which_data <- input$Cluster_data  
+    phenotypes_HHCC <- input$Cluster_pheno
+    if(input$Cluster_pre_calc == T){
+      value <- "mean"}
+    if(input$Cluster_pre_calc == F){
+      value <- "value"}
+    
+    # Data curation:
+    if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
+      
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
+    
+    # replica number
+    if(input$Cluster_pre_calc == T){
+      temp <- Data_for_cluster()
+      
+      if(input$Cluster_subset_Q == T){
+        subset_lista <- input$Cluster_subset_T
+        id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+        id_lista2 <- setdiff(id_lista, subset_lista)
+        temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+        temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+        temp <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+        temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        colnames(temp2)[2] <- "pheno"
+        temp2 <- na.omit(temp2)
+        sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})}
+      
+      if(input$Cluster_subset_Q == F){
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+        temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        colnames(temp2)[2] <- "pheno"
+        temp2 <- na.omit(temp2)
+        sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})}
+      
+      reps <- mean(sum_temp2$pheno.n)
+    }
+    
+    cat("# # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    cat("The hierarchical clusters validation. The box plots represent", input$Clust_test, "of the samples grouped into hierarchical clustered based on", phenotypes_HHCC, ". Different colours represent individual clusters") 
+    if(input$Cluster_subset_Q == T){
+      cat(" The data used for hierarchical clustering was subsetted per", input$Cluster_subset_T, "and the box plot represents", input$Cluster_subset_S, "subset.")}
+    cat(" Hierarchical clustering was performed using", input$Cluster_method, "method.")
+    cat(" The hierarchical clusteres were calculated using", which_data,".") 
+    
+    # Data curation:
+    if(input$Cluster_data == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(how_many == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
+    if(input$Hcluster_scale_Q == T){
+      cat(" The samples were scaled prior to hierarchical clutering.")}
+    cat(" The letters above the graph indicate significantly different groups, as tested with Tukey HSD pairwise test with p-value < 0.05.")
+  })
+  
+  
   output$HotANOVA_ui <- renderUI({
     if(is.null(Final_data_cluster())){
       return()}
@@ -5847,10 +6100,7 @@ output$OT_graph_download_ui <- renderUI({
     content = function(file) {
       pdf(file)
       
-      clust_temp <- Final_data_cluster()
-      clust_temp <- na.omit(clust_temp)
-      clust_matrix <- clust_temp[,2:ncol(clust_temp)]
-      row.names(clust_matrix) <- clust_temp$id
+      clust_matrix <- Final_data_cluster()
       clust_matrix = as.matrix(clust_matrix)
       clust_t_matrix = t(clust_matrix)
       clust_t_cor = cor(clust_t_matrix,method="pearson")
@@ -5968,7 +6218,7 @@ output$OT_graph_download_ui <- renderUI({
   if(input$KMCluster_data == "r2 fitted curves curated data with missing values removed"){
     KMC_data_type <- good_r2()[complete.cases(good_r2()),]
   }
-  if(input$KMCluster_data == "outliers removed"){
+  if(input$KMCluster_data == "outliers removed data"){
     KMC_data_type <- Outlier_free_data()
   }
   
@@ -6674,7 +6924,7 @@ output$OT_graph_download_ui <- renderUI({
     if(input$Herit_data == "r2 fitted curves curated data with missing values removed"){
       Herit_data_type <- good_r2()[complete.cases(good_r2()),]
     }
-    if(input$Herit_data == "outliers removed"){
+    if(input$Herit_data == "outliers removed data"){
       Herit_data_type <- Outlier_free_data()
     }
     Herit_data_type
@@ -7075,7 +7325,7 @@ output$OT_graph_download_ui <- renderUI({
     if(input$data_to_use == "r2 fitted curves curated data with missing values removed"){
       QA_data <- good_r2()[complete.cases(good_r2()),]
     }
-    if(input$data_to_use == "outliers removed"){
+    if(input$data_to_use == "outliers removed data"){
       QA_data <- Outlier_free_data()
     }
     QA_data
