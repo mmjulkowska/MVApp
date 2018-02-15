@@ -333,7 +333,7 @@ fluidPage(
                                      uiOutput("CatData"),
                                      uiOutput("CatVar1"),
                                      uiOutput("CatVar2"),
-                                     checkboxInput("CatSub", label = "Sub-group your data?"),
+                                     checkboxInput("CatSub", label = "Sub-group your data?", FALSE),
                                      uiOutput("CatVar3"),
                                      #actionButton("Go_Cat", label = "Lock CatVars"),
                                      #actionButton("Go_Chi", label = "Chi-square"),

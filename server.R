@@ -3989,35 +3989,46 @@ function(input, output) {
       )
   })
   
-  ## ADD MORE GRAPH CHOICE OUTPUTS HERE - Mosaic type, for ex. Faceting, for ex...
+  ########### Mosaic plot
   
   CatPl <- reactive({
     
-    my_cat_data<-CatData_type()[,c(input$CatVar1, input$CatVar2, input$CatVar3)]
-    my_cat_data<-apply(my_cat_data, 2, as.factor)
-    my_cat_data<-as.data.frame(my_cat_data)
-    CatTab<-table(my_cat_data)
-    CatTab<-ftable(CatTab)
-    CatTabDF<-data.frame(CatTab)
-    
-    if (length(my_cat_data) == 2) {
+    #if (input$CatSub == FALSE) {
+      my_cat_data<-CatData_type()[,c(input$CatVar1, input$CatVar2)]
+      my_cat_data<-apply(my_cat_data, 2, as.factor)
+      my_cat_data<-as.data.frame(my_cat_data)
+      CatTab<-table(my_cat_data)
+      CatTab<-ftable(CatTab)
+      CatTabDF<-data.frame(CatTab)
       
-    CatMos<-ggplot(data=CatTabDF) +
+      CatMos<-ggplot(data=CatTabDF) +
             geom_mosaic(aes(weight=Freq, x = product(CatTabDF[,2], CatTabDF[,1]), fill=factor(CatTabDF[,2])))
-    CatMos
     
-    } else
+    #}
+    
+    if (input$CatSub == TRUE) {
+      my_cat_data<-CatData_type()[,c(input$CatVar1, input$CatVar2, input$CatVar3)]
+      my_cat_data<-apply(my_cat_data, 2, as.factor)
+      my_cat_data<-as.data.frame(my_cat_data)
+      CatTab<-table(my_cat_data)
+      CatTab<-ftable(CatTab)
+      CatTabDF<-data.frame(CatTab)
       
       #FACET
       CatMos<-ggplot(data=CatTabDF) +
-              geom_mosaic(aes(weight=Freq, x = product(CatTabDF[,2], CatTabDF[,1]), fill=factor(CatTabDF[,2]))) + facet_grid(CatTabDF[,3]~.)
-      CatMos
+              geom_mosaic(aes(weight=Freq, x = product(CatTabDF[,2], CatTabDF[,1]), fill=factor(CatTabDF[,2]))) + 
+              facet_grid(CatTabDF[,3]~.)
       
       #"SUBGROUP"
       #CatMos<-ggplot(data=CatTabDF) +
       #  geom_mosaic(aes(weight=Freq, x = product(CatTabDF[,2], CatTabDF[,1]), fill=factor(CatTabDF[,2]), conds=product(CatTabDF[,3])))
       #CatMos
       
+    }
+    
+      CatMos
+      
+    
   }) 
   
  # output$Cat_tab<- renderTable({
@@ -4039,32 +4050,65 @@ function(input, output) {
   })
   
   
+  ########### Pearson's Chi-squared test of independence
+  
   output$Chitest<- renderPrint({
-    my_cat_data<-CatData_type()[,c(input$CatVar1, input$CatVar2)]   #without , input$CatVar3 for now
-    my_cat_data<-apply(my_cat_data, 2, as.factor)
-    my_cat_data<-as.data.frame(my_cat_data)
-    CatTab<-table(my_cat_data)
-    CatTab<-ftable(CatTab)
-    ChitestP<-chisq.test(CatTab)
-    XsqStat<-ChitestP$statistic
-    XsqPval<-ChitestP$p.value
+    if(input$CatSub == FALSE) {
+      my_cat_data<-CatData_type()[,c(input$CatVar1, input$CatVar2)]   #without , input$CatVar3 for now
+      my_cat_data<-apply(my_cat_data, 2, as.factor)
+      my_cat_data<-as.data.frame(my_cat_data)
+      CatTab<-table(my_cat_data)
+      CatTab<-ftable(CatTab)
+      ChitestP<-chisq.test(CatTab)
+      XsqStat<-ChitestP$statistic
+      XsqPval<-ChitestP$p.value
+      
+      cat("\n")
+      cat("The X2 statistic for the Pearson's Chi-squared test of independence is")
+      cat("\n")
+      print(XsqStat)
+      cat("with an associated p-value of")
+      print(XsqPval)
     
-    cat("\n")
-    cat("The X2 statistic for the Pearson's Chi-squared test of independence is")
-    cat("\n")
-    print(XsqStat)
-    cat("with an associated p-value of")
-    print(XsqPval)
-    if(XsqPval> input$pthresh) {
-    cat("There is therefore insufficient evidence to reject the null hypothesis of independence.")
-    } else
-      cat("There is therefore sufficient evidence to reject the null hypothesis of independence.")
+      if(XsqPval> input$pthresh) {
+      cat("There is therefore insufficient evidence to reject the null hypothesis of independence.")
+      } else
+        cat("There is therefore sufficient evidence to reject the null hypothesis of independence.")
+    }
+
+    if(input$CatSub == TRUE) {
+      
+      my_cat_data<-CatData_type()[,c(input$CatVar1, input$CatVar2, input$CatVar3)]   #without , input$CatVar3 for now
+      my_cat_data<-apply(my_cat_data, 2, as.factor)
+      my_cat_data<-as.data.frame(my_cat_data)
+      CatTab<-table(my_cat_data)
+      CatTab<-ftable(CatTab)
+      ChitestP<-chisq.test(CatTab)
+      XsqStat<-ChitestP$statistic
+      XsqPval<-ChitestP$p.value
+    
+      cat("\n")
+      cat("The X2 statistic for the Pearson's Chi-squared test of independence is")
+      cat("\n")
+      print(XsqStat)
+      cat("with an associated p-value of")
+      print(XsqPval)
+      
+      #if(XsqPval > input$pthresh) {
+      #  cat("There is therefore insufficient evidence to reject the null hypothesis of independence.")
+      #} else
+      #  cat("There is therefore sufficient evidence to reject the null hypothesis of independence.")
+    
+    }
+    
   })
 
 
-  ##GLM MODEL
+  ########### GLM MODEL
   
   output$Model<- renderPrint({
+    
+    if(input$CatSub == FALSE) {
     my_cat_data<-CatData_type()[,c(input$CatVar1, input$CatVar2)]   #without , input$CatVar3 for now
     my_cat_data<-apply(my_cat_data, 2, as.factor)
     my_cat_data<-as.data.frame(my_cat_data)
@@ -4082,9 +4126,36 @@ function(input, output) {
     anova(mod1, mod2, mod3,test="Chisq" ) 
     testanova<-anova(mod3, test="Chisq")
     
-    print(mod3)
+    #print(mod3)
     cat("\n")
     print(testanova)
+  
+    }
+    
+    if(input$CatSub == TRUE) {
+      my_cat_data<-CatData_type()[,c(input$CatVar1, input$CatVar2, input$CatVar3)]   #without , input$CatVar3 for now
+      my_cat_data<-apply(my_cat_data, 2, as.factor)
+      my_cat_data<-as.data.frame(my_cat_data)
+      CatTab<-table(my_cat_data)
+      CatTab<-ftable(CatTab)
+      CatTabDF<-data.frame(CatTab)
+      # Model with only intercept
+      mod1 <- glm(Freq~.,poisson,data=CatTabDF)
+      # model with covariates but no interactions
+      mod2 <- glm(Freq~CatTabDF[,1]+CatTabDF[,2]+CatTabDF[,3], family=poisson, data=CatTabDF)
+      # model with covariates and interactions
+      mod3 <- glm(Freq~CatTabDF[,1]*CatTabDF[,2]*CatTabDF[,3], family=poisson, data=CatTabDF)
+    
+      # Which model is the best?
+      anova(mod1, mod2, mod3,test="Chisq" ) 
+      testanova<-anova(mod3, test="Chisq")
+    
+    
+      #print(mod3)
+      cat("\n")
+      print(testanova)
+    
+    }
     
   })
   ## TO ADD
