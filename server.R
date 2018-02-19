@@ -1,4 +1,4 @@
-function(input, output) {
+ffunction(input, output) {
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - >> DATA UPLOAD IN 2nd TAB<< - - - - - - - - - - - -
@@ -5678,11 +5678,19 @@ output$OT_graph_download_ui <- renderUI({
     if(input$Cluster_subset_Q == T){
       cat(" The data was subsetted per", input$Cluster_subset_T, "and the heatmap represents", input$Cluster_subset_S, "subset.")}
     cat(" Traits and individual samples are clustered using", input$Cluster_method, "method. Columns represent the", value, "of individual samples, while the rows are representing selected phenotypes (", phenotypes_HHCC,").")
+<<<<<<< HEAD
     cat(" The presented heatmap was calculated using", which_data, ".") 
 
     # Data curation:
     if(input$Cluster_data == "outliers removed data"){    
       cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
+=======
+    cat(" The presented heatmap was calculated using", which_data) 
+
+    # Data curation:
+    if(input$Cluster_data == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+>>>>>>> d20109796966e26c9d8a6df331345afb1a87cf2f
       if(how_many == "Single phenotype"){
         cat(" (", which_ones, ").")}
       if(how_many == "Some phenotypes"){
