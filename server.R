@@ -1,5 +1,5 @@
-ffunction(input, output) {
-
+function(input, output) {
+  
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - >> DATA UPLOAD IN 2nd TAB<< - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -12,8 +12,8 @@ ffunction(input, output) {
   })
   
   # - - - - - - - - - - - - - - - - - >> Reactive widgets << - - - - - - - - - - - -
-
-# Select Genotype
+  
+  # Select Genotype
   output$CustomGeno <- renderUI({
     if (is.null(ItemList())) {
       return ()
@@ -41,7 +41,7 @@ ffunction(input, output) {
         )
       )
   })
- 
+  
   # Select Dependent Variables (phenotypes)
   output$CustomPheno <- renderUI({
     if (is.null(ItemList())) {
@@ -95,8 +95,8 @@ ffunction(input, output) {
     if (is.null(input$your_data)) {
       return(NULL)
     } else{
-     test <- read.csv(input$your_data$datapath)
-     test
+      test <- read.csv(input$your_data$datapath)
+      test
     }
   })
   
@@ -104,11 +104,11 @@ ffunction(input, output) {
     if(is.null(input$your_data)) {
       return(NULL)}
     else{
-     sraka <- read.csv(input$your_data$datapath)
-     sraka_nona <- sraka[complete.cases(sraka),]
-     na_numbers <- nrow(sraka) - nrow(sraka_nona)
-     sentence <- paste("Your uploaded data contains ", dim(sraka)[1], " rows and ", dim(sraka)[2], " columns. There are ", na_numbers, " rows containins missing values.")
-     return(sentence)
+      sraka <- read.csv(input$your_data$datapath)
+      sraka_nona <- sraka[complete.cases(sraka),]
+      na_numbers <- nrow(sraka) - nrow(sraka_nona)
+      sentence <- paste("Your uploaded data contains ", dim(sraka)[1], " rows and ", dim(sraka)[2], " columns. There are ", na_numbers, " rows containins missing values.")
+      return(sentence)
     }
   })
   
@@ -139,17 +139,17 @@ ffunction(input, output) {
         )
       )
     if(input$TimeCheck == T){
-    my_data[, input$SelectTime] <- as.factor(my_data[,input$SelectTime])
-    return(my_data)}
+      my_data[, input$SelectTime] <- as.factor(my_data[,input$SelectTime])
+      return(my_data)}
     else{
-    return(my_data)  
+      return(my_data)  
     }
   })
   
   output$my_data <- renderDataTable({
     my_data()
   })
- 
+  
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - >> MODELING IN 3rd TAB << - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -466,7 +466,7 @@ ffunction(input, output) {
     subselection <- Model_temp_data()
     subselection$plant_id <- paste(subselection[,input$IVModelIV], subselection[,input$IVModelSubIV], subselection[,input$SelectID], sep="_")    
     subselection <- subset(subselection, subselection$r_squared > input$rsq_limit)
-
+    
     
     data <- my_data()
     data$plant_id <- paste(data[,input$IVModelIV], data[,input$IVModelSubIV], data[,input$SelectID], sep="_")
@@ -474,14 +474,14 @@ ffunction(input, output) {
     good_r2 <- subset(data, data$plant_id %in% subselection$plant_id)
     good_r2 <- good_r2[, !(names(good_r2) == "plant_id")]
     good_r2
-    })
+  })
   
   output$Good_r2_table <- renderDataTable({
     if(is.null(Model_temp_data())){
       return(NULL)
     }
     else
-    good_r2 <- good_r2()
+      good_r2 <- good_r2()
     good_r2
   })
   
@@ -498,7 +498,7 @@ ffunction(input, output) {
     content <- function(file){
       good_r2 <- good_r2()
       write.csv(good_r2, file)
-      })
+    })
   
   
   output$Model_data <- renderDataTable({
@@ -798,7 +798,7 @@ ffunction(input, output) {
   })
   
   output$Legend_fit_plot <- renderPrint({
-      
+    
     if(input$model == "lin"){
       model <- "linear function"
       transformation <- paste(" of not transformed data ") }
@@ -844,7 +844,7 @@ ffunction(input, output) {
       pdf(file)
       
       if(input$Select_model_type_plot == "single plot"){
-       
+        
         
         docelowy <- data_model_plot()
         
@@ -1318,10 +1318,10 @@ ffunction(input, output) {
     cat("\n")
     cat("The", input$model_graph_plot, "representing", input$model_trait_plot, "of", input$ModelPheno, "estimated using using", model, "from", input$ModelSum_data, "calculated using", days_num, input$SelectTime,"-s. The average number of replicates is", round(reps, digits=2),".")
     if(input$ModelSum_data == "r2 fitted curves curated data"){
-    cat(" The data was curated based on r2 and the samples with r2 below", input$rsq_limit, "were eliminated from the dataset. ")}
+      cat(" The data was curated based on r2 and the samples with r2 below", input$rsq_limit, "were eliminated from the dataset. ")}
     cat(" Different colors indicate different", input$model_color_plot, "-s.")
     if(input$model_graph_plot == "bar graph"){
-    cat(" The bars represent the mean value of the ", input$model_trait_plot, "and the error bars represent", input$model_error_plot,".")}
+      cat(" The bars represent the mean value of the ", input$model_trait_plot, "and the error bars represent", input$model_error_plot,".")}
   })
   
   
@@ -1349,7 +1349,7 @@ ffunction(input, output) {
   
   # - - - - - - - >> GRAPHS <<- - - - - - - - - - - - 
   
- 
+  
   MCP <- reactive({  
     temp <- Model_temp_data()
     if(input$ModelSum_data == "r2 fitted curves curated data"){
@@ -1445,26 +1445,26 @@ ffunction(input, output) {
     benc
   })
   
-   output$model_comparison_plotski <- renderPlotly({
+  output$model_comparison_plotski <- renderPlotly({
     MCP()
   })
-   
-output$downl_plot_MCP_ui <- renderUI({
-  if(is.null(MCP())){
-    return()
-  }
-  else
-    downloadButton("downl_plot_MCP", "Download plot") 
-})
-   
-   
-output$downl_plot_MCP <- downloadHandler(
-       filename = function(){paste("Model comparison plot MVApp", "pdf" , sep=".") },
-       content = function(file) {
-         pdf(file)
-         print(MCP())
-         dev.off()
-       })  
+  
+  output$downl_plot_MCP_ui <- renderUI({
+    if(is.null(MCP())){
+      return()
+    }
+    else
+      downloadButton("downl_plot_MCP", "Download plot") 
+  })
+  
+  
+  output$downl_plot_MCP <- downloadHandler(
+    filename = function(){paste("Model comparison plot MVApp", "pdf" , sep=".") },
+    content = function(file) {
+      pdf(file)
+      print(MCP())
+      dev.off()
+    })  
   # - - - - - - - - - - >> TUKEY MESSAGE << - - - - - - - - 
   output$model_comparison_Tukey <- renderPrint({
     
@@ -2478,7 +2478,7 @@ output$downl_plot_MCP <- downloadHandler(
   )
   
   # = = = >> GRAPH CONTAINING ALL THE DATA << = = = 
-    
+  
   OutG <- reactive({  
     
     if(input$Outlier_on_data == "raw data"){
@@ -2549,18 +2549,18 @@ output$downl_plot_MCP <- downloadHandler(
       outl$pheno <- as.numeric(outl$pheno)
       if(input$outlier_colour == T) {
         if(input$outlier_facet == F){
-
-        out_sum <- summaryBy(pheno ~ listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })
-        list_temp <- c(lista, listx)
-        out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
-        taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
-        #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
-      }
-      if(input$outlier_facet == T){
-        out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-        taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
-      }}
-
+          
+          out_sum <- summaryBy(pheno ~ listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })
+          list_temp <- c(lista, listx)
+          out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+          #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
+        }
+        if(input$outlier_facet == T){
+          out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+        }}
+      
       
       if(input$outlier_colour == F){
         if(input$outlier_facet == T){
@@ -2614,7 +2614,7 @@ output$downl_plot_MCP <- downloadHandler(
     
     if(input$outlier_facet == T){
       taka <- taka + facet_wrap(~listb, ncol=input$out_graph_facet_col, scale = input$out_facet_scale)}
-  
+    
     if(input$Select_outl_background == T){
       taka <- taka + theme_minimal()}
     if(input$Select_outl_maj_grid == T){
@@ -2700,7 +2700,7 @@ output$downl_plot_MCP <- downloadHandler(
     colnum <- dim(faka_boom2)[2]
     colnames(faka_boom2)[colnum] <- "pheno"
     
-   
+    
     uniq2 <- summaryBy(pheno ~ ., data = faka_boom2, FUN = function(x){c(m = mean(x), n = length(x))})
     reps <- mean(uniq2$pheno.n)
     
@@ -2769,7 +2769,7 @@ output$downl_plot_MCP <- downloadHandler(
     if(input$outlier_colour == T){
       listx <- input$Colour_choice
       clean_data$listx <- clean_data[,input$Colour_choice]}
-
+    
     
     phenotype <- input$DV_graph_outliers
     clean_data$pheno <- clean_data[,input$DV_graph_outliers]
@@ -2902,7 +2902,7 @@ output$downl_plot_MCP <- downloadHandler(
     cat("\n")
     cat("The", input$outlier_graph_type, "representing", phenotype, "from", which_data, " with the outliers removed. The outliers are characterized using", input$outlier_method, "method for", how_many,".") 
     if(input$What_happens_to_outliers == "removed together with entire row"){
-        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
     if(input$What_happens_to_outliers == "replaced by NA"){
       cat(" The individual values characterized as outliers are replaced by empty cells.")}
     cat(" The average number of replicates per",input$IV_outliers ,"is", round(reps, digits=2),".")
@@ -2945,13 +2945,13 @@ output$downl_plot_MCP <- downloadHandler(
     }
     
     if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
-    my_data_nona <- good_r2()[complete.cases(good_r2()),]
-    sum_na <- nrow(good_r2()) - nrow(my_data_nona)  
-    return(paste(sum_na, " rows containing missing values that were removed.")) }
+      my_data_nona <- good_r2()[complete.cases(good_r2()),]
+      sum_na <- nrow(good_r2()) - nrow(my_data_nona)  
+      return(paste(sum_na, " rows containing missing values that were removed.")) }
     
     else{
       return()
-  }
+    }
   })
   
   # = = = = = = >> SUMMARY STATS << = = = = = = = = = 
@@ -3161,13 +3161,13 @@ output$downl_plot_MCP <- downloadHandler(
     }
     if(input$plot_facet == T){
       if(input$TimeCheck == T){
-      Stephanies_list <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), input$HisIV)}
+        Stephanies_list <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), input$HisIV)}
       if(input$TimeCheck == F){
         Stephanies_list <- setdiff(c(input$SelectGeno, input$SelectIV), input$HisIV)}
       tagList(
         selectInput("Plotfacet_choice", "Independent Variable to split the plots",
                     choices = c(Stephanies_list)
-      ))
+        ))
     }
     else{
       return()
@@ -3361,24 +3361,24 @@ output$downl_plot_MCP <- downloadHandler(
       return()
     }
     else{
-    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-    my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
-    groupedIV<-input$HisIV
-    groupedFacet<-input$Plotfacet_choice
-    my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
-    my_his_data$combinedTID<-as.factor(my_his_data$combinedTID)
-    length_of_elements <- as.numeric(length(unique(my_his_data$combinedTID)))
-    see_those_graphs <- as.numeric(input$QQplots_graph_col*4)
-    maximum <- as.numeric(length_of_elements)
-    if(see_those_graphs >  length_of_elements){
-      return()
-    }
-    else{
-     sliderInput(
-       inputId = "QQplots_portion_show",
-       label = "Plot portion of the data starting from element number...",
-       min = 1, max = maximum, ticks=T, step = see_those_graphs, value = 1) 
-    }
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+      my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+      groupedIV<-input$HisIV
+      groupedFacet<-input$Plotfacet_choice
+      my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
+      my_his_data$combinedTID<-as.factor(my_his_data$combinedTID)
+      length_of_elements <- as.numeric(length(unique(my_his_data$combinedTID)))
+      see_those_graphs <- as.numeric(input$QQplots_graph_col*4)
+      maximum <- as.numeric(length_of_elements)
+      if(see_those_graphs >  length_of_elements){
+        return()
+      }
+      else{
+        sliderInput(
+          inputId = "QQplots_portion_show",
+          label = "Plot portion of the data starting from element number...",
+          min = 1, max = maximum, ticks=T, step = see_those_graphs, value = 1) 
+      }
     }
   })
   
@@ -3404,7 +3404,7 @@ output$downl_plot_MCP <- downloadHandler(
         start <- as.numeric(input$QQplots_portion_show)
         end <- (start + see_those_graphs)-1
         if(end > length_of_elements){
-        end <- length_of_elements  
+          end <- length_of_elements  
         }
         
         to_plot <- lista[start:end]
@@ -3561,19 +3561,19 @@ output$downl_plot_MCP <- downloadHandler(
     }
   })
   
-output$subset_Variance <- renderUI({  
-  if(input$plot_facet == F){
-    return()
-  }
-  else{
-    my_his_data<-Histo_data_type()
-    lista <- unique(my_his_data[,input$Plotfacet_choice])
-  selectizeInput(
-  inputId = "Show_subset_for_HovPlot",
-  label = "Show results for subset:",
-  choices = lista)
+  output$subset_Variance <- renderUI({  
+    if(input$plot_facet == F){
+      return()
     }
-})
+    else{
+      my_his_data<-Histo_data_type()
+      lista <- unique(my_his_data[,input$Plotfacet_choice])
+      selectizeInput(
+        inputId = "Show_subset_for_HovPlot",
+        label = "Show results for subset:",
+        choices = lista)
+    }
+  })
   
   output$Var_graph <- renderPlot({
     
@@ -3592,15 +3592,15 @@ output$subset_Variance <- renderUI({
       hovPlot.bf(pheno, id,  ## x is the response variable
                  y.name = phenoski,
                  group.name = idski)
-      }
+    }
     else{
       id <- my_his_data[,input$HisIV]
       pheno <- my_his_data[,input$HisDV]
       hovPlot.bf(pheno, id,  ## x is the response variable
                  y.name = phenoski,
                  group.name = idski)
-      }
-    })
+    }
+  })
   
   output$downl_Variance_ui <- renderUI({
     if(is.null(Histo_data_type())){
@@ -3610,49 +3610,49 @@ output$subset_Variance <- renderUI({
       downloadButton("downl_Variance", "Download plot" )
     )
   })
-      
+  
   
   output$downl_Variance <- downloadHandler(
-      filename = function(){paste("Variance plot for ",input$HistDV, " splitted per ",  input$Plotfacet_choice, " MVApp.pdf")},
-      content = function(file) {
-        pdf(file)
-        
-        my_his_data<-Histo_data_type()
-        my_his_data <- subset(my_his_data, select = c(input$HisDV,input$HisIV,input$Plotfacet_choice))
-        my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
-        my_his_data[,input$HisIV] <- as.factor(my_his_data[,input$HisIV])
-        phenoski <- input$HisDV
-        idski <- input$HisIV
-        
-        if(input$plot_facet ==T){
-          my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
-          my_his_data <- subset(my_his_data, my_his_data$facetIV == input$Show_subset_for_HovPlot)
-          id <- my_his_data[,input$HisIV]
-          pheno <- my_his_data[,input$HisDV]
-          var <- hovPlot.bf(pheno, id,  ## x is the response variable
-                     y.name = phenoski,
-                     group.name = idski)
-        }
-        else{
-          id <- my_his_data[,input$HisIV]
-          pheno <- my_his_data[,input$HisDV]
-          var <- hovPlot.bf(pheno, id,  ## x is the response variable
-                     y.name = phenoski,
-                     group.name = idski)
-        }
-        prin(var)
-        dev.off()
-      })  
-    
+    filename = function(){paste("Variance plot for ",input$HistDV, " splitted per ",  input$Plotfacet_choice, " MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      
+      my_his_data<-Histo_data_type()
+      my_his_data <- subset(my_his_data, select = c(input$HisDV,input$HisIV,input$Plotfacet_choice))
+      my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+      my_his_data[,input$HisIV] <- as.factor(my_his_data[,input$HisIV])
+      phenoski <- input$HisDV
+      idski <- input$HisIV
+      
+      if(input$plot_facet ==T){
+        my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
+        my_his_data <- subset(my_his_data, my_his_data$facetIV == input$Show_subset_for_HovPlot)
+        id <- my_his_data[,input$HisIV]
+        pheno <- my_his_data[,input$HisDV]
+        var <- hovPlot.bf(pheno, id,  ## x is the response variable
+                          y.name = phenoski,
+                          group.name = idski)
+      }
+      else{
+        id <- my_his_data[,input$HisIV]
+        pheno <- my_his_data[,input$HisDV]
+        var <- hovPlot.bf(pheno, id,  ## x is the response variable
+                          y.name = phenoski,
+                          group.name = idski)
+      }
+      prin(var)
+      dev.off()
+    })  
+  
   
   # = = = = = = = = = >> ONE / TWO SAMPLE TESTS << =  = = = = = = = = = = = #
   
   # - - - - - - - >> INPUT GADGETS << - - - - - - - - - - - #
   output$OT_test <- renderUI({
-      selectizeInput(
-        inputId = "OT_testski",
-        label = "Test for significance:",
-        choices = c("One sample t-test", "Two sample t-test", "Kolmogorov-Smirnof test"))
+    selectizeInput(
+      inputId = "OT_testski",
+      label = "Test for significance:",
+      choices = c("One sample t-test", "Two sample t-test", "Kolmogorov-Smirnof test"))
   })
   
   output$OT_grouping_IVs <- renderUI({
@@ -3683,7 +3683,7 @@ output$subset_Variance <- renderUI({
         inputId = "OT_compareski",
         label = "Enter your sample(s) to compare",
         choices = c(the_list),
-          multiple=T)}
+        multiple=T)}
   })
   
   output$OT_what_mu <- renderUI({
@@ -3702,7 +3702,7 @@ output$subset_Variance <- renderUI({
       return()
     }
     else
-    subset_lista <- input$OT_grouping_IVskis
+      subset_lista <- input$OT_grouping_IVskis
     id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
     id_lista2 <- setdiff(id_lista, subset_lista)
     data <- Histo_data_type()
@@ -3731,7 +3731,7 @@ output$subset_Variance <- renderUI({
       df <- "Kolmogorov-Smirnof test does not have degrees of freedom"
       stat <- ks.test(x$chosen_DV, y$chosen_DV)$statistic[[1]]
     }
-     
+    
     bam <- p_val
     bec <- df
     bom <- stat 
@@ -3739,10 +3739,10 @@ output$subset_Variance <- renderUI({
       cat("Dude / Chica!!! You selected more than two samples - go and to ANOVA or something like this")
       cat("\n")
       cat("\n")
-      }
+    }
     
     if(bam < as.numeric(as.character(input$Chosenthreshold))){
-    cat(paste("The results of ", input$OT_testski, " are SIGNIFICANT"))}
+      cat(paste("The results of ", input$OT_testski, " are SIGNIFICANT"))}
     if(bam > as.numeric(as.character(input$Chosenthreshold))){
       cat(paste("The results of ", input$OT_testski, " are NOT significant"))}
     cat("\n")
@@ -3754,46 +3754,46 @@ output$subset_Variance <- renderUI({
     cat(paste("The value of the t-/Kolmogorov-Smirnof statistics in the test: ", bom))
     
   })
- 
- OTG <- reactive({
-   subset_lista <- input$OT_grouping_IVskis
-   id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
-   id_lista2 <- setdiff(id_lista, subset_lista)
-   data <- Histo_data_type()
-   data$subset_id <- do.call(paste,c(data[c(subset_lista)], sep="_"))
-   real_list <- input$OT_compareski
-   data_sub <- data[data$subset_id %in% real_list,]
-   data_sub$chosen_DV <- data_sub[,input$HisDV]
-   data_sub$sample_id <- data_sub$subset_id
-     
-     bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, fill = sample_id))
-     bencki <- bencki + geom_boxplot()
-     bencki <- bencki + xlab(input$OT_grouping_IVskis)
-     bencki <- bencki + ylab(input$HisDV)
-     bencki
+  
+  OTG <- reactive({
+    subset_lista <- input$OT_grouping_IVskis
+    id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+    id_lista2 <- setdiff(id_lista, subset_lista)
+    data <- Histo_data_type()
+    data$subset_id <- do.call(paste,c(data[c(subset_lista)], sep="_"))
+    real_list <- input$OT_compareski
+    data_sub <- data[data$subset_id %in% real_list,]
+    data_sub$chosen_DV <- data_sub[,input$HisDV]
+    data_sub$sample_id <- data_sub$subset_id
+    
+    bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, fill = sample_id))
+    bencki <- bencki + geom_boxplot()
+    bencki <- bencki + xlab(input$OT_grouping_IVskis)
+    bencki <- bencki + ylab(input$HisDV)
+    bencki
   })
   
-output$OT_graph_download_ui <- renderUI({
-   if(is.null(OTG())){
-     return()}
-   else
-     downloadButton("OT_graph_download", label="Download plot")
- }) 
-
- output$OT_graph_download <- downloadHandler(
-   filename = function(){paste("Plot for ", input$OT_testski, " comparing ", input$OT_compareski, "MVApp.pdf")},
-   content = function(file) {
-     pdf(file)
-     print(OTG())
-     dev.off()
-   })  
- 
- output$OT_graph <- renderPlotly({
-   if(is.null(OTG())){
-     return(NULL)
-   }
-   else
-   OTG()})
+  output$OT_graph_download_ui <- renderUI({
+    if(is.null(OTG())){
+      return()}
+    else
+      downloadButton("OT_graph_download", label="Download plot")
+  }) 
+  
+  output$OT_graph_download <- downloadHandler(
+    filename = function(){paste("Plot for ", input$OT_testski, " comparing ", input$OT_compareski, "MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      print(OTG())
+      dev.off()
+    })  
+  
+  output$OT_graph <- renderPlotly({
+    if(is.null(OTG())){
+      return(NULL)
+    }
+    else
+      OTG()})
   
   # = = = = = = = >> Testing Significant Differences << = = = = = = = = = = # 
   
@@ -3819,21 +3819,21 @@ output$OT_graph_download_ui <- renderUI({
         facetting[i]<-i
         
         if(input$Sig_diff_test == "ANOVA (parametric)"){
-        fit_anova<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
-        p_values_anova[i]<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5) #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
-        if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
-          interpret_anova[i]<-"SIGNIFICANT difference in means"
-        } else {
-          interpret_anova[i]<-"NO significant difference in means"
-        }}
+          fit_anova<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+          p_values_anova[i]<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5) #summary of anova is a list, so we need to access the 1st element which is the results and then in 1st row column Pr>F you have the p-value
+          if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
+            interpret_anova[i]<-"SIGNIFICANT difference in means"
+          } else {
+            interpret_anova[i]<-"NO significant difference in means"
+          }}
         
         if(input$Sig_diff_test == "Kruskal-Wallis (non-parametric)"){
-        fit_anova <- kruskal.test(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
-        p_values_anova[i]<- fit_anova$p.value
-        if(fit_anova$p.value < as.numeric(as.character(input$Chosenthreshold))){
-          interpret_anova[i]<-"SIGNIFICANT difference in means"
-        } else{
-          interpret_anova[i] <- "NO significant difference in means"}
+          fit_anova <- kruskal.test(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
+          p_values_anova[i]<- fit_anova$p.value
+          if(fit_anova$p.value < as.numeric(as.character(input$Chosenthreshold))){
+            interpret_anova[i]<-"SIGNIFICANT difference in means"
+          } else{
+            interpret_anova[i] <- "NO significant difference in means"}
         }
         
         temp_anova<-as.data.frame(cbind(facetting, p_values_anova,interpret_anova))
@@ -3849,17 +3849,17 @@ output$OT_graph_download_ui <- renderUI({
     if(input$plot_facet ==F){ 
       
       if(input$Sig_diff_test == "ANOVA (parametric)"){
-      fit_anova <- aov(my_his_data[,1] ~ as.factor(my_his_data[,2]), data = my_his_data)
-      pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
-      cat("ANOVA", "\n")
-      cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA,"\n", "\n", sep=""))
-      
-      
-      if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
-        cat("SIGNIFICANT difference in means")
-      } else {
-        cat("NO significant difference in means")
-      }}
+        fit_anova <- aov(my_his_data[,1] ~ as.factor(my_his_data[,2]), data = my_his_data)
+        pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
+        cat("ANOVA", "\n")
+        cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA,"\n", "\n", sep=""))
+        
+        
+        if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
+          cat("SIGNIFICANT difference in means")
+        } else {
+          cat("NO significant difference in means")
+        }}
       
       if(input$Sig_diff_test == "Kruskal-Wallis (non-parametric)"){
         fit_anova <- kruskal.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
@@ -3908,14 +3908,14 @@ output$OT_graph_download_ui <- renderUI({
         
         if(input$Sig_diff_test == "ANOVA (parametric)"){
           fit_tukey<-aov(subsetted_data[,1] ~ subsetted_data[,2], data=subsetted_data)
-        out<-HSD.test(fit_tukey, "subsetted_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
-        out_tukey<-as.data.frame(out$groups)
-        out_tukey$x<-row.names(out_tukey)
-        n_name<-rep(i, length(levels(subsetted_data[,2])))
-        out_tukey_n<-as.data.frame(cbind(out_tukey, n_name))
-        colnames(out_tukey_n)<-c(names(subsetted_data[1]), "Tukey's letters", names(subsetted_data)[2], names(subsetted_data[3]))
-        out_tukey_f<-out_tukey_n[c(4,3,2,1)]
-        print(as.data.frame(out_tukey_f), row.names=FALSE)}
+          out<-HSD.test(fit_tukey, "subsetted_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+          out_tukey<-as.data.frame(out$groups)
+          out_tukey$x<-row.names(out_tukey)
+          n_name<-rep(i, length(levels(subsetted_data[,2])))
+          out_tukey_n<-as.data.frame(cbind(out_tukey, n_name))
+          colnames(out_tukey_n)<-c(names(subsetted_data[1]), "Tukey's letters", names(subsetted_data)[2], names(subsetted_data[3]))
+          out_tukey_f<-out_tukey_n[c(4,3,2,1)]
+          print(as.data.frame(out_tukey_f), row.names=FALSE)}
         
         if(input$Sig_diff_test == "Kruskal-Wallis (non-parametric)"){
           phenotypski <- subsetted_data[,1]
@@ -3934,13 +3934,13 @@ output$OT_graph_download_ui <- renderUI({
       my_his_data[,2]<-as.factor(my_his_data[,2])
       
       if(input$Sig_diff_test == "ANOVA (parametric)"){
-      fit_tukey<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
-      out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
-      out_tukey<-as.data.frame(out$groups)
-      out_tukey$x<-row.names(out_tukey)
-      colnames(out_tukey)<-c(names(my_his_data[1]), "Significant groups based on Tukey's pairwise comparison ", names(my_his_data)[2])
-      out_tukey_f<-out_tukey[c(3,1,2)]
-      print(out_tukey_f, row.names=FALSE)}
+        fit_tukey<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
+        out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
+        out_tukey<-as.data.frame(out$groups)
+        out_tukey$x<-row.names(out_tukey)
+        colnames(out_tukey)<-c(names(my_his_data[1]), "Significant groups based on Tukey's pairwise comparison ", names(my_his_data)[2])
+        out_tukey_f<-out_tukey[c(3,1,2)]
+        print(out_tukey_f, row.names=FALSE)}
       
       if(input$Sig_diff_test == "Kruskal-Wallis (non-parametric)"){
         phenotypski <- my_his_data[,1]
@@ -4047,18 +4047,18 @@ output$OT_graph_download_ui <- renderUI({
   }) 
   
   output$TW_ANOVA_graph_download <- downloadHandler(
-      filename = function(){paste("Two way ANOVA interaction plot MVAPP", input$HisDV, "testing the effect of ", input$TW_ANOVA_IV1, " and ", input$TW_ANOVA_IV2, "and the interaction between them ", "MVApp.pdf")},
-      content = function(file) {
-        pdf(file)
-        mydata <- Histo_data_type()
-        pheno <- as.numeric(as.character(mydata[,input$HisDV]))
-        iv1 <- mydata[,input$TW_ANOVA_IV1]
-        iv2 <- mydata[,input$TW_ANOVA_IV2]
-        
-        twa <- interaction.plot(iv1, iv2, pheno, ylab = input$HisDV, trace.label = input$TW_ANOVA_IV2, xlab = input$TW_ANOVA_IV1)
-        print(twa)
-        dev.off()
-      })  
+    filename = function(){paste("Two way ANOVA interaction plot MVAPP", input$HisDV, "testing the effect of ", input$TW_ANOVA_IV1, " and ", input$TW_ANOVA_IV2, "and the interaction between them ", "MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      mydata <- Histo_data_type()
+      pheno <- as.numeric(as.character(mydata[,input$HisDV]))
+      iv1 <- mydata[,input$TW_ANOVA_IV1]
+      iv2 <- mydata[,input$TW_ANOVA_IV2]
+      
+      twa <- interaction.plot(iv1, iv2, pheno, ylab = input$HisDV, trace.label = input$TW_ANOVA_IV2, xlab = input$TW_ANOVA_IV1)
+      print(twa)
+      dev.off()
+    })  
   
   
   output$TW_ANOVA_interaction_plot <- renderPlot({
@@ -4066,17 +4066,17 @@ output$OT_graph_download_ui <- renderUI({
       return()}
     else
       TW_ANOVA()
-    })
-    
+  })
+  
   
   TW_ANOVA_rep <- eventReactive(input$Go_TWANOVA,{
-  mydata <- Histo_data_type()
-  pheno <- as.numeric(as.character(mydata[,input$HisDV]))
-  iv1 <- mydata[,input$TW_ANOVA_IV1]
-  iv2 <- mydata[,input$TW_ANOVA_IV2]
-  
-  resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
-  anova(resultados)})
+    mydata <- Histo_data_type()
+    pheno <- as.numeric(as.character(mydata[,input$HisDV]))
+    iv1 <- mydata[,input$TW_ANOVA_IV1]
+    iv2 <- mydata[,input$TW_ANOVA_IV2]
+    
+    resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
+    anova(resultados)})
   
   output$two_ANOVA_report <- renderPrint({
     message <- TW_ANOVA_rep()
@@ -4094,12 +4094,12 @@ output$OT_graph_download_ui <- renderUI({
       plot(iv1 ~ iv2)
     }
     else{
-    mydata <- Histo_data_type()
-    pheno <- as.numeric(as.character(mydata[,input$HisDV]))
-    iv1 <- mydata[,input$TW_ANOVA_IV1]
-    iv2 <- mydata[,input$TW_ANOVA_IV2]
-    resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
-    plot(resultados$fitted, resultados$res, xlab = "Fitted", ylab = "Residuals", main="Residual plot")
+      mydata <- Histo_data_type()
+      pheno <- as.numeric(as.character(mydata[,input$HisDV]))
+      iv1 <- mydata[,input$TW_ANOVA_IV1]
+      iv2 <- mydata[,input$TW_ANOVA_IV2]
+      resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
+      plot(resultados$fitted, resultados$res, xlab = "Fitted", ylab = "Residuals", main="Residual plot")
     }
   })
   
@@ -4195,7 +4195,7 @@ output$OT_graph_download_ui <- renderUI({
   })
   
   COR_BIG <- reactive({
-  
+    
     df <- cor_data_type()
     
     if (input$cor_data_subset) {
@@ -4218,13 +4218,13 @@ output$OT_graph_download_ui <- renderUI({
       )) + length(input$SelectDV)
     
     if(input$cor_sig_show == F){
-    corrplot(
-      cor(df[, beginCol:endCol], method = input$corMethod),
-      method = input$corrplotMethod,
-      type = input$corType,
-      order = input$corOrder,
-      tl.col = 'black',
-      col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))}
+      corrplot(
+        cor(df[, beginCol:endCol], method = input$corMethod),
+        method = input$corrplotMethod,
+        type = input$corType,
+        order = input$corOrder,
+        tl.col = 'black',
+        col = brewer.pal(n = input$Cor_Big_steps, name = input$Cor_color_palette))}
     
     if(input$cor_sig_show == T){
       thres <- as.numeric(as.character(input$cor_sig_threshold))
@@ -4275,7 +4275,7 @@ output$OT_graph_download_ui <- renderUI({
       
       
       if(input$cor_sig_show == F){
-       biggie <- corrplot(
+        biggie <- corrplot(
           cor(df[, beginCol:endCol], method = input$corMethod),
           method = input$corrplotMethod,
           type = input$corType,
@@ -4288,7 +4288,7 @@ output$OT_graph_download_ui <- renderUI({
         res1 <- cor.mtest(df[, beginCol:endCol], conf.level = (1-thres))
         
         
-       biggie <- corrplot(
+        biggie <- corrplot(
           cor(df[, beginCol:endCol], method = input$corMethod),
           p.mat = res1$p,
           sig.level = thres,
@@ -4421,87 +4421,87 @@ output$OT_graph_download_ui <- renderUI({
       cat("")
     }
     else{
-  beginCol <-
-    length(c(
-      input$SelectIV,
-      input$SelectGeno,
-      input$SelectTime,
-      input$SelectID
-    )) + 1
-  
-  endCol <-
-    length(c(
-      input$SelectIV,
-      input$SelectGeno,
-      input$SelectTime,
-      input$SelectID
-    )) + length(input$SelectDV)
-  
-  df <- cor_data_type()
-  
-  list <- unique(df[,input$CorIV_sub])
-  
-  df2 <- subset(df, df[,input$CorIV_sub] == list[1])
-  
-  res <-
-    rcorr(as.matrix(df2[, beginCol:endCol]), type = input$corMethod)
-  
-  flattenCorrMatrix <- function(cormat, pmat) {
-    ut <- upper.tri(cormat)
-    data.frame(
-      row = rownames(cormat)[row(cormat)[ut]],
-      column = rownames(cormat)[col(cormat)[ut]],
-      cor  = (cormat)[ut],
-      p = pmat[ut]
-    )
-  }
-  
-  result <- flattenCorrMatrix(res$r, res$P)
-  result <- result[1:3]
-  
-  
-  for(i in 2:length(list)){
-    df2 <- subset(df, df[,input$CorIV_sub] == list[i])
-    
-    res <-
-      rcorr(as.matrix(df2[, beginCol:endCol]), type = input$corMethod)
-    
-    flattenCorrMatrix <- function(cormat, pmat) {
-      ut <- upper.tri(cormat)
-      data.frame(
-        row = rownames(cormat)[row(cormat)[ut]],
-        column = rownames(cormat)[col(cormat)[ut]],
-        cor  = (cormat)[ut],
-        p = pmat[ut]
-      )
-    }
-    
-    result3 <- flattenCorrMatrix(res$r, res$P)
-    res2 <- result3[3]
-    result <- cbind(result, res2)
-  }
-  
-  result <- as.data.frame(result)
-  for(f in 1:nrow(result)){
-    lista_g <- result[f,3]
-    for(g in 4:ncol(result)){
-      lista_g <- c(lista_g, result[f,g])
-    }
-    result$vaRiance[f] <- var(lista_g)   
-  }
-  
-  maxymum <- tail(sort(result$vaRiance),5)
-  cat(paste("The highest variability in correlation across ", input$CorIV_sub, " was observed for: "))
-  cat("\n")
-  
-  for(a in 1:length(maxymum)){
-    tijdelijk <- subset(result, result[,"vaRiance"] == maxymum[a])
-    cor_a <- tijdelijk[,1]
-    cor_b <- tijdelijk[,2]
-    cat(paste(a,". ", cor_a, " and ", cor_b))
-    cat("\n")
-  }}
-})
+      beginCol <-
+        length(c(
+          input$SelectIV,
+          input$SelectGeno,
+          input$SelectTime,
+          input$SelectID
+        )) + 1
+      
+      endCol <-
+        length(c(
+          input$SelectIV,
+          input$SelectGeno,
+          input$SelectTime,
+          input$SelectID
+        )) + length(input$SelectDV)
+      
+      df <- cor_data_type()
+      
+      list <- unique(df[,input$CorIV_sub])
+      
+      df2 <- subset(df, df[,input$CorIV_sub] == list[1])
+      
+      res <-
+        rcorr(as.matrix(df2[, beginCol:endCol]), type = input$corMethod)
+      
+      flattenCorrMatrix <- function(cormat, pmat) {
+        ut <- upper.tri(cormat)
+        data.frame(
+          row = rownames(cormat)[row(cormat)[ut]],
+          column = rownames(cormat)[col(cormat)[ut]],
+          cor  = (cormat)[ut],
+          p = pmat[ut]
+        )
+      }
+      
+      result <- flattenCorrMatrix(res$r, res$P)
+      result <- result[1:3]
+      
+      
+      for(i in 2:length(list)){
+        df2 <- subset(df, df[,input$CorIV_sub] == list[i])
+        
+        res <-
+          rcorr(as.matrix(df2[, beginCol:endCol]), type = input$corMethod)
+        
+        flattenCorrMatrix <- function(cormat, pmat) {
+          ut <- upper.tri(cormat)
+          data.frame(
+            row = rownames(cormat)[row(cormat)[ut]],
+            column = rownames(cormat)[col(cormat)[ut]],
+            cor  = (cormat)[ut],
+            p = pmat[ut]
+          )
+        }
+        
+        result3 <- flattenCorrMatrix(res$r, res$P)
+        res2 <- result3[3]
+        result <- cbind(result, res2)
+      }
+      
+      result <- as.data.frame(result)
+      for(f in 1:nrow(result)){
+        lista_g <- result[f,3]
+        for(g in 4:ncol(result)){
+          lista_g <- c(lista_g, result[f,g])
+        }
+        result$vaRiance[f] <- var(lista_g)   
+      }
+      
+      maxymum <- tail(sort(result$vaRiance),5)
+      cat(paste("The highest variability in correlation across ", input$CorIV_sub, " was observed for: "))
+      cat("\n")
+      
+      for(a in 1:length(maxymum)){
+        tijdelijk <- subset(result, result[,"vaRiance"] == maxymum[a])
+        cor_a <- tijdelijk[,1]
+        cor_b <- tijdelijk[,2]
+        cat(paste(a,". ", cor_a, " and ", cor_b))
+        cat("\n")
+      }}
+  })
   
   ############ interactive scatter plot ##########
   
@@ -4611,7 +4611,7 @@ output$OT_graph_download_ui <- renderUI({
   })  
   
   
-   PCA_data_type <- eventReactive(input$Go_PCAdata,{
+  PCA_data_type <- eventReactive(input$Go_PCAdata,{
     if(input$PCA_data == "raw data"){
       PCA_data_type <- my_data()
     }
@@ -4947,25 +4947,25 @@ output$OT_graph_download_ui <- renderUI({
           choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   }) 
   
-
+  
   MDS_data_type <- eventReactive(input$Go_MDSdata,{
-  if(input$MDS_data == "raw data"){
-    MDS_data_type <- my_data()
-  }
-  if(input$MDS_data == "missing values removed data"){
-    MDS_data_type <- my_data()[complete.cases(my_data()),]
-  }
-  if(input$MDS_data == "r2 fitted curves curated data"){
-    MDS_data_type <- good_r2()
-  }
-  if(input$MDS_data == "r2 fitted curves curated data with missing values removed"){
-    MDS_data_type <- good_r2()[complete.cases(good_r2()),]
-  }
-  if(input$MDS_data == "outliers removed data"){
-    MDS_data_type <- Outlier_free_data()
-  }
+    if(input$MDS_data == "raw data"){
+      MDS_data_type <- my_data()
+    }
+    if(input$MDS_data == "missing values removed data"){
+      MDS_data_type <- my_data()[complete.cases(my_data()),]
+    }
+    if(input$MDS_data == "r2 fitted curves curated data"){
+      MDS_data_type <- good_r2()
+    }
+    if(input$MDS_data == "r2 fitted curves curated data with missing values removed"){
+      MDS_data_type <- good_r2()[complete.cases(good_r2()),]
+    }
+    if(input$MDS_data == "outliers removed data"){
+      MDS_data_type <- Outlier_free_data()
+    }
     MDS_data_type
-})
+  })
   
   output$MDS_raw_table <- renderDataTable({
     MDS_data_type()
@@ -5317,7 +5317,7 @@ output$OT_graph_download_ui <- renderUI({
           label = "Clustering method:",
           choices = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"), multiple = F))
   })   
-
+  
   
   output$Select_data_cluster_validation <- renderUI({
     if(is.null(input$Split_cluster)){
@@ -5334,7 +5334,7 @@ output$OT_graph_download_ui <- renderUI({
     }
   })
   
- 
+  
   
   output$Data_cluster_table <- renderDataTable({
     test <- Data_for_cluster()
@@ -5344,7 +5344,7 @@ output$OT_graph_download_ui <- renderUI({
         test[,i] <- round(test[,i], digits = 4)
       }
     }
-   test 
+    test 
   })
   
   output$Select_phenotypes_cluster <- renderUI({
@@ -5651,25 +5651,25 @@ output$OT_graph_download_ui <- renderUI({
       
       if(input$Cluster_subset_Q == T){
         subset_lista <- input$Cluster_subset_T
-          id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
-          id_lista2 <- setdiff(id_lista, subset_lista)
-          temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
-          temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
-          temp <- subset(temp, temp$sub_id == input$Cluster_subset_S)
-          temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
-          colnames(temp2)[2] <- "pheno"
-          temp2 <- na.omit(temp2)
-          sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})}
+        id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+        id_lista2 <- setdiff(id_lista, subset_lista)
+        temp$id <- do.call(paste,c(temp[c(id_lista2)], sep="_"))
+        temp$sub_id <- do.call(paste,c(temp[c(subset_lista)], sep="_"))
+        temp <- subset(temp, temp$sub_id == input$Cluster_subset_S)
+        temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        colnames(temp2)[2] <- "pheno"
+        temp2 <- na.omit(temp2)
+        sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})}
       
       if(input$Cluster_subset_Q == F){
-          temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
-          temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
-          colnames(temp2)[2] <- "pheno"
-          temp2 <- na.omit(temp2)
-          sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})}
-    
+        temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+        temp2 <- subset(temp, select = c("id", input$Cluster_pheno))
+        colnames(temp2)[2] <- "pheno"
+        temp2 <- na.omit(temp2)
+        sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})}
+      
       reps <- mean(sum_temp2$pheno.n)
-      }
+    }
     
     cat("# # > > > Figure legend: < < < # # #")
     cat("\n")
@@ -5678,19 +5678,11 @@ output$OT_graph_download_ui <- renderUI({
     if(input$Cluster_subset_Q == T){
       cat(" The data was subsetted per", input$Cluster_subset_T, "and the heatmap represents", input$Cluster_subset_S, "subset.")}
     cat(" Traits and individual samples are clustered using", input$Cluster_method, "method. Columns represent the", value, "of individual samples, while the rows are representing selected phenotypes (", phenotypes_HHCC,").")
-<<<<<<< HEAD
-    cat(" The presented heatmap was calculated using", which_data, ".") 
-
-    # Data curation:
-    if(input$Cluster_data == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
-=======
     cat(" The presented heatmap was calculated using", which_data) 
-
+    
     # Data curation:
     if(input$Cluster_data == "outliers removed data"){    
       cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
->>>>>>> d20109796966e26c9d8a6df331345afb1a87cf2f
       if(how_many == "Single phenotype"){
         cat(" (", which_ones, ").")}
       if(how_many == "Some phenotypes"){
@@ -5723,7 +5715,7 @@ output$OT_graph_download_ui <- renderUI({
     else
       downloadButton("downl_HHeatMap", label="Download plot")
   })  
-
+  
   
   output$downl_HHeatMap <- downloadHandler(  
     filename = function(){paste("Heat map of the samples used for hierarchical clustering using ", input$Cluster_data, " with ", input$Cluster_pheno, " MVApp.pdf")},
@@ -5762,7 +5754,7 @@ output$OT_graph_download_ui <- renderUI({
       
     }
   })
-
+  
   Cluster_table_data <- eventReactive(input$Split_cluster,{
     # perform clustering on the selected dataset  
     clust_matrix <- Final_data_cluster()
@@ -5827,15 +5819,15 @@ output$OT_graph_download_ui <- renderUI({
     return(new_shait)
   })
   
- 
+  
   output$Cluster_table <- renderDataTable({
-  test <- Cluster_table_data()
-  for(i in 1:ncol(test)){
-    if (class(test[,i]) == "numeric"){
-      test[,i] <- round(test[,i], digits = 4)
+    test <- Cluster_table_data()
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
+      }
     }
-  }
-  test
+    test
   })
   
   output$HotAnovaNews <- renderPrint({
@@ -6002,7 +5994,7 @@ output$OT_graph_download_ui <- renderUI({
   
   output$HotANOVA <- renderPlot({
     HANOVA()
-    })
+  })
   
   # HC ANOVA Figure legend:
   
@@ -6212,24 +6204,24 @@ output$OT_graph_download_ui <- renderUI({
           choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   })
   
-
-  KMC_data_type <- eventReactive(input$Select_data_KMC,{
-  if(input$KMCluster_data == "raw data"){
-    KMC_data_type <- my_data()
-  }
-  if(input$KMCluster_data == "missing values removed data"){
-    KMC_data_type <- my_data()[complete.cases(my_data()),]
-  }
-  if(input$KMCluster_data == "r2 fitted curves curated data"){
-    KMC_data_type <- good_r2()
-  }
-  if(input$KMCluster_data == "r2 fitted curves curated data with missing values removed"){
-    KMC_data_type <- good_r2()[complete.cases(good_r2()),]
-  }
-  if(input$KMCluster_data == "outliers removed data"){
-    KMC_data_type <- Outlier_free_data()
-  }
   
+  KMC_data_type <- eventReactive(input$Select_data_KMC,{
+    if(input$KMCluster_data == "raw data"){
+      KMC_data_type <- my_data()
+    }
+    if(input$KMCluster_data == "missing values removed data"){
+      KMC_data_type <- my_data()[complete.cases(my_data()),]
+    }
+    if(input$KMCluster_data == "r2 fitted curves curated data"){
+      KMC_data_type <- good_r2()
+    }
+    if(input$KMCluster_data == "r2 fitted curves curated data with missing values removed"){
+      KMC_data_type <- good_r2()[complete.cases(good_r2()),]
+    }
+    if(input$KMCluster_data == "outliers removed data"){
+      KMC_data_type <- Outlier_free_data()
+    }
+    
     if(input$KMC_use_means == T){
       #KMC_data_type$id <- do.call(paste,c(KMC_data_type[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
       #final_set <- subset(KMC_data_type, select = c("id", input$KMC_pheno))
@@ -6256,7 +6248,7 @@ output$OT_graph_download_ui <- renderUI({
     }
     final_set     
     
-})
+  })
   
   output$Select_DV_KMC <- renderUI({
     if(is.null(ItemList())){return()}
@@ -6275,15 +6267,15 @@ output$OT_graph_download_ui <- renderUI({
     if(is.null(KMC_data_type())){
       return()
     }
-      else{
-        
-    test <- KMC_data_type()
-    for(i in 1:ncol(test)){
-      if (class(test[,i]) == "numeric"){
-        test[,i] <- round(test[,i], digits = 4)
+    else{
+      
+      test <- KMC_data_type()
+      for(i in 1:ncol(test)){
+        if (class(test[,i]) == "numeric"){
+          test[,i] <- round(test[,i], digits = 4)
+        }
       }
-    }
-    test
+      test
     }
   })
   
@@ -6407,79 +6399,79 @@ output$OT_graph_download_ui <- renderUI({
       dev.off()
     })
   
-#  output$indices_plots_KMC_1 <- renderPlot({
-#    if(is.null(Optimal_cluster_number())){return()}
-#    else
-#      mydata <- KMC_data_for_matrix()
-#    #Majority of 30 indices
-#    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
-#                  max.nc = 10, method = "kmeans", index = "hubert")
-#    plot <- fviz_nbclust(nb)
-#    print(plot)
-#  })
+  #  output$indices_plots_KMC_1 <- renderPlot({
+  #    if(is.null(Optimal_cluster_number())){return()}
+  #    else
+  #      mydata <- KMC_data_for_matrix()
+  #    #Majority of 30 indices
+  #    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+  #                  max.nc = 10, method = "kmeans", index = "hubert")
+  #    plot <- fviz_nbclust(nb)
+  #    print(plot)
+  #  })
   
-#  output$downl_indices_plots_KMC_1_ui <- renderUI({
-#    if(is.null(Optimal_cluster_number())){return()}
-#    else
-#      downloadButton("downl_indices_plots_KMC_1", "Download plot")
-#  })
+  #  output$downl_indices_plots_KMC_1_ui <- renderUI({
+  #    if(is.null(Optimal_cluster_number())){return()}
+  #    else
+  #      downloadButton("downl_indices_plots_KMC_1", "Download plot")
+  #  })
   
-#  output$downl_indices_plots_KMC_1 <- downloadHandler(
-#    filename = function(){paste("Advice plot for K-means clustering using Hubert index", "MVApp.pdf")},
-#    content = function(file) {
-#      pdf(file)
-      
-#      mydata <- KMC_data_for_matrix()
-#      mydata <- as.matrix(mydata)
-      #Majority of 30 indices
-#      nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
-#                    max.nc = 10, method = "kmeans", index = "hubert")
-#      plot <- fviz_nbclust(nb)
-#      print(plot)
-      
-#      dev.off()
-#    })
+  #  output$downl_indices_plots_KMC_1 <- downloadHandler(
+  #    filename = function(){paste("Advice plot for K-means clustering using Hubert index", "MVApp.pdf")},
+  #    content = function(file) {
+  #      pdf(file)
   
-#  output$indices_plots_KMC_2 <- renderPlot({
-#    if(is.null(Optimal_cluster_number())){return()}
-#    else
-#      mydata <- KMC_data_for_matrix()
-#      mydata <- as.matrix(mydata)
-#    #Majority of 30 indices
-#    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
-#                  max.nc = 10, method = "kmeans", index = "dindex")
-#    plot <- fviz_nbclust(nb)
-#    print(plot)
-    
-#  })
+  #      mydata <- KMC_data_for_matrix()
+  #      mydata <- as.matrix(mydata)
+  #Majority of 30 indices
+  #      nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+  #                    max.nc = 10, method = "kmeans", index = "hubert")
+  #      plot <- fviz_nbclust(nb)
+  #      print(plot)
   
-#  output$downl_indices_plots_KMC_2_ui <- renderUI({
-#    if(is.null(Optimal_cluster_number())){return()}
-#    else
-#      downloadButton("downl_indices_plots_KMC_2", "Download plot")
-#  })
+  #      dev.off()
+  #    })
   
-#  output$downl_indices_plots_KMC_2 <- downloadHandler(
-#    filename = function(){paste("Advice plot for K-means clustering using d index ", "MVApp.pdf")},
-#    content = function(file) {
-#      pdf(file)
-      
-#      mydata <- KMC_data_for_matrix()
-#      mydata <- as.matrix(mydata)
-#      #Majority of 30 indices
-#      nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
-#                    max.nc = 10, method = "kmeans", index = "dindex")
-#      plot <- fviz_nbclust(nb)
-#      print(plot)
-      
-#      dev.off()
-#    })
+  #  output$indices_plots_KMC_2 <- renderPlot({
+  #    if(is.null(Optimal_cluster_number())){return()}
+  #    else
+  #      mydata <- KMC_data_for_matrix()
+  #      mydata <- as.matrix(mydata)
+  #    #Majority of 30 indices
+  #    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+  #                  max.nc = 10, method = "kmeans", index = "dindex")
+  #    plot <- fviz_nbclust(nb)
+  #    print(plot)
+  
+  #  })
+  
+  #  output$downl_indices_plots_KMC_2_ui <- renderUI({
+  #    if(is.null(Optimal_cluster_number())){return()}
+  #    else
+  #      downloadButton("downl_indices_plots_KMC_2", "Download plot")
+  #  })
+  
+  #  output$downl_indices_plots_KMC_2 <- downloadHandler(
+  #    filename = function(){paste("Advice plot for K-means clustering using d index ", "MVApp.pdf")},
+  #    content = function(file) {
+  #      pdf(file)
+  
+  #      mydata <- KMC_data_for_matrix()
+  #      mydata <- as.matrix(mydata)
+  #      #Majority of 30 indices
+  #      nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+  #                    max.nc = 10, method = "kmeans", index = "dindex")
+  #      plot <- fviz_nbclust(nb)
+  #      print(plot)
+  
+  #      dev.off()
+  #    })
   
   output$indices_plots_KMC_3 <- renderPlot({
     if(is.null(Optimal_cluster_number())){return()}
     else
-        mydata <- KMC_data_for_matrix()
-        mydata <- as.matrix(mydata)
+      mydata <- KMC_data_for_matrix()
+    mydata <- as.matrix(mydata)
     #Majority of 30 indices
     nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
                   max.nc = 10, method = "kmeans")
@@ -6860,7 +6852,7 @@ output$OT_graph_download_ui <- renderUI({
   })
   
   
-# - - - - - - - - ->> SCATTER PLOT << - - - - - - - - - - 
+  # - - - - - - - - ->> SCATTER PLOT << - - - - - - - - - - 
   
   kmeans_SCP <- reactive({
     df <- barplotData()
@@ -6906,7 +6898,7 @@ output$OT_graph_download_ui <- renderUI({
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - >> HERITABILITY IN 9th TAB << - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-    
+  
   ##select dataset
   output$Herit_Pheno_data <- renderUI({
     if(is.null(ItemList())){return()}
@@ -7818,7 +7810,7 @@ output$OT_graph_download_ui <- renderUI({
       lines (tau,coef(fit_qr[[index[k]]])[input$Model_variable_select,],col=col[k],cex=1.5)
     }
     
-    legend("topright",inset=c(-0.17,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
+    legend("topright",inset=c(-0.15,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
            bty = "n",xpd=NA,cex=1)
     
   })
@@ -7942,196 +7934,196 @@ output$OT_graph_download_ui <- renderUI({
         lines (tau,coef(fit_qr[[index[k]]])[expl[j],],col=col[k],cex=1.5)
       }
       
-      legend("topright",inset=c(-0.32,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
+      legend("topright",inset=c(-0.3,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
              bty = "n",xpd=NA,cex=1)
       
     }
     
   })
   
-   output$downl_plot_QA <-  
-      downloadHandler(
-  
-     filename = function(){paste("Quantile plots MVApp", "pdf" , sep=".") },
-    content = function(file) {
-      pdf(file)
+  output$downl_plot_QA <-  
+    downloadHandler(
       
-      if(input$model_type_plot == "single plot"){
-      temp <-
-        subset(
-          QA_final_data_display(),
-          select = c(
-            input$QA_subset,
-            input$ResponsePheno,
-            input$ExplanatoryPheno
-          )
-        )
-      sub_set <- input$QA_subset
-      things_to_model_QA <- unique(temp[sub_set])
-      tau = c(0.25,0.5,0.75)
-      fit_qr=list()
-      
-      for (i in 1:nrow(things_to_model_QA)) {
-        if(ncol(things_to_model_QA)==1){
-          super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
-          
-        } else 
-        {
-          super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
-          
-        } 
-        super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
-        colnames(super_temp2)[1]= "y"
-        fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+      filename = function(){paste("Quantile plots MVApp", "pdf" , sep=".") },
+      content = function(file) {
+        pdf(file)
         
-      }
-      sub= setdiff(input$QA_subset, input$group_plot_by)
-      
-      if(is_empty(sub)){
-        index=c(1:nrow(things_to_model_QA))
-      }else{
-        index = which( things_to_model_QA[,sub] == input$plot_subset)
-      }
-      
-      listgroupby <- unique(as.matrix(temp[input$group_plot_by]))
-      
-      tau= c(0.25, 0.5, 0.75)
-      
-      pvalues=rep(0, length(tau))
-      plist= list()
-      
-      for(k in 1:nrow(listgroupby)){
-        for(i in 1:length(tau)){
-          pvalues[i]=cbind(coef(summary(fit_qr[[index[k]]],se="boot")[[i]])[input$Model_variable_select, "Pr(>|t|)"])
-        }
-        plist[[k]]= pvalues
-      }
-      
-      coeffi=matrix(0,nrow(listgroupby),length(tau))
-      for(i in 1:nrow(listgroupby)){
-        coeffi[i,]=coef(fit_qr[[index[i]]])[input$Model_variable_select,] 
-      }
-      
-      col= rainbow(nrow(listgroupby))
-      
-      par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
-      plot(tau,coef(fit_qr[[index[1]]])[input$Model_variable_select,],
-           pch=ifelse(plist[[1]]< as.numeric(as.character(input$p_value_threshold)) ,20,4),
-           col=ifelse(plist[[1]]< as.numeric(as.character(input$p_value_threshold)) ,col[1],"black"),
-           cex=1.5, xlab = "Quantiles", ylab = "Coefficient",
-           cex.main=1.5, cex.lab=1.5, main=input$Model_variable_select,
-           ylim=c(min(coeffi), max(coeffi)))
-      
-      lines(tau,coef(fit_qr[[index[1]]])[input$Model_variable_select,],col=col[1], cex=1.5)
-      
-      for(k in 2:nrow(listgroupby)){
-        points (tau,coef(fit_qr[[index[k]]])[input$Model_variable_select,],
-                col=ifelse(plist[[k]]< as.numeric(as.character(input$p_value_threshold)) ,col[k],"black"),
-                pch=ifelse(plist[[k]]<as.numeric(as.character(input$p_value_threshold)) ,20,4),cex=1.5)
-        lines (tau,coef(fit_qr[[index[k]]])[input$Model_variable_select,],col=col[k],cex=1.5)
-      }
-      
-      legend("topright",inset=c(-0.32,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
-             bty = "n",xpd=NA,cex=1)
-      }
-      
-      if(input$model_type_plot == "multiple plots"){
-        temp <-
-          subset(
-            QA_final_data_display(),
-            select = c(
-              input$QA_subset,
-              input$ResponsePheno,
-              input$ExplanatoryPheno
+        if(input$model_type_plot == "single plot"){
+          temp <-
+            subset(
+              QA_final_data_display(),
+              select = c(
+                input$QA_subset,
+                input$ResponsePheno,
+                input$ExplanatoryPheno
+              )
             )
-          )
-        sub_set <- input$QA_subset
-        things_to_model_QA <- unique(temp[sub_set])
-        tau = c(0.25,0.5,0.75)
-        fit_qr=list()
-        
-        for (i in 1:nrow(things_to_model_QA)) {
-          if(ncol(things_to_model_QA)==1){
-            super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
-            
-          } else 
-          {
-            super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
-            
-          } 
-          super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
-          colnames(super_temp2)[1]= "y"
-          fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+          sub_set <- input$QA_subset
+          things_to_model_QA <- unique(temp[sub_set])
+          tau = c(0.25,0.5,0.75)
+          fit_qr=list()
           
-        }
-        
-        sub= setdiff(input$QA_subset, input$group_plot_by)
-        if(is_empty(sub)){
-          index=c(1:nrow(things_to_model_QA))
-        }else{
-          index = which( things_to_model_QA[,sub] == input$plot_subset)
-        }    
-        
-        listgroupby <- unique(as.matrix(temp[input$group_plot_by]))
-        
-        tau= c(0.25, 0.5, 0.75)
-        
-        pvalues=rep(0, length(tau))
-        plist= list()
-        
-        
-        temp_expl <- subset(
-          QA_final_data_display(),
-          select = c(
-            input$ExplanatoryPheno
-          )
-        )
-        expl= colnames(temp_expl)
-        
-        par(mfrow=c(2,2))
-        var = min(length(expl), input$QA_plot_slider+3)
-        for(j in input$QA_plot_slider:var){
+          for (i in 1:nrow(things_to_model_QA)) {
+            if(ncol(things_to_model_QA)==1){
+              super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+              
+            } else 
+            {
+              super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+              
+            } 
+            super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+            colnames(super_temp2)[1]= "y"
+            fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+            
+          }
+          sub= setdiff(input$QA_subset, input$group_plot_by)
+          
+          if(is_empty(sub)){
+            index=c(1:nrow(things_to_model_QA))
+          }else{
+            index = which( things_to_model_QA[,sub] == input$plot_subset)
+          }
+          
+          listgroupby <- unique(as.matrix(temp[input$group_plot_by]))
+          
+          tau= c(0.25, 0.5, 0.75)
+          
+          pvalues=rep(0, length(tau))
+          plist= list()
           
           for(k in 1:nrow(listgroupby)){
             for(i in 1:length(tau)){
-              pvalues[i]=cbind(coef(summary(fit_qr[[index[k]]],se="boot")[[i]])[expl[j], "Pr(>|t|)"])
+              pvalues[i]=cbind(coef(summary(fit_qr[[index[k]]],se="boot")[[i]])[input$Model_variable_select, "Pr(>|t|)"])
             }
             plist[[k]]= pvalues
           }
           
           coeffi=matrix(0,nrow(listgroupby),length(tau))
           for(i in 1:nrow(listgroupby)){
-            coeffi[i,]=coef(fit_qr[[index[i]]])[expl[j],] 
+            coeffi[i,]=coef(fit_qr[[index[i]]])[input$Model_variable_select,] 
           }
           
           col= rainbow(nrow(listgroupby))
           
           par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
-          plot(tau,coef(fit_qr[[index[1]]])[expl[j],],
-               pch=ifelse(plist[[1]]<as.numeric(as.character(input$p_value_threshold)) ,20,4),
-               col=ifelse(plist[[1]]<as.numeric(as.character(input$p_value_threshold)) ,col[1],"black"),
+          plot(tau,coef(fit_qr[[index[1]]])[input$Model_variable_select,],
+               pch=ifelse(plist[[1]]< as.numeric(as.character(input$p_value_threshold)) ,20,4),
+               col=ifelse(plist[[1]]< as.numeric(as.character(input$p_value_threshold)) ,col[1],"black"),
                cex=1.5, xlab = "Quantiles", ylab = "Coefficient",
-               cex.main=1.5, cex.lab=1.5, main=expl[j],
+               cex.main=1.5, cex.lab=1.5, main=input$Model_variable_select,
                ylim=c(min(coeffi), max(coeffi)))
           
-          lines(tau,coef(fit_qr[[index[1]]])[expl[j],],col=col[1], cex=1.5)
+          lines(tau,coef(fit_qr[[index[1]]])[input$Model_variable_select,],col=col[1], cex=1.5)
           
           for(k in 2:nrow(listgroupby)){
-            points (tau,coef(fit_qr[[index[k]]])[expl[j],],
+            points (tau,coef(fit_qr[[index[k]]])[input$Model_variable_select,],
                     col=ifelse(plist[[k]]< as.numeric(as.character(input$p_value_threshold)) ,col[k],"black"),
-                    pch=ifelse(plist[[k]]<0.05 ,20,4),cex=1.5)
-            lines (tau,coef(fit_qr[[index[k]]])[expl[j],],col=col[k],cex=1.5)
+                    pch=ifelse(plist[[k]]<as.numeric(as.character(input$p_value_threshold)) ,20,4),cex=1.5)
+            lines (tau,coef(fit_qr[[index[k]]])[input$Model_variable_select,],col=col[k],cex=1.5)
           }
           
-          legend("topright",inset=c(-0.8,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
+          legend("topright",inset=c(-0.32,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
                  bty = "n",xpd=NA,cex=1)
-          
         }
-      }
-      
-      dev.off()
-    } 
-  )  
+        
+        if(input$model_type_plot == "multiple plots"){
+          temp <-
+            subset(
+              QA_final_data_display(),
+              select = c(
+                input$QA_subset,
+                input$ResponsePheno,
+                input$ExplanatoryPheno
+              )
+            )
+          sub_set <- input$QA_subset
+          things_to_model_QA <- unique(temp[sub_set])
+          tau = c(0.25,0.5,0.75)
+          fit_qr=list()
+          
+          for (i in 1:nrow(things_to_model_QA)) {
+            if(ncol(things_to_model_QA)==1){
+              super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+              
+            } else 
+            {
+              super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+              
+            } 
+            super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+            colnames(super_temp2)[1]= "y"
+            fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+            
+          }
+          
+          sub= setdiff(input$QA_subset, input$group_plot_by)
+          if(is_empty(sub)){
+            index=c(1:nrow(things_to_model_QA))
+          }else{
+            index = which( things_to_model_QA[,sub] == input$plot_subset)
+          }    
+          
+          listgroupby <- unique(as.matrix(temp[input$group_plot_by]))
+          
+          tau= c(0.25, 0.5, 0.75)
+          
+          pvalues=rep(0, length(tau))
+          plist= list()
+          
+          
+          temp_expl <- subset(
+            QA_final_data_display(),
+            select = c(
+              input$ExplanatoryPheno
+            )
+          )
+          expl= colnames(temp_expl)
+          
+          par(mfrow=c(2,2))
+          var = min(length(expl), input$QA_plot_slider+3)
+          for(j in input$QA_plot_slider:var){
+            
+            for(k in 1:nrow(listgroupby)){
+              for(i in 1:length(tau)){
+                pvalues[i]=cbind(coef(summary(fit_qr[[index[k]]],se="boot")[[i]])[expl[j], "Pr(>|t|)"])
+              }
+              plist[[k]]= pvalues
+            }
+            
+            coeffi=matrix(0,nrow(listgroupby),length(tau))
+            for(i in 1:nrow(listgroupby)){
+              coeffi[i,]=coef(fit_qr[[index[i]]])[expl[j],] 
+            }
+            
+            col= rainbow(nrow(listgroupby))
+            
+            par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
+            plot(tau,coef(fit_qr[[index[1]]])[expl[j],],
+                 pch=ifelse(plist[[1]]<as.numeric(as.character(input$p_value_threshold)) ,20,4),
+                 col=ifelse(plist[[1]]<as.numeric(as.character(input$p_value_threshold)) ,col[1],"black"),
+                 cex=1.5, xlab = "Quantiles", ylab = "Coefficient",
+                 cex.main=1.5, cex.lab=1.5, main=expl[j],
+                 ylim=c(min(coeffi), max(coeffi)))
+            
+            lines(tau,coef(fit_qr[[index[1]]])[expl[j],],col=col[1], cex=1.5)
+            
+            for(k in 2:nrow(listgroupby)){
+              points (tau,coef(fit_qr[[index[k]]])[expl[j],],
+                      col=ifelse(plist[[k]]< as.numeric(as.character(input$p_value_threshold)) ,col[k],"black"),
+                      pch=ifelse(plist[[k]]<0.05 ,20,4),cex=1.5)
+              lines (tau,coef(fit_qr[[index[k]]])[expl[j],],col=col[k],cex=1.5)
+            }
+            
+            legend("topright",inset=c(-0.8,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
+                   bty = "n",xpd=NA,cex=1)
+            
+          }
+        }
+        
+        dev.off()
+      } 
+    )  
   
   output$QA_plot <- renderPlot({
     if(input$model_type_plot == "single plot"){
