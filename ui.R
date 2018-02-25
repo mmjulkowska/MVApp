@@ -378,7 +378,7 @@ tabPanel("Correlations",
                         wellPanel(
                           uiOutput("cor_Pheno_data"),
                           # which data set to use (summarized / na / original) selectize, multiple = F
-                          uiOutput("cor_phenos",lable = "Choose nummeric variables from your data for correlation analysis"),
+                          uiOutput("cor_phenos",lable = "Choose traits for correlation analysis"),
                           # which data set to use (summarized / na / original) selectize, multiple = F
                           checkboxInput("cor_data_subset", label = "Subset your data for correlation analysis?"),
                           uiOutput("cor_subset"),
@@ -403,7 +403,8 @@ tabPanel("Correlations",
                         uiOutput("corrplot_button"),
                         plotOutput("corrplot"),
                         br(),
-                        verbatimTextOutput(outputId = "description"),        
+                        column(12,checkboxInput("show_Corr_plot_legend", "Show the figure legend"),
+                               uiOutput("Corr_plot_legend_show")),
                         br(),br(),
                         uiOutput("cortable_button"),
                         br(),

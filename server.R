@@ -825,6 +825,7 @@ function(input, output) {
     
     cat("# # > > > Figure legend: < < < # # #")
     cat("\n")
+    cat("\n")
     cat("The Fit-plot for", input$ModelPheno, "using", model, ".")
     cat("\n")
     cat("The x-axis represents", input$SelectTime, "and the y-axis represents", input$ModelPheno, transformation)
@@ -1315,6 +1316,7 @@ function(input, output) {
     days_num <- length(udays)
     
     cat("# # > > > Figure legend: < < < # # #")
+    cat("\n")
     cat("\n")
     cat("The", input$model_graph_plot, "representing", input$model_trait_plot, "of", input$ModelPheno, "estimated using using", model, "from", input$ModelSum_data, "calculated using", days_num, input$SelectTime,"-s. The average number of replicates is", round(reps, digits=2),".")
     if(input$ModelSum_data == "r2 fitted curves curated data"){
@@ -2707,6 +2709,7 @@ function(input, output) {
     
     cat("# # > > > Figure legend: < < < # # #")
     cat("\n")
+    cat("\n")
     cat("The", input$outlier_graph_type, "representing", phenotype, "from", which_data, ".")
     cat(" The average number of replicates per",input$IV_outliers ,"is", round(reps, digits=2),".")
     if(input$Outlier_on_data == "r2 fitted curves curated data"){
@@ -2899,6 +2902,7 @@ function(input, output) {
     
     
     cat("# # > > > Figure legend: < < < # # #")
+    cat("\n")
     cat("\n")
     cat("The", input$outlier_graph_type, "representing", phenotype, "from", which_data, " with the outliers removed. The outliers are characterized using", input$outlier_method, "method for", how_many,".") 
     if(input$What_happens_to_outliers == "removed together with entire row"){
@@ -4263,7 +4267,7 @@ function(input, output) {
           label = "Choose from your dependent variables to be plotted",
           choices = input$SelectDV,
           multiple = T,
-          selected = T
+          selected = input$SelectDV
         )
       )
   })
@@ -4441,13 +4445,66 @@ function(input, output) {
   
   
   ########create corrplot descriptive text###########
-  output$description <- renderText({
-    if(input$cor_data_subset == F){
-      paste("The above figure visulizes the ", input$corMethod, "correlation coefficients of your selected variables ", ", with n = ", Cor_n())
+  
+  output$Corr_plot_legend_show <- renderUI({
+      if(input$show_Corr_plot_legend == F){
+        return()
+      }
+      else{
+      verbatimTextOutput("description")
     }
-    else{
-      paste("The above figure visulizes the ", input$corMethod, "correlation coefficients of your subsetted data in",input$CorIV_sub, "-", input$CorIV_val, ", with n = ", Cor_n())
+  })
+  
+  output$description <- renderPrint({
+    cat("# # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    cat("The heat map of global correlations between selected traits. Different colors reflect", input$corMethod, "correlation coefficients between individual traits.")  
+    
+    cat(" !!!! GEGE - SHOULD ADD SOMETHING ON THE SHAPE AND THE SIZE OF THE BALLS FILLING IT IN ???? ")
+    
+    if(input$cor_data_subset == T){
+      cat(" The data is subsetted in",input$CorIV_sub, "-", input$CorIV_val, ".")
     }
+    
+    
+    if(input$cor_sig_show == T){
+      cat(" The non-significant correlations, with the p-value above",input$cor_sig_threshold, "are indicated with a cross in the individual cells.")
+    }
+    
+    cat(" The correlations are calculated using", input$cor_data, ". The total number of samples used for estimating the correlation coefficients is ", Cor_n(), ".")
+    
+    if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
+      
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
+    
+    # Data curation:
+    if(input$cor_data == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(how_many == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
+    
+    
   })
   
   
@@ -8457,11 +8514,43 @@ function(input, output) {
     
     cat("# # > > > Figure legend: < < < # # #")
     cat("\n")
-    cat("The scatterplot shows the behavior of the respective plant trait on the response", input$ResponsePheno,".") 
     cat("\n")
-    cat("The x-axis represents the quantile level and the y-axis represents the estimated value of the respective regression coefficient. ")
-    cat("The dots represent that the coefficient is significant at",input$p_value_threshold ,"level of significance, while the cross sign represents non-significance. ")
-    cat("Different colors indicate different",input$group_plot_by,".")
+    cat("The plot shows the behavior of the respective plant trait on the response", input$ResponsePheno,".") 
+    cat(" The x-axis represents the quantile level and the y-axis represents the estimated value of the respective regression coefficient. ")
+    cat("The filled dots represent that the coefficient is significantly contributing to", input$ResponsePheno, "with",input$p_value_threshold ,"as a threshold p-value. The data-points indicated with X represent non-significant contribution of the trait in individual quantile to", input$ResponsePheno, ". ")
+    cat("Different colors indicate different",input$group_plot_by,". ")
+    cat("The Quantile Regression Analysis was performed on", input$data_to_use,".")
+    
+    if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
+      
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
+    
+    # Data curation:
+    if(input$data_to_use == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(how_many == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
+    
   })
   
   # end of the script
