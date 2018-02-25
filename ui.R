@@ -297,12 +297,18 @@ tabPanel("Data exploration", icon=icon("binoculars"),
                                downloadButton("download_HistPlot", "Download plot"),
                                plotlyOutput("HistPlot", width = 1000),
                                br(),
+                               br(),
+                               checkboxInput("show_hist_legend", "Show the figure legend"),
+                               uiOutput("legend_hist_show"),
+                               br(),
                                verbatimTextOutput("Shapiro"),
                                br(),
                                column(4, checkboxInput("showShapirotest", "Would you like to see detailed Shapiro-Wilk test and QQplots?")),
                                column(4, uiOutput("QQplot_slider")),
                                column(4, uiOutput("QQplot_slider2")),
-                               column(12,plotOutput("QQplot", height=1000))), 
+                               column(12,plotOutput("QQplot", height=1000)),
+                               br(),
+                               column(12,uiOutput("if_legend_QQ_show"))), 
                       
                       tabPanel("Testing equal variance", icon=icon("area-chart"),
                                uiOutput("downl_Variance_ui"),
@@ -364,45 +370,62 @@ tabPanel("Data exploration", icon=icon("binoculars"),
 # Tab 6 = = = = = = = = = = = = = = >> CORRELATION ANALYSIS << = = = = = = = = = = = = = = = = = =
 
 tabPanel("Correlations",
-  icon = icon("compress"),
-  navbarPage("",
-    tabPanel(
-      "Correlation Plot",
-      sidebarPanel(
-        uiOutput("cor_Pheno_data"),
-        # which data set to use (summarized / na / original) selectize, multiple = F
-        checkboxInput("cor_data_subset", label = "Subset your data for correlation analysis?"),
-        uiOutput("cor_subset"),
-        uiOutput("CorSpecIV_val"),
-        checkboxInput("cor_sig_show", label = "Indicate non-significant correlations"),
-        uiOutput("cor_sig_level_output"),
-        selectInput("corMethod", "Correlation Method:", choices = c("pearson","spearman")),
-        selectInput("corrplotMethod", "Plot Method:", choices = c("circle", "square", "ellipse", "number", "shade", "color", "pie")),
-        selectInput("corType", "Plot Type:", choices = c("full", "lower", "upper")),
-        selectInput("corOrder", "Order the lables by:", choices = list("Original order" = "original","Angular order of eigenvectors" = "AOE", "First Principal Component order"  = "FPC", "Hierarchical clustering order"  = "hclust", "Alphabetical order" = "alphabet")),
-        numericInput("Cor_Big_steps", "Number of levels:", value = 10, min = 3, max = 10),
-        selectizeInput("Cor_color_palette", "Palette:", choices = list("Spectral" = "Spectral", "Red-Yellow-Green" = "RdYlGn", "Red-Yellow-Blue" = "RdYlBu", "Red-Grey" = "RdGy", "Red-Blue" = "RdBu", "Purple-Orange" = "PuOr", "Purple-Green" = "PRGn", "Pink-Green" = "PiYG", "Brown-Blue-Green" = "BrBG"))
-        #actionButton("Go_table", label = "Click to see the correlation table with p value", icon = icon("play-circle"))
-      ),
-      mainPanel(
-        verbatimTextOutput("tricky_table"),
-        downloadButton("download_corrplot", label="Download Plot"),
-        plotOutput("corrplot"),
-        uiOutput("cortable_button"),
-        verbatimTextOutput("cor_table_text"),
-        dataTableOutput("cor_table"))
-    ),
-    tabPanel(
-      "Scatterplots",
-      sidebarPanel(uiOutput("Pheno1"), uiOutput("Pheno2"), uiOutput("colorby")),
-      mainPanel(
-        textOutput("corrsq"),
-        textOutput("corpval"),
-        uiOutput("downl_scatter_corr_ui"),
-        plotlyOutput("scatterplot")
-      )))
-  # end of Tab#6
-),
+         icon = icon("compress"),
+         navbarPage("",
+                    tabPanel(
+                      "Correlation Plot",
+                      sidebarPanel(
+                        wellPanel(
+                          uiOutput("cor_Pheno_data"),
+                          # which data set to use (summarized / na / original) selectize, multiple = F
+                          uiOutput("cor_phenos",lable = "Choose nummeric variables from your data for correlation analysis"),
+                          # which data set to use (summarized / na / original) selectize, multiple = F
+                          checkboxInput("cor_data_subset", label = "Subset your data for correlation analysis?"),
+                          uiOutput("cor_subset"),
+                          uiOutput("CorSpecIV_val")),
+                        wellPanel(
+                          uiOutput("cor_sig_level_output"),
+                          selectInput("corMethod", "Correlation Method:", choices = c("pearson","spearman")),
+                          selectInput("corrplotMethod", "Plot Method:", choices = c("circle", "square", "ellipse", "number", "shade", "color", "pie")),
+                          selectInput("corType", "Plot Type:", choices = c("full", "lower", "upper")),
+                          selectInput("corOrder", "Order the lables by:", choices = list("Original order" = "original","Angular order of eigenvectors" = "AOE", "First Principal Component order"  = "FPC", "Hierarchical clustering order"  = "hclust", "Alphabetical order" = "alphabet")),
+                          numericInput("Cor_Big_steps", "Number of levels:", value = 10, min = 3, max = 10),
+                          selectizeInput("Cor_color_palette", "Palette:", choices = list("Spectral" = "Spectral", "Red-Yellow-Green" = "RdYlGn", "Red-Yellow-Blue" = "RdYlBu", "Red-Grey" = "RdGy", "Red-Blue" = "RdBu", "Purple-Orange" = "PuOr", "Purple-Green" = "PRGn", "Pink-Green" = "PiYG", "Brown-Blue-Green" = "BrBG")),
+                          checkboxInput("cor_sig_show", label = "Indicate non-significant correlations")),
+                        #actionButton("Go_table", label = "Click to see the correlation table with p value", icon = icon("play-circle"))
+                        checkboxInput(inputId = "show_table",
+                                      label = "Show correlation table",
+                                      value = F)
+                      ),
+                      mainPanel(
+                        uiOutput("cor_missing_na"),
+                        verbatimTextOutput("tricky_table"),
+                        uiOutput("corrplot_button"),
+                        plotOutput("corrplot"),
+                        br(),
+                        verbatimTextOutput(outputId = "description"),        
+                        br(),br(),
+                        uiOutput("cortable_button"),
+                        br(),
+                        verbatimTextOutput("cor_table_text"),
+                        dataTableOutput("cor_table"))
+                    ),
+                    tabPanel(
+                      "Scatterplots",
+                      sidebarPanel(uiOutput("Pheno1"), uiOutput("Pheno2"), 
+                                   checkboxInput("scatter_color", label = "Color the plot by"),
+                                   uiOutput("colorby"), 
+                                   checkboxInput("scatter_shape", label = "Shape the plot by"),
+                                   uiOutput("shapeby")),
+                      mainPanel(
+                        textOutput("corrsq"),
+                        textOutput("corpval"),
+                        uiOutput("downl_scatter_corr_ui"),
+                        plotlyOutput("scatterplot")
+                      )
+                    )
+                    # end of Tab#6
+         )),
 # Tab 7 = = = = = = = = = = = = = = >> PCA ANALYSIS << = = = = = = = = = = = = = = = = = = 
 
 tabPanel("Reduction of dimentionality", icon = icon("object-group"),
@@ -545,75 +568,95 @@ tabPanel("Clustering", icon = icon("sitemap"),
                                
            ))),
       tabPanel("K-means Clustering", icon = icon("barcode"),
-            sidebarPanel(
-                          uiOutput("Select_data_K_mean_cluster"),
-                          uiOutput("Select_DV_KMC"),
-                          checkboxInput(inputId = "KMCluster_scale_Q", label = "Scale the data prior to clustering"),
-                          checkboxInput("KMC_use_means", label = "Perform K-means cluster analysis on mean values?"),
-                          actionButton(inputId= "Select_data_KMC", label = "Set the dataset"),
-                          br(),br(),
-                          actionButton(inputId="Go_KMClustering_advise", label = "Unleash optimal cluster number estimation"),
-                          hr(),
-                          uiOutput("Select_numer_of_cluster_to_perform"),
-                          numericInput("kmclusters", "Cluster number", 3,
-                                       min = 1, max = 9),
-                          actionButton(inputId="Go_KMClustering", label = "Unleash k-means clustering")
-                        ),
-                        
-             mainPanel(
-                          navbarPage("KMC",
-                                     tabPanel("Optimal number of clusters",
-                                              dataTableOutput("KMC_data_table"),
-                                              verbatimTextOutput("indices_majority_KMC"),
-                                              #dataTableOutput("KMCluster_test"),
-                                              column(12,  uiOutput("downl_indices_plots_KMC_3_ui"),
-                                                          plotOutput("indices_plots_KMC_3")),
-                                              column(6, uiOutput("downl_elbow_graph_KMC_ui"),
-                                                        plotOutput("elbow_graph_KMC")),
-                                              column(6, uiOutput("downl_silhouette_graph_KMC_ui"),
-                                                        plotOutput("silhouette_graph_KMC"))
-                                              #plotOutput("gapstat_graph_KMC"),
-                                             # This worked with Yveline but isnt working now - dont know why - I ll hash it for now 
-                                              # column(12,uiOutput("downl_indices_plots_KMC_1_ui"),
-                                             #           plotOutput("indices_plots_KMC_1")),
-                                              # column(12, uiOutput("downl_indices_plots_KMC_2_ui"),
-                                              #            plotOutput("indices_plots_KMC_2"))
-                                     ),
-                                     tabPanel("K means clustering results",
-                                              column(4, uiOutput("Select_KMC_trait")),
-                                              column(4, uiOutput("facet_barplot_of_KMC"),
-                                                        uiOutput("Select_KMC_facet_barplot")),
-                                              column(4, uiOutput("Select_KMC_scale_barplot"),
-                                              #actionButton(inputId= "Show_table", label = "Show barplot table"),
-                                              #dataTableOutput("KMC_test1"),
-                                                        uiOutput("Select_KMC_background_barplot"),
-                                                        uiOutput("Select_KMC_grid_barplot")),
-                                              column(12,uiOutput("downl_kmeans_barplots_ui")),
-                                              column(12,plotlyOutput("kmeans_barplots")),
-                                              hr(),
-                                              column(4,uiOutput("xcol_kmeans_scatter"),
-                                                       uiOutput("ycol_kmeans_scatter")),
-                                              column(4,uiOutput("facet_scatterplot_of_KMC"),
-                                                       uiOutput("Select_KMC_facet_to_plot")),
-                                              column(4,uiOutput("Select_KMC_facet_scale"),
-                                                       uiOutput("Select_KMC_background_to_plot"),
-                                                       uiOutput("Select_KMC_grid_to_plot")),
-                                              #dataTableOutput("KMC_test2"),
-                                              column(12, uiOutput("downl_kmeans_scatter_plot_ui")),
-                                              column(12,plotlyOutput("kmeans_scatter_plot")),
-                                              column(12,uiOutput("downl_KMC_test_ui")),
-                                              dataTableOutput("KMC_test")
-                                     )
-                                     #   tabPanel("Cluster validation",
-                                     #         verbatimTextOutput("kmcAnovaNews"),
-                                     
-                                     #   plotOutput("kmcANOVA"),
-                                     #   hr(),
-                                     #     column(4, uiOutput("Select_data_cluster_validation")))
-                                     
-                          ))         
-               ))
-         # end of Tab #8
+               sidebarPanel(
+                 uiOutput("Select_data_K_mean_cluster"),
+                 uiOutput("Select_DV_KMC"),
+                 checkboxInput(inputId = "KMCluster_scale_Q", label = "Scale the data prior to clustering"),
+                 checkboxInput("KMC_use_means", label = "Perform K-means cluster analysis on mean values?"),
+                 #actionButton(inputId= "Select_data_KMC", label = "Set the dataset"),
+                 br(),br(),
+                 actionButton(inputId="Go_KMClustering_advise", label = "Unleash optimal cluster number estimation"),
+                 hr(),
+                 uiOutput("Select_numer_of_cluster_to_perform"),
+                 numericInput("kmclusters", "Cluster number", 3,
+                              min = 1, max = 9),
+                 actionButton(inputId="Go_KMClustering", label = "Unleash k-means clustering")
+               ),
+               
+               mainPanel(
+                 navbarPage("KMC",
+                            tabPanel("Selected dataset",
+                                     column(12,uiOutput("downl_KMC_data_type")),
+                                     dataTableOutput("KMC_data_table")
+                            ),
+                            tabPanel("Final data for K-means",
+                                     column(12,uiOutput("downl_KMC_for_matrix")),
+                                     dataTableOutput("KMCluster_test")
+                            ),
+                            
+                            tabPanel("Optimal number of clusters",
+                                     p("Estimation of the optimal number of clusters for k-means clustering can be done through various different methods. More than thirty indices and methods have been published. The most commonly used are the elbow method and the silhouette method. Both are graphical methods where the angle in the plot indicates the suggested number of clusters."),
+                                     p("The elbow method consists in plotting the total intra-cluster variation or total within-cluster sum of square (WSS) as a function of the number of clusters. The optimal number of clusters is that where adding another cluster does not improve much the compactness of the clustering as defined by total WSS."),
+                                     p("The average silhouette of the data is…"),
+                                     p("Besides the elbow and silhouette method, 30 more indices are computed and the results are reported below suggesting the best number of clusters using the “majority rule”. Two of these indices are also graphical estimations: Hubert index and D index, explained below."),
+                                     h3("Graphical methods", align = "center"),
+                                     column(6, uiOutput("downl_elbow_graph_KMC_ui"),
+                                            plotOutput("elbow_graph_KMC")),
+                                     column(6, uiOutput("downl_silhouette_graph_KMC_ui"),
+                                            plotOutput("silhouette_graph_KMC")),
+                                     #plotOutput("gapstat_graph_KMC"),
+                                     # This worked with Yveline but isnt working now - dont know why - I ll hash it for now 
+                                     h5("Hubert index ***", align = "center"),
+                                     column(12,uiOutput("downl_indices_plots_KMC_1_ui"),
+                                            plotOutput("indices_plots_KMC_1")),
+                                     h5("D index ***", align = "center"),
+                                     column(12, uiOutput("downl_indices_plots_KMC_2_ui"),
+                                            plotOutput("indices_plots_KMC_2")),
+                                     verbatimTextOutput("indices_majority_KMC"),
+                                     #dataTableOutput("KMCluster_test"),
+                                     column(12,  uiOutput("downl_indices_plots_KMC_3_ui"),
+                                            plotOutput("indices_plots_KMC_3"))
+                            ),
+                            tabPanel("K means clustering barplots",
+                                     column(4, uiOutput("Select_KMC_trait")),
+                                     column(4, uiOutput("facet_barplot_of_KMC"),
+                                            uiOutput("Select_KMC_facet_barplot")),
+                                     column(4, uiOutput("Select_KMC_scale_barplot"),
+                                            #actionButton(inputId= "Show_table", label = "Show barplot table"),
+                                            #dataTableOutput("KMC_test1"),
+                                            uiOutput("Select_KMC_background_barplot"),
+                                            uiOutput("Select_KMC_grid_barplot")),
+                                     column(12,uiOutput("downl_kmeans_barplots_ui")),
+                                     column(12,plotlyOutput("kmeans_barplots")),
+                                     hr()
+                            ),
+                            tabPanel("K-means clustering scatter plots",
+                                     column(4,uiOutput("xcol_kmeans_scatter"),
+                                            uiOutput("ycol_kmeans_scatter")),
+                                     column(4,uiOutput("facet_scatterplot_of_KMC"),
+                                            uiOutput("Select_KMC_facet_to_plot")),
+                                     column(4,uiOutput("Select_KMC_facet_scale"),
+                                            uiOutput("Select_KMC_background_to_plot"),
+                                            uiOutput("Select_KMC_grid_to_plot")),
+                                     #dataTableOutput("KMC_test2"),
+                                     column(12, uiOutput("downl_kmeans_scatter_plot_ui")),
+                                     column(12,plotlyOutput("kmeans_scatter_plot"))
+                            ),
+                            tabPanel("K-means clustering data table",
+                                     column(12,uiOutput("downl_KMC_test_ui")),
+                                     dataTableOutput("KMC_test")
+                            )
+                            #   tabPanel("Cluster validation",
+                            #         verbatimTextOutput("kmcAnovaNews"),
+                            
+                            #   plotOutput("kmcANOVA"),
+                            #   hr(),
+                            #     column(4, uiOutput("Select_data_cluster_validation")))
+                            
+                            
+                 ))         
+      ))
+      # end of Tab #8
 ),
 
 # Tab 9 = = = = = = = = = = = = = = >> HERITABILITY << = = = = = = = = = = = = = = = = = = 
@@ -680,10 +723,12 @@ tabPanel("Quantile regression", icon = icon("paper-plane-o"),
                                  column(4,uiOutput("QA_plot_slider_input"))
                                  
                                ),
-                               actionButton("Go_plot", label = "View plot(s):"),
-                               
+                               fluidRow(
+                                column(4,actionButton("Go_plot", label = "View plot(s):")),
+                                column(4,downloadButton("downl_plot_QA", "Download plot"))),
                                plotOutput("QA_plot", height = 425),
-                               downloadButton("downl_plot_QA", "Download plot")
+                               column(12,checkboxInput("show_QA_legend", "Show the figure legend"),
+                                      uiOutput("QA_legend_show"))
                                #          br(),
                                #           uiOutput("QA_plot_download")
                                

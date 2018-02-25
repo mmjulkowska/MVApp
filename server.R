@@ -3253,6 +3253,77 @@ function(input, output) {
     HistoPl()
   })
   
+  # Figure legend:
+  output$legend_hist_show <- renderUI({
+    if(input$show_hist_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_histo")
+    }
+  })
+  
+  output$Legend_histo <- renderPrint({
+    
+    which_hist_data <- input$Histo_data
+    
+    which_hist_DV<-input$HisDV
+    which_hist_IV<-input$HisIV
+    which_plotfacets<-input$Plotfacet_choice
+    #which_pvalue<-input$Chosenthreshold
+    
+    
+    cat("# # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    if(input$plot_facet == T){
+      if(input$HistType == "Histogram with density on y-axis"){
+      cat("The plot represents the estimated Kernel density (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed for different", which_hist_IV, "are represented with different colors.")  }
+      if(input$HistType == "Histogram with counts on y-axis"){
+        cat("The plot represents the number of counts (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed for different", which_hist_IV, "are represented with different colors and are stacked on top of eachother.")   
+      }
+      cat(" The plot is split by", which_plotfacets, ". The plot is created using", which_hist_data,".")
+    }
+    
+    if(input$plot_facet == F){
+      if(input$HistType == "Histogram with density on y-axis"){
+        cat("The plot represents the estimated Kernel density (y-axis) of values observed for", which_hist_DV, " (x-axis). The colors represent different groups of", which_hist_IV, ".")  }
+      if(input$HistType == "Histogram with counts on y-axis"){
+        cat("The plot represents the number of counts (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed in individual", which_hist_IV, " are represented with different colors and are stacked on top of eachother.")   
+      }
+      cat(" The plot is created using", which_hist_data,".")
+    }    
+    # Data curation:
+    if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
+      
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
+    
+    # Data curation:
+    if(input$Histo_data == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(how_many == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
+  }) 
   
   output$Shapiro<- renderPrint({
     if(input$plot_facet ==T){
@@ -3454,6 +3525,65 @@ function(input, output) {
     else{}
     #ggplotly(QQ)
   })
+  
+  output$if_legend_QQ_show <- renderUI({
+    if(input$showShapirotest == T){
+      verbatimTextOutput("legend_QQ_show")
+    }
+  })
+  
+  output$legend_QQ_show <- renderPrint({
+    
+    which_hist_data <- input$Histo_data
+    which_hist_DV<-input$HisDV
+    which_hist_IV<-input$HisIV
+    which_plotfacets<-input$Plotfacet_choice
+    which_pvalue<-input$Chosenthreshold
+    
+      cat("# # > > > Figure legend: < < < # # #")
+      cat("\n")
+      cat("\n")
+      if(input$plot_facet == T){
+        cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "and", which_plotfacets, "using", which_hist_data,".")  
+      }
+      if(input$plot_facet == F){
+        cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by by", which_hist_IV, "using", which_hist_data,".")  
+      }
+      cat(" The x-axis represents normal theoretical quantiles, and the y-axis represents sample quantiles.") 
+      cat( "The red line represents the best fit between the expected and observed values. Departures from the line (except in the tails) are indicative of a lack of normality.")
+      
+      
+      # Data curation:
+      if(input$Go_outliers == T){
+        how_many <- input$Out_pheno_single_multi  
+        
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
+          which_ones <- input$DV_outliers
+        }
+        if(input$Out_pheno_single_multi == "Single phenotype"){
+          which_ones <- input$DV_outliers
+        }}
+      
+      # Data curation:
+      if(input$Histo_data == "outliers removed data"){    
+        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+        if(how_many == "Single phenotype"){
+          cat(" (", which_ones, ").")}
+        if(how_many == "Some phenotypes"){
+          cat(" (", which_ones, ").")}
+        else{
+          cat(".")}
+        
+        if(input$What_happens_to_outliers == "removed together with entire row"){
+          cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+        if(input$What_happens_to_outliers == "replaced by NA"){
+          cat(" The individual values characterized as outliers are replaced by empty cells.")}
+        if(input$Outlier_on_data == "r2 fitted curves curated data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+        if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      }
+  }) 
   
   # = = = = = = = >> Testing Equal Variances << = = = = = = = = = = # 
   
@@ -4123,6 +4253,21 @@ function(input, output) {
           choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
   })
   
+  output$cor_phenos <- renderUI({
+    if (is.null(ItemList())) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Select_cor_phenos",
+          label = "Choose from your dependent variables to be plotted",
+          choices = input$SelectDV,
+          multiple = T,
+          selected = T
+        )
+      )
+  })
+  
   cor_data_type <- eventReactive(input$cor_data, {
     if (input$cor_data == "raw data") {
       cor_data_type <- my_data()
@@ -4139,7 +4284,43 @@ function(input, output) {
     if (input$cor_data == "outliers removed data") {
       cor_data_type <- Outlier_free_data()
     }
+    cor_data_type <- na.omit(cor_data_type)
     cor_data_type
+  })
+  
+  output$cor_missing_na <- renderUI({
+    if(input$cor_data == "outliers removed data"){
+      verbatimTextOutput("cor_missing_message")
+    }
+  })
+  
+
+  output$cor_missing_message <- renderPrint({
+    
+    
+    df <- subset(cor_data_type(), select = input$Select_cor_phenos)
+    final <- dim(df)[1]
+    
+    if (input$cor_data == "raw data") {
+      cor_data_type <- my_data()
+    }
+    if (input$cor_data == "missing values removed data") {
+      cor_data_type <- my_data()[complete.cases(my_data()),]
+    }
+    if (input$cor_data == "r2 fitted curves curated data") {
+      cor_data_type <- good_r2()
+    }
+    if (input$cor_data == "r2 fitted curves curated data with missing values removed") {
+      cor_data_type <- good_r2()[complete.cases(good_r2()),]
+    }
+    if (input$cor_data == "outliers removed data") {
+      cor_data_type <- Outlier_free_data()}
+    
+    start <- dim(cor_data_type)[1]
+    
+    rmvd0 = start - final
+    
+    cat("The selected data contained", rmvd0,"rows with missing values that were removed for the sake of succesfull correlation analysis.")
   })
   
   
@@ -4189,37 +4370,29 @@ function(input, output) {
       numericInput(
         inputId = "cor_sig_threshold",
         label = "p-value threshold:",
-        value = 0.05
+        value = 0.05, step = 0.01
       )
     }
   })
   
   COR_BIG <- reactive({
-    
-    df <- cor_data_type()
+    req(input$Select_cor_phenos)
+    df0<- subset(cor_data_type(),select= input$Select_cor_phenos)
+    df <- subset(cor_data_type(), 
+                 select = c(
+                   input$SelectGeno,
+                   input$SelectIV,
+                   input$SelectID,
+                   input$SelectTime,
+                   input$Select_cor_phenos))
     
     if (input$cor_data_subset) {
-      df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
+      df0 <- subset(df[df[input$CorIV_sub] == input$CorIV_val, ],select=input$Select_cor_phenos)
     }
-    
-    beginCol <-
-      length(c(
-        input$SelectIV,
-        input$SelectGeno,
-        input$SelectTime,
-        input$SelectID
-      )) + 1
-    endCol <-
-      length(c(
-        input$SelectIV,
-        input$SelectGeno,
-        input$SelectTime,
-        input$SelectID
-      )) + length(input$SelectDV)
     
     if(input$cor_sig_show == F){
       corrplot(
-        cor(df[, beginCol:endCol], method = input$corMethod),
+        cor(df0, method = input$corMethod),
         method = input$corrplotMethod,
         type = input$corType,
         order = input$corOrder,
@@ -4228,11 +4401,10 @@ function(input, output) {
     
     if(input$cor_sig_show == T){
       thres <- as.numeric(as.character(input$cor_sig_threshold))
-      res1 <- cor.mtest(df[, beginCol:endCol], conf.level = (1-thres))
-      
+      res1 <- cor.mtest(df0, conf.level = (1-thres))
       
       corrplot(
-        cor(df[, beginCol:endCol], method = input$corMethod),
+        cor(df0, method = input$corMethod),
         p.mat = res1$p,
         sig.level = thres,
         
@@ -4248,35 +4420,56 @@ function(input, output) {
     COR_BIG()
   })
   
+  Cor_n <- reactive({
+    req(input$Select_cor_phenos)
+    
+    df <- subset(cor_data_type(),
+                 select = c(
+                   input$SelectGeno,
+                   input$SelectIV,
+                   input$SelectID,
+                   input$SelectTime,
+                   input$Select_cor_phenos))
+    
+    if (input$cor_data_subset) {
+      df0 <- nrow(subset(df[df[input$CorIV_sub] == input$CorIV_val, ],select=input$Select_cor_phenos))
+    }
+    else {df0<- nrow(subset(cor_data_type(),select= input$Select_cor_phenos))}
+    
+  })
+  
+  
+  
+  ########create corrplot descriptive text###########
+  output$description <- renderText({
+    if(input$cor_data_subset == F){
+      paste("The above figure visulizes the ", input$corMethod, "correlation coefficients of your selected variables ", ", with n = ", Cor_n())
+    }
+    else{
+      paste("The above figure visulizes the ", input$corMethod, "correlation coefficients of your subsetted data in",input$CorIV_sub, "-", input$CorIV_val, ", with n = ", Cor_n())
+    }
+  })
+  
+  
+  output$corrplot_button <- renderUI({
+    req(input$Select_cor_phenos)   
+    downloadButton("download_corrplot", label = "Download Plot")
+  })   
+  
+  ######### download corrplot##################   
   output$download_corrplot <- downloadHandler(
+    
     filename = function(){paste("Correlation plot with ", input$corrplotMethod,", ", input$corType, " and ordered with ", input$corOrder, " MVApp.pdf")},
     content = function(file) {
       pdf(file)
-      df <- cor_data_type()
-      
+      df <- subset(cor_data_type(), select = input$Select_cor_phenos)
       if (input$cor_data_subset) {
         df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
       }
       
-      beginCol <-
-        length(c(
-          input$SelectIV,
-          input$SelectGeno,
-          input$SelectTime,
-          input$SelectID
-        )) + 1
-      endCol <-
-        length(c(
-          input$SelectIV,
-          input$SelectGeno,
-          input$SelectTime,
-          input$SelectID
-        )) + length(input$SelectDV)
-      
-      
       if(input$cor_sig_show == F){
         biggie <- corrplot(
-          cor(df[, beginCol:endCol], method = input$corMethod),
+          cor(df, method = input$corMethod),
           method = input$corrplotMethod,
           type = input$corType,
           order = input$corOrder,
@@ -4285,11 +4478,11 @@ function(input, output) {
       
       if(input$cor_sig_show == T){
         thres <- as.numeric(as.character(input$cor_sig_threshold))
-        res1 <- cor.mtest(df[, beginCol:endCol], conf.level = (1-thres))
+        res1 <- cor.mtest(df, conf.level = (1-thres))
         
         
         biggie <- corrplot(
-          cor(df[, beginCol:endCol], method = input$corMethod),
+          cor(df, method = input$corMethod),
           p.mat = res1$p,
           sig.level = thres,
           
@@ -4305,98 +4498,43 @@ function(input, output) {
   
   ################ cor_table output###################
   
+  # output$cor_lineplot <- renderPlot({
+  #   df <- cor_data_type()
+  #   
+  #   make_cor_by_iv <- function(df, iv, dv) {
+  #     vals <- df[iv] %>% unique()
+  #     lst <- lapply(vals, function(x) {
+  #       df %>% filter() select(dv)
+  #     })
+  #   }
+  #   df %>% group_by(input$CorIV_sub) %>% select(input$SelectDV) %>% cor()
+  #   
+  # })
+  
+  
+  
+  ################# correlation table display #################
+  
   output$cor_table <- renderDataTable({
-    beginCol <-
-      length(c(
-        input$SelectIV,
-        input$SelectGeno,
-        input$SelectTime,
-        input$SelectID
-      )) + 1
-    
-    endCol <-
-      length(c(
-        input$SelectIV,
-        input$SelectGeno,
-        input$SelectTime,
-        input$SelectID
-      )) + length(input$SelectDV)
-    
-    df <- cor_data_type()
-    
-    if (input$cor_data_subset) {
-      df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
-    }
-    
-    res <-
-      rcorr(as.matrix(df[, beginCol:endCol]), type = input$corMethod)
-    
-    flattenCorrMatrix <- function(cormat, pmat) {
-      ut <- upper.tri(cormat)
-      data.frame(
-        row = rownames(cormat)[row(cormat)[ut]],
-        column = rownames(cormat)[col(cormat)[ut]],
-        cor  = (cormat)[ut],
-        p = pmat[ut]
-      )
-    }
-    
-    result <- flattenCorrMatrix(res$r, res$P)
-    test <- result
-    for(i in 1:ncol(test)){
-      if (class(test[,i]) == "numeric"){
-        test[,i] <- round(test[,i], digits = 4)
-      }
-    }
-    test
-  })
-  
-  output$cor_table_text <- renderPrint({
-    if(input$cor_data_subset == F){
-      cat(paste("The", input$corMethod, "correlation coefficients and p values of your data are:"))
-    }
-    else{
-      cat(paste("The", input$corMethod, "correlation coefficients and p values for you subsetted data in",input$CorIV_sub, "-", input$CorIV_val, "are:"))
-    }
-  })
-  
-  output$cortable_button <- renderUI({
-    if (is.null(ItemList())) {
+    req(input$Select_cor_phenos)
+    if ((input$show_table == FALSE)) {
       return()
-    }
-    else{
-      downloadButton("cortable_download_button", label = "Download correlation table")
-    }
-  })
-  
-  output$cortable_download_button <- downloadHandler(
-    filename = paste("Correlation table using ", input$corrplotMethod, " subsetted per ", input$CorIV_val, " MVApp.csv"),
-    content <- function(file) {
+    } else {
+      df<- subset(cor_data_type(),select= input$Select_cor_phenos)
       
-      beginCol <-
-        length(c(
-          input$SelectIV,
-          input$SelectGeno,
-          input$SelectTime,
-          input$SelectID
-        )) + 1
-      
-      endCol <-
-        length(c(
-          input$SelectIV,
-          input$SelectGeno,
-          input$SelectTime,
-          input$SelectID
-        )) + length(input$SelectDV)
-      
-      df <- cor_data_type()
+      df0 <- subset(cor_data_type(), 
+                    select = c(
+                      input$SelectGeno,
+                      input$SelectIV,
+                      input$SelectID,
+                      input$SelectTime,
+                      input$Select_cor_phenos))
       
       if (input$cor_data_subset) {
-        df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
+        df <- subset(df0[df0[input$CorIV_sub] == input$CorIV_val, ],select=input$Select_cor_phenos)
       }
       
-      res <-
-        rcorr(as.matrix(df[, beginCol:endCol]), type = input$corMethod)
+      res <- rcorr(as.matrix(df), type = input$corMethod)
       
       flattenCorrMatrix <- function(cormat, pmat) {
         ut <- upper.tri(cormat)
@@ -4409,42 +4547,92 @@ function(input, output) {
       }
       
       result <- flattenCorrMatrix(res$r, res$P)
+      test <- result
+      for(i in 1:ncol(test)){
+        if (class(test[,i]) == "numeric"){
+          test[,i] <- round(test[,i], digits = 4)
+        }
+      }
+      test}
+  })
+  
+  ##### help text above the table ################  
+  output$cor_table_text <- renderPrint({
+    req(input$show_table== T)
+    if(input$cor_data_subset == F){
+      cat(paste("The", input$corMethod, "correlation coefficients and p values of your data are:"))
+    }
+    else{
+      cat(paste("The", input$corMethod, "correlation coefficients and p values for you subsetted data in",input$CorIV_sub, "-", input$CorIV_val, "are:"))
+    }
+  })
+  
+  ########### download button ####################################  
+  output$cortable_button <- renderUI({
+    if (is.null(ItemList())) {
+      return()
+    }
+    else{
+      if ((input$show_table == FALSE)) {
+        return()
+      } else {
+        downloadButton("cortable_download_button", label = "Download correlation table")
+      }}
+  })
+  
+  
+  ########### download cortable file ####################################  
+  
+  
+  output$cortable_download_button <- downloadHandler(
+    filename = paste("Correlation table using ", input$corrplotMethod, " subsetted per ", input$CorIV_val, " MVApp.csv"),
+    content <- function(file) {
       
-      write.csv(result, file)}
+      df0 <- subset(cor_data_type(), 
+                    select = c(
+                      input$SelectGeno,
+                      input$SelectIV,
+                      input$SelectID,
+                      input$SelectTime,
+                      input$Select_cor_phenos))
+      
+      if (input$cor_data_subset) {
+        df <- subset(df0[df0[input$CorIV_sub] == input$CorIV_val, ],select=input$Select_cor_phenos)
+      }
+      
+      else {df<- subset(cor_data_type(),select= input$Select_cor_phenos)}
+      
+      res <- rcorr(as.matrix(df), type = input$corMethod)
+      
+      flattenCorrMatrix <- function(cormat, pmat) {
+        ut <- upper.tri(cormat)
+        data.frame(
+          row = rownames(cormat)[row(cormat)[ut]],
+          column = rownames(cormat)[col(cormat)[ut]],
+          cor  = (cormat)[ut],
+          p = pmat[ut]
+        )
+      }
+      
+      result <- flattenCorrMatrix(res$r, res$P)
+      write.csv(result, file)
+      
+    }
   )
   
-  
-  
+  ########################### top table showing r variability ###################
   output$tricky_table <- renderPrint({
-    
     if(input$cor_data_subset == F){
       cat("")
     }
     else{
-      beginCol <-
-        length(c(
-          input$SelectIV,
-          input$SelectGeno,
-          input$SelectTime,
-          input$SelectID
-        )) + 1
       
-      endCol <-
-        length(c(
-          input$SelectIV,
-          input$SelectGeno,
-          input$SelectTime,
-          input$SelectID
-        )) + length(input$SelectDV)
       
       df <- cor_data_type()
-      
       list <- unique(df[,input$CorIV_sub])
-      
       df2 <- subset(df, df[,input$CorIV_sub] == list[1])
-      
-      res <-
-        rcorr(as.matrix(df2[, beginCol:endCol]), type = input$corMethod)
+      df3 <- subset(df2,select= input$Select_cor_phenos)
+      res <- rcorr(as.matrix(df3), type = input$corMethod)
       
       flattenCorrMatrix <- function(cormat, pmat) {
         ut <- upper.tri(cormat)
@@ -4462,9 +4650,8 @@ function(input, output) {
       
       for(i in 2:length(list)){
         df2 <- subset(df, df[,input$CorIV_sub] == list[i])
-        
-        res <-
-          rcorr(as.matrix(df2[, beginCol:endCol]), type = input$corMethod)
+        df3 <- subset(df2,select= input$Select_cor_phenos)
+        res <- rcorr(as.matrix(df3), type = input$corMethod)
         
         flattenCorrMatrix <- function(cormat, pmat) {
           ut <- upper.tri(cormat)
@@ -4503,8 +4690,10 @@ function(input, output) {
       }}
   })
   
-  ############ interactive scatter plot ##########
   
+  
+  
+  ############ interactive scatter plot ##########
   output$Pheno1 <- renderUI({
     if (is.null(input$SelectDV)) {
       return ()
@@ -4526,16 +4715,16 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "Pheno2",
-          label = "Select the first dependent variable to be plotted on the y-axis:",
-          choices = input$SelectDV,
+          label = "Select the second dependent variable to be plotted on the y-axis:",
+          # choices = input$SelectDV,
+          choices = input$SelectDV[! input$SelectDV %in% c(input$Pheno1)],
           multiple = F
         )
       )
   })
   
   output$colorby <- renderUI({
-    if ((is.null(input$SelectIV)) |
-        (input$SelectGeno == FALSE)) {
+    if (input$scatter_color==F) {
       return ()
     } else
       tagList(
@@ -4548,11 +4737,25 @@ function(input, output) {
       )
   })
   
+  output$shapeby <- renderUI({
+    if (input$scatter_color==F) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "Shape",
+          label = "Shape the plot by:",
+          choices = c(input$SelectIV, input$SelectGeno, input$SelectTime),
+          multiple = F
+        )
+      )
+  })
+  
   scatter_cor <- reactive({
     my_data <- data.frame(my_data())
     my_data[,input$Color] <- as.factor(my_data[,input$Color])
-    my_data %>% ggplot(aes_string(input$Pheno1, input$Pheno2)) + geom_point(aes_string(colour =
-                                                                                         input$Color))
+    my_data[,input$Shape] <- as.factor(my_data[,input$Shape])
+    my_data %>% ggplot(aes_string(input$Pheno1, input$Pheno2)) + geom_point(aes_string(colour =input$Color,shape=input$Shape)) +  theme_minimal()
   })
   
   output$scatterplot <- renderPlotly({
@@ -4592,6 +4795,7 @@ function(input, output) {
     pval <- summary(correl)$coefficients[8]
     paste("The p-value is", signif(pval, 3))
   })
+  
   
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -6205,7 +6409,7 @@ function(input, output) {
   })
   
   
-  KMC_data_type <- eventReactive(input$Select_data_KMC,{
+  KMC_data_type <- reactive({
     if(input$KMCluster_data == "raw data"){
       KMC_data_type <- my_data()
     }
@@ -6221,6 +6425,8 @@ function(input, output) {
     if(input$KMCluster_data == "outliers removed data"){
       KMC_data_type <- Outlier_free_data()
     }
+    
+    KMC_data_type <- na.omit(KMC_data_type)
     
     if(input$KMC_use_means == T){
       #KMC_data_type$id <- do.call(paste,c(KMC_data_type[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
@@ -6250,6 +6456,7 @@ function(input, output) {
     
   })
   
+  
   output$Select_DV_KMC <- renderUI({
     if(is.null(ItemList())){return()}
     else
@@ -6278,6 +6485,25 @@ function(input, output) {
       test
     }
   })
+  
+  # - - - - - >> DOWNLOAD TABLE << - - - - - - - - 
+  
+  
+  output$downl_KMC_data_type <- renderUI({
+    if(is.null(KMC_data_type())){
+      return()}
+    else
+      downloadButton("downl_data_type", label="Download data")
+  })  
+  
+  output$downl_data_type <- downloadHandler(
+    filename = paste("Dataset", input$KMCluster_data, "MVApp.csv"),
+    content <- function(file) {
+      temp <- KMC_data_type()
+      write.csv(temp, file)}
+  )
+  
+  #------------------->> KMC_data_for_matrix <<--------------
   
   KMC_data_for_matrix <- reactive({
     object <- KMC_data_type()
@@ -6313,13 +6539,48 @@ function(input, output) {
   })
   
   
-  
+  KMC_data_table_for_matrix <- reactive({
+    object <- KMC_data_type()
+    if(input$KMC_use_means == T){
+      pheno<-paste(input$KMC_pheno,"mean", sep = ".")
+      sel <- subset(object, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,pheno))
+    }
+    
+    if(input$KMC_use_means == F){
+      
+      sel <- subset(object, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,input$KMC_pheno))
+      
+    }
+    
+    beginCol <-
+      length(c(
+        input$SelectIV,
+        input$SelectGeno,
+        input$SelectTime,
+        input$SelectID
+      )) + 1
+    
+    endCol <- ncol(sel)
+    
+    for_matrix <- sel[,(beginCol:endCol)]
+    for_matrix <- na.omit(for_matrix) 
+    
+    if(input$KMCluster_scale_Q == T){
+      for_matrix <- scale(for_matrix) 
+    }
+    
+    #for_matrix$id <- do.call(paste,c(sel[c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)], sep="_"))
+    rownames(for_matrix) <- do.call(paste,c(sel[c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)], sep="_"))
+    for_matrix
+    
+  })
   
   Optimal_cluster_number <- eventReactive(input$Go_KMClustering_advise, {
     
     mydata <- KMC_data_for_matrix()
     mydata
   })
+  
   
   KMClusters <- eventReactive(input$Go_KMClustering,{
     mydata <- KMC_data_for_matrix()
@@ -6332,8 +6593,25 @@ function(input, output) {
   
   # = = = = == = = = = >> MAIN CALCULATIONS / DATA OUTPUT << = = =  
   output$KMCluster_test <- renderDataTable({
-    KMC_data_for_matrix()
+    KMC_data_table_for_matrix()
   })
+  
+  # - - - - - >> DOWNLOAD TABLE << - - - - - - - - 
+  
+  
+  output$downl_KMC_for_matrix <- renderUI({
+    if(is.null(KMC_data_table_for_matrix())){
+      return()}
+    else
+      downloadButton("downl_for_matrix", label="Download data")
+  })  
+  
+  output$downl_for_matrix <- downloadHandler(
+    filename = paste("Data matrix to calculate K-means", input$KMC_pheno, "MVApp.csv"),
+    content <- function(file) {
+      temp <- KMC_data_table_for_matrix()
+      write.csv(temp, file)}
+  )
   
   
   # - - - - - - - >> ADVICE PLOTS << - - - - - - - - - 
@@ -6344,7 +6622,7 @@ function(input, output) {
       mydata <- KMC_data_for_matrix()
     # Elbow method
     plot <- fviz_nbclust(mydata, kmeans, method = "wss") +
-      labs(subtitle = "Elbow method")
+      labs(title = "Elbow method")
     print(plot)
   })
   
@@ -6362,7 +6640,7 @@ function(input, output) {
       mydata <- KMC_data_for_matrix()
       # Elbow method
       plot <- fviz_nbclust(mydata, kmeans, method = "wss") +
-        labs(subtitle = "Elbow method")
+        labs(title = "Elbow method")
       print(plot)
       
       dev.off()
@@ -6375,7 +6653,7 @@ function(input, output) {
       mydata <- KMC_data_for_matrix()
     # Silhouette method
     plot <- fviz_nbclust(mydata, kmeans, method = "silhouette")+
-      labs(subtitle = "Silhouette method")
+      labs(title = "Silhouette method")
     print(plot)
     
   })
@@ -6394,78 +6672,78 @@ function(input, output) {
       mydata <- KMC_data_for_matrix()
       # Silhouette method
       plot <- fviz_nbclust(mydata, kmeans, method = "silhouette")+
-        labs(subtitle = "Silhouette method")
+        labs(title = "Silhouette method")
       print(plot)
       dev.off()
     })
   
-  #  output$indices_plots_KMC_1 <- renderPlot({
-  #    if(is.null(Optimal_cluster_number())){return()}
-  #    else
-  #      mydata <- KMC_data_for_matrix()
-  #    #Majority of 30 indices
-  #    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
-  #                  max.nc = 10, method = "kmeans", index = "hubert")
-  #    plot <- fviz_nbclust(nb)
-  #    print(plot)
-  #  })
+  output$indices_plots_KMC_1 <- renderPlot({
+    if(is.null(Optimal_cluster_number())){return()}
+    else
+      mydata <- KMC_data_for_matrix()
+    #    #Majority of 30 indices
+    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+                  max.nc = 10, method = "kmeans", index = "hubert")
+    plot <- fviz_nbclust(nb)
+    print(plot)
+  })
   
-  #  output$downl_indices_plots_KMC_1_ui <- renderUI({
-  #    if(is.null(Optimal_cluster_number())){return()}
-  #    else
-  #      downloadButton("downl_indices_plots_KMC_1", "Download plot")
-  #  })
+  output$downl_indices_plots_KMC_1_ui <- renderUI({
+    if(is.null(Optimal_cluster_number())){return()}
+    else
+      downloadButton("downl_indices_plots_KMC_1", "Download plot")
+  })
   
-  #  output$downl_indices_plots_KMC_1 <- downloadHandler(
-  #    filename = function(){paste("Advice plot for K-means clustering using Hubert index", "MVApp.pdf")},
-  #    content = function(file) {
-  #      pdf(file)
+  output$downl_indices_plots_KMC_1 <- downloadHandler(
+    filename = function(){paste("Advice plot for K-means clustering using Hubert index", "MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      
+      mydata <- KMC_data_for_matrix()
+      mydata <- as.matrix(mydata)
+      #Majority of 30 indices
+      nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+                    max.nc = 10, method = "kmeans", index = "hubert")
+      plot <- fviz_nbclust(nb)
+      print(plot)
+      
+      dev.off()
+    })
   
-  #      mydata <- KMC_data_for_matrix()
-  #      mydata <- as.matrix(mydata)
-  #Majority of 30 indices
-  #      nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
-  #                    max.nc = 10, method = "kmeans", index = "hubert")
-  #      plot <- fviz_nbclust(nb)
-  #      print(plot)
+  output$indices_plots_KMC_2 <- renderPlot({
+    if(is.null(Optimal_cluster_number())){return()}
+    else
+      mydata <- KMC_data_for_matrix()
+    mydata <- as.matrix(mydata)
+    #    #Majority of 30 indices
+    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+                  max.nc = 10, method = "kmeans", index = "dindex")
+    plot <- fviz_nbclust(nb)
+    print(plot)
+    
+  })
   
-  #      dev.off()
-  #    })
+  output$downl_indices_plots_KMC_2_ui <- renderUI({
+    if(is.null(Optimal_cluster_number())){return()}
+    else
+      downloadButton("downl_indices_plots_KMC_2", "Download plot")
+  })
   
-  #  output$indices_plots_KMC_2 <- renderPlot({
-  #    if(is.null(Optimal_cluster_number())){return()}
-  #    else
-  #      mydata <- KMC_data_for_matrix()
-  #      mydata <- as.matrix(mydata)
-  #    #Majority of 30 indices
-  #    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
-  #                  max.nc = 10, method = "kmeans", index = "dindex")
-  #    plot <- fviz_nbclust(nb)
-  #    print(plot)
-  
-  #  })
-  
-  #  output$downl_indices_plots_KMC_2_ui <- renderUI({
-  #    if(is.null(Optimal_cluster_number())){return()}
-  #    else
-  #      downloadButton("downl_indices_plots_KMC_2", "Download plot")
-  #  })
-  
-  #  output$downl_indices_plots_KMC_2 <- downloadHandler(
-  #    filename = function(){paste("Advice plot for K-means clustering using d index ", "MVApp.pdf")},
-  #    content = function(file) {
-  #      pdf(file)
-  
-  #      mydata <- KMC_data_for_matrix()
-  #      mydata <- as.matrix(mydata)
-  #      #Majority of 30 indices
-  #      nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
-  #                    max.nc = 10, method = "kmeans", index = "dindex")
-  #      plot <- fviz_nbclust(nb)
-  #      print(plot)
-  
-  #      dev.off()
-  #    })
+  output$downl_indices_plots_KMC_2 <- downloadHandler(
+    filename = function(){paste("Advice plot for K-means clustering using d index ", "MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      
+      mydata <- KMC_data_for_matrix()
+      mydata <- as.matrix(mydata)
+      #      #Majority of 30 indices
+      nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
+                    max.nc = 10, method = "kmeans", index = "dindex")
+      plot <- fviz_nbclust(nb)
+      print(plot)
+      
+      dev.off()
+    })
   
   output$indices_plots_KMC_3 <- renderPlot({
     if(is.null(Optimal_cluster_number())){return()}
@@ -6509,9 +6787,8 @@ function(input, output) {
     else
       mydata <- KMC_data_for_matrix()
     #Majority of 30 indices
-    
-    nb <- NbClust(mydata, distance = "euclidean", min.nc = 2,
-                  max.nc = 10, method = "kmeans")
+    nb<- NbClust(mydata, distance = "euclidean", min.nc = 2,
+                 max.nc = 10, method = "kmeans")
     
   })
   
@@ -6546,7 +6823,7 @@ function(input, output) {
   })  
   
   output$downl_KMC_test <- downloadHandler(
-    filename = paste("K-means clustering with ", input$kmclusters, " MVApp.csv"),
+    filename = paste("K-means clustering with K=", input$kmclusters, "MVApp.csv"),
     content <- function(file) {
       temp <- KMC_data_for_barplot()
       write.csv(temp, file)}
@@ -6622,7 +6899,7 @@ function(input, output) {
       tagList(
         checkboxInput(
           inputId = "KMC_split_barplot",
-          label = "Split the graph?"))
+          label = "Would you like to facet/split the barplot?"))
   })
   
   output$Select_KMC_facet_barplot <- renderUI({
@@ -6645,8 +6922,8 @@ function(input, output) {
         selectizeInput(
           inputId = "Select_KMC_barplot_sc",
           label = "Scale of the split barplot",
-          choices = c("fixed", "free"),
-          selected = "fixed"
+          choices = c("fixed", "free","free_x","free_y"),
+          selected = "free_x"
         ))
     
   })
@@ -6699,7 +6976,6 @@ function(input, output) {
     barplotData()
   })
   
-  
   # - - - - - - - - - - - >> BAR PLOT << - - - - - - - - - - - 
   
   
@@ -6708,16 +6984,24 @@ function(input, output) {
       df <- barplotData()
       df$cluster <-as.factor(df$cluster)
       #df<-d[order(-d[,input$KMC_trait_to_plot]),]
-      p <- ggplot(df, aes(x =reorder(id,-df[,input$KMC_trait_to_plot])  , y = df[,input$KMC_trait_to_plot], fill = cluster) )+ 
-        geom_bar(stat="identity")+xlab(" ") +ylab(" ") +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      if(input$KMC_split_barplot == F){
+        p <- ggplot(df, aes(x =reorder(id,-df[,input$KMC_trait_to_plot])  , y = df[,input$KMC_trait_to_plot], fill = cluster) )+ 
+          geom_bar(stat="identity")+xlab(" ") +ylab(" ") +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1))}
       if(input$KMC_split_barplot == T){
-        p<-p + facet_wrap(~ df[,input$facet_KMC_barplot], scale = input$Select_KMC_barplot_sc)}
+        #df2=df[with(df, order(-z, b)), ]
+        df<- df %>%
+          ungroup() %>%
+          arrange(df[,input$facet_KMC_barplot],-df[,input$KMC_trait_to_plot]) %>%
+          mutate(.r=row_number())
+        p <- ggplot(df, aes(x =.r,y = df[,input$KMC_trait_to_plot], fill = cluster) )+ 
+          geom_bar(stat="identity")+xlab(" ") +ylab(" ") +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1))
+        p<-p + facet_wrap(~ df[,input$facet_KMC_barplot], scale = input$Select_KMC_barplot_sc)+ scale_x_continuous(breaks=df$.r,labels=df$id)}
       if(input$Select_KMC_background_barplot == T){
-        p <- p + theme_minimal()}
+        p <- p + theme_minimal()+theme(axis.text.x = element_text(angle = 90, hjust = 1))}
       if(input$Select_KMC_grid_barplot == T){
         p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1),panel.grid.major = element_blank())}
-      
     }
     if(input$KMC_use_means == F){
       df <- barplotData()
@@ -6805,7 +7089,7 @@ function(input, output) {
       tagList(
         checkboxInput(
           inputId = "KMC_split_scatterplot",
-          label = "Split the graph?"))
+          label = "Would you like to facet/split the scatterplot?"))
   })
   
   output$Select_KMC_facet_to_plot <- renderUI({
@@ -6851,14 +7135,25 @@ function(input, output) {
           label = "Remove grid lines"))
   })
   
+  scatterplotData <- reactive({
+    spd<-KMC_data_for_barplot()
+    listIV<-c(input$SelectGeno, input$SelectIV, input$SelectTime)
+    facet<-input$facet_KMC_plot
+    listNonSel<-setdiff(listIV,facet)
+    if(input$KMC_split_scatterplot == T){
+      spd$id <- do.call(paste, c(spd[c(listNonSel)], sep="_"))}
+    if(input$KMC_split_scatterplot == F){
+      spd$id <- do.call(paste, c(spd[c(listIV)], sep="_"))}
+    spd
+  })
   
   # - - - - - - - - ->> SCATTER PLOT << - - - - - - - - - - 
   
   kmeans_SCP <- reactive({
-    df <- barplotData()
+    df <- scatterplotData()
     df$cluster <-as.factor(df$cluster)
     p <- ggplot(df, aes(x = df[,input$xcol_kmeans], y = df[,input$ycol_kmeans], color = cluster)) + 
-      geom_point()+
+      geom_point(aes(text=id))+
       xlab(input$xcol_kmeans) +ylab(input$ycol_kmeans) 
     if(input$KMC_split_scatterplot == T){
       p<- p+ facet_wrap(~ df[,input$facet_KMC_plot], scale = input$Select_KMC_facet_sc)}
@@ -7325,7 +7620,7 @@ function(input, output) {
     if(input$data_to_use == "r2 fitted curves curated data with missing values removed"){
       QA_data <- good_r2()[complete.cases(good_r2()),]
     }
-    if(input$data_to_use == "outliers removed data"){
+    if(input$data_to_use == "outliers removed"){
       QA_data <- Outlier_free_data()
     }
     QA_data
@@ -7343,7 +7638,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "ResponsePheno",
-          label = "Select Phenotype to be used as Response Variable",
+          label = "Select trait to be used as Response Variable",
           choices = c(input$SelectDV),
           multiple = F
         )
@@ -7355,7 +7650,7 @@ function(input, output) {
     tagList(
       selectizeInput(
         inputId = "QA_subset",
-        label = "Independent Variables to subset the data",
+        label = "Subset the data by:",
         choices=c(input$SelectGeno, input$SelectIV, input$SelectTime),
         multiple=T,
         options = list(maxItems = 2)
@@ -7370,7 +7665,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "ExplanatoryPheno",
-          label = "Select Phenotype(s) to be used as explanatory variables",
+          label = "Select trait(s) to be used as explanatory variables",
           choices = setdiff(input$SelectDV, input$ResponsePheno),
           multiple = T
         )
@@ -7381,12 +7676,10 @@ function(input, output) {
   output$p_value_thresh <- renderUI({
     
     tagList(
-      selectizeInput(
+      numericInput(
         inputId = "p_value_threshold",
         label = "p-value threshold:",
-        choices = c(0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1),
-        selected = 0.05,
-        multiple = F
+        value = 0.05
       )
     )
   })
@@ -7810,7 +8103,7 @@ function(input, output) {
       lines (tau,coef(fit_qr[[index[k]]])[input$Model_variable_select,],col=col[k],cex=1.5)
     }
     
-    legend("topright",inset=c(-0.15,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
+    legend("topright",inset=c(-0.17,0),legend=c(listgroupby,"Not significant"),horiz = F, pch = c(rep(20, nrow(listgroupby)),4),col = c(col,"black"),
            bty = "n",xpd=NA,cex=1)
     
   })
@@ -7934,14 +8227,32 @@ function(input, output) {
         lines (tau,coef(fit_qr[[index[k]]])[expl[j],],col=col[k],cex=1.5)
       }
       
-      legend("topright",inset=c(-0.3,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
+      legend("topright",inset=c(-0.32,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(rep(20, nrow(listgroupby)),4),col = c(col,"black"),
              bty = "n",xpd=NA,cex=1)
       
     }
     
   })
   
+  
+  
+  
+  ## plot output
+  output$QA_plot <- renderPlot({
+    if(input$model_type_plot == "single plot"){
+      QA_plot_single()
+    }
+    
+    if(input$model_type_plot == "multiple plots"){
+      QA_plot_multi()
+    }
+    
+  })
+  
+  
+  #### download button for plots
   output$downl_plot_QA <-  
+    
     downloadHandler(
       
       filename = function(){paste("Quantile plots MVApp", "pdf" , sep=".") },
@@ -8023,7 +8334,7 @@ function(input, output) {
             lines (tau,coef(fit_qr[[index[k]]])[input$Model_variable_select,],col=col[k],cex=1.5)
           }
           
-          legend("topright",inset=c(-0.32,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
+          legend("topright",inset=c(-0.32,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(rep(20, nrow(listgroupby)),4),col = c(col,"black"),
                  bty = "n",xpd=NA,cex=1)
         }
         
@@ -8115,7 +8426,7 @@ function(input, output) {
               lines (tau,coef(fit_qr[[index[k]]])[expl[j],],col=col[k],cex=1.5)
             }
             
-            legend("topright",inset=c(-0.8,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(20,20,4),col = c(col,"black"),
+            legend("topright",inset=c(-0.8,0),legend=c(listgroupby,"Not significant"),horiz = F,pch = c(rep(20, nrow(listgroupby)),4),col = c(col,"black"),
                    bty = "n",xpd=NA,cex=1)
             
           }
@@ -8123,19 +8434,35 @@ function(input, output) {
         
         dev.off()
       } 
+      
     )  
   
-  output$QA_plot <- renderPlot({
-    if(input$model_type_plot == "single plot"){
-      QA_plot_single()
+  
+  ### Figure legend:
+  output$QA_legend_show <- renderUI({
+    if(input$show_QA_legend == F){
+      return()
     }
-    
-    if(input$model_type_plot == "multiple plots"){
-      QA_plot_multi()
+    else{
+      verbatimTextOutput("Legend_QA")
     }
-    
   })
   
+  ### legend output
+  output$Legend_QA <- renderPrint({
+    
+    which_data <- input$Outlier_on_data  
+    how_many <- input$Out_pheno_single_multi  
+    
+    
+    cat("# # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("The scatterplot shows the behavior of the respective plant trait on the response", input$ResponsePheno,".") 
+    cat("\n")
+    cat("The x-axis represents the quantile level and the y-axis represents the estimated value of the respective regression coefficient. ")
+    cat("The dots represent that the coefficient is significant at",input$p_value_threshold ,"level of significance, while the cross sign represents non-significance. ")
+    cat("Different colors indicate different",input$group_plot_by,".")
+  })
   
   # end of the script
 }
