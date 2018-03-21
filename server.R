@@ -3193,56 +3193,85 @@ function(input, output) {
       )
   })
   
+  
+  
+ 
+  
+  output$Plotsubs <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
+    if(input$plot_subs == T){
+         if(input$plot_facet==T){
+           subs_list <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), c(input$HisIV,input$Plotfacet_choice))}
+      
+      if(input$plot_facet==F){
+        subs_list <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), c(input$HisIV))}
+      tagList(
+        selectInput("subsetdata_choice", "Independent Variable to subset the data",
+                    choices = c(subs_list)
+        ))
+    }
+    else{
+      return()
+    }
+  })
+  
+  
+  output$Plotsubs_choice <- renderUI({
+    if(input$plot_subs == F){
+      return()
+    }
+    else{
+      subs_listchoice <- subset(Histo_data_type(), select= input$subsetdata_choice) %>% unique()
+      tagList(
+        selectInput("subsetdata_uniquechoice", "Subset group to subset the data",
+                    choices = c(subs_listchoice)
+        ))
+    }
+  })
+  
   HistoPl <- reactive({
     
-    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice,input$subsetdata_choice)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     my_his_data[,input$HisIV] <- as.factor(my_his_data[,input$HisIV])
     
-    #groupIV<-input$HisIV
+    if(input$plot_subs==T){
+      my_his_data$subsetIVhist<-my_his_data[,4]
+      uniquechoiceIV <- input$subsetdata_uniquechoice
+      my_his_data <-subset(my_his_data, my_his_data$subsetIVhist == uniquechoiceIV)}
     
     if(input$plot_facet ==T){
-      facetIV<-input$Plotfacet_choice
-      my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
-      #groupIV<-setdiff(groupIV, facetIV)}
-      
-      #plotDV<-input$HisDV
-      #my_his_data$plotDV<-my_his_data[,input$HisDV]
-      
-      #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
-      
-      ### These hashed out lines are trying to work in groupID (equivalent to Magda's id_test) which allows grouping by multiple IVs
-      ### Should eventually replace lines 1219 - 1230      
-      
-      #      if (input$HistType == "HistCount") {
-      #         fit <- ggplot(my_his_data, aes(x=groupID, y=plotDV)) + xlab(names(my_his_data$groupID)) + geom_histogram(size=0.6, alpha=0.3, col="black") 
-      #      }
-      #      if (input$HistType == "HistDensity" ) { 
-      #        fit <- ggplot(my_his_data, aes(x=groupID, y=plotDV)) + xlab(names(my_his_data$groupID)) + geom_density(alpha = 0.3)
-      #      }
-      
-      if (input$HistType == "Histogram with counts on y-axis") {
-        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
-        fit <- fit + facet_wrap(~facetIV)
-      }
-      if (input$HistType == "Histogram with density on y-axis" ) { 
-        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
-        fit <- fit + facet_wrap(~facetIV)
-      }
+      my_his_data$facetIV<-my_his_data[,3]
     }
     
     
+  
+    if(input$plot_facet ==T){
+        if (input$HistType == "Histogram with counts on y-axis") {
+          fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
+          fit <- fit + facet_wrap(~facetIV)
+        }
+        if (input$HistType == "Histogram with density on y-axis" ) {
+          fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
+          fit <- fit + facet_wrap(~facetIV)}
+        }
+      
+
     if(input$plot_facet ==F){
-      if (input$HistType == "Histogram with counts on y-axis") {
-        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
-      }
-      if (input$HistType == "Histogram with density on y-axis" ) { 
-        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
-      }
+        if (input$HistType == "Histogram with counts on y-axis") {
+          fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
+        }
+        if (input$HistType == "Histogram with density on y-axis" ) {
+          fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
+        }
     }
-    fit
     
-  }) 
+    fit
+  })
+
   
   output$download_HistPlot <- downloadHandler(
     filename = function(){paste("Plot of", input$HistType, " for ",input$HistDV, " splitted per ",  input$Plotfacet_choice, " MVApp.pdf")},
@@ -3774,7 +3803,7 @@ function(input, output) {
                           y.name = phenoski,
                           group.name = idski)
       }
-      prin(var)
+      print(var)
       dev.off()
     })  
   
