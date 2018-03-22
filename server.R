@@ -3370,22 +3370,37 @@ function(input, output) {
     }
   }) 
   
+  
   output$Shapiro<- renderPrint({
+    
+    my_shapiro_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice, input$subsetdata_choice)]
+    my_shapiro_data[,input$HisDV] <- as.numeric(as.character(my_shapiro_data[,input$HisDV]))
+    groupedIV<-input$HisIV
+    
     if(input$plot_facet ==T){
-      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-      my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
-      
-      groupedIV<-input$HisIV
-      groupedFacet<-input$Plotfacet_choice
-      my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
-      #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
-      my_his_data$combinedTID<-as.factor(my_his_data$combinedTID)
-      m_Trows<-length(levels(my_his_data$combinedTID))
+    groupedFacet<-input$Plotfacet_choice
+    my_shapiro_data$combinedTID<-paste(my_shapiro_data[,groupedIV], my_shapiro_data[,groupedFacet], sep="_")
+    my_shapiro_data$combinedTID<-as.factor(my_shapiro_data$combinedTID)}
+    
+    else{
+     shapiroIV<-input$HisIV
+    }
+    
+    if(input$plot_subs==T){
+      my_shapiro_data$subsetIVQQ<-my_shapiro_data[,4]
+      uniquechoiceIVQQ <- input$subsetdata_uniquechoice
+      my_shapiro_data <-subset(my_shapiro_data, my_shapiro_data$subsetIVQQ == uniquechoiceIVQQ)}
+    
+    
+    
+    if(input$plot_facet ==T){
+     
+      m_Trows<-length(levels(my_shapiro_data$combinedTID))
       facetting_shapiro<-rep(NA, m_Trows)
       interpret_shapiro<-rep(NA,m_Trows)
       shapiro_pvalue<-rep(NA,m_Trows)
-      for (i in unique(my_his_data$combinedTID)){
-        subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==i)
+      for (i in unique(my_shapiro_data$combinedTID)){
+        subsetted_shapiro<-subset(my_shapiro_data, my_shapiro_data$combinedTID==i)
         facetting_shapiro[i]<-i
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
@@ -3402,10 +3417,28 @@ function(input, output) {
       
       sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(as.character(input$Chosenthreshold)))
       list_sig_shapiro<- as.vector(sig_shapiro[,1])
-      cat("The data for ",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "does not show the normal distribution in the following samples:")
+      
+      if(input$plot_subs==T){
+      if(length(list_sig_shapiro)>0){
+      cat("The data for ",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "and subsetted by", input$subsetdata_choice, input$subsetdata_uniquechoice, "does not show the normal distribution in the following samples:")
       cat("\n")
       cat(list_sig_shapiro, sep=", ")
-      #cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and", input$Plotfacet_choice,  "might NOT have a normal distribution")
+        }
+        else{
+          cat("The data for ",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "and subsetted by", input$subsetdata_choice, input$subsetdata_uniquechoice, "shows normal distribution in all samples.")
+        }
+      }
+      
+      if(input$plot_subs==F){
+        if(length(list_sig_shapiro)>0){
+          cat("The data for ",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "does not show the normal distribution in the following samples:")
+          cat("\n")
+          cat(list_sig_shapiro, sep=", ")
+        }
+        else{
+          cat("The data for ",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "shows normal distribution in all samples.")
+        }}
+      
       
       if(input$showShapirotest==T){
         cat("\n")
@@ -3416,16 +3449,12 @@ function(input, output) {
     
     
     if(input$plot_facet == F){
-      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
-      my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
-      
-      shapiroIV<-input$HisIV
-      m_Frows<-length(levels(as.factor(my_his_data[,shapiroIV])))
+      m_Frows<-length(levels(as.factor(my_shapiro_data[,shapiroIV])))
       interpret_shapiro<-rep(NA,m_Frows)
       facetting_shapiro<-rep(NA, m_Frows)
       shapiro_pvalue<-rep(NA,m_Frows)
-      for (i in unique(my_his_data[,shapiroIV])){
-        subsetted_shapiro<-subset(my_his_data, my_his_data[,shapiroIV]==i)
+      for (i in unique(my_shapiro_data[,shapiroIV])){
+        subsetted_shapiro<-subset(my_shapiro_data, my_shapiro_data[,shapiroIV]==i)
         facetting_shapiro[i]<-i
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
@@ -3441,11 +3470,21 @@ function(input, output) {
       
       sig_shapiro<-subset(temp_shapiro, as.numeric(as.character(temp_shapiro$p_value)) < as.numeric(as.character(input$Chosenthreshold)))
       list_sig_shapiro<- as.vector(sig_shapiro[,1])
-      #list_sha <- unique(list_sig_shapiro)
-      #paste("<font color=\"#008080\"><b>",list_sha, "</b></font>")
-      #print(colore)
-      cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "does NOT have a normal distribution")
-      #paste(type='text/css', 'list_sig_shapiro, {color = "red"}')
+      
+      
+      if(input$plot_subs==T){
+        if(length(list_sig_shapiro)>0){
+        cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and subsetted by", input$subsetdata_choice, input$subsetdata_uniquechoice, "does NOT have a normal distribution.")
+        }
+        else{
+          cat("For", input$HisDV, "with sub-grouping by", input$HisIV, "and subsetted by", input$subsetdata_choice, input$subsetdata_uniquechoice, "all samples have a normal distribution.")
+        }}
+      if(input$plot_subs==F){
+        if(length(list_sig_shapiro)>0){
+        cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "does NOT have a normal distribution.")}
+        else{
+          cat("For", input$HisDV, "with sub-grouping by", input$HisIV, "all samples have a normal distribution.")
+        }}
       
       if(input$showShapirotest==T){
         cat("\n")
@@ -3455,6 +3494,8 @@ function(input, output) {
     }
     
   })
+  
+  
   
   output$QQplot_slider <- renderUI({
     if(input$showShapirotest == T){
