@@ -3542,22 +3542,34 @@ function(input, output) {
   
   output$QQplot <- renderPlot({
     if(input$showShapirotest==T){
+      my_shapiro_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice, input$subsetdata_choice)]
+      my_shapiro_data[,input$HisDV] <- as.numeric(as.character(my_shapiro_data[,input$HisDV]))
+      groupedIV<-input$HisIV
+      my_shapiro_data$groupedIV<-my_shapiro_data[,groupedIV]
       
       if(input$plot_facet ==T){
-        my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-        my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
-        
-        groupedIV<-input$HisIV
         groupedFacet<-input$Plotfacet_choice
-        my_his_data$combinedTID<-paste(my_his_data[,groupedIV], my_his_data[,groupedFacet], sep="_")
-        #my_his_data$groupID<-do.call(paste, c(my_his_data[groupIV], sep="_"))
-        my_his_data$combinedTID<-as.factor(my_his_data$combinedTID)
-        
+        my_shapiro_data$combinedTID<-paste(my_shapiro_data[,groupedIV], my_shapiro_data[,groupedFacet], sep="_")
+        my_shapiro_data$combinedTID<-as.factor(my_shapiro_data$combinedTID)
+      }
+      
+      else{
+        shapiroIV<-input$HisIV
+        my_shapiro_data$shapiroIV<-my_shapiro_data[,input$HisIV]
+      }
+      
+      if(input$plot_subs==T){
+        my_shapiro_data$subsetIVQQ<-my_shapiro_data[,4]
+        uniquechoiceIVQQ <- input$subsetdata_uniquechoice
+        my_shapiro_data <-subset(my_shapiro_data, my_shapiro_data$subsetIVQQ == uniquechoiceIVQQ)
+      }
+      
+      if(input$plot_facet ==T){
         # par(mfrow=c(4,5))
-        length_of_elements <- as.numeric(length(unique(my_his_data$combinedTID)))
+        length_of_elements <- as.numeric(length(unique(my_shapiro_data$combinedTID)))
         col_number <- as.numeric(input$QQplots_graph_col)
         see_those_graphs <- as.numeric(col_number*4)
-        lista <- unique(my_his_data$combinedTID)
+        lista <- unique(my_shapiro_data$combinedTID)
         start <- as.numeric(input$QQplots_portion_show)
         end <- (start + see_those_graphs)-1
         if(end > length_of_elements){
@@ -3569,7 +3581,7 @@ function(input, output) {
         if(length_of_elements < see_those_graphs){
           par(mfrow=c(4,col_number))
           for (i in 1:length(lista)){
-            subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==lista[i])
+            subsetted_shapiro<-subset(my_shapiro_data, my_shapiro_data$combinedTID==lista[i])
             #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) +  geom_point() + geom_smooth(method="lm", se=FALSE)
             #QQ<-QQ + facet_wrap(~combinedTID)
             QQplot<-qqnorm(subsetted_shapiro[,1], main=paste(input$HisDV, "for ", lista[i]))
@@ -3581,7 +3593,7 @@ function(input, output) {
         if(length_of_elements > see_those_graphs){
           par(mfrow=c(4,col_number))
           for (i in 1:length(to_plot)){
-            subsetted_shapiro<-subset(my_his_data, my_his_data$combinedTID==to_plot[i])
+            subsetted_shapiro<-subset(my_shapiro_data, my_shapiro_data$combinedTID==to_plot[i])
             #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) +  geom_point() + geom_smooth(method="lm", se=FALSE)
             #QQ<-QQ + facet_wrap(~combinedTID)
             QQplot<-qqnorm(subsetted_shapiro[,1], main=paste(input$HisDV, "for ", to_plot[i]))
@@ -3592,14 +3604,9 @@ function(input, output) {
       
       
       if(input$plot_facet ==F){
-        my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
-        my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
-        
-        shapiroIV<-input$HisIV
-        my_his_data$shapiroIV<-my_his_data[,input$HisIV]
         par(mfrow=c(4,input$QQplots_graph_col))
-        for (i in unique(my_his_data[,shapiroIV])){
-          subsetted_shapiro<-subset(my_his_data, my_his_data$shapiroIV==i)
+        for (i in unique(my_shapiro_data[,shapiroIV])){
+          subsetted_shapiro<-subset(my_shapiro_data, my_shapiro_data$shapiroIV==i)
           #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) + geom_point() + geom_smooth(method="lm", se=FALSE)
           #QQ<-QQ + facet_wrap(~shapiroIV)
           QQplot<-qqnorm(subsetted_shapiro[,1], main=paste(input$HisDV, "for ", i))
@@ -3625,8 +3632,6 @@ function(input, output) {
     which_hist_IV<-input$HisIV
     which_plotfacets<-input$Plotfacet_choice
     which_pvalue<-input$Chosenthreshold
-    input$subsetdata_choice
-    input$subsetdata_uniquechoice
     
       cat("# # > > > Figure legend: < < < # # #")
       cat("\n")
