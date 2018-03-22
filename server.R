@@ -3232,8 +3232,6 @@ function(input, output) {
   })
   
   HistoPl <- reactive({
-    
-    
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice,input$subsetdata_choice)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     my_his_data[,input$HisIV] <- as.factor(my_his_data[,input$HisIV])
@@ -3311,21 +3309,35 @@ function(input, output) {
     cat("\n")
     if(input$plot_facet == T){
       if(input$HistType == "Histogram with density on y-axis"){
-      cat("The plot represents the estimated Kernel density (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed for different", which_hist_IV, "are represented with different colors.")  }
+      cat("The plot represents the estimated Kernel density (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed for different", which_hist_IV, "are represented with different colors.")
+        }
       if(input$HistType == "Histogram with counts on y-axis"){
-        cat("The plot represents the number of counts (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed for different", which_hist_IV, "are represented with different colors and are stacked on top of eachother.")   
+        cat("The plot represents the number of counts (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed for different", which_hist_IV, "are represented with different colors and are stacked on top of each other.")   
       }
-      cat(" The plot is split by", which_plotfacets, ". The plot is created using", which_hist_data,".")
+      if(input$plot_subs == T){
+        cat(" The plot is created using", which_hist_data, "subsetted by", input$subsetdata_choice, "for", input$subsetdata_uniquechoice,".")
+      }    
+      
+      if(input$plot_subs == F) {
+        cat(" The plot is created using", which_hist_data,".")
+      }
     }
     
     if(input$plot_facet == F){
       if(input$HistType == "Histogram with density on y-axis"){
-        cat("The plot represents the estimated Kernel density (y-axis) of values observed for", which_hist_DV, " (x-axis). The colors represent different groups of", which_hist_IV, ".")  }
+        cat("The plot represents the estimated Kernel density (y-axis) of values observed for", which_hist_DV, " (x-axis). The colors represent different groups of", which_hist_IV,".")
+        }
       if(input$HistType == "Histogram with counts on y-axis"){
-        cat("The plot represents the number of counts (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed in individual", which_hist_IV, " are represented with different colors and are stacked on top of eachother.")   
+        cat("The plot represents the number of counts (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed in individual", which_hist_IV, " are represented with different colors and are stacked on top of each other.")   
       }
-      cat(" The plot is created using", which_hist_data,".")
-    }    
+      if(input$plot_subs == T){
+      cat(" The plot is created using", which_hist_data, "subsetted by", input$subsetdata_choice, "for", input$subsetdata_uniquechoice,".")
+      }    
+      
+      if(input$plot_subs == F) {
+        cat(" The plot is created using", which_hist_data,".")
+      }
+    }
     # Data curation:
     if(input$Go_outliers == T){
       how_many <- input$Out_pheno_single_multi  
