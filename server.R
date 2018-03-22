@@ -3625,16 +3625,27 @@ function(input, output) {
     which_hist_IV<-input$HisIV
     which_plotfacets<-input$Plotfacet_choice
     which_pvalue<-input$Chosenthreshold
+    input$subsetdata_choice
+    input$subsetdata_uniquechoice
     
       cat("# # > > > Figure legend: < < < # # #")
       cat("\n")
       cat("\n")
       if(input$plot_facet == T){
-        cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "and", which_plotfacets, "using", which_hist_data,".")  
-      }
+        if(input$plot_subs==T){
+          cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "and", which_plotfacets, "using", which_hist_data, "subsetted by",input$subsetdata_choice,input$subsetdata_uniquechoice,".")  
+        }
+        if(input$plot_subs==F){
+          cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "and", which_plotfacets, "using", which_hist_data,".")  
+        }}
+      
       if(input$plot_facet == F){
-        cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by by", which_hist_IV, "using", which_hist_data,".")  
-      }
+        if(input$plot_subs==T){
+       cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "using", which_hist_data,"subsetted by",input$subsetdata_choice,input$subsetdata_uniquechoice,".")  
+        }
+        if(input$plot_subs==F){
+        cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "using", which_hist_data,".")  
+      }}
       cat(" The x-axis represents normal theoretical quantiles, and the y-axis represents sample quantiles.") 
       cat( "The red line represents the best fit between the expected and observed values. Departures from the line (except in the tails) are indicative of a lack of normality.")
       
