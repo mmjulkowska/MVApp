@@ -3691,10 +3691,49 @@ function(input, output) {
   
   
   ##Bartlett test
+  output$PlotsubsVar <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
+    if(input$plot_subsVar == T){
+      if(input$plot_facet==T){
+        subs_listVar <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), c(input$HisIV,input$Plotfacet_choice))}
+      
+      if(input$plot_facet==F){
+        subs_listVar <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), c(input$HisIV))}
+      tagList(
+        selectInput("subsetdata_choiceVar", "Independent Variable to subset the data",
+                    choices = c(subs_listVar)
+        ))
+    }
+    else{
+      return()
+    }
+  })
+  
+  
+  output$Plotsubs_choiceVar <- renderUI({
+    if(input$plot_subsVar == F){
+      return()
+    }
+    else{
+      subs_listchoiceVar <- subset(Histo_data_type(), select= input$subsetdata_choiceVar) %>% unique()
+      tagList(
+        selectInput("subsetdata_uniquechoiceVar", "Subset group to subset the data",
+                    choices = c(subs_listchoiceVar)
+        ))
+    }
+  })
+  
   output$Bartlett <- renderPrint({
-    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice,input$subsetdata_choiceVar)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     my_his_data[,2]<-as.factor(my_his_data[,2])
+    
+    if(input$plot_subsVar==T){
+      my_his_data$subsetIVBar<-my_his_data[,4]
+      uniquechoiceIVBar <- input$subsetdata_uniquechoiceVar
+      my_his_data <-subset(my_his_data, my_his_data$subsetIVBar == uniquechoiceIVBar)}
     
     if(input$plot_facet ==T){
       n_rows<-length(levels(my_his_data[,3]))
@@ -3719,8 +3758,14 @@ function(input, output) {
       }
       temp_bartlett<-na.omit(temp_bartlett)
       colnames(temp_bartlett) <- c("", "p_value", paste("The variances between ", input$HisIV, " groups are:", sep=""))
+      
+      if(input$plot_subsVar==F){
       cat(paste("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, " for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
-      print(temp_bartlett, row.names=FALSE)
+      }
+      if(input$plot_subsVar==T){
+        cat(paste("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, " for each ", input$Plotfacet_choice, " for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " is:", "\n", "\n", sep=""))
+      }
+        print(temp_bartlett, row.names=FALSE)
     }
     
     if(input$plot_facet ==F){ 
@@ -3730,12 +3775,27 @@ function(input, output) {
       #model_bartlett<-fit_bartlett[[4]] #result of bartlett is a list with 4th element the description of model
       pvalue_bartlett<-signif(fit_bartlett[[3]],5) #result of bartlett is a list with 3rd element the p-value
       cat("HOMOGENEITY OF VARIANCE ANALYSIS", "\n")
+      if(input$plot_subsVar==F){
       cat("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, " is ", pvalue_bartlett, ".", "\n", sep="")
-      
+      }
+        if(input$plot_subsVar==T){
+        cat("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, "for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " is ", pvalue_bartlett, ".", "\n", sep="")
+        }
       if (pvalue_bartlett < as.numeric(as.character(input$Chosenthreshold) )) {
-        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are EQUAL", sep="")
+        if(input$plot_subsVar==F){
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are EQUAL.", sep="")
+        }
+        if(input$plot_subsVar==T){
+          cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " are EQUAL.", sep="")
+          
+        }
       } else {
+        if(input$plot_subsVar==F){
         cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are NOT equal.", sep="")
+        }
+        if(input$plot_subsVar==T){
+       cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " are NOT equal.", sep="")
+      }
       }
     }
   })
@@ -3745,11 +3805,20 @@ function(input, output) {
   # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
   #   "fdr", "none")
   
-  ##Levene test
+    ##Levene test
+  
+  
+  
+  
   output$Levene <- renderPrint({
-    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice,input$subsetdata_choiceVar)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     my_his_data[,2]<-as.factor(my_his_data[,2])
+    
+    if(input$plot_subsVar==T){
+      my_his_data$subsetIVLev<-my_his_data[,4]
+      uniquechoiceIVLev <- input$subsetdata_uniquechoiceVar
+      my_his_data <-subset(my_his_data, my_his_data$subsetIVLev == uniquechoiceIVLev)}
     
     if(input$plot_facet ==T){
       n_rows<-length(levels(my_his_data[,3]))
@@ -3773,8 +3842,17 @@ function(input, output) {
       }
       temp_levene<-na.omit(temp_levene)
       colnames(temp_levene) <- c("", "p_value", paste("The variances between ", input$HisIV, " groups are:", sep=""))
-      cat(paste("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
-      print(temp_levene, row.names=FALSE)
+      
+      if(input$plot_subsVar==F){
+      cat(paste("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
+      }
+      
+      if(input$plot_subsVar==T){
+        cat(paste("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "for each ", input$Plotfacet_choice, " for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " is:", "\n", "\n", sep=""))
+      }
+        
+        
+        print(temp_levene, row.names=FALSE)
     }
     
     if(input$plot_facet ==F){ 
@@ -3786,9 +3864,19 @@ function(input, output) {
       cat("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "S is ", pvalue_levene, ".", "\n", sep="")
       
       if (pvalue_levene < as.numeric(as.character(input$Chosenthreshold))) {
+        if(input$plot_subsVar==F){
         cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are EQUAL.", sep="")
+        }
+        if(input$plot_subsVar==T){
+        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar," are EQUAL.", sep="")
+        }
       } else {
+        if(input$plot_subsVar==F){
         cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are NOT equal.", sep="")
+        }
+        if(input$plot_subsVar==T){
+          cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " are NOT equal.", sep="")
+        }
       }
     }
   })
@@ -4074,7 +4162,7 @@ function(input, output) {
       temp_anova<-na.omit(temp_anova)
       colnames(temp_anova) <- c("", "p_value","")
       #colnames(temp_anova) <- c("", "p_value", "p_value corrected")
-      cat(paste("The p-value of the", input$Sig_diff_test, " test between different ", input$HisIV, "S for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
+      cat(paste("The p-value of the", input$Sig_diff_test, " test between different ", input$HisIV, "for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
       print(temp_anova, row.names=FALSE)
     }
     
