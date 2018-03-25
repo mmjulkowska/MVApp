@@ -3806,10 +3806,6 @@ function(input, output) {
   #   "fdr", "none")
   
     ##Levene test
-  
-  
-  
-  
   output$Levene <- renderPrint({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice,input$subsetdata_choiceVar)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
@@ -4123,10 +4119,51 @@ function(input, output) {
   #   "fdr", "none")
   #OR maybe use anova(lm(~))?
   ###ANOVA summary table output
+  
+  
+  output$PlotsubsANOVA <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
+    if(input$plot_subsANOVA == T){
+      if(input$plot_facet==T){
+        subs_listANOVA <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), c(input$HisIV,input$Plotfacet_choice))}
+      
+      if(input$plot_facet==F){
+        subs_listANOVA <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), c(input$HisIV))}
+      tagList(
+        selectInput("subsetdata_choiceANOVA", "Independent Variable to subset the data",
+                    choices = c(subs_listANOVA)
+        ))
+    }
+    else{
+      return()
+    }
+  })
+  
+  
+  output$Plotsubs_choiceANOVA <- renderUI({
+    if(input$plot_subsANOVA == F){
+      return()
+    }
+    else{
+      subs_listchoiceANOVA <- subset(Histo_data_type(), select= input$subsetdata_choiceANOVA) %>% unique()
+      tagList(
+        selectInput("subsetdata_uniquechoiceANOVA", "Subset group to subset the data",
+                    choices = c(subs_listchoiceANOVA)
+        ))
+    }
+  })
+  
   output$ANOVAtest <- renderPrint({
-    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice, input$subsetdata_choiceANOVA)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     my_his_data[,2]<-as.factor(my_his_data[,2])
+    
+    if(input$plot_subsANOVA==T){
+      my_his_data$subsetIVANOVA<-my_his_data[,4]
+      uniquechoiceIVANOVA <- input$subsetdata_uniquechoiceANOVA
+      my_his_data <-subset(my_his_data, my_his_data$subsetIVANOVA == uniquechoiceIVANOVA)}
     
     if(input$plot_facet ==T){
       n_rows<-length(levels(my_his_data[,3]))
@@ -4162,8 +4199,16 @@ function(input, output) {
       temp_anova<-na.omit(temp_anova)
       colnames(temp_anova) <- c("", "p_value","")
       #colnames(temp_anova) <- c("", "p_value", "p_value corrected")
-      cat(paste("The p-value of the", input$Sig_diff_test, " test between different ", input$HisIV, "for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
-      print(temp_anova, row.names=FALSE)
+      
+      if(input$plot_subsANOVA == F){
+      cat(paste("The p-value of the ", input$Sig_diff_test, " test between different ", input$HisIV, " for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
+      }
+      
+      if(input$plot_subsANOVA == T){
+        cat(paste("The p-value of the ", input$Sig_diff_test, " test between different ", input$HisIV, " for each ", input$Plotfacet_choice, " for ",input$subsetdata_choiceANOVA, input$subsetdata_uniquechoiceANOVA ," is:", "\n", "\n", sep=""))
+      }
+        
+        print(temp_anova, row.names=FALSE)
     }
     
     if(input$plot_facet ==F){ 
@@ -4172,8 +4217,11 @@ function(input, output) {
         fit_anova <- aov(my_his_data[,1] ~ as.factor(my_his_data[,2]), data = my_his_data)
         pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
         cat("ANOVA", "\n")
-        cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA,"\n", "\n", sep=""))
+        if(input$plot_subsANOVA==F){
+        cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA, ".", "\n", "\n", sep=""))}
         
+        if(input$plot_subsANOVA==T){
+          cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S for ", input$subsetdata_choiceANOVA, input$subsetdata_uniquechoiceANOVA, " is ", pvalue_ANOVA, ".", "\n", "\n", sep=""))}
         
         if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
           cat("SIGNIFICANT difference in means")
@@ -4184,7 +4232,13 @@ function(input, output) {
       if(input$Sig_diff_test == "Kruskal-Wallis (non-parametric)"){
         fit_anova <- kruskal.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
         cat("Kruskal-Wallis test", "\n")
-        cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, "S is ", fit_anova$p.value,"\n", "\n", sep=""))
+        if(input$plot_subsANOVA == T){
+        cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, "S is ", fit_anova$p.value, ".", "\n", "\n", sep=""))
+        }
+        
+        if(input$plot_subsANOVA == T){
+          cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, "S for ", input$subsetdata_choiceANOVA, input$subsetdata_uniquechoiceANOVA, " is ", fit_anova$p.value, ".", "\n", "\n", sep=""))
+        }
         
         if(fit_anova$p.value < as.numeric(as.character(input$Chosenthreshold))){
           cat("SIGNIFICANT difference in means")
@@ -4218,11 +4272,16 @@ function(input, output) {
       return(mymat)
     }
     
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice, input$subsetdata_choiceANOVA)]
+    my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+    my_his_data[,2]<-as.factor(my_his_data[,2])
+    
+    if(input$plot_subsANOVA==T){
+      my_his_data$subsetIVANOVA2<-my_his_data[,4]
+      uniquechoiceIVANOVA2 <- input$subsetdata_uniquechoiceANOVA
+      my_his_data <-subset(my_his_data, my_his_data$subsetIVANOVA2 == uniquechoiceIVANOVA2)}
+    
     if(input$plot_facet ==T){
-      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
-      my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
-      my_his_data[,2]<-as.factor(my_his_data[,2])
-      
       for (i in 1:length(unique(my_his_data[,3]))){
         subsetted_data<- subset(my_his_data, my_his_data[,3]==unique(my_his_data[,3])[i])
         
@@ -4249,10 +4308,6 @@ function(input, output) {
     }
     
     if(input$plot_facet ==F){
-      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV)]
-      my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
-      my_his_data[,2]<-as.factor(my_his_data[,2])
-      
       if(input$Sig_diff_test == "ANOVA (parametric)"){
         fit_tukey<-aov(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
         out<-HSD.test(fit_tukey, "my_his_data[, 2]", group=TRUE, alpha = Chosen_tukey_threshold) ##note that there is an extra space after comma because this is how it is written in summary(fit_graph)
@@ -4277,15 +4332,22 @@ function(input, output) {
   
   #the margin needs to be fixed to be able to see the y-lab
   BoxANOVA <- reactive({
-    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice)]
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice, input$subsetdata_choiceANOVA)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     my_his_data[,input$HisIV] <- as.factor(my_his_data[,input$HisIV])
     #groupIV<-input$HisIV
     
+    
+    if(input$plot_subsANOVA==T){
+      my_his_data$subsetIVANOVA2<-my_his_data[,4]
+      uniquechoiceIVANOVA2 <- input$subsetdata_uniquechoiceANOVA
+      my_his_data <-subset(my_his_data, my_his_data$subsetIVANOVA2 == uniquechoiceIVANOVA2)}
+    
     if(input$plot_facet ==T){
       facetIV<-input$Plotfacet_choice
-      my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
-      
+      my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]}
+    
+    if(input$plot_facet ==T){
       box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
       box_graph<- box_graph + facet_wrap(~facetIV) + scale_fill_discrete(names(my_his_data[2]))
     }
@@ -4313,6 +4375,82 @@ function(input, output) {
   
   output$Boxes <- renderPlotly({
     BoxANOVA()})
+  
+  
+  
+  ###One-way ANOVA figure legend
+  
+  output$legend_ANOVA1_show <- renderUI({
+    if(input$show_ANOVA1_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("legend_ANOVA1")
+    }
+  })
+  
+  
+  output$legend_ANOVA1 <- renderPrint({
+    
+    which_hist_data <- input$Histo_data
+    which_hist_DV<-input$HisDV
+    which_hist_IV<-input$HisIV
+    which_plotfacets<-input$Plotfacet_choice
+    #which_pvalue<-input$Chosenthreshold
+    #whichdifftest<-input$Sig_diff_test
+    
+    cat("# # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    if(input$plot_facet == T){
+      if(input$plot_subsANOVA==T){
+        cat("The plot represents the boxplot of", which_hist_DV, "by", which_hist_IV, "split by", which_plotfacets,".",  "The data used is", which_hist_data, "subsetted by",input$subsetdata_choiceANOVA,input$subsetdata_uniquechoiceANOVA,".")  
+      }
+      if(input$plot_subsANOVA==F){
+        cat("The plot represents the boxplot of", which_hist_DV, "by", which_hist_IV, "split by", which_plotfacets, ".", "The data used is", which_hist_data,".")  
+      }}
+    
+    if(input$plot_facet == F){
+      if(input$plot_subsANOVA==T){
+        cat("The plot represents the boxplot of", which_hist_DV, "by", which_hist_IV, ". The data used is", which_hist_data,"subsetted by",input$subsetdata_choice,input$subsetdata_uniquechoice,".")  
+      }
+      if(input$plot_subsANOVA==F){
+        cat("The plot represents the boxplot of", which_hist_DV,  "by", which_hist_IV, ". The data used is", which_hist_data,".")  
+      }}
+    
+    
+    # Data curation:
+    if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
+      
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
+    
+    # Data curation:
+    if(input$Histo_data == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(how_many == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
+  }) 
+  
   
   # - - - - - - - - >> >>  TWO WAY ANOVA  << << - - - - - - - # 
   
