@@ -823,7 +823,7 @@ function(input, output) {
         transformation <- paste("of not transformed data, using polynomial function with degrees of freedom automatically determined for each sample.")  
       }}
     
-    cat("# # > > > Figure legend: < < < # # #")
+    cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
     cat("The Fit-plot for", input$ModelPheno, "using", model, ".")
@@ -1315,7 +1315,7 @@ function(input, output) {
     udays <- unique(days[,input$SelectTime])
     days_num <- length(udays)
     
-    cat("# # > > > Figure legend: < < < # # #")
+    cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
     cat("The", input$model_graph_plot, "representing", input$model_trait_plot, "of", input$ModelPheno, "estimated using using", model, "from", input$ModelSum_data, "calculated using", days_num, input$SelectTime,"-s. The average number of replicates is", round(reps, digits=2),".")
@@ -2707,7 +2707,7 @@ function(input, output) {
     reps <- mean(uniq2$pheno.n)
     
     
-    cat("# # > > > Figure legend: < < < # # #")
+    cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
     cat("The", input$outlier_graph_type, "representing", phenotype, "from", which_data, ".")
@@ -2901,7 +2901,7 @@ function(input, output) {
     reps <- mean(uniq2$pheno.n)
     
     
-    cat("# # > > > Figure legend: < < < # # #")
+    cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
     cat("The", input$outlier_graph_type, "representing", phenotype, "from", which_data, " with the outliers removed. The outliers are characterized using", input$outlier_method, "method for", how_many,".") 
@@ -3304,7 +3304,7 @@ function(input, output) {
     #which_pvalue<-input$Chosenthreshold
     
     
-    cat("# # > > > Figure legend: < < < # # #")
+    cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
     if(input$plot_facet == T){
@@ -3420,12 +3420,12 @@ function(input, output) {
       
       if(input$plot_subs==T){
       if(length(list_sig_shapiro)>0){
-      cat("The data for ",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "and subsetted by", input$subsetdata_choice, input$subsetdata_uniquechoice, "does not show the normal distribution in the following samples:")
+      cat("The data on",input$subsetdata_choice, input$subsetdata_uniquechoice, "for",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "do(es) not show the normal distribution in the following samples:")
       cat("\n")
       cat(list_sig_shapiro, sep=", ")
         }
         else{
-          cat("The data for ",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "and subsetted by", input$subsetdata_choice, input$subsetdata_uniquechoice, "shows normal distribution in all samples.")
+          cat("The data on",input$subsetdata_choice, input$subsetdata_uniquechoice, "for",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "show(s) normal distribution in all samples.")
         }
       }
       
@@ -3633,7 +3633,7 @@ function(input, output) {
     which_plotfacets<-input$Plotfacet_choice
     which_pvalue<-input$Chosenthreshold
     
-      cat("# # > > > Figure legend: < < < # # #")
+      cat("# # # > > > Figure legend: < < < # # #")
       cat("\n")
       cat("\n")
       if(input$plot_facet == T){
@@ -3857,7 +3857,7 @@ function(input, output) {
       #print(fit_levene)
       pvalue_levene<-signif(fit_levene[[3]][[1]],5) #result of levene is a list with 1st element of 3rd element the p-value
       cat("HOMOGENEITY OF VARIANCE ANALYSIS", "\n")
-      cat("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "S is ", pvalue_levene, ".", "\n", sep="")
+      cat("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, " is ", pvalue_levene, ".", "\n", sep="")
       
       if (pvalue_levene < as.numeric(as.character(input$Chosenthreshold))) {
         if(input$plot_subsVar==F){
@@ -3899,6 +3899,16 @@ function(input, output) {
     my_his_data[,input$HisIV] <- as.factor(my_his_data[,input$HisIV])
     phenoski <- input$HisDV
     idski <- input$HisIV
+    
+    my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice,input$subsetdata_choiceVar)]
+    my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
+    my_his_data[,2]<-as.factor(my_his_data[,2])
+    
+    if(input$plot_subsVar==T){
+      my_his_data$subsetIVLev<-my_his_data[,4]
+      uniquechoiceIVLev <- input$subsetdata_uniquechoiceVar
+      my_his_data <-subset(my_his_data, my_his_data$subsetIVLev == uniquechoiceIVLev)}
+    
     
     if(input$plot_facet ==T){
       my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
@@ -4218,10 +4228,10 @@ function(input, output) {
         pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
         cat("ANOVA", "\n")
         if(input$plot_subsANOVA==F){
-        cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S is ", pvalue_ANOVA, ".", "\n", "\n", sep=""))}
+        cat(paste("The p-value of the ANOVA test between different ", input$HisIV, " is ", pvalue_ANOVA, ".", "\n", "\n", sep=""))}
         
         if(input$plot_subsANOVA==T){
-          cat(paste("The p-value of the ANOVA test between different ", input$HisIV, "S for ", input$subsetdata_choiceANOVA, input$subsetdata_uniquechoiceANOVA, " is ", pvalue_ANOVA, ".", "\n", "\n", sep=""))}
+          cat(paste("The p-value of the ANOVA test between different ", input$HisIV, " for ", input$subsetdata_choiceANOVA, input$subsetdata_uniquechoiceANOVA, " is ", pvalue_ANOVA, ".", "\n", "\n", sep=""))}
         
         if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
           cat("SIGNIFICANT difference in means")
@@ -4233,11 +4243,11 @@ function(input, output) {
         fit_anova <- kruskal.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
         cat("Kruskal-Wallis test", "\n")
         if(input$plot_subsANOVA == T){
-        cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, "S is ", fit_anova$p.value, ".", "\n", "\n", sep=""))
+        cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, " is ", fit_anova$p.value, ".", "\n", "\n", sep=""))
         }
         
         if(input$plot_subsANOVA == T){
-          cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, "S for ", input$subsetdata_choiceANOVA, input$subsetdata_uniquechoiceANOVA, " is ", fit_anova$p.value, ".", "\n", "\n", sep=""))
+          cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, " for ", input$subsetdata_choiceANOVA, input$subsetdata_uniquechoiceANOVA, " is ", fit_anova$p.value, ".", "\n", "\n", sep=""))
         }
         
         if(fit_anova$p.value < as.numeric(as.character(input$Chosenthreshold))){
@@ -4399,7 +4409,7 @@ function(input, output) {
     #which_pvalue<-input$Chosenthreshold
     #whichdifftest<-input$Sig_diff_test
     
-    cat("# # > > > Figure legend: < < < # # #")
+    cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
     if(input$plot_facet == T){
@@ -4569,6 +4579,8 @@ function(input, output) {
   ######################### correlation plot#############################
   
   # select data sets to be used
+  
+  
   output$cor_Pheno_data <- renderUI({
     if (is.null(ItemList())) {
       return()
@@ -4578,7 +4590,10 @@ function(input, output) {
         selectizeInput(
           inputId = "cor_data",
           label = "Dataset to correlate:",
-          choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
+          choices = c("raw data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"),
+          multiple = F
+        )
+      )
   })
   
   output$cor_phenos <- renderUI({
@@ -4596,60 +4611,28 @@ function(input, output) {
       )
   })
   
-  cor_data_type <- eventReactive(input$cor_data, {
-    if (input$cor_data == "raw data") {
-      cor_data_type <- my_data()
-    }
-    if (input$cor_data == "missing values removed data") {
-      cor_data_type <- my_data()[complete.cases(my_data()),]
-    }
-    if (input$cor_data == "r2 fitted curves curated data") {
-      cor_data_type <- good_r2()
-    }
-    if (input$cor_data == "r2 fitted curves curated data with missing values removed") {
-      cor_data_type <- good_r2()[complete.cases(good_r2()),]
-    }
-    if (input$cor_data == "outliers removed data") {
-      cor_data_type <- Outlier_free_data()
-    }
-    cor_data_type <- na.omit(cor_data_type)
-    cor_data_type
-  })
   
-  output$cor_missing_na <- renderUI({
+  
+  cor_data_type <- reactive({
+    if(input$cor_data == "raw data"){
+      Herit_data_type <- my_data()
+    }
+    if(input$cor_data == "missing values removed data"){
+      Herit_data_type <- my_data()[complete.cases(my_data()),]
+    }
+    if(input$cor_data == "r2 fitted curves curated data"){
+      Herit_data_type <- good_r2()
+    }
+    if(input$cor_data == "r2 fitted curves curated data with missing values removed"){
+      Herit_data_type <- good_r2()[complete.cases(good_r2()),]
+    }
     if(input$cor_data == "outliers removed data"){
-      verbatimTextOutput("cor_missing_message")
+      Herit_data_type <- Outlier_free_data()
     }
+    Herit_data_type
   })
   
-
-  output$cor_missing_message <- renderPrint({
-    
-    
-    df <- subset(cor_data_type(), select = input$Select_cor_phenos)
-    final <- dim(df)[1]
-    
-    if (input$cor_data == "raw data") {
-      cor_data_type <- my_data()
-    }
-    if (input$cor_data == "missing values removed data") {
-      cor_data_type <- my_data()[complete.cases(my_data()),]
-    }
-    if (input$cor_data == "r2 fitted curves curated data") {
-      cor_data_type <- good_r2()
-    }
-    if (input$cor_data == "r2 fitted curves curated data with missing values removed") {
-      cor_data_type <- good_r2()[complete.cases(good_r2()),]
-    }
-    if (input$cor_data == "outliers removed data") {
-      cor_data_type <- Outlier_free_data()}
-    
-    start <- dim(cor_data_type)[1]
-    
-    rmvd0 = start - final
-    
-    cat("The selected data contained", rmvd0,"rows with missing values that were removed for the sake of succesfull correlation analysis.")
-  })
+  
   
   
   # whether to use subsetted data or not
@@ -4770,66 +4753,6 @@ function(input, output) {
   
   ########create corrplot descriptive text###########
   
-  output$Corr_plot_legend_show <- renderUI({
-      if(input$show_Corr_plot_legend == F){
-        return()
-      }
-      else{
-      verbatimTextOutput("description")
-    }
-  })
-  
-  output$description <- renderPrint({
-    cat("# # > > > Figure legend: < < < # # #")
-    cat("\n")
-    cat("\n")
-    cat("The heat map of global correlations between selected traits. Different colors reflect", input$corMethod, "correlation coefficients between individual traits.")  
-    
-    cat(" !!!! GEGE - SHOULD ADD SOMETHING ON THE SHAPE AND THE SIZE OF THE BALLS FILLING IT IN ???? ")
-    
-    if(input$cor_data_subset == T){
-      cat(" The data is subsetted in",input$CorIV_sub, "-", input$CorIV_val, ".")
-    }
-    
-    
-    if(input$cor_sig_show == T){
-      cat(" The non-significant correlations, with the p-value above",input$cor_sig_threshold, "are indicated with a cross in the individual cells.")
-    }
-    
-    cat(" The correlations are calculated using", input$cor_data, ". The total number of samples used for estimating the correlation coefficients is ", Cor_n(), ".")
-    
-    if(input$Go_outliers == T){
-      how_many <- input$Out_pheno_single_multi  
-      
-      if(input$Out_pheno_single_multi == "Some phenotypes"){
-        which_ones <- input$DV_outliers
-      }
-      if(input$Out_pheno_single_multi == "Single phenotype"){
-        which_ones <- input$DV_outliers
-      }}
-    
-    # Data curation:
-    if(input$cor_data == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
-      if(how_many == "Single phenotype"){
-        cat(" (", which_ones, ").")}
-      if(how_many == "Some phenotypes"){
-        cat(" (", which_ones, ").")}
-      else{
-        cat(".")}
-      
-      if(input$What_happens_to_outliers == "removed together with entire row"){
-        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
-      if(input$What_happens_to_outliers == "replaced by NA"){
-        cat(" The individual values characterized as outliers are replaced by empty cells.")}
-      if(input$Outlier_on_data == "r2 fitted curves curated data"){
-        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
-      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
-        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
-    }
-    
-    
-  })
   
   
   output$corrplot_button <- renderUI({
@@ -4843,9 +4766,9 @@ function(input, output) {
     filename = function(){paste("Correlation plot with ", input$corrplotMethod,", ", input$corType, " and ordered with ", input$corOrder, " MVApp.pdf")},
     content = function(file) {
       pdf(file)
-      df <- subset(cor_data_type(), select = input$Select_cor_phenos)
+      df <- na.omit(subset(cor_data_type(), select = input$Select_cor_phenos))
       if (input$cor_data_subset) {
-        df <- df[df[input$CorIV_sub] == input$CorIV_val, ]
+        df <- na.omit(df[df[input$CorIV_sub] == input$CorIV_val, ])
       }
       
       if(input$cor_sig_show == F){
@@ -4893,60 +4816,47 @@ function(input, output) {
   # })
   
   
-  
   ################# correlation table display #################
   
   output$cor_table <- renderDataTable({
     req(input$Select_cor_phenos)
-    if ((input$show_table == FALSE)) {
-      return()
-    } else {
-      df<- subset(cor_data_type(),select= input$Select_cor_phenos)
-      
-      df0 <- subset(cor_data_type(), 
-                    select = c(
-                      input$SelectGeno,
-                      input$SelectIV,
-                      input$SelectID,
-                      input$SelectTime,
-                      input$Select_cor_phenos))
-      
-      if (input$cor_data_subset) {
-        df <- subset(df0[df0[input$CorIV_sub] == input$CorIV_val, ],select=input$Select_cor_phenos)
+    
+    df<- subset(cor_data_type(),select= input$Select_cor_phenos)
+    
+    df0 <- subset(cor_data_type(), 
+                  select = c(
+                    input$SelectGeno,
+                    input$SelectIV,
+                    input$SelectID,
+                    input$SelectTime,
+                    input$Select_cor_phenos))
+    
+    if (input$cor_data_subset) {
+      df <- subset(df0[df0[input$CorIV_sub] == input$CorIV_val, ],select=input$Select_cor_phenos)
+    }
+    
+    res <- rcorr(as.matrix(df), type = input$corMethod)
+    
+    flattenCorrMatrix <- function(cormat, pmat) {
+      ut <- upper.tri(cormat)
+      data.frame(
+        row = rownames(cormat)[row(cormat)[ut]],
+        column = rownames(cormat)[col(cormat)[ut]],
+        cor  = (cormat)[ut],
+        p = pmat[ut]
+      )
+    }
+    
+    result <- flattenCorrMatrix(res$r, res$P)
+    test <- result
+    for(i in 1:ncol(test)){
+      if (class(test[,i]) == "numeric"){
+        test[,i] <- round(test[,i], digits = 4)
       }
-      
-      res <- rcorr(as.matrix(df), type = input$corMethod)
-      
-      flattenCorrMatrix <- function(cormat, pmat) {
-        ut <- upper.tri(cormat)
-        data.frame(
-          row = rownames(cormat)[row(cormat)[ut]],
-          column = rownames(cormat)[col(cormat)[ut]],
-          cor  = (cormat)[ut],
-          p = pmat[ut]
-        )
-      }
-      
-      result <- flattenCorrMatrix(res$r, res$P)
-      test <- result
-      for(i in 1:ncol(test)){
-        if (class(test[,i]) == "numeric"){
-          test[,i] <- round(test[,i], digits = 4)
-        }
-      }
-      test}
+    }
+    test
   })
   
-  ##### help text above the table ################  
-  output$cor_table_text <- renderPrint({
-    req(input$show_table== T)
-    if(input$cor_data_subset == F){
-      cat(paste("The", input$corMethod, "correlation coefficients and p values of your data are:"))
-    }
-    else{
-      cat(paste("The", input$corMethod, "correlation coefficients and p values for you subsetted data in",input$CorIV_sub, "-", input$CorIV_val, "are:"))
-    }
-  })
   
   ########### download button ####################################  
   output$cortable_button <- renderUI({
@@ -4954,11 +4864,8 @@ function(input, output) {
       return()
     }
     else{
-      if ((input$show_table == FALSE)) {
-        return()
-      } else {
-        downloadButton("cortable_download_button", label = "Download correlation table")
-      }}
+      downloadButton("cortable_download_button", label = "Download correlation table")
+    }
   })
   
   
@@ -5072,8 +4979,6 @@ function(input, output) {
   })
   
   
-  
-  
   ############ interactive scatter plot ##########
   output$Pheno1 <- renderUI({
     if (is.null(input$SelectDV)) {
@@ -5105,7 +5010,8 @@ function(input, output) {
   })
   
   output$colorby <- renderUI({
-    if (input$scatter_color==F) {
+    if ((is.null(input$SelectIV)) |
+        (input$SelectGeno == FALSE)) {
       return ()
     } else
       tagList(
@@ -5118,25 +5024,34 @@ function(input, output) {
       )
   })
   
-  output$shapeby <- renderUI({
-    if (input$scatter_color==F) {
-      return ()
-    } else
-      tagList(
-        selectizeInput(
-          inputId = "Shape",
-          label = "Shape the plot by:",
-          choices = c(input$SelectIV, input$SelectGeno, input$SelectTime),
-          multiple = F
-        )
-      )
-  })
+  # output$shapeby <- renderUI({
+  #     if (input$scatter_shape ==F) {
+  #     return ()
+  #   } else
+  #     tagList(
+  #       selectizeInput(
+  #         inputId = "Shape",
+  #         label = "Shape the plot by:",
+  #         choices = c(input$SelectIV, input$SelectGeno, input$SelectTime),
+  #         multiple = F
+  #       )
+  #     )
+  # })
   
+  ########### need if condition on the color and shape factor!!!##########
   scatter_cor <- reactive({
-    my_data <- data.frame(my_data())
+    my_data <- data.frame(cor_data_type())
+    id_fiers <- c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)
     my_data[,input$Color] <- as.factor(my_data[,input$Color])
-    my_data[,input$Shape] <- as.factor(my_data[,input$Shape])
-    my_data %>% ggplot(aes_string(input$Pheno1, input$Pheno2)) + geom_point(aes_string(colour =input$Color,shape=input$Shape)) +  theme_minimal()
+    my_data$id <- do.call(paste,c(my_data[c(id_fiers)], sep="_"))
+    my_data$id <- as.factor(my_data$id)
+    
+    
+    
+    
+    
+    #   my_data[,input$Shape] <- as.factor(my_data[,input$Shape])
+    my_data %>% ggplot(aes_string(x = input$Pheno1, y = input$Pheno2, colour =input$Color)) + geom_point(aes(text=id)) +  theme_minimal()
   })
   
   output$scatterplot <- renderPlotly({
@@ -5160,6 +5075,130 @@ function(input, output) {
       dev.off()
     })  
   
+  output$legend_cor_show <- renderUI({
+    if(input$show_cor_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_corrplot")
+    }
+  })
+  
+  ######### Figure Legend ############################
+  
+  
+  output$Legend_corrplot <- renderPrint({
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    if (input$corrplotMethod == "circle" |
+        input$corrplotMethod == "pie" |
+        input$corrplotMethod == "square" |
+        input$corrplotMethod == "ellipse") {
+      cat(
+        "The figure shows the", input$corMethod, "correlation coefficients between selected traits. The color and size of the",
+        input$corrplotMethod,
+        "reflect the strength of the correlation."
+      )
+    }
+    if (input$corrplotMethod == "number" |
+        input$corrplotMethod == "shade") {
+      cat(
+        "The figure shows the", input$corMethod, "correlation coefficients between selected traits. The color of the",
+        input$corrplotMethod,
+        "reflects the strength of the correlation."
+      )
+    }
+    if (input$cor_data_subset == T) {
+      cat("\n")
+      cat("The data is subsetted in",
+          input$CorIV_sub,
+          "-",
+          input$CorIV_val,
+          ".")
+    }
+    if (input$cor_sig_show == T) {
+      cat("\n")
+      cat(
+        "The non-significant correlations, with the p-value above",
+        input$cor_sig_threshold,
+        "are indicated with a cross in the individual cells."
+      )
+    }
+    cat("\n")
+    cat(
+      "The correlation coefficients are calculated using",
+      input$cor_data,
+      ", with the total number of",
+      Cor_n(),
+      "samples."
+    )
+    
+    if (input$Go_outliers == T) {
+      how_many <- input$Out_pheno_single_multi
+      if (input$Out_pheno_single_multi == "Some phenotypes") {
+        which_ones <- input$DV_outliers
+      }
+      if (input$Out_pheno_single_multi == "Single phenotype") {
+        which_ones <- input$DV_outliers
+      }
+    }
+    
+    # Data curation:
+    if (input$cor_data == "outliers removed data") {
+      cat("\n")
+      cat(
+        "The outliers are characterized using",
+        input$outlier_method,
+        "method for",
+        how_many
+      )
+      if (how_many == "Single phenotype") {
+        cat(" (", which_ones, ").")
+      }
+      if (how_many == "Some phenotypes") {
+        cat(" (", which_ones, ").")
+      }
+      else{
+        cat(".")
+      }
+      
+      if (input$What_happens_to_outliers == "removed together with entire row") {
+        cat("\n")
+        cat(
+          "The sample is characterized as an outlier when it is classified as such in at least ",
+          input$outlier_cutoff,
+          " traits. The samples that are characterized as outlier in",
+          input$outlier_cutoff,
+          "are removed from the analysis."
+        )
+      }
+      if (input$What_happens_to_outliers == "replaced by NA") {
+        cat(" The individual values characterized as outliers are replaced by empty cells.")
+      }
+      if (input$Outlier_on_data == "r2 fitted curves curated data") {
+        cat(
+          "The data was additionally curated based on r2 using",
+          input$model ,
+          "and the samples where with r2 was below",
+          input$rsq_limit,
+          "cut-off limit were eliminated from the dataset. "
+        )
+      }
+      if (input$Outlier_on_data == "r2 fitted and missing values removed data") {
+        cat(
+          "The data was additionally curated based on r2 using",
+          input$model ,
+          "and the samples where with r2 was below",
+          input$rsq_limit,
+          "cut-off limit were eliminated from the dataset."
+        )
+      }
+    }
+    
+  })
+  
+  
   # r2 and p-value ----------------------------------------------------------
   
   output$corrsq <- renderText({
@@ -5178,6 +5217,26 @@ function(input, output) {
   })
   
   
+  output$scatter_legend_show <- renderUI({
+    if(input$show_scatter_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_scatter")
+    }
+  })
+  
+  output$Legend_scatter <- renderPrint({
+    cor_data <- my_data()[, c(input$Pheno1, input$Pheno2)]
+    correl <- lm(cor_data[, 1] ~ cor_data[, 2])
+    r2 <- summary(correl)$r.squared
+    pval <- summary(correl)$coefficients[8]
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    cat("The above figure shows all the measurements of", input$Pheno1, "and", input$Pheno2, "conditional on", input$Color,".", "The R2 value for the linear fitting is", signif(r2, 3), "and the p-value is", signif(pval, 3) )
+    
+  })
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - >> PCA + MDS IN 7th TAB <<- - - - - - - - - - - - - 
@@ -5226,7 +5285,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "PCA_pheno",
-          label = "Dependent Variables for PCA",
+          label = "Traits for PCA",
           choices = c(input$SelectDV),
           multiple = T
         )
@@ -5240,7 +5299,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "PCA_subset_T",
-          label = "Independent Variables to subset the data",
+          label = "Subset data by:",
           choices=c(input$SelectGeno, input$SelectIV, input$SelectTime),
           multiple=T
         ))}
@@ -5300,7 +5359,6 @@ function(input, output) {
     temp3 <- as.matrix(temp2[,2:ncol(temp2)])
     row.names(temp3) <- temp2$id
     
-    #### CHECK 
     if(input$PCA_Scale_Q == T){
       temp3 <- scale(temp3)
       #colnames(temp2)[1] <- "id"
@@ -5332,11 +5390,90 @@ function(input, output) {
           type="b", pch=19, col = "red")
   })
   
+  output$Eigen_plot_download <- downloadHandler(
+    filename = function(){paste("Eigen plot MVApp", "pdf" , sep=".") },
+    content = function(file) {
+      pdf(file)
+      eigenvalues <- PCA_eigen_data()
+      barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
+              main = "Variances",
+              xlab = "Principal Components",
+              ylab = "Percentage of variances",
+              col ="steelblue")
+      
+      lines(x = 1:nrow(eigenvalues), eigenvalues[, 2], 
+            type="b", pch=19, col = "red")
+      
+      dev.off()
+    })
+  
+  #### FIGURE LEGEND ####
+  output$Eigen_legend_show <- renderUI({
+    if(input$show_Eigen_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_Eigen")
+    }
+  })
+  
+  output$Legend_Eigen <- renderPrint({
+    if(input$Go_PCA == F){
+      return()
+    }
+    else{
+      
+      # Data curation:
+      if(input$Go_outliers == T){
+        how_many <- input$Out_pheno_single_multi  
+        
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
+          which_ones <- input$DV_outliers
+        }
+        if(input$Out_pheno_single_multi == "Single phenotype"){
+          which_ones <- input$DV_outliers
+        }}
+      
+      cat("# # # > > > Figure legend: < < < # # #")
+      cat("\n")
+      cat("\n")
+      cat("Scree plot of PCA eigenvectors illustrating the percentage of variance across different principle components.") 
+      cat(" Percentage variance explained by each principle component is shown from the most significant to the least.")
+      cat(" PCA was performed on", input$PCA_data, "using the following traits:(",  input$PCA_pheno,").")
+      
+      
+      if(input$PCA_data_subset == "subsetted dataset") {
+        cat(" The data was subsetted for" , input$PCA_subset_T, "and the shown PCA is representing samples belonging to the subset ", input$PCA_subset_S,".")
+      }
+      
+      # Data curation:
+      if(input$PCA_data == "outliers removed data"){    
+        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
+        if(how_many == "Single phenotype"){
+          cat(" (", which_ones, ").")}
+        if(how_many == "Some phenotypes"){
+          cat(" (", which_ones, ").")}
+        else{
+          cat(".")}
+        
+        if(input$What_happens_to_outliers == "removed together with entire row"){
+          cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+        if(input$What_happens_to_outliers == "replaced by NA"){
+          cat(" The individual values characterized as outliers are replaced by empty cells.")}
+        if(input$Outlier_on_data == "r2 fitted curves curated data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+        if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      }
+      
+    }   
+  })
+  
   output$Eigen_download_button <- renderUI({
     if(is.null(PCA_eigen_data())){
       return()}
     else
-      downloadButton("Eigen_data", label="Download Eigen values")
+      downloadButton("Eigen_data", label="Download table")
   })
   
   output$Eigen_data <- downloadHandler(
@@ -5346,7 +5483,13 @@ function(input, output) {
   )
   
   output$Eigen_data_table <- renderDataTable({
-    PCA_eigen_data()
+    our_table <- PCA_eigen_data()
+    for(i in 1:ncol(our_table)){
+      if(class(our_table[,i]) == "numeric"){
+        our_table[,i] <- round(our_table[,i], digits = 4)
+      }
+    }
+    our_table
   })
   
   
@@ -5391,6 +5534,86 @@ function(input, output) {
                             high="red", midpoint=mid)+theme_bw()
   })
   
+  output$PCA_contribution_plot_download <- downloadHandler(
+    filename = function(){paste("PCA contributions plot MVApp", "pdf" , sep=".") },
+    content = function(file) {
+      pdf(file)
+      PCA_ready <- PCA_final_data()
+      res.pca <- PCA(PCA_ready, graph = FALSE)
+      mid=median(res.pca$var$contrib)
+      a <- fviz_pca_var(res.pca, axes = c(as.numeric(input$Which_PC1),as.numeric(input$Which_PC2)), col.var="contrib", geom ="auto", labelsize = 4, repel=T, label="var", addlabels=T, invisible = "none")
+      a <- a + scale_color_gradient2(low="grey", mid="purple", high="red", midpoint=mid)+theme_bw()
+      print(a)
+      dev.off()
+    })
+  
+  #### FIGURE LEGEND ####
+  output$PCA_contribution_legend_show <- renderUI({
+    if(input$show_PCA_contribution_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_PCA_contribution")
+    }
+  })
+  
+  output$Legend_PCA_contribution <- renderPrint({
+    if(input$Go_PCA == F){
+      return()
+    }
+    else{
+      
+      # Data curation:
+      if(input$Go_outliers == T){
+        how_many <- input$Out_pheno_single_multi  
+        
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
+          which_ones <- input$DV_outliers
+        }
+        if(input$Out_pheno_single_multi == "Single phenotype"){
+          which_ones <- input$DV_outliers
+        }}
+      
+      Eig_table <- PCA_eigen_data()
+      #Variance_explained_x <- Eig_table[input$Which_PC1,2]
+      #Variance_explained_y <- Eig_table[input$Which_PC2,2]
+      
+      cat("# # # > > > Figure legend: < < < # # #")
+      cat("\n")
+      cat("\n")
+      cat("Trait contributions to PC", input$Which_PC1, "and PC", input$Which_PC2, ".") 
+      cat(" The contribution to PC", input$Which_PC1, "is shown on the x-axis, while the contribution to PC", input$Which_PC2, " is on the y-axis.")
+      cat(" Each trait's contribution to the selected principle component is indicated by the length and color of the arrow.") 
+      cat(" PCA was performed on", input$PCA_data, "using the following traits:(", input$PCA_pheno,").")
+      
+      if(input$PCA_data_subset == "subsetted dataset") {
+        cat(" The data was subsetted for" , input$PCA_subset_T, "and the shown PCA represents samples that belong to the subset ", input$PCA_subset_S, ".")
+      }
+      #cat(" PC", input$Which_PC1, "explains ", Variance_explained_x, "%, while PC", input$Which_PC2, "is explaining", Variance_explained_y, "% of the observed variance.")
+      
+      # Data curation:
+      if(input$PCA_data == "outliers removed data"){    
+        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
+        if(how_many == "Single phenotype"){
+          cat(" (", which_ones, ").")}
+        if(how_many == "Some phenotypes"){
+          cat(" (", which_ones, ").")}
+        else{
+          cat(".")}
+        
+        if(input$What_happens_to_outliers == "removed together with entire row"){
+          cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+        if(input$What_happens_to_outliers == "replaced by NA"){
+          cat(" The individual values characterized as outliers are replaced by empty cells.")}
+        if(input$Outlier_on_data == "r2 fitted curves curated data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+        if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      }
+      
+    }   
+  })
+  
   output$PCA_contrib_select <- renderUI({
     if ((input$Go_PCAdata == FALSE)) {
       return()
@@ -5413,6 +5636,86 @@ function(input, output) {
     fviz_contrib(res.pca, choice = 'var', axes = c(as.numeric(input$Which_PC_contrib)), xtickslab.rt = 90)
   })
   
+  output$Contrib_trait_plot_download <- downloadHandler(
+    filename = function(){paste("Trait contribution per PC plot MVApp", "pdf" , sep=".") },
+    content = function(file) {
+      pdf(file)
+      PCA_ready <- PCA_final_data()
+      res.pca <- PCA(PCA_ready, graph = FALSE)
+      a <- fviz_contrib(res.pca, choice = 'var', axes = c(as.numeric(input$Which_PC_contrib)), xtickslab.rt = 90)
+      print(a)
+      dev.off()
+    })
+  
+  #### FIGURE LEGEND ####
+  output$PCAcontrib_legend_show <- renderUI({
+    if(input$show_PCAcontrib_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_PCAcontrib")
+    }
+  })
+  
+  output$Legend_PCAcontrib <- renderPrint({
+    if(input$Go_PCA == F){
+      return()
+    }
+    else{
+      
+      # Data curation:
+      if(input$Go_outliers == T){
+        how_many <- input$Out_pheno_single_multi  
+        
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
+          which_ones <- input$DV_outliers
+        }
+        if(input$Out_pheno_single_multi == "Single phenotype"){
+          which_ones <- input$DV_outliers
+        }
+        }
+      
+      #Contrib_table <-  PCA_contrib_var()
+      #Variance_explained <- Contrib_table[input$Which_PC_contrib,2]
+      
+      cat("# # # > > > Figure legend: < < < # # #")
+      cat("\n")
+      cat("\n")
+      cat(" Contributions of the selected traits to PC", input$Which_PC_contrib ,".")
+      cat(" Traits are shown on the x-axis, while the degree of contribution to PC",input$Which_PC_contrib , "is on the y-axis.")
+      cat(" The red line represents a reference of the expected value if the contribution was uniform.")
+      cat(" For a given PC, any trait with a contribution above the reference line can be considered an important contributor to that PC.")
+      cat(" PCA was performed on", input$PCA_data, "using the following traits: (", input$PCA_pheno,").")
+      
+      if(input$PCA_data_subset == "subsetted dataset") {
+      cat(" The data was subsetted for" , input$PCA_subset_T, "and the shown PCA represents samples that belong to the subset ", input$PCA_subset_S, ".")
+      }
+      # cat(" PC", input$Which_PC_contrib, " explains ", Variance_explained, "% of the observed variance.") ###  Didn't work :/
+      
+      
+      # Data curation:
+      if(input$PCA_data == "outliers removed data"){    
+        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
+        if(how_many == "Single phenotype"){
+          cat(" (", which_ones, ").")}
+        if(how_many == "Some phenotypes"){
+          cat(" (", which_ones, ").")}
+        else{
+          cat(".")}
+        
+        if(input$What_happens_to_outliers == "removed together with entire row"){
+          cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+        if(input$What_happens_to_outliers == "replaced by NA"){
+          cat(" The individual values characterized as outliers are replaced by empty cells.")}
+        if(input$Outlier_on_data == "r2 fitted curves curated data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+        if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      }
+      
+    }   
+  })
+  
   PCA_contrib_var <- eventReactive(input$Go_PCA,{
     PCA_ready <- PCA_final_data()
     res.pca <- PCA(PCA_ready, graph = FALSE)
@@ -5422,13 +5725,21 @@ function(input, output) {
   
   output$PCA_contribution_var <- renderDataTable({
     PCA_contrib_var()
+    our_table <- PCA_contrib_var()
+    
+    for(i in 1:ncol(our_table)){
+      if(class(our_table[,i]) == "numeric"){
+        our_table[,i] <- round(our_table[,i], digits = 4)
+      }
+    }
+    our_table
   })
   
   output$Contrib_download_var <- renderUI({
     if(is.null(PCA_contrib_var())){
       return()}
     else
-      downloadButton("contrib_var", label="Download PCA contribution by variable")
+      downloadButton("contrib_var", label="Download table")
   })
   
   output$contrib_var <- downloadHandler(
@@ -5454,8 +5765,6 @@ function(input, output) {
   PCA_coord_ind <- eventReactive(input$Go_PCA,{
     PCA_ready <- PCA_final_data()
     res.pca <- PCA(PCA_ready, graph = FALSE)
-    
-    ###### ADDING REFERENCE DATA HERE #######
     temp <- data.frame(PCA_data_type())
     temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
     
@@ -5472,26 +5781,33 @@ function(input, output) {
       temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
       temp2 <- temp
     }}
-    
-    ##### END REFERENCE DATA HERE ######   
-    temp4 <- subset(temp2, select = c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID))
+    temp4 <- subset(temp2, select = c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, "id"))
     
     temporary <- res.pca$ind$coord
     
     la_table <- cbind(temp4, temporary)
+    
     names(la_table) <- gsub("Dim.", "", names(la_table), fixed=T)
     la_table
   })
   
   output$PCA_coordinates_ind <- renderDataTable({
     PCA_coord_ind()
+    our_table <- PCA_coord_ind()
+    
+    for(i in 1:ncol(our_table)){
+      if(class(our_table[,i]) == "numeric"){
+        our_table[,i] <- round(our_table[,i], digits = 4)
+      }
+    }
+    our_table
   })
   
   output$Coord_download_ind <- renderUI({
     if(is.null(PCA_coord_ind())){
       return()}
     else
-      downloadButton("coord_ind", label="Download individual PCA coordinates")
+      downloadButton("coord_ind", label="Download table")
   })
   
   output$coord_ind <- downloadHandler(
@@ -5508,16 +5824,100 @@ function(input, output) {
     la_table$y_axis <- la_table[,input$Which_PC2]
     la_table$color <- la_table[,input$PCA_Color]
     super_plot <- ggplot(data = la_table, aes(x = x_axis, y= y_axis, colour = color))
-    super_plot <- super_plot + geom_point()
+    super_plot <- super_plot + geom_point(aes(text=id))
     super_plot <- super_plot + xlab(PC_x_axis)
     super_plot <- super_plot + ylab(PC_y_axis)
+    super_plot <- super_plot + guides(colour=guide_legend(title= input$PCA_Color))
     super_plot
   })
   
-  # - -  - - - - - - - >> Categorical PCA <<- - - - - - - - - - - - 
+  output$PCAscatter_plot_download <- downloadHandler(
+    filename = function(){paste("Coordinates of PCs MVApp", "pdf" , sep=".") },
+    content = function(file) {
+      pdf(file)
+      la_table <- PCA_coord_ind()
+      PC_x_axis <- paste('Dim', input$Which_PC1, sep=".")
+      PC_y_axis <- paste('Dim', input$Which_PC2, sep=".")  
+      la_table$x_axis <- la_table[,input$Which_PC1]
+      la_table$y_axis <- la_table[,input$Which_PC2]
+      la_table$Subset <- la_table[,input$PCA_Color] ### would be nice to make it input$PCA_subset_S
+      super_plot <- ggplot(data = la_table, aes(x = x_axis, y= y_axis, colour = Subset))
+      super_plot <- super_plot + geom_point()
+      super_plot <- super_plot + xlab(PC_x_axis)
+      super_plot <- super_plot + ylab(PC_y_axis)
+      super_plot <- super_plot + guides(colour=guide_legend(title= input$PCA_Color))
+      super_plot
+      
+      print(super_plot)
+      dev.off()
+    })
   
+  #### FIGURE LEGEND ####
+  output$PCAscatter_legend_show <- renderUI({
+    if(input$show_PCAscatter_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_PCAscatter")
+    }
+  })
   
-  
+  output$Legend_PCAscatter <- renderPrint({
+    if(input$Go_PCA == F){
+      return()
+    }
+    else{
+      
+      # Data curation:
+      if(input$Go_outliers == T){
+        how_many <- input$Out_pheno_single_multi  
+        
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
+          which_ones <- input$DV_outliers
+        }
+        if(input$Out_pheno_single_multi == "Single phenotype"){
+          which_ones <- input$DV_outliers
+        }}
+      
+      Eig_table <- PCA_eigen_data()
+      #Variance_explained_x <- Eig_table[input$Which_PC1,2]
+      #Variance_explained_y <- Eig_table[input$Which_PC2,2]
+      
+      cat("# # # > > > Figure legend: < < < # # #")
+      cat("\n")
+      cat("\n")
+      cat("Coordinates of PC",  input$Which_PC1, "and PC", input$Which_PC2, ".")
+      cat(" Each sample's coordinates for PC", input$Which_PC1, "are plotted on the x-axis, while the coordinates for PC", input$Which_PC2, " are on the y-axis.")
+      cat(" Different colors represent the samples that belong to different", input$PCA_Color, ".")
+      cat(" PCA was performed on", input$PCA_data, "using the following traits:(", input$PCA_pheno,").")
+      
+      if(input$PCA_data_subset == "subsetted dataset") {
+        cat(" The data was subsetted for" , input$PCA_subset_T, "and the shown PCA represents samples belonging to the subset ", input$PCA_subset_S, ".")
+      }
+      cat(" PC", input$Which_PC1, "explains ", round(Variance_explained_x, digits = 4), "%, while PC", input$Which_PC2, "is explaining", round(Variance_explained_y, digits = 4), "% of the observed variance.")
+      
+      # Data curation:
+      if(input$PCA_data == "outliers removed data"){    
+        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
+        if(how_many == "Single phenotype"){
+          cat(" (", which_ones, ").")}
+        if(how_many == "Some phenotypes"){
+          cat(" (", which_ones, ").")}
+        else{
+          cat(".")}
+        
+        if(input$What_happens_to_outliers == "removed together with entire row"){
+          cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+        if(input$What_happens_to_outliers == "replaced by NA"){
+          cat(" The individual values characterized as outliers are replaced by empty cells.")}
+        if(input$Outlier_on_data == "r2 fitted curves curated data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+        if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      }
+      
+    }   
+  })
   
   
   # - - - - - - - - - - - - - - >> MDS <<- - - - - - - - - - - - - 
@@ -5562,21 +5962,21 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "MDS_pheno",
-          label = "Dependent Variables for the MDS",
+          label = "Traits for MDS",
           choices = c(input$SelectDV),
           multiple = T
         ))
   })
   
   output$MDS_subset_trait <- renderUI({
-    if(input$MDS_subset_Q == "Full dataset"){
+    if(input$MDS_subset_Q == "full dataset"){
       return()
     }
     else{
       tagList(
         selectizeInput(
           inputId = "MDS_subset_T",
-          label = "Independent Variables to subset the data",
+          label = "Subset data by:",
           choices=c(input$SelectGeno, input$SelectIV, input$SelectTime),
           multiple=T
         ))}
@@ -5630,7 +6030,7 @@ function(input, output) {
     temp <- data.frame(MDS_data_type())
     temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$MDS_pheno))
     
-    if(input$MDS_subset_Q == "Subsetted dataset"){
+    if(input$MDS_subset_Q == "subsetted dataset"){
       
       subset_lista <- input$MDS_subset_T
       id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
@@ -5640,7 +6040,7 @@ function(input, output) {
       temp3$id <- do.call(paste,c(temp3[c(id_lista2)], sep="_"))
       temp2 <- subset(temp3, select = c("id", input$MDS_pheno))
     }
-    if(input$MDS_subset_Q == "Full dataset"){{
+    if(input$MDS_subset_Q == "full dataset"){{
       temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
       temp2 <- subset(temp, select = c("id", input$MDS_pheno))
     }}
@@ -5648,10 +6048,8 @@ function(input, output) {
     temp3 <- as.matrix(temp2[,2:ncol(temp2)])
     row.names(temp3) <- temp2$id
     
-    #### CHECK 
     if(input$MDS_Scale_Q == T){
       temp3 <- scale(temp3)
-      #colnames(temp2)[1] <- "id"
     }
     
     return(temp3)
@@ -5701,7 +6099,7 @@ function(input, output) {
       super_plot <- ggplot(data = data, aes(x = Dim1, y= Dim2))
     }
     
-    super_plot <- super_plot + geom_point()
+    super_plot <- super_plot + geom_point(aes(text=id))
     super_plot <- super_plot + xlab("Dimension 1")
     super_plot <- super_plot + ylab("Dimension 2")
     super_plot
@@ -5731,8 +6129,77 @@ function(input, output) {
       dev.off()
     })  
   
+  #### FIGURE LEGEND ####
+  output$MDSsample_legend_show <- renderUI({
+    if(input$show_MDSsample_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_MDSsample")
+    }
+  })
+  
+  output$Legend_MDSsample <- renderPrint({
+    if(input$Go_MDS == F){
+      return()
+    }
+    else{
+      
+      # Data curation:
+      if(input$Go_outliers == T){
+        how_many <- input$Out_pheno_single_multi  
+        
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
+          which_ones <- input$DV_outliers
+        }
+        if(input$Out_pheno_single_multi == "Single phenotype"){
+          which_ones <- input$DV_outliers
+        }}
+      
+      
+      cat("# # # > > > Figure legend: < < < # # #")
+      cat("\n")
+      cat("\n")
+      cat(" Coordinates of samples scaled using MDS.")
+      if(input$MDS_KMC_Q == T){
+        cat(" Color groups indicate the samples belonging to distinct k-means clusters. The selected number of clusters is", input$MDS_cluster_number, "." )}
+      cat(" MDS was performed on", input$MDS_data, "using the following traits:(", input$MDS_pheno,").")
+      
+      if(input$MDS_subset_Q == "subsetted dataset") {
+        cat("The data was subsetted for" , input$MDS_subset_T, " and the shown MDS represents samples that belong to the subset ", input$MDS_subset_S, ".")
+      }
+      
+      # Data curation:
+      if(input$MDS_data == "outliers removed data"){    
+        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
+        if(how_many == "Single phenotype"){
+          cat(" (", which_ones, ").")}
+        if(how_many == "Some phenotypes"){
+          cat(" (", which_ones, ").")}
+        else{
+          cat(".")}
+        
+        if(input$What_happens_to_outliers == "removed together with entire row"){
+          cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+        if(input$What_happens_to_outliers == "replaced by NA"){
+          cat(" The individual values characterized as outliers are replaced by empty cells.")}
+        if(input$Outlier_on_data == "r2 fitted curves curated data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+        if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      }
+      
+    }   
+  })
+  
   output$MDS_table_samples  <- renderDataTable({
     data <- MDS_Calculations()
+    
+    for(i in 1:ncol(data)){
+      if(class(data[,i]) == "numeric"){
+        data[,i] <- round(data[,i], digits = 4)
+      }
+    }
     data
   })
   
@@ -5740,7 +6207,7 @@ function(input, output) {
     if(is.null(MDS_Calculations())){
       return()}
     else
-      downloadButton("data_MDS", label="Download MDS data")
+      downloadButton("data_MDS", label="Download table")
   })
   
   output$MDS_downl_data <- downloadHandler(
@@ -5787,9 +6254,21 @@ function(input, output) {
     
     if(input$MDS_KMC_Q == T){
       data_sub <- subset(data, select = c(Dim1, Dim2, K_cluster))
+      for(i in 1:ncol(data_sub)){
+        if(class(data_sub[,i]) == "numeric"){
+          data[,i] <- round(data_sub[,i], digits = 4)
+        }
+      }
+      data
     }
     else{
       data_sub <- subset(data, select = c(Dim1, Dim2))
+    }
+    data_sub
+    for(i in 1:ncol(data_sub)){
+      if(class(data_sub[,i]) == "numeric"){
+        data[,i] <- round(data_sub[,i], digits = 4)
+      }
     }
     data_sub
   })
@@ -5798,7 +6277,7 @@ function(input, output) {
     if(is.null(MDS_Calculations_transposed())){
       return()}
     else
-      downloadButton("data_MDS", label="Download transposed MDS data")
+      downloadButton("data_MDS", label="Download table")
   })
   
   output$data_MDS <- downloadHandler(
@@ -5813,7 +6292,7 @@ function(input, output) {
       if(input$MDS_KMC_Q == F){
         data_sub <- subset(data, select = c(id, Dim1, Dim2))
       }
-      colnames(data_sub)[1] <- "Dependent Variable"
+      colnames(data_sub)[1] <- "Trait"
       row.names(data_sub) <- NULL
       
       write.csv(data_sub, file)}
@@ -5859,6 +6338,71 @@ function(input, output) {
       print(super_plot)
       dev.off()
     }) 
+  
+  #### FIGURE LEGEND ####
+  output$MDSsampleT_legend_show <- renderUI({
+    if(input$show_MDSsampleT_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_MDSsampleT")
+    }
+  })
+  
+  output$Legend_MDSsampleT <- renderPrint({
+    if(input$Go_MDS == F){
+      return()
+    }
+    else{
+      
+      # Data curation:
+      if(input$Go_outliers == T){
+        how_many <- input$Out_pheno_single_multi  
+        
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
+          which_ones <- input$DV_outliers
+        }
+        if(input$Out_pheno_single_multi == "Single phenotype"){
+          which_ones <- input$DV_outliers
+        }}
+      
+      
+      cat("# # # > > > Figure legend: < < < # # #")
+      cat("\n")
+      cat("\n")
+      cat(" Coordinates of traits scaled using MDS.")
+      if(input$MDS_KMC_Q == T){
+        cat(" Color groups indicate the samples belonging to distinct k-means clusters. The selected number of clusters is", input$MDS_cluster_number, "." )}
+      cat(" Traits close in proximity are more related than distant traits.")
+      cat(" MDS was performed on", input$MDS_data, "using the following traits:(", input$MDS_pheno,").")
+      
+      if(input$MDS_subset_Q == "subsetted dataset") {
+        cat("The data was subsetted for" , input$MDS_subset_T, " and the shown MDS represents samples that belong to the subset ", input$MDS_subset_S, ".")
+      }
+      
+      # Data curation:
+      if(input$MDS_data == "outliers removed data"){    
+        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
+        if(how_many == "Single phenotype"){
+          cat(" (", which_ones, ").")}
+        if(how_many == "Some phenotypes"){
+          cat(" (", which_ones, ").")}
+        else{
+          cat(".")}
+        
+        if(input$What_happens_to_outliers == "removed together with entire row"){
+          cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+        if(input$What_happens_to_outliers == "replaced by NA"){
+          cat(" The individual values characterized as outliers are replaced by empty cells.")}
+        if(input$Outlier_on_data == "r2 fitted curves curated data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+        if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      }
+      
+    }   
+  })
+  
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - >> CLUSTER ANALYSIS IN 8th TAB << - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -6125,7 +6669,7 @@ function(input, output) {
       reps <- mean(sum_temp2$pheno.n)
     }
     
-    cat("# # > > > Figure legend: < < < # # #")
+    cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
     cat("The dendrogram representing the clustering of the samples based on", phenotypes_HHCC, ".") 
@@ -6256,7 +6800,7 @@ function(input, output) {
       reps <- mean(sum_temp2$pheno.n)
     }
     
-    cat("# # > > > Figure legend: < < < # # #")
+    cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
     cat("The heatmap representing", phenotypes_HHCC, "used for clustering.") 
@@ -6638,7 +7182,7 @@ function(input, output) {
       reps <- mean(sum_temp2$pheno.n)
     }
     
-    cat("# # > > > Figure legend: < < < # # #")
+    cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
     cat("The hierarchical clusters validation. The box plots represent", input$Clust_test, "of the samples grouped into hierarchical clustered based on", phenotypes_HHCC, ". Different colours represent individual clusters") 
@@ -6951,8 +7495,9 @@ function(input, output) {
     }
     
     #for_matrix$id <- do.call(paste,c(sel[c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)], sep="_"))
-    rownames(for_matrix) <- do.call(paste,c(sel[c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)], sep="_"))
-    for_matrix
+    #rownames(for_matrix) <- do.call(paste,c(sel[c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)], sep="_"))
+    matrix<-cbind(ID=(do.call(paste,c(sel[c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)], sep="_"))),for_matrix)
+    matrix
     
   })
   
@@ -7007,6 +7552,26 @@ function(input, output) {
     print(plot)
   })
   
+  # Figure legend:
+  output$elbow_legend_show <- renderUI({
+    if(input$show_elbow_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_elbow")
+    }
+  })
+  
+  output$Legend_elbow <- renderPrint({
+    
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("Plot of the sum of squared errors within groups to determine optimum number of clusters (K) for K-means.")
+    cat(" The elbow method consists in plotting the total intra-cluster variation or total within-cluster sum of square (WSS) as a function of the number of clusters. The optimal number of clusters is that where adding another cluster does not improve much the compactness of the clustering as defined by total WSS.")
+    
+  })
+  
+  ####download elbow graph####
   output$downl_elbow_graph_KMC_ui <- renderUI({
     if(is.null(Optimal_cluster_number())){return()}
     else
@@ -7039,6 +7604,27 @@ function(input, output) {
     
   })
   
+  # Figure legend:
+  output$silhouette_legend_show <- renderUI({
+    if(input$show_silhouette_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_silhouette")
+    }
+  })
+  
+  output$Legend_silhouette <- renderPrint({
+    
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("Plot of the average silhouette coefficients within groups to determine optimum number of clusters (K) for K-means.")
+    cat("The average silhouette of the data is another visual method. It measures how closely one data point is matched to data within its cluster and how loosely it is matched to data of the neighbor cluster. A silhouette close to 1 indicates the clustering is correct, while a silhouette close to −1 indicates the clustering is not correct.")
+    
+  })
+  
+  ###download sihouette plot###
+  
   output$downl_silhouette_graph_KMC_ui <- renderUI({
     if(is.null(Optimal_cluster_number())){return()}
     else
@@ -7068,6 +7654,25 @@ function(input, output) {
     plot <- fviz_nbclust(nb)
     print(plot)
   })
+  
+  
+  # Figure legend:
+  output$optimalK_legend_show <- renderUI({
+    if(input$show_optimalK_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_optimalK")
+    }
+  })
+  
+  output$Legend_optimalK <- renderPrint({
+    
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("Recommended optimal number of clusters using 30 indices provided by the NbClust package (Charrad et al. 2014)")})
+  
+  ##download Indices plot######
   
   output$downl_indices_plots_KMC_1_ui <- renderUI({
     if(is.null(Optimal_cluster_number())){return()}
@@ -7406,6 +8011,66 @@ function(input, output) {
     plot
   })
   
+  # Figure legend:
+  output$barplotKMC_legend_show <- renderUI({
+    if(input$show_barplotKMC_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_barplotKMC")
+    }
+  })
+  
+  output$Legend_barplotKMC <- renderPrint({
+    # if(input$KMCluster_data == "raw data"){
+    #   KMC_data_type <- my_data()
+    # }
+    # if(input$KMCluster_data == "missing values removed data"){
+    #   KMC_data_type <- my_data()[complete.cases(my_data()),]
+    # }
+    # if(input$KMCluster_data == "r2 fitted curves curated data"){
+    #   KMC_data_type <- good_r2()
+    # }
+    # if(input$KMCluster_data == "r2 fitted curves curated data with missing values removed"){
+    #   KMC_data_type <- good_r2()[complete.cases(good_r2()),]
+    # }
+    # if(input$KMCluster_data == "outliers removed data"){
+    #   KMC_data_type <- Outlier_free_data()
+    # }
+    # 
+    # KMC_data_type <- na.omit(KMC_data_type)
+    # # replica number
+    # temp <- KMC_data_type()
+    # temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+    # temp2 <- subset(temp, select = c("id", input$KMC_pheno))
+    # colnames(temp2)[2] <- "pheno"
+    # temp2 <- na.omit(temp2)
+    # sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})
+    # 
+    # reps <- mean(sum_temp2$pheno.n)
+    
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    if(input$KMC_use_means == T){
+      cat("Bar plot of", input$KMC_trait_to_plot, "of each", input$SelectGeno, "arranged in descending order, and colored by K-cluster, where K=", input$kmclusters,".") 
+      cat(" The data used were the means.")}
+    if(input$KMC_use_means == F){
+      cat("Scatter plot of", input$KMC_trait_to_plot, "of each", input$SelectGeno, "arranged in descending order, and colored by K-cluster, where K=", input$kmclusters,".") 
+      cat(" The data used were the individual data points.")}
+    if(input$KMCluster_scale_Q == T){
+      cat(" The data was scaled to have a variance of 1 and a mean of 0, by subtracting the mean and dividing by the standard deviation.")}
+    if(input$KMC_split_barplot == T){
+      cat(" The plot was split by", input$facet_KMC_barplot, ".")}
+    
+    #"means of", round(reps, digits=2), "replicates on average."
+    #"individual data points of", round(reps, digits=2), "replicates on average."
+    
+  })
+  
+  
+  
+  
   # - - - - - - - - - - - >> DOWNLOAD BAR PLOT << - - - - - - - - - - - 
   
   output$downl_kmeans_barplots_ui <- renderUI({
@@ -7551,6 +8216,65 @@ function(input, output) {
     plot <- kmeans_SCP()
     plot
   })
+  
+  # Figure legend:
+  output$scatterplotKMC_legend_show <- renderUI({
+    if(input$show_scatterplotKMC_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_scatterplotKMC")
+    }
+  })
+  
+  output$Legend_scatterplotKMC <- renderPrint({
+    # if(input$KMCluster_data == "raw data"){
+    #   KMC_data_type <- my_data()
+    # }
+    # if(input$KMCluster_data == "missing values removed data"){
+    #   KMC_data_type <- my_data()[complete.cases(my_data()),]
+    # }
+    # if(input$KMCluster_data == "r2 fitted curves curated data"){
+    #   KMC_data_type <- good_r2()
+    # }
+    # if(input$KMCluster_data == "r2 fitted curves curated data with missing values removed"){
+    #   KMC_data_type <- good_r2()[complete.cases(good_r2()),]
+    # }
+    # if(input$KMCluster_data == "outliers removed data"){
+    #   KMC_data_type <- Outlier_free_data()
+    # }
+    # 
+    # KMC_data_type <- na.omit(KMC_data_type)
+    # # replica number
+    # temp <- KMC_data_type()
+    # temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
+    # temp2 <- subset(temp, select = c("id", input$KMC_pheno))
+    # colnames(temp2)[2] <- "pheno"
+    # temp2 <- na.omit(temp2)
+    # sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})
+    # 
+    # reps <- mean(sum_temp2$pheno.n)
+    
+    
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    cat("Scatter plot of", input$xcol_kmeans,"vs.", input$ycol_kmeans, "of each", input$SelectGeno, "colored by K-cluster, where K=", input$kmclusters,".") 
+    if(input$KMC_use_means == T){
+      cat(" The data used were the means.")}
+    if(input$KMC_use_means == F){
+      cat(" The data used were the individual data points.")}
+    if(input$KMCluster_scale_Q == T){
+      cat(" The data was scaled to have a variance of 1 and a mean of 0, by subtracting the mean and dividing by the standard deviation.")}
+    if(input$KMC_split_scatterplot == T){
+      cat(" The plot was split by", input$facet_KMC_plot, ".")}
+    
+    #"means of", round(reps, digits=2), "replicates on average."
+    #"individual data points of", round(reps, digits=2), "replicates on average."
+    
+  })
+  
+  
   
   # - - - - - - - - - >> DOWNLOAD SCATTER PLOT << - - - - - - - - - - 
   
@@ -8836,7 +9560,7 @@ function(input, output) {
     how_many <- input$Out_pheno_single_multi  
     
     
-    cat("# # > > > Figure legend: < < < # # #")
+    cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
     cat("The plot shows the behavior of the respective plant trait on the response", input$ResponsePheno,".") 
