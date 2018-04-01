@@ -664,14 +664,6 @@ function(input, output) {
         ))}
   })
   
-  output$Go_fitplot_model <- renderUI({
-    if(input$Select_model_type_plot == "single plot"){
-      return()
-    }
-    else{
-      actionButton(inputId = "Go_fitplot", icon=icon("magic"), label="update fit-plot gallery")
-    }
-  })
   
   output$Fit_plot_slider_input <- renderUI({
     if(input$Select_model_type_plot == "single plot"){
@@ -679,18 +671,18 @@ function(input, output) {
     }
     else{
       maxi <- nrow(Model_temp_data())-19
-      sliderInput(inputId = "Fit_plot_slider", label = "Plot portion of the data starting from element number...", min=1, max=maxi, value=1, step=20)
+      sliderInput(inputId = "Fit_plot_slider", label = "Plot portion of the data starting from element number...", min=1, max=maxi, value=1, step=10)
     }
   })
   
-  example_model <- eventReactive(input$Go_fitplot,{
+  example_model <- reactive({
     test <- as.data.frame(Model_temp_data())
     
     if(input$Model_graph_fit_select_multi == "r-square values (low to high)"){
       test2 <- test[order(test$r_squared),]}
     if(input$Model_graph_fit_select_multi == "r-square values (high to low)"){
       test2 <- test[order(-test$r_squared),]}
-    test3 <- test2[input$Fit_plot_slider:(input$Fit_plot_slider+19),]
+    test3 <- test2[input$Fit_plot_slider:(input$Fit_plot_slider+9),]
     test3
     
     test3$lista <- do.call(paste,c(test3[c(input$ModelIV, input$ModelSubIV, input$SelectID)], sep = "_"))
@@ -709,12 +701,12 @@ function(input, output) {
     temp2
   })
   
-  Fit_plot_multi_graphs <- eventReactive(input$Go_fitplot,{
+  Fit_plot_multi_graphs <- reactive({
     
     docelowy <- example_model()
     real_list <- unique(docelowy$lista)
     
-    par(mfrow=c(4,5))
+    par(mfrow=c(2,5))
     
     
     for(i in 1:length(real_list)){
@@ -913,7 +905,7 @@ function(input, output) {
         docelowy <- example_model()
         real_list <- unique(docelowy$lista)
         
-        par(mfrow=c(4,5))
+        par(mfrow=c(2,5))
         
         
         for(i in 1:length(real_list)){
@@ -1226,28 +1218,28 @@ function(input, output) {
     cat("ANOVA report")
     cat("\n")
     if(summary(amod)[[1]][[5]][1] < thres){
-      cat("The effect of ", input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
+      cat("The effect of ", input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", round(summary(amod)[[1]][[5]][1],4), ".")
     }
     if(summary(amod)[[1]][[5]][1] > thres){
-      cat("The effect of ", input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][1], ".")
+      cat("The effect of ", input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", round(summary(amod)[[1]][[5]][1],4), ".")
     }
     
     if(summary(amod)[[1]][[5]][2] < thres){
       cat("\n")
-      cat("The effect of ", input$model_color_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
+      cat("The effect of ", input$model_color_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", round(summary(amod)[[1]][[5]][2],4), ".")
     }
     if(summary(amod)[[1]][[5]][2] > thres){
       cat("\n")
-      cat("The effect of ", input$model_color_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][2], ".")
+      cat("The effect of ", input$model_color_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", round(summary(amod)[[1]][[5]][2],4), ".")
     }
     
     if(summary(amod)[[1]][[5]][3] < thres){
       cat("\n")
-      cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
+      cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is SIGNIFICANT on ", input$model_trait_plot, "with a p-value of ", round(summary(amod)[[1]][[5]][3],4), ".")
     }  
     if(summary(amod)[[1]][[5]][3] > thres){
       cat("\n")
-      cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", summary(amod)[[1]][[5]][3], ".")
+      cat("The interaction between ", input$model_color_plot, "and ",  input$model_facet_plot, "is NOT significant on ", input$model_trait_plot, "with a p-value of ", round(summary(amod)[[1]][[5]][3],4), ".")
     }
   })
   
@@ -1318,10 +1310,11 @@ function(input, output) {
     cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
-    cat("The", input$model_graph_plot, "representing", input$model_trait_plot, "of", input$ModelPheno, "estimated using using", model, "from", input$ModelSum_data, "calculated using", days_num, input$SelectTime,"-s. The average number of replicates is", round(reps, digits=2),".")
+    cat("The", input$model_graph_plot, "representing", input$model_trait_plot, "of", input$ModelPheno, "estimated using using", model, "from", input$ModelSum_data, "calculated using", days_num, input$SelectTime,". The average number of replicates is", round(reps, digits=2),".")
+    cat(" The figure was created using raw data.")
     if(input$ModelSum_data == "r2 fitted curves curated data"){
-      cat(" The data was curated based on r2 and the samples with r2 below", input$rsq_limit, "were eliminated from the dataset. ")}
-    cat(" Different colors indicate different", input$model_color_plot, "-s.")
+      cat(" The data was additionally curated based on the fit of the", model,"to observed data (r2). The samples with r2 below", input$rsq_limit, "were eliminated from the dataset.")}
+    cat(" Different colors indicate different", input$model_color_plot, ".")
     if(input$model_graph_plot == "bar graph"){
       cat(" The bars represent the mean value of the ", input$model_trait_plot, "and the error bars represent", input$model_error_plot,".")}
   })
@@ -2280,6 +2273,7 @@ function(input, output) {
     }
     
     cat(paste("There are ", number," outliers identified based on", pheno, "using", method))
+    cat("\n")
     cat("\n")
     cat("DISCLAIMER:") 
     cat("\n")
@@ -3272,7 +3266,7 @@ function(input, output) {
 
   
   output$download_HistPlot <- downloadHandler(
-    filename = function(){paste("Plot of", input$HistType, " for ",input$HistDV, " splitted per ",  input$Plotfacet_choice, " MVApp.pdf")},
+    filename = function(){paste("Plot of", input$HistType, " for ",input$HisDV, " splitted per ",  input$Plotfacet_choice,  input$subsetdata_choice, input$subsetdata_uniquechoice, " MVApp.pdf")},
     content = function(file) {
       pdf(file)
       print(HistoPl())
@@ -3315,11 +3309,11 @@ function(input, output) {
         cat("The plot represents the number of counts (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed for different", which_hist_IV, "are represented with different colors and are stacked on top of each other.")   
       }
       if(input$plot_subs == T){
-        cat(" The plot is created using", which_hist_data, "subsetted by", input$subsetdata_choice, "for", input$subsetdata_uniquechoice,".")
+        cat(" The figure was made using", which_hist_data, "subsetted for",input$subsetdata_choice,"(",input$subsetdata_uniquechoice,").")  
       }    
       
       if(input$plot_subs == F) {
-        cat(" The plot is created using", which_hist_data,".")
+        cat(" The figure was made using", which_hist_data,".")
       }
     }
     
@@ -3331,11 +3325,11 @@ function(input, output) {
         cat("The plot represents the number of counts (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed in individual", which_hist_IV, " are represented with different colors and are stacked on top of each other.")   
       }
       if(input$plot_subs == T){
-      cat(" The plot is created using", which_hist_data, "subsetted by", input$subsetdata_choice, "for", input$subsetdata_uniquechoice,".")
-      }    
+      cat(" The figure was made using", which_hist_data, "subsetted for",input$subsetdata_choice,"(",input$subsetdata_uniquechoice,").")  
+      }  
       
       if(input$plot_subs == F) {
-        cat(" The plot is created using", which_hist_data,".")
+        cat(" The figure was made using", which_hist_data,".")
       }
     }
     # Data curation:
@@ -3474,14 +3468,14 @@ function(input, output) {
       
       if(input$plot_subs==T){
         if(length(list_sig_shapiro)>0){
-        cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and subsetted by", input$subsetdata_choice, input$subsetdata_uniquechoice, "does NOT have a normal distribution.")
+        cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and subsetted by", input$subsetdata_choice, input$subsetdata_uniquechoice, "do(es) NOT have a normal distribution.")
         }
         else{
           cat("For", input$HisDV, "with sub-grouping by", input$HisIV, "and subsetted by", input$subsetdata_choice, input$subsetdata_uniquechoice, "all samples have a normal distribution.")
         }}
       if(input$plot_subs==F){
         if(length(list_sig_shapiro)>0){
-        cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "does NOT have a normal distribution.")}
+        cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "do(es) NOT have a normal distribution.")}
         else{
           cat("For", input$HisDV, "with sub-grouping by", input$HisIV, "all samples have a normal distribution.")
         }}
@@ -3619,6 +3613,92 @@ function(input, output) {
     #ggplotly(QQ)
   })
   
+  output$QQ_normal_download_ui <- renderUI({
+    if(input$showShapirotest == T){
+      downloadButton("QQ_normal_download", "Download plot")
+    }
+  })
+  
+  output$QQ_normal_download <- downloadHandler(
+    filename = function(){paste("QQ Plot of", input$HistType, " for ",input$HisDV, " splitted per ",  input$Plotfacet_choice, input$subsetdata_choice, input$subsetdata_uniquechoice, " MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      
+      my_shapiro_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice, input$subsetdata_choice)]
+      my_shapiro_data[,input$HisDV] <- as.numeric(as.character(my_shapiro_data[,input$HisDV]))
+      groupedIV<-input$HisIV
+      my_shapiro_data$groupedIV<-my_shapiro_data[,groupedIV]
+      
+      if(input$plot_facet ==T){
+        groupedFacet<-input$Plotfacet_choice
+        my_shapiro_data$combinedTID<-paste(my_shapiro_data[,groupedIV], my_shapiro_data[,groupedFacet], sep="_")
+        my_shapiro_data$combinedTID<-as.factor(my_shapiro_data$combinedTID)
+      }
+      
+      else{
+        shapiroIV<-input$HisIV
+        my_shapiro_data$shapiroIV<-my_shapiro_data[,input$HisIV]
+      }
+      
+      if(input$plot_subs==T){
+        my_shapiro_data$subsetIVQQ<-my_shapiro_data[,4]
+        uniquechoiceIVQQ <- input$subsetdata_uniquechoice
+        my_shapiro_data <-subset(my_shapiro_data, my_shapiro_data$subsetIVQQ == uniquechoiceIVQQ)
+      }
+      
+      if(input$plot_facet ==T){
+        # par(mfrow=c(4,5))
+        length_of_elements <- as.numeric(length(unique(my_shapiro_data$combinedTID)))
+        col_number <- as.numeric(input$QQplots_graph_col)
+        see_those_graphs <- as.numeric(col_number*4)
+        lista <- unique(my_shapiro_data$combinedTID)
+        start <- as.numeric(input$QQplots_portion_show)
+        end <- (start + see_those_graphs)-1
+        if(end > length_of_elements){
+          end <- length_of_elements  
+        }
+        
+        to_plot <- lista[start:end]
+        
+        if(length_of_elements < see_those_graphs){
+          par(mfrow=c(4,col_number))
+          for (i in 1:length(lista)){
+            subsetted_shapiro<-subset(my_shapiro_data, my_shapiro_data$combinedTID==lista[i])
+            #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) +  geom_point() + geom_smooth(method="lm", se=FALSE)
+            #QQ<-QQ + facet_wrap(~combinedTID)
+            QQplot<-qqnorm(subsetted_shapiro[,1], main=paste(input$HisDV, "for ", lista[i]))
+            QQline<-qqline(subsetted_shapiro[,1], col = 2)
+          }}
+        
+        if(length_of_elements > see_those_graphs){
+          par(mfrow=c(4,col_number))
+          for (i in 1:length(to_plot)){
+            subsetted_shapiro<-subset(my_shapiro_data, my_shapiro_data$combinedTID==to_plot[i])
+            #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) +  geom_point() + geom_smooth(method="lm", se=FALSE)
+            #QQ<-QQ + facet_wrap(~combinedTID)
+            QQplot<-qqnorm(subsetted_shapiro[,1], main=paste(input$HisDV, "for ", to_plot[i]))
+            QQline<-qqline(subsetted_shapiro[,1], col = 2)
+            
+          }}}
+      
+      
+      if(input$plot_facet ==F){
+        par(mfrow=c(4,input$QQplots_graph_col))
+        for (i in unique(my_shapiro_data[,shapiroIV])){
+          subsetted_shapiro<-subset(my_shapiro_data, my_shapiro_data$shapiroIV==i)
+          #QQ<-ggplot(data=as.data.frame(qqnorm(subsetted_shapiro[,1] , plot=F)), mapping=aes(x=x, y=y)) + geom_point() + geom_smooth(method="lm", se=FALSE)
+          #QQ<-QQ + facet_wrap(~shapiroIV)
+          QQplot<-qqnorm(subsetted_shapiro[,1], main=paste(input$HisDV, "for ", i))
+          QQline<-qqline(subsetted_shapiro[,1], col = 2)
+        }
+      }
+      
+      print(QQplot)
+      print(QQline)
+      dev.off()
+    })  
+  
+  
   output$if_legend_QQ_show <- renderUI({
     if(input$showShapirotest == T){
       verbatimTextOutput("legend_QQ_show")
@@ -3638,7 +3718,7 @@ function(input, output) {
       cat("\n")
       if(input$plot_facet == T){
         if(input$plot_subs==T){
-          cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "and", which_plotfacets, "using", which_hist_data, "subsetted by",input$subsetdata_choice,input$subsetdata_uniquechoice,".")  
+          cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "and", which_plotfacets, "using", which_hist_data, ". The data is subsetted for",input$subsetdata_choice,"(",input$subsetdata_uniquechoice,").")  
         }
         if(input$plot_subs==F){
           cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "and", which_plotfacets, "using", which_hist_data,".")  
@@ -3646,14 +3726,14 @@ function(input, output) {
       
       if(input$plot_facet == F){
         if(input$plot_subs==T){
-       cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "using", which_hist_data,"subsetted by",input$subsetdata_choice,input$subsetdata_uniquechoice,".")  
+       cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "using", which_hist_data,". The data is subsetted for",input$subsetdata_choice,"(",input$subsetdata_uniquechoice,").")  
         }
         if(input$plot_subs==F){
         cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "using", which_hist_data,".")  
       }}
       cat(" The x-axis represents normal theoretical quantiles, and the y-axis represents sample quantiles.") 
       cat( "The red line represents the best fit between the expected and observed values. Departures from the line (except in the tails) are indicative of a lack of normality.")
-      
+      cat(" The figure was made using ", input$Histo_data, ".")
       
       # Data curation:
       if(input$Go_outliers == T){
@@ -3893,16 +3973,12 @@ function(input, output) {
   
   output$Var_graph <- renderPlot({
     
-    my_his_data<-Histo_data_type()
-    my_his_data <- subset(my_his_data, select = c(input$HisDV,input$HisIV,input$Plotfacet_choice))
-    my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
-    my_his_data[,input$HisIV] <- as.factor(my_his_data[,input$HisIV])
-    phenoski <- input$HisDV
-    idski <- input$HisIV
-    
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice,input$subsetdata_choiceVar)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     my_his_data[,2]<-as.factor(my_his_data[,2])
+    phenoski <- input$HisDV
+    idski <- input$HisIV
+    
     
     if(input$plot_subsVar==T){
       my_his_data$subsetIVLev<-my_his_data[,4]
@@ -3939,16 +4015,22 @@ function(input, output) {
   
   
   output$downl_Variance <- downloadHandler(
-    filename = function(){paste("Variance plot for ",input$HistDV, " splitted per ",  input$Plotfacet_choice, " MVApp.pdf")},
+    filename = function(){paste("Variance plot for ", input$HisDV, " splitted per ",  input$Plotfacet_choice, input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " MVApp.pdf")},
     content = function(file) {
       pdf(file)
       
-      my_his_data<-Histo_data_type()
-      my_his_data <- subset(my_his_data, select = c(input$HisDV,input$HisIV,input$Plotfacet_choice))
+      my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice,input$subsetdata_choiceVar)]
       my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
-      my_his_data[,input$HisIV] <- as.factor(my_his_data[,input$HisIV])
+      my_his_data[,2]<-as.factor(my_his_data[,2])
       phenoski <- input$HisDV
       idski <- input$HisIV
+      
+      
+      if(input$plot_subsVar==T){
+        my_his_data$subsetIVLev<-my_his_data[,4]
+        uniquechoiceIVLev <- input$subsetdata_uniquechoiceVar
+        my_his_data <-subset(my_his_data, my_his_data$subsetIVLev == uniquechoiceIVLev)}
+      
       
       if(input$plot_facet ==T){
         my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]
@@ -3956,19 +4038,92 @@ function(input, output) {
         id <- my_his_data[,input$HisIV]
         pheno <- my_his_data[,input$HisDV]
         var <- hovPlot.bf(pheno, id,  ## x is the response variable
-                          y.name = phenoski,
-                          group.name = idski)
+                   y.name = phenoski,
+                   group.name = idski)
       }
       else{
         id <- my_his_data[,input$HisIV]
         pheno <- my_his_data[,input$HisDV]
         var <- hovPlot.bf(pheno, id,  ## x is the response variable
-                          y.name = phenoski,
-                          group.name = idski)
+                   y.name = phenoski,
+                   group.name = idski)
       }
       print(var)
       dev.off()
     })  
+  
+  ###Var-plot figure legend
+  
+  output$legend_Varplot_show <- renderUI({
+    if(input$show_Varplot_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("legend_Varplot")
+    }
+  })
+  
+  
+  output$legend_Varplot <- renderPrint({
+    
+    which_hist_data <- input$Histo_data
+    which_hist_DV<-input$HisDV
+    which_main_IV <- input$HisIV
+      if(input$plot_facet == T){
+      second_IV <- input$Plotfacet_choice
+      which_second_IV <- input$Show_subset_for_HovPlot
+      }
+    if(input$plot_subsVar == T){
+      third_IV <- input$subsetdata_choiceVar
+      which_third_IV <- input$subsetdata_uniquechoiceVar
+    }
+    
+    
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    cat("The plot represents the variance in", which_hist_DV, "between", which_main_IV, "groups.")  
+    if(input$plot_facet == T){
+      cat(" The data was subsetted for", second_IV, "(", which_2nd_IV,")")
+      if(input$plot_subsVar == T){
+        cat(" and ", third_IV, "(", which_3rd_IV, ").")
+      }
+      else
+        cat(".")
+    }
+    cat(" Three panels contain boxplots for each group: left -  the observed data (y), middle - the data with the subtracted median (y-med(y)), right - the absolute deviations from the median (abs(y-med(y))).")
+    cat(" The figure was made using ", input$Histo_data, ".")
+    # Data curation:
+    if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
+      
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
+    
+    # Data curation:
+    if(input$Histo_data == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(how_many == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
+  }) 
   
   
   # = = = = = = = = = >> ONE / TWO SAMPLE TESTS << =  = = = = = = = = = = = #
@@ -3978,7 +4133,7 @@ function(input, output) {
     selectizeInput(
       inputId = "OT_testski",
       label = "Test for significance:",
-      choices = c("One sample t-test", "Two sample t-test", "Kolmogorov-Smirnof test"))
+      choices = c("One sample t-test", "Two sample t-test", "Kolmogorov-Smirnov test"))
   })
   
   output$OT_grouping_IVs <- renderUI({
@@ -4050,11 +4205,11 @@ function(input, output) {
       df <- testski$parameter[[1]]
       stat <- testski$statistic[[1]]
     }
-    if(input$OT_testski == "Kolmogorov-Smirnof test"){
+    if(input$OT_testski == "Kolmogorov-Smirnov test"){
       x <- subset(data_sub, data_sub$sample_id == data_sub$subset_id[1])
       y <- subset(data_sub, data_sub$sample_id == data_sub$subset_id[2])
       p_val <- ks.test(x$chosen_DV, y$chosen_DV)$p.value
-      df <- "Kolmogorov-Smirnof test does not have degrees of freedom"
+      df <- "Kolmogorov-Smirnov test does not have degrees of freedom"
       stat <- ks.test(x$chosen_DV, y$chosen_DV)$statistic[[1]]
     }
     
@@ -4073,11 +4228,11 @@ function(input, output) {
       cat(paste("The results of ", input$OT_testski, " are NOT significant"))}
     cat("\n")
     cat("\n")
-    cat(paste("The p-value of the test is ", bam))
+    cat(paste("The p-value of the test is ", round(bam,4)))
     cat("\n")
     cat(paste("The degrees of freedom in the test: ", bec))
     cat("\n")
-    cat(paste("The value of the t-/Kolmogorov-Smirnof statistics in the test: ", bom))
+    cat(paste("The value of the t-/Kolmogorov-Smirnov statistics in the test: ", round(bom,4)))
     
   })
   
@@ -4110,7 +4265,22 @@ function(input, output) {
     filename = function(){paste("Plot for ", input$OT_testski, " comparing ", input$OT_compareski, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
-      print(OTG())
+      subset_lista <- input$OT_grouping_IVskis
+      id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      id_lista2 <- setdiff(id_lista, subset_lista)
+      data <- Histo_data_type()
+      data$subset_id <- do.call(paste,c(data[c(subset_lista)], sep="_"))
+      real_list <- input$OT_compareski
+      data_sub <- data[data$subset_id %in% real_list,]
+      data_sub$chosen_DV <- data_sub[,input$HisDV]
+      data_sub$sample_id <- data_sub$subset_id
+      
+      bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, fill = sample_id))
+      bencki <- bencki + geom_boxplot()
+      bencki <- bencki + xlab(input$OT_grouping_IVskis)
+      bencki <- bencki + ylab(input$HisDV)
+      
+      print(bencki)
       dev.off()
     })  
   
@@ -4120,6 +4290,77 @@ function(input, output) {
     }
     else
       OTG()})
+  
+  
+  ###One-two-t-test figure legend
+  
+  output$legend_OT_show <- renderUI({
+    if(input$show_OT_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("legend_OT")
+    }
+  })
+  
+  
+  output$legend_OT <- renderPrint({
+    
+    which_hist_data <- input$Histo_data
+    which_hist_DV<-input$HisDV
+    
+    #which_pvalue<-input$Chosenthreshold
+    #whichdifftest<-input$Sig_diff_test
+    
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    cat("The plot represents the boxplot of", which_hist_DV, "of selected samples grouped according to the selected independent variable.")  
+    
+    if(input$OT_testski == "One sample t-test"){
+      cat(" The one sample t-test performed on the selected samples tests whether a difference between the mean of all selected samples is significantly different from",input$OT_muski , ".")
+    }
+    
+    if(input$OT_testski == "Two sample t-test"){
+      cat(" The two sample t-test performed on the selected samples tests whether TWO selected samples are significantly different from eachother.")
+    }
+    if(input$OT_testski == "Kolmogorov-Smirnov test"){
+      cat(" The two sample Kolmogorov-Smirnov performed on the selected samples tests whether TWO selected samples are significantly different from eachother.")
+    }
+    
+    cat(" The figure was made using ", input$Histo_data, ".")
+    # Data curation:
+    if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
+      
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
+    
+    # Data curation:
+    if(input$Histo_data == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(how_many == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
+  }) 
+  
   
   # = = = = = = = >> Testing Significant Differences << = = = = = = = = = = # 
   
@@ -4376,7 +4617,7 @@ function(input, output) {
   }) 
   
   output$ANOVA_graph_download <- downloadHandler(
-    filename = function(){paste("Plot of", input$Sig_diff_test, " comparison MVAPP", input$HisDV, "MVApp.pdf")},
+    filename = function(){paste("Plot of", input$Sig_diff_test, " subsetted per", input$Plotfacet_choice, input$subsetdata_choiceANOVA, input$subsetdata_uniquechoiceANOVA, "examining significant differences in", input$HisDV, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
       print(BoxANOVA())
@@ -4385,6 +4626,7 @@ function(input, output) {
   
   output$Boxes <- renderPlotly({
     BoxANOVA()})
+  
   
   
   
@@ -4496,35 +4738,73 @@ function(input, output) {
     }
   })
   
+  output$plot_sub_TWANOVA_trait <- renderUI({
+    if(input$plot_sub_TWANOVA == F){
+      return()
+    }
+    else{
+      lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
+      listb <- setdiff(lista, input$TW_ANOVA_IV1)
+      listc <- setdiff(listb, input$TW_ANOVA_IV2)
+      tagList(
+        selectizeInput(
+          inputId = "TW_ANOVA_Sub_trait",
+          label = "Independent Variable to subset the data",
+          choices = c(listc)))
+    }
+  })
+  
+  
+  output$plot_sub_TWANOVA_choiceVar <- renderUI({
+    if(input$plot_sub_TWANOVA == F){
+      return()
+    }
+    else{
+      subs_listchoiceANOVA <- subset(Histo_data_type(), select= input$TW_ANOVA_Sub_trait) %>% unique()
+      tagList(
+        selectizeInput("TW_ANOVA_Sub_UniqueChoice", 
+                    label = "Subset group to subset the data",
+                    choices = c(subs_listchoiceANOVA)
+        ))
+    }
+  })
+  
   # - - - - - - - - - - output graphs / reports - - - - - - - - - - - - - 
   
-  TW_ANOVA <- eventReactive(input$Go_TWANOVA,{
+  TW_ANOVA <- reactive({
     mydata <- Histo_data_type()
+   
+    if(input$plot_sub_TWANOVA==T){
+      mydata$WTF <- mydata[,input$TW_ANOVA_Sub_trait]
+      the_one <- input$TW_ANOVA_Sub_UniqueChoice
+      mydata <-subset(mydata, mydata$WTF == the_one)}
+   
     pheno <- as.numeric(as.character(mydata[,input$HisDV]))
-    iv1 <- mydata[,input$TW_ANOVA_IV1]
-    iv2 <- mydata[,input$TW_ANOVA_IV2]
+    iv1 <- as.factor(mydata[,input$TW_ANOVA_IV1])
+    iv2 <- as.factor(mydata[,input$TW_ANOVA_IV2])
     
     interaction.plot(iv1, iv2, pheno, ylab = input$HisDV, trace.label = input$TW_ANOVA_IV2, xlab = input$TW_ANOVA_IV1)
   })
   
-  output$TW_ANOVA_graph_download_ui <- renderUI({
-    if(is.null(TW_ANOVA())){
-      return()}
-    else
-      downloadButton("TW_ANOVA_graph_download", label="Download plot")
-  }) 
-  
   output$TW_ANOVA_graph_download <- downloadHandler(
-    filename = function(){paste("Two way ANOVA interaction plot MVAPP", input$HisDV, "testing the effect of ", input$TW_ANOVA_IV1, " and ", input$TW_ANOVA_IV2, "and the interaction between them ", "MVApp.pdf")},
+    filename = function(){paste("Two way ANOVA interaction plot", input$HisDV, input$TW_ANOVA_Sub_trait, input$TW_ANOVA_Sub_UniqueChoice, "testing the effect of", input$TW_ANOVA_IV1, "and", input$TW_ANOVA_IV2, "and the interaction between them created by MVApp.pdf")},
     content = function(file) {
       pdf(file)
-      mydata <- Histo_data_type()
-      pheno <- as.numeric(as.character(mydata[,input$HisDV]))
-      iv1 <- mydata[,input$TW_ANOVA_IV1]
-      iv2 <- mydata[,input$TW_ANOVA_IV2]
       
-      twa <- interaction.plot(iv1, iv2, pheno, ylab = input$HisDV, trace.label = input$TW_ANOVA_IV2, xlab = input$TW_ANOVA_IV1)
-      print(twa)
+      mydata <- Histo_data_type()
+      
+      if(input$plot_sub_TWANOVA==T){
+        mydata$WTF <- mydata[,input$TW_ANOVA_Sub_trait]
+        the_one <- input$TW_ANOVA_Sub_UniqueChoice
+        mydata <-subset(mydata, mydata$WTF == the_one)}
+      
+      pheno <- as.numeric(as.character(mydata[,input$HisDV]))
+      iv1 <- as.factor(mydata[,input$TW_ANOVA_IV1])
+      iv2 <- as.factor(mydata[,input$TW_ANOVA_IV2])
+      
+      show_it <- interaction.plot(iv1, iv2, pheno, ylab = input$HisDV, trace.label = input$TW_ANOVA_IV2, xlab = input$TW_ANOVA_IV1)
+    
+      print(show_it)
       dev.off()
     })  
   
@@ -4536,12 +4816,84 @@ function(input, output) {
       TW_ANOVA()
   })
   
+  # # # # # >> FIGURE LEGEND << # # # # # # 
   
-  TW_ANOVA_rep <- eventReactive(input$Go_TWANOVA,{
+  output$legend_TWANOVA_show <- renderUI({
+    if(input$show_TWANOVA_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_TWANOVA_interaction_plot")
+    }
+  })
+  
+  ######### Figure Legend ############################
+  
+  
+  output$Legend_TWANOVA_interaction_plot <- renderPrint({
+    
+    pheno <- input$HisDV
+    iv1 <- input$TW_ANOVA_IV1
+    iv2 <- input$TW_ANOVA_IV2
+    
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    cat("The figure represents interaction plot for", pheno, " (y-axis). The interaction between", iv1, "(x-axis) and", iv2, "(different lines) was quantified using two-way ANOVA.")
+    if (input$plot_sub_TWANOVA == T) {
+      cat(" The data is subsetted for", input$TW_ANOVA_Sub_trait, "(", input$TW_ANOVA_Sub_UniqueChoice, ").")}
+    
+    if (input$Go_outliers == T) {
+      how_many <- input$Out_pheno_single_multi
+      if (input$Out_pheno_single_multi == "Some phenotypes") {
+        which_ones <- input$DV_outliers
+      }
+      if (input$Out_pheno_single_multi == "Single phenotype") {
+        which_ones <- input$DV_outliers
+      }
+    }
+    
+    # Data curation:
+    if (input$Histo_data == "outliers removed data") {
+      cat("The outliers are characterized using", input$outlier_method,"method for", how_many)
+      if (how_many == "Single phenotype") {
+        cat(" (", which_ones, ").")
+      }
+      if (how_many == "Some phenotypes") {
+        cat(" (", which_ones, ").")
+      }
+      else{
+        cat(".")
+      }
+      
+      if (input$What_happens_to_outliers == "removed together with entire row") {
+        cat("The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff,"traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")
+      }
+      if (input$What_happens_to_outliers == "replaced by NA") {
+        cat(" The individual values characterized as outliers are replaced by empty cells.")
+      }
+      if (input$Outlier_on_data == "r2 fitted curves curated data") {
+        cat(" The data was additionally curated based on r2 using", input$model , "and the samples where with r2 was below", input$rsq_limit, "cut-off limit were eliminated from the dataset. ")
+      }
+      if (input$Outlier_on_data == "r2 fitted and missing values removed data") {
+        cat("The data was additionally curated based on r2 using",input$model, "and the samples where with r2 was below", input$rsq_limit, "cut-off limit were eliminated from the dataset.")
+      }
+    }
+  })
+  
+ 
+  
+  TW_ANOVA_rep <- reactive({
     mydata <- Histo_data_type()
+    
+    if(input$plot_sub_TWANOVA==T){
+      mydata$WTF <- mydata[,input$TW_ANOVA_Sub_trait]
+      the_one <- input$TW_ANOVA_Sub_UniqueChoice
+      mydata <-subset(mydata, mydata$WTF == the_one)}
+    
     pheno <- as.numeric(as.character(mydata[,input$HisDV]))
-    iv1 <- mydata[,input$TW_ANOVA_IV1]
-    iv2 <- mydata[,input$TW_ANOVA_IV2]
+    iv1 <- as.factor(mydata[,input$TW_ANOVA_IV1])
+    iv2 <- as.factor(mydata[,input$TW_ANOVA_IV2])
     
     resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
     anova(resultados)})
@@ -4551,23 +4903,110 @@ function(input, output) {
     message
   })
   
-  
-  
   output$TW_ANOVA_QQ_plot <- renderPlot({
-    if(input$Go_TWANOVA == F){
       mydata <- Histo_data_type()
+      
+      if(input$plot_sub_TWANOVA==T){
+        mydata$WTF <- mydata[,input$TW_ANOVA_Sub_trait]
+        the_one <- input$TW_ANOVA_Sub_UniqueChoice
+        mydata <-subset(mydata, mydata$WTF == the_one)}
+      
       pheno <- as.numeric(as.character(mydata[,input$HisDV]))
-      iv1 <- mydata[,input$TW_ANOVA_IV1]
-      iv2 <- mydata[,input$TW_ANOVA_IV2]
-      plot(iv1 ~ iv2)
-    }
-    else{
-      mydata <- Histo_data_type()
-      pheno <- as.numeric(as.character(mydata[,input$HisDV]))
-      iv1 <- mydata[,input$TW_ANOVA_IV1]
-      iv2 <- mydata[,input$TW_ANOVA_IV2]
+      iv1 <- as.factor(mydata[,input$TW_ANOVA_IV1])
+      iv2 <- as.factor(mydata[,input$TW_ANOVA_IV2])
+      
       resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
       plot(resultados$fitted, resultados$res, xlab = "Fitted", ylab = "Residuals", main="Residual plot")
+  })
+  
+  
+  output$TW_ANOVA_res_graph_download <- downloadHandler(
+    filename = function(){paste("Two way ANOVA residuals plot", input$HisDV, input$TW_ANOVA_Sub_trait, input$TW_ANOVA_Sub_UniqueChoice, "testing the effect of ", input$TW_ANOVA_IV1, " and ", input$TW_ANOVA_IV2, "and the interaction between them ", "MVApp.pdf")},
+    content = function(file) {
+      pdf(file)
+      
+      mydata <- Histo_data_type()
+      
+      if(input$plot_sub_TWANOVA==T){
+        mydata$WTF <- mydata[,input$TW_ANOVA_Sub_trait]
+        the_one <- input$TW_ANOVA_Sub_UniqueChoice
+        mydata <-subset(mydata, mydata$WTF == the_one)}
+      
+      pheno <- as.numeric(as.character(mydata[,input$HisDV]))
+      iv1 <- as.factor(mydata[,input$TW_ANOVA_IV1])
+      iv2 <- as.factor(mydata[,input$TW_ANOVA_IV2])
+      
+      resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
+      twa <- plot(resultados$fitted, resultados$res, xlab = "Fitted", ylab = "Residuals", main="Residual plot")
+      print(twa)
+      dev.off()
+    })  
+  
+  
+  
+  # # # # # >> FIGURE LEGEND << # # # # # # 
+  
+  output$legend_res_TWANOVA_show <- renderUI({
+    if(input$show_res_TWANOVA_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_res_TWANOVA_plot")
+    }
+  })
+  
+  ######### Figure Legend ############################
+  
+  
+  output$Legend_res_TWANOVA_plot <- renderPrint({
+    
+    pheno <- input$HisDV
+    iv1 <- input$TW_ANOVA_IV1
+    iv2 <- input$TW_ANOVA_IV2
+    
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    cat("The figure represents the residuals (y-axis) against fitted values (x-axis) plot for two-way ANOVA for", pheno, "testing interaction between", iv1, "and", iv2, ".")
+    cat(" This plot shows if residuals have non-linear patterns. If the plots show distinct patterns (e.g.: fan-shaped, unequal distribution around the horizontal axis, etc.), this is an indication that there are non-linear relationships in your data and that the results of two-way ANOVA can NOT be trusted.")
+    if (input$plot_sub_TWANOVA == T) {
+      cat(" The data is subsetted for", input$TW_ANOVA_Sub_trait, "(", input$TW_ANOVA_Sub_UniqueChoice, ").")}
+    
+    if (input$Go_outliers == T) {
+      how_many <- input$Out_pheno_single_multi
+      if (input$Out_pheno_single_multi == "Some phenotypes") {
+        which_ones <- input$DV_outliers
+      }
+      if (input$Out_pheno_single_multi == "Single phenotype") {
+        which_ones <- input$DV_outliers
+      }
+    }
+    
+    # Data curation:
+    if (input$Histo_data == "outliers removed data") {
+      cat("The outliers are characterized using", input$outlier_method,"method for", how_many)
+      if (how_many == "Single phenotype") {
+        cat(" (", which_ones, ").")
+      }
+      if (how_many == "Some phenotypes") {
+        cat(" (", which_ones, ").")
+      }
+      else{
+        cat(".")
+      }
+      
+      if (input$What_happens_to_outliers == "removed together with entire row") {
+        cat("The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff,"traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")
+      }
+      if (input$What_happens_to_outliers == "replaced by NA") {
+        cat(" The individual values characterized as outliers are replaced by empty cells.")
+      }
+      if (input$Outlier_on_data == "r2 fitted curves curated data") {
+        cat(" The data was additionally curated based on r2 using", input$model , "and the samples where with r2 was below", input$rsq_limit, "cut-off limit were eliminated from the dataset. ")
+      }
+      if (input$Outlier_on_data == "r2 fitted and missing values removed data") {
+        cat("The data was additionally curated based on r2 using",input$model, "and the samples where with r2 was below", input$rsq_limit, "cut-off limit were eliminated from the dataset.")
+      }
     }
   })
   
@@ -5024,34 +5463,75 @@ function(input, output) {
       )
   })
   
-  # output$shapeby <- renderUI({
-  #     if (input$scatter_shape ==F) {
-  #     return ()
-  #   } else
-  #     tagList(
-  #       selectizeInput(
-  #         inputId = "Shape",
-  #         label = "Shape the plot by:",
-  #         choices = c(input$SelectIV, input$SelectGeno, input$SelectTime),
-  #         multiple = F
-  #       )
-  #     )
-  # })
+  output$scatter_shapeby <- renderUI({
+       if (input$scatter_shape ==F) {
+       return ()
+     } else
+       tagList(
+         selectizeInput(
+           inputId = "scatter_shaper",
+           label = "Shape the plot by:",
+           choices = c(input$SelectIV, input$SelectGeno, input$SelectTime),
+           multiple = F
+         )
+       )
+   })
   
+  output$Corr_scatter_trait_select <- renderUI({
+    if(input$corr_scatter_sub == F){
+      return()
+    }
+    else{
+      selectizeInput("corr_scatter_trait",
+                     "Subset per trait",
+                     choices = c(input$SelectGeno, input$SelectIV, input$SelectTime),
+                     multiple = F)
+    }
+  })
+  
+  output$Corr_scatter_trait_specify <- renderUI({  
+    if(input$corr_scatter_sub == F){
+      return()
+    }
+    else{
+      my_his_data<-my_data()
+      lista <- unique(my_his_data[,input$corr_scatter_trait])
+      selectizeInput(
+        inputId = "corr_scatter_specific",
+        label = "Show results for subset:",
+        choices = lista)
+    }
+  })
   ########### need if condition on the color and shape factor!!!##########
   scatter_cor <- reactive({
     my_data <- data.frame(cor_data_type())
+   
+   if(input$corr_scatter_sub == T){
+      my_data$sub_trait <- my_data[,input$corr_scatter_trait]
+      amazeballs <- input$corr_scatter_specific
+      my_data <- subset(my_data, my_data$sub_trait == amazeballs)
+   }
+    if(input$scatter_shape == T){
+      my_data$shaper <- my_data[,input$scatter_shaper]
+      }
+    
     id_fiers <- c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)
     my_data[,input$Color] <- as.factor(my_data[,input$Color])
     my_data$id <- do.call(paste,c(my_data[c(id_fiers)], sep="_"))
     my_data$id <- as.factor(my_data$id)
     
     
-    
-    
-    
     #   my_data[,input$Shape] <- as.factor(my_data[,input$Shape])
-    my_data %>% ggplot(aes_string(x = input$Pheno1, y = input$Pheno2, colour =input$Color)) + geom_point(aes(text=id)) +  theme_minimal()
+    scatman <-  ggplot(data = my_data, aes_string(x = input$Pheno1, y = input$Pheno2, colour =input$Color))
+    if(input$scatter_shape == T){
+      shaper <- input$scatter_shaper
+      scatman <- scatman + geom_point(aes(text=id, shape = shaper)) +  theme_minimal()  
+    }
+    else{
+      scatman <- scatman + geom_point(aes(text=id)) +  theme_minimal()  
+    }
+      scatman
+    
   })
   
   output$scatterplot <- renderPlotly({
@@ -5096,43 +5576,23 @@ function(input, output) {
         input$corrplotMethod == "square" |
         input$corrplotMethod == "ellipse") {
       cat(
-        "The figure shows the", input$corMethod, "correlation coefficients between selected traits. The color and size of the",
-        input$corrplotMethod,
-        "reflect the strength of the correlation."
+        "The figure shows the", input$corMethod, "correlation coefficients between selected traits. The color and size of the", input$corrplotMethod,"reflect the strength of the correlation."
       )
     }
     if (input$corrplotMethod == "number" |
         input$corrplotMethod == "shade") {
       cat(
-        "The figure shows the", input$corMethod, "correlation coefficients between selected traits. The color of the",
-        input$corrplotMethod,
-        "reflects the strength of the correlation."
+        "The figure shows the", input$corMethod, "correlation coefficients between selected traits. The color of the",input$corrplotMethod,"reflects the strength of the correlation."
       )
     }
     if (input$cor_data_subset == T) {
-      cat("\n")
-      cat("The data is subsetted in",
-          input$CorIV_sub,
-          "-",
-          input$CorIV_val,
-          ".")
+      cat(" The data is subsetted for",input$CorIV_sub,"(",input$CorIV_val,").")
     }
     if (input$cor_sig_show == T) {
-      cat("\n")
-      cat(
-        "The non-significant correlations, with the p-value above",
-        input$cor_sig_threshold,
-        "are indicated with a cross in the individual cells."
+      cat(" The non-significant correlations, with the p-value above",input$cor_sig_threshold,"are indicated with a cross in the individual cells."
       )
     }
-    cat("\n")
-    cat(
-      "The correlation coefficients are calculated using",
-      input$cor_data,
-      ", with the total number of",
-      Cor_n(),
-      "samples."
-    )
+    cat(" The correlation coefficients are calculated using", input$cor_data,", with the total number of", Cor_n(), "samples.")
     
     if (input$Go_outliers == T) {
       how_many <- input$Out_pheno_single_multi
@@ -5146,13 +5606,7 @@ function(input, output) {
     
     # Data curation:
     if (input$cor_data == "outliers removed data") {
-      cat("\n")
-      cat(
-        "The outliers are characterized using",
-        input$outlier_method,
-        "method for",
-        how_many
-      )
+      cat(" The outliers are characterized using", input$outlier_method,"method for",how_many)
       if (how_many == "Single phenotype") {
         cat(" (", which_ones, ").")
       }
@@ -5164,35 +5618,17 @@ function(input, output) {
       }
       
       if (input$What_happens_to_outliers == "removed together with entire row") {
-        cat("\n")
-        cat(
-          "The sample is characterized as an outlier when it is classified as such in at least ",
-          input$outlier_cutoff,
-          " traits. The samples that are characterized as outlier in",
-          input$outlier_cutoff,
-          "are removed from the analysis."
-        )
+        cat("The sample is characterized as an outlier when it is classified as such in at least", input$outlier_cutoff, "traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")
       }
       if (input$What_happens_to_outliers == "replaced by NA") {
         cat(" The individual values characterized as outliers are replaced by empty cells.")
       }
       if (input$Outlier_on_data == "r2 fitted curves curated data") {
-        cat(
-          "The data was additionally curated based on r2 using",
-          input$model ,
-          "and the samples where with r2 was below",
-          input$rsq_limit,
-          "cut-off limit were eliminated from the dataset. "
+        cat(" The data was additionally curated based on r2 using", input$model, "and the samples where with r2 was below", input$rsq_limit, "cut-off limit were eliminated from the dataset."
         )
       }
       if (input$Outlier_on_data == "r2 fitted and missing values removed data") {
-        cat(
-          "The data was additionally curated based on r2 using",
-          input$model ,
-          "and the samples where with r2 was below",
-          input$rsq_limit,
-          "cut-off limit were eliminated from the dataset."
-        )
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below",input$rsq_limit,"cut-off limit were eliminated from the dataset.")
       }
     }
     
@@ -5202,7 +5638,14 @@ function(input, output) {
   # r2 and p-value ----------------------------------------------------------
   
   output$corrsq <- renderText({
-    cor_data <- my_data()[, c(input$Pheno1, input$Pheno2)]
+    my_data <- my_data()
+    if(input$corr_scatter_sub == T){
+      my_data$sub_trait <- my_data[,input$corr_scatter_trait]
+      amazeballs <- input$corr_scatter_specific
+      my_data <- subset(my_data, my_data$sub_trait == amazeballs)
+    }
+    
+    cor_data <- my_data[, c(input$Pheno1, input$Pheno2)]
     correl <- lm(cor_data[, 1] ~ cor_data[, 2])
     r2 <- summary(correl)$r.squared
     paste("The R2 value is", signif(r2, 3))
@@ -5210,7 +5653,14 @@ function(input, output) {
   
   
   output$corpval <- renderText({
-    cor_data <- my_data()[, c(input$Pheno1, input$Pheno2)]
+    my_data <- my_data()
+    if(input$corr_scatter_sub == T){
+      my_data$sub_trait <- my_data[,input$corr_scatter_trait]
+      amazeballs <- input$corr_scatter_specific
+      my_data <- subset(my_data, my_data$sub_trait == amazeballs)
+    }
+    
+    cor_data <- my_data[, c(input$Pheno1, input$Pheno2)]
     correl <- lm(cor_data[, 1] ~ cor_data[, 2])
     pval <- summary(correl)$coefficients[8]
     paste("The p-value is", signif(pval, 3))
@@ -5234,7 +5684,11 @@ function(input, output) {
     cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
-    cat("The above figure shows all the measurements of", input$Pheno1, "and", input$Pheno2, "conditional on", input$Color,".", "The R2 value for the linear fitting is", signif(r2, 3), "and the p-value is", signif(pval, 3) )
+    cat("The above figure shows the correlation between", input$Pheno1, "and", input$Pheno2, ". Individual colors representing", input$Color,".")
+    if(corr_scatter_sub == T){
+      cat(" The data is subsetted for", input$corr_scatter_trait, "(", input$corr_scatter_specific, ").")
+    }
+    cat(" The R2 value for the linear fitting is", round(signif(r2, 3),4), "and the p-value is", round(signif(pval, 3),4), ".")
     
   })
   
