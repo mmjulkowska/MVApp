@@ -7325,7 +7325,7 @@ function(input, output) {
   # Message
   
   output$Yve_message <- renderPrint(
-    cat("Estimation of the optimal number of clusters for k-means clustering using the elbow method, the silhouette method and thirty indices that aresuggesting the best number of clusters using the “majority rule”. Two of these indices are also graphical estimations: Hubert index and D index.")
+    cat("Estimation of the optimal number of clusters for k-means clustering using the elbow method, the silhouette method and thirty indices that aresuggesting the best number of clusters using the majority rule. Two of these indices are also graphical estimations: Hubert index and D index.")
   )
   
   output$Select_data_K_mean_cluster <- renderUI({
