@@ -4969,7 +4969,7 @@ function(input, output) {
     cat("\n")
     cat("\n")
     cat("The figure represents the residuals (y-axis) against fitted values (x-axis) plot for two-way ANOVA for", pheno, "testing interaction between", iv1, "and", iv2, ".")
-    cat(" This plot shows if residuals have non-linear patterns. If the plots show distinct patterns (e.g.: fan-shaped, unequal distribution around the horizontal axis, etc.), this is an indication that there are non-linear relationships in your data and that the results of two-way ANOVA can NOT be trusted.")
+    cat(" This plot shows if residuals have non-linear patterns. If the residuals are not randomly spread around the horizontal axis, it indicates a non-linear relationships in your data and that the results of two-way ANOVA can NOT be trusted.")
     if (input$plot_sub_TWANOVA == T) {
       cat(" The data is subsetted for", input$TW_ANOVA_Sub_trait, "(", input$TW_ANOVA_Sub_UniqueChoice, ").")}
     
