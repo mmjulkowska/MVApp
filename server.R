@@ -494,7 +494,7 @@ function(input, output) {
   })
   
   output$Download_good_r2_data <- downloadHandler(
-    filename = function(){paste("Data curated based on modelling of ", input$ModelPheno, " using ", input$model, " with r2 >", input$rsq_limit, " MVApp", ".csv" , sep="") },
+    filename = function(){paste("Data curated based on modelling of", input$ModelPheno, "using", input$model, "with r2 >", input$rsq_limit, "MVApp.csv") },
     content <- function(file){
       good_r2 <- good_r2()
       write.csv(good_r2, file)
@@ -832,7 +832,7 @@ function(input, output) {
   })
   
   output$Download_model_fit_graph <- downloadHandler(
-    filename = function(){paste("Modelled ", input$ModelPheno, " using ", input$model, " MVApp", ".pdf" , sep="") },
+    filename = function(){paste("Fitplot for", input$ModelPheno, "estimated using", input$model, "(", input$spline_df, ") MVApp.pdf") },
     content <- function(file){
       pdf(file)
       
@@ -981,7 +981,7 @@ function(input, output) {
   })  
   
   output$Download_model_data <- downloadHandler(
-    filename = paste("Modelled ",input$ModelPheno, " using ", input$model ," MVApp.csv"),
+    filename = function(){paste("Modelled ",input$ModelPheno, "estimated using", input$model, "(", input$spline_df, ") MVApp.csv") },
     content <- function(file) {
       write.csv(Model_temp_data(), file)}
   )
@@ -1290,6 +1290,7 @@ function(input, output) {
       }}
     
     
+    
     # Calculating number of replicates
     temp <- Model_temp_data()
     if(input$ModelSum_data == "r2 fitted curves curated data"){
@@ -1330,7 +1331,7 @@ function(input, output) {
   })  
   
   output$Download_summ_model_data <- downloadHandler(
-    filename = paste("Summary Statistics of data modelled for ",input$ModelPheno, " with ", input$model, " using ", input$ModelSum_data, " MVApp.csv"),
+    filename = paste("Summary Statistics of data modelled for",input$ModelPheno, "estimated using", input$model, "(", input$spline_df, ") using", input$ModelSum_data, "MVApp.csv"),
     content <- function(file) {
       temp <- Model_temp_data()
       if(input$ModelSum_data == "r2 fitted curves curated data"){
@@ -1454,7 +1455,7 @@ function(input, output) {
   
   
   output$downl_plot_MCP <- downloadHandler(
-    filename = function(){paste("Model comparison plot MVApp", "pdf" , sep=".") },
+    filename = function(){paste(input$model_graph_plot, "for", input$model_trait_plot, "of", input$ModelPheno, "estimated using", input$model, "(", input$spline_df, ") using", input$ModelSum_data, "MVApp.pdf") },
     content = function(file) {
       pdf(file)
       print(MCP())
@@ -2437,7 +2438,7 @@ function(input, output) {
   })  
   
   output$full_data_outliers <- downloadHandler(
-    filename = paste("Marked outliers based on ",input$Out_pheno_single_multi,"_", input$DV_outliers ," identified with ", input$outlier_method, " MVApp.csv"),
+    filename = paste("Marked outliers based on",input$Out_pheno_single_multi,"(", input$DV_outliers ,") identified with" , input$outlier_method, "MVApp.csv"),
     content <- function(file) {
       write.csv(Outliers_final_data(), file)}
   )
@@ -2453,7 +2454,7 @@ function(input, output) {
   })  
   
   output$data_outliers <- downloadHandler(
-    filename = paste("Outliers_based_on_",input$Out_pheno_single_multi,"_", input$DV_outliers ,"_identified_with_", input$outlier_method, "_MVApp.csv"),
+    filename = paste("Outliers based on",input$Out_pheno_single_multi,"(", input$DV_outliers ,") identified with", input$outlier_method, "MVApp.csv"),
     content <- function(file) {
       write.csv(Outlier_only_data(), file)}
   )
@@ -2468,7 +2469,7 @@ function(input, output) {
   })  
   
   output$data_clean_final <- downloadHandler(
-    filename = paste("Data free from outliers based on",input$Out_pheno_single_multi," ", input$DV_outliers ," identified with ", input$outlier_method, " MVApp.csv"),
+    filename = paste("Data free from outliers based on",input$Out_pheno_single_multi,"(", input$DV_outliers ,") identified with ", input$outlier_method, " MVApp.csv"),
     content <- function(file) {
       write.csv(Outlier_free_data(), file)}
   )
@@ -2640,7 +2641,7 @@ function(input, output) {
   
   
   output$downl_plot_OutlPlot <- downloadHandler(
-    filename = function(){paste("Plot with outliers included based on ",input$Out_pheno_single_multi,"_", input$DV_outliers ," identified with ", input$outlier_method, " MVApp.pdf") },
+    filename = function(){paste("Plot with outliers included based on",input$Out_pheno_single_multi,"(", input$DV_outliers ,"), identified with", input$outlier_method, "MVApp.pdf") },
     content = function(file) {
       pdf(file)
       print(OutG())
@@ -2927,7 +2928,7 @@ function(input, output) {
   })
   
   output$downl_no_outliers_graph <- downloadHandler(
-    filename = function(){paste("Plot with outliers excluded based on ",input$Out_pheno_single_multi,"_", input$DV_outliers ," identified with ", input$outlier_method, " MVApp.pdf")},
+    filename = function(){paste("Plot with outliers excluded based on ",input$Out_pheno_single_multi,"(", input$DV_outliers ,"), identified with", input$outlier_method, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
       print(NoOutG())
@@ -3266,7 +3267,7 @@ function(input, output) {
 
   
   output$download_HistPlot <- downloadHandler(
-    filename = function(){paste("Plot of", input$HistType, " for ",input$HisDV, " splitted per ",  input$Plotfacet_choice,  input$subsetdata_choice, input$subsetdata_uniquechoice, " MVApp.pdf")},
+    filename = function(){paste("Plot of", input$HistType, "for",input$HisDV, "subsetted per",  input$Plotfacet_choice,  "and", input$subsetdata_choice, "(", input$subsetdata_uniquechoice, "), using", input$Hist_data, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
       print(HistoPl())
@@ -3620,7 +3621,7 @@ function(input, output) {
   })
   
   output$QQ_normal_download <- downloadHandler(
-    filename = function(){paste("QQ Plot of", input$HistType, " for ",input$HisDV, " splitted per ",  input$Plotfacet_choice, input$subsetdata_choice, input$subsetdata_uniquechoice, " MVApp.pdf")},
+    filename = function(){paste("QQ Plot of", input$HistType, " for ",input$HisDV, " subsetted per ",  input$Plotfacet_choice, "and", input$subsetdata_choice, "(", input$subsetdata_uniquechoice, "), using", input$Hist_data, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
       
@@ -4015,7 +4016,7 @@ function(input, output) {
   
   
   output$downl_Variance <- downloadHandler(
-    filename = function(){paste("Variance plot for ", input$HisDV, " splitted per ",  input$Plotfacet_choice, input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " MVApp.pdf")},
+    filename = function(){paste("Variance plot for ", input$HisDV, " subsetted per ",  input$Plotfacet_choice, "and", input$subsetdata_choiceVar, "(", input$subsetdata_uniquechoiceVar, ") using", input$Histo_data, " MVApp.pdf")},
     content = function(file) {
       pdf(file)
       
@@ -4262,7 +4263,7 @@ function(input, output) {
   }) 
   
   output$OT_graph_download <- downloadHandler(
-    filename = function(){paste("Plot for ", input$OT_testski, " comparing ", input$OT_compareski, "MVApp.pdf")},
+    filename = function(){paste("Plot for ", input$OT_testski, " comparing ", input$OT_compareski, "using", input$Histo_data, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
       subset_lista <- input$OT_grouping_IVskis
@@ -4617,7 +4618,7 @@ function(input, output) {
   }) 
   
   output$ANOVA_graph_download <- downloadHandler(
-    filename = function(){paste("Plot of", input$Sig_diff_test, " subsetted per", input$Plotfacet_choice, input$subsetdata_choiceANOVA, input$subsetdata_uniquechoiceANOVA, "examining significant differences in", input$HisDV, "MVApp.pdf")},
+    filename = function(){paste("Boxplot of", input$Sig_diff_test, " subsetted for", input$Plotfacet_choice, "and", input$subsetdata_choiceANOVA, "(", input$subsetdata_uniquechoiceANOVA, "), examining significant differences in", input$HisDV, "using", input$Histo_data, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
       print(BoxANOVA())
@@ -4787,7 +4788,7 @@ function(input, output) {
   })
   
   output$TW_ANOVA_graph_download <- downloadHandler(
-    filename = function(){paste("Two way ANOVA interaction plot", input$HisDV, input$TW_ANOVA_Sub_trait, input$TW_ANOVA_Sub_UniqueChoice, "testing the effect of", input$TW_ANOVA_IV1, "and", input$TW_ANOVA_IV2, "and the interaction between them created by MVApp.pdf")},
+    filename = function(){paste("Two way ANOVA interaction plot", input$HisDV,  "subsetted for", input$TW_ANOVA_Sub_trait, "(", input$TW_ANOVA_Sub_UniqueChoice, "), testing the effect of", input$TW_ANOVA_IV1, "and", input$TW_ANOVA_IV2, "and the interaction between them using", input$Histo_data, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
       
@@ -4921,7 +4922,7 @@ function(input, output) {
   
   
   output$TW_ANOVA_res_graph_download <- downloadHandler(
-    filename = function(){paste("Two way ANOVA residuals plot", input$HisDV, input$TW_ANOVA_Sub_trait, input$TW_ANOVA_Sub_UniqueChoice, "testing the effect of ", input$TW_ANOVA_IV1, " and ", input$TW_ANOVA_IV2, "and the interaction between them ", "MVApp.pdf")},
+    filename = function(){paste("Two way ANOVA residuals plot", input$HisDV, "subsetted for", input$TW_ANOVA_Sub_trait, "(", input$TW_ANOVA_Sub_UniqueChoice, "), testing the effect of", input$TW_ANOVA_IV1, "and", input$TW_ANOVA_IV2, "and the interaction between them using", input$Histo_data, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
       
@@ -5202,7 +5203,7 @@ function(input, output) {
   ######### download corrplot##################   
   output$download_corrplot <- downloadHandler(
     
-    filename = function(){paste("Correlation plot with ", input$corrplotMethod,", ", input$corType, " and ordered with ", input$corOrder, " MVApp.pdf")},
+    filename = function(){paste("Correlation plot with ", input$corrplotMethod,", ", input$corType, " and ordered with ", input$corOrder, "subsetted per", input$CorIV_sub ,"(", input$CorIV_val, ") MVApp.pdf")},
     content = function(file) {
       pdf(file)
       df <- na.omit(subset(cor_data_type(), select = input$Select_cor_phenos))
@@ -5303,7 +5304,7 @@ function(input, output) {
       return()
     }
     else{
-      downloadButton("cortable_download_button", label = "Download correlation table")
+      downloadButton("cortable_download_button", label = "Download table")
     }
   })
   
@@ -5312,7 +5313,7 @@ function(input, output) {
   
   
   output$cortable_download_button <- downloadHandler(
-    filename = paste("Correlation table using ", input$corrplotMethod, " subsetted per ", input$CorIV_val, " MVApp.csv"),
+    filename = paste("Correlation table using", input$corrplotMethod, "subsetted per", input$CorIV_sub ,"(", input$CorIV_val, ") MVApp.csv"),
     content <- function(file) {
       
       df0 <- subset(cor_data_type(), 
@@ -5530,6 +5531,8 @@ function(input, output) {
     else{
       scatman <- scatman + geom_point(aes(text=id)) +  theme_minimal()  
     }
+      scatman <- scatman + xlab(input$Pheno1)
+      scatman <- scatman + ylab(input$Pheno2)
       scatman
     
   })
@@ -5548,7 +5551,7 @@ function(input, output) {
   })
   
   output$downl_scatter_corr <- downloadHandler(
-    filename = function(){paste("Scatter plot representing correlation of ", input$Pheno1," and ", input$Pheno2, " using ", input$cor_data, " subsetted per ", input$CorIV_val, " MVApp.pdf")},
+    filename = function(){paste("Scatter plot representing correlation of ", input$Pheno1," and ", input$Pheno2, " using ", input$cor_data, " subsetted per ",input$CorIV_sub, "(", input$CorIV_val, ") MVApp.pdf")},
     content = function(file) {
       pdf(file)
       print(scatter_cor())
@@ -5684,8 +5687,8 @@ function(input, output) {
     cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
-    cat("The above figure shows the correlation between", input$Pheno1, "and", input$Pheno2, ". Individual colors representing", input$Color,".")
-    if(corr_scatter_sub == T){
+    cat("The above figure shows the correlation between", input$Pheno2, "(y-axis) and", input$Pheno1, "(x-axis). Individual colors represent", input$Color,".")
+    if(input$corr_scatter_sub == T){
       cat(" The data is subsetted for", input$corr_scatter_trait, "(", input$corr_scatter_specific, ").")
     }
     cat(" The R2 value for the linear fitting is", round(signif(r2, 3),4), "and the p-value is", round(signif(pval, 3),4), ".")
@@ -5709,7 +5712,7 @@ function(input, output) {
   })  
   
   
-  PCA_data_type <- eventReactive(input$Go_PCAdata,{
+  PCA_data_type <- reactive({
     if(input$PCA_data == "raw data"){
       PCA_data_type <- my_data()
     }
@@ -5733,9 +5736,6 @@ function(input, output) {
   })
   
   output$PCA_Select_pheno <- renderUI({
-    if ((input$Go_PCAdata == FALSE)) {
-      return()
-    } else
       tagList(
         selectizeInput(
           inputId = "PCA_pheno",
@@ -5746,7 +5746,7 @@ function(input, output) {
       )
   })
   output$PCA_subset_trait <- renderUI({
-    if(input$PCA_data_subset == "full dataset"){
+    if(input$PCA_data_subset == F){
       return()
     }
     else{
@@ -5794,7 +5794,7 @@ function(input, output) {
     temp <- data.frame(PCA_data_type())
     temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
     
-    if(input$PCA_data_subset == "subsetted dataset"){
+    if(input$PCA_data_subset == T){
       
       subset_lista <- input$PCA_subset_T
       id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
@@ -5804,7 +5804,7 @@ function(input, output) {
       temp3$id <- do.call(paste,c(temp3[c(id_lista2, subset_lista)], sep="_"))
       temp2 <- subset(temp3, select = c("id", input$PCA_pheno))
     }
-    if(input$PCA_data_subset == "full dataset"){{
+    if(input$PCA_data_subset == F){{
       temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
       temp2 <- subset(temp, select = c("id", input$PCA_pheno))
     }}
@@ -5845,7 +5845,7 @@ function(input, output) {
   })
   
   output$Eigen_plot_download <- downloadHandler(
-    filename = function(){paste("Eigen plot MVApp", "pdf" , sep=".") },
+    filename = function(){paste("Eigenvalues of PCA using", input$PCA_pheno, "and", input$PCA_data, "subsetted for", input$PCA_subset_T, "(", input$PCA_subset_S, ") MVApp.pdf") },
     content = function(file) {
       pdf(file)
       eigenvalues <- PCA_eigen_data()
@@ -5893,10 +5893,10 @@ function(input, output) {
       cat("\n")
       cat("Scree plot of PCA eigenvectors illustrating the percentage of variance across different principle components.") 
       cat(" Percentage variance explained by each principle component is shown from the most significant to the least.")
-      cat(" PCA was performed on", input$PCA_data, "using the following traits:(",  input$PCA_pheno,").")
+      cat(" PCA was performed on", input$PCA_data, "using the following traits:",  input$PCA_pheno,".")
       
       
-      if(input$PCA_data_subset == "subsetted dataset") {
+      if(input$PCA_data_subset == T) {
         cat(" The data was subsetted for" , input$PCA_subset_T, "and the shown PCA is representing samples belonging to the subset ", input$PCA_subset_S,".")
       }
       
@@ -5931,7 +5931,7 @@ function(input, output) {
   })
   
   output$Eigen_data <- downloadHandler(
-    filename = "Eigen values MVApp.csv",
+    filename = function(){paste("Eigenvalues of PCA using", input$PCA_pheno, "and", input$PCA_data, "subsetted for", input$PCA_subset_T, "(", input$PCA_subset_S, ").csv") },
     content <- function(file) {
       write.csv(PCA_eigen_data(), file)}
   )
@@ -5948,7 +5948,7 @@ function(input, output) {
   
   
   output$PCA1_select <- renderUI({
-    if ((input$Go_PCAdata == FALSE)) {
+    if (is.null(PCA_eigen_data())) {
       return()
     } else
       eigenvalues <- PCA_eigen_data()
@@ -5964,7 +5964,7 @@ function(input, output) {
   })
   
   output$PCA2_select <- renderUI({
-    if ((input$Go_PCAdata == FALSE)) {
+    if (is.null(PCA_eigen_data())) {
       return()
     } else
       eigenvalues <- PCA_eigen_data()
@@ -5989,7 +5989,7 @@ function(input, output) {
   })
   
   output$PCA_contribution_plot_download <- downloadHandler(
-    filename = function(){paste("PCA contributions plot MVApp", "pdf" , sep=".") },
+    filename = function(){paste("PC trait contributionn for", input$Which_PC1, "and", input$Which_PC2, "using", input$PCA_pheno, "and", input$PCA_data, "subsetted for", input$PCA_subset_T, "(", input$PCA_subset_S, ").pdf") },
     content = function(file) {
       pdf(file)
       PCA_ready <- PCA_final_data()
@@ -6036,11 +6036,11 @@ function(input, output) {
       cat("\n")
       cat("\n")
       cat("Trait contributions to PC", input$Which_PC1, "and PC", input$Which_PC2, ".") 
-      cat(" The contribution to PC", input$Which_PC1, "is shown on the x-axis, while the contribution to PC", input$Which_PC2, " is on the y-axis.")
+      cat(" The contribution to PC", input$Which_PC1, "is shown on the x-axis, while the contribution to PC", input$Which_PC2, " is on the y-axis. The values between the brackets indicate the percentage of the variance explained by the individual PCs.")
       cat(" Each trait's contribution to the selected principle component is indicated by the length and color of the arrow.") 
-      cat(" PCA was performed on", input$PCA_data, "using the following traits:(", input$PCA_pheno,").")
+      cat(" PCA was performed on", input$PCA_data, "using the following traits:", input$PCA_pheno,".")
       
-      if(input$PCA_data_subset == "subsetted dataset") {
+      if(input$PCA_data_subset == T) {
         cat(" The data was subsetted for" , input$PCA_subset_T, "and the shown PCA represents samples that belong to the subset ", input$PCA_subset_S, ".")
       }
       #cat(" PC", input$Which_PC1, "explains ", Variance_explained_x, "%, while PC", input$Which_PC2, "is explaining", Variance_explained_y, "% of the observed variance.")
@@ -6069,7 +6069,7 @@ function(input, output) {
   })
   
   output$PCA_contrib_select <- renderUI({
-    if ((input$Go_PCAdata == FALSE)) {
+    if (is.null(PCA_eigen_data())) {
       return()
     } else
       eigenvalues <- PCA_eigen_data()
@@ -6091,7 +6091,7 @@ function(input, output) {
   })
   
   output$Contrib_trait_plot_download <- downloadHandler(
-    filename = function(){paste("Trait contribution per PC plot MVApp", "pdf" , sep=".") },
+    filename = function(){paste("Trait contribution for", input$Which_PC_contrib, "with", input$PCA_pheno,"using", input$PCA_data, ".pdf") },
     content = function(file) {
       pdf(file)
       PCA_ready <- PCA_final_data()
@@ -6141,7 +6141,7 @@ function(input, output) {
       cat(" For a given PC, any trait with a contribution above the reference line can be considered an important contributor to that PC.")
       cat(" PCA was performed on", input$PCA_data, "using the following traits: (", input$PCA_pheno,").")
       
-      if(input$PCA_data_subset == "subsetted dataset") {
+      if(input$PCA_data_subset == T) {
       cat(" The data was subsetted for" , input$PCA_subset_T, "and the shown PCA represents samples that belong to the subset ", input$PCA_subset_S, ".")
       }
       # cat(" PC", input$Which_PC_contrib, " explains ", Variance_explained, "% of the observed variance.") ###  Didn't work :/
@@ -6197,7 +6197,7 @@ function(input, output) {
   })
   
   output$contrib_var <- downloadHandler(
-    filename = "PCA contrib var MVApp.csv",
+    filename = function(){paste("PC contribution of individual traits using", input$PCA_pheno, "and", input$PCA_data, input$PCA_subset_T, "(", input$PCA_subset_S, ").csv") },
     content <- function(file) {
       write.csv(PCA_contrib_var(), file)}
   )
@@ -6222,7 +6222,7 @@ function(input, output) {
     temp <- data.frame(PCA_data_type())
     temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$PCA_pheno))
     
-    if(input$PCA_data_subset == "subsetted dataset"){
+    if(input$PCA_data_subset == T){
       
       subset_lista <- input$PCA_subset_T
       id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
@@ -6231,7 +6231,7 @@ function(input, output) {
       temp2 <- subset(temp, temp$subset_id == input$PCA_subset_S)
       temp2$id <- do.call(paste,c(temp2[c(id_lista2, subset_lista)], sep="_"))
     }
-    if(input$PCA_data_subset == "full dataset"){{
+    if(input$PCA_data_subset == F){{
       temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
       temp2 <- temp
     }}
@@ -6265,7 +6265,7 @@ function(input, output) {
   })
   
   output$coord_ind <- downloadHandler(
-    filename = "PCA coord ind MVApp.csv",
+    filename = function(){paste("PC coordinates for individual samples using", input$PCA_pheno, "and", input$PCA_data, input$PCA_subset_T, "(", input$PCA_subset_S, ").csv") },
     content <- function(file) {
       write.csv(PCA_coord_ind(), file)}
   )
@@ -6286,7 +6286,7 @@ function(input, output) {
   })
   
   output$PCAscatter_plot_download <- downloadHandler(
-    filename = function(){paste("Coordinates of PCs MVApp", "pdf" , sep=".") },
+    filename = function(){paste("PC coordinates for individual samples for", input$Which_PC1, "and", input$Which_PC2, "using", input$PCA_pheno, "and", input$PCA_data, "subsetted for", input$PCA_subset_T, "(", input$PCA_subset_S, ").pdf") },
     content = function(file) {
       pdf(file)
       la_table <- PCA_coord_ind()
@@ -6345,7 +6345,7 @@ function(input, output) {
       cat(" Different colors represent the samples that belong to different", input$PCA_Color, ".")
       cat(" PCA was performed on", input$PCA_data, "using the following traits:(", input$PCA_pheno,").")
       
-      if(input$PCA_data_subset == "subsetted dataset") {
+      if(input$PCA_data_subset == T) {
         cat(" The data was subsetted for" , input$PCA_subset_T, "and the shown PCA represents samples belonging to the subset ", input$PCA_subset_S, ".")
       }
       cat(" PC", input$Which_PC1, "explains ", round(Variance_explained_x, digits = 4), "%, while PC", input$Which_PC2, "is explaining", round(Variance_explained_y, digits = 4), "% of the observed variance.")
@@ -6387,7 +6387,7 @@ function(input, output) {
   }) 
   
   
-  MDS_data_type <- eventReactive(input$Go_MDSdata,{
+  MDS_data_type <- reactive({
     if(input$MDS_data == "raw data"){
       MDS_data_type <- my_data()
     }
@@ -6423,7 +6423,7 @@ function(input, output) {
   })
   
   output$MDS_subset_trait <- renderUI({
-    if(input$MDS_subset_Q == "full dataset"){
+    if(input$MDS_subset_Q == F){
       return()
     }
     else{
@@ -6484,7 +6484,7 @@ function(input, output) {
     temp <- data.frame(MDS_data_type())
     temp <- subset(temp, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$MDS_pheno))
     
-    if(input$MDS_subset_Q == "subsetted dataset"){
+    if(input$MDS_subset_Q == T){
       
       subset_lista <- input$MDS_subset_T
       id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
@@ -6494,7 +6494,7 @@ function(input, output) {
       temp3$id <- do.call(paste,c(temp3[c(id_lista2)], sep="_"))
       temp2 <- subset(temp3, select = c("id", input$MDS_pheno))
     }
-    if(input$MDS_subset_Q == "full dataset"){{
+    if(input$MDS_subset_Q == F){{
       temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)], sep="_"))
       temp2 <- subset(temp, select = c("id", input$MDS_pheno))
     }}
@@ -6561,7 +6561,7 @@ function(input, output) {
   })
   
   output$MDS_plot_download <- downloadHandler(
-    filename = function(){paste("MDS plot MVApp", "pdf" , sep=".") },
+    filename = function(){paste("The scatterplot of MDS for", input$MDS_pheno, "subsetted for", input$MDS_subset_T, "(", input$MDS_subset_S, "), using", input$MDS_data, "MVApp.pdf") },
     content = function(file) {
       pdf(file)
       data <- MDS_Calculations()
@@ -6614,14 +6614,15 @@ function(input, output) {
       cat("# # # > > > Figure legend: < < < # # #")
       cat("\n")
       cat("\n")
-      cat(" Coordinates of samples scaled using MDS.")
+      cat("Coordinates of samples scaled using MDS.")
       if(input$MDS_KMC_Q == T){
         cat(" Color groups indicate the samples belonging to distinct k-means clusters. The selected number of clusters is", input$MDS_cluster_number, "." )}
-      cat(" MDS was performed on", input$MDS_data, "using the following traits:(", input$MDS_pheno,").")
+      cat(" MDS was performed on", input$MDS_data, "using the following traits:", input$MDS_pheno,".")
       
-      if(input$MDS_subset_Q == "subsetted dataset") {
-        cat("The data was subsetted for" , input$MDS_subset_T, " and the shown MDS represents samples that belong to the subset ", input$MDS_subset_S, ".")
+      if(input$MDS_subset_Q == T) {
+        cat(" The data was subsetted for" , input$MDS_subset_T, "and the shown MDS represents samples that belong to the subset", input$MDS_subset_S, ".")
       }
+      
       
       # Data curation:
       if(input$MDS_data == "outliers removed data"){    
@@ -6634,13 +6635,13 @@ function(input, output) {
           cat(".")}
         
         if(input$What_happens_to_outliers == "removed together with entire row"){
-          cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+          cat(" The sample is characterized as an outlier when it is classified as such in at least", input$outlier_cutoff, "traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
         if(input$What_happens_to_outliers == "replaced by NA"){
           cat(" The individual values characterized as outliers are replaced by empty cells.")}
         if(input$Outlier_on_data == "r2 fitted curves curated data"){
-          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, "cut-off limit were eliminated from the dataset. ")}
         if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
-          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, "cut-off limit were eliminated from the dataset. ")}
       }
       
     }   
@@ -6665,7 +6666,7 @@ function(input, output) {
   })
   
   output$MDS_downl_data <- downloadHandler(
-    filename = "MDS samples_MVApp.csv",
+    filename = function(){paste("The MDS coordinates for individual samples calculated based on", input$MDS_pheno, "subsetted for", input$MDS_subset_T, "(", input$MDS_subset_S, "), using", input$MDS_data, "MVApp.csv") },
     content <- function(file) {
       write.csv(MDS_Calculations(), file)}
   )
@@ -6735,7 +6736,7 @@ function(input, output) {
   })
   
   output$data_MDS <- downloadHandler(
-    filename = "MDS samples transposed_MVApp.csv",
+    filename = function(){paste("The MDS coordinates of traits (", input$MDS_pheno, "), subsetted for", input$MDS_subset_T, "(", input$MDS_subset_S, "), using", input$MDS_data, "MVApp.csv") },
     content <- function(file) {
       
       data <- MDS_Calculations_transposed()
@@ -6772,7 +6773,7 @@ function(input, output) {
   })
   
   output$MDS_plot_download_transposed <- downloadHandler(
-    filename = function(){paste("MDS plot_transposed MVApp", "pdf" , sep=".") },
+    filename = function(){paste("The scatterplot of traits", input$MDS_pheno, "used for MDS, subsetted for", input$MDS_subset_T, "(", input$MDS_subset_S, "), using", input$MDS_data, "MVApp.pdf") },
     content = function(file) {
       pdf(file)
       data <- MDS_Calculations_transposed()
@@ -6830,7 +6831,7 @@ function(input, output) {
       cat(" Traits close in proximity are more related than distant traits.")
       cat(" MDS was performed on", input$MDS_data, "using the following traits:(", input$MDS_pheno,").")
       
-      if(input$MDS_subset_Q == "subsetted dataset") {
+      if(input$MDS_subset_Q == T) {
         cat("The data was subsetted for" , input$MDS_subset_T, " and the shown MDS represents samples that belong to the subset ", input$MDS_subset_S, ".")
       }
       
@@ -7168,7 +7169,7 @@ function(input, output) {
   })  
   
   output$downl_ClusterTree <- downloadHandler(  
-    filename = function(){paste("Dendrogram of the samples used for hierarchical clustering using ", input$Cluster_data, " with ", input$Cluster_pheno, " MVApp.pdf")},
+    filename = function(){paste("Dendrogram of the samples used for hierarchical clustering using", input$Cluster_data, ", subsetted for", input$Cluster_subset_T, "(", input$Cluster_subset_S, "), with", input$Cluster_pheno, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
       
@@ -7301,7 +7302,7 @@ function(input, output) {
   
   
   output$downl_HHeatMap <- downloadHandler(  
-    filename = function(){paste("Heat map of the samples used for hierarchical clustering using ", input$Cluster_data, " with ", input$Cluster_pheno, " MVApp.pdf")},
+    filename = function(){paste("Heat map of the samples used for hierarchical clustering using", input$Cluster_data, ", subsetted for", input$Cluster_subset_T, "(", input$Cluster_subset_S, "), with", input$Cluster_pheno, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
       
@@ -7678,8 +7679,7 @@ function(input, output) {
   })  
   
   output$downl_HotANOVA <- downloadHandler(
-    
-    filename = function(){paste("ANOVA test for clusters identified using ", input$Cluster_data, " with ", input$Cluster_pheno, " for ", input$Clust_test, "MVApp.pdf")},
+    filename = function(){paste("ANOVA for clusters identified using", input$Cluster_data, ", subsetted for", input$Cluster_subset_T, "(", input$Cluster_subset_S, "with", input$Cluster_pheno, "for", input$Clust_test, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
       
@@ -7766,7 +7766,7 @@ function(input, output) {
   })
   
   output$data_clustered <- downloadHandler(
-    filename = paste("Cluster analysis based on ", input$Cluster_data, " with ", input$Cluster_pheno, " with split at ", input$Split_cluster, " MVApp.csv"),
+    filename = paste("Cluster analysis based on ", input$Cluster_data, ", subsetted for", input$Cluster_subset_T, "(", input$Cluster_subset_S, "), with", input$Cluster_pheno, " with split at ", input$Split_cluster, " MVApp.csv"),
     content <- function(file) {
       
       write.csv(Cluster_table_data(), file)}
@@ -7870,27 +7870,48 @@ function(input, output) {
     }
   })
   
-  # - - - - - >> DOWNLOAD TABLE << - - - - - - - - 
+  output$KMC_subset_trait <- renderUI({
+    if(input$KMC_subset_Q == F){
+      return()
+    }
+    else{
+      selectizeInput("KMC_trait_sub",
+                     label = "Subset by Independent Variable:",
+                     choices = c(input$SelectGeno, input$SelectIV, input$SelectTime),
+                     multiple = F)
+    }
+  })
   
-  
-  output$downl_KMC_data_type <- renderUI({
-    if(is.null(KMC_data_type())){
-      return()}
-    else
-      downloadButton("downl_data_type", label="Download data")
-  })  
-  
-  output$downl_data_type <- downloadHandler(
-    filename = paste("Dataset", input$KMCluster_data, "MVApp.csv"),
-    content <- function(file) {
-      temp <- KMC_data_type()
-      write.csv(temp, file)}
-  )
+  output$KMC_subset_specific <- renderUI({
+    if(input$KMC_subset_Q == F){
+      return()
+    }
+    if(input$KMC_subset_Q == T){
+      data <- KMC_data_type()
+      data$splito <- data[,input$KMC_trait_sub]
+      
+      tagList(
+      selectizeInput("KMC_trait_sub_spec",
+                     label = "Subset by Independent Variable:",
+                     choices = c(as.character(unique(data$splito))),
+                     multiple = F))
+    }
+    else{
+      return()
+    }
+  })
   
   #------------------->> KMC_data_for_matrix <<--------------
   
   KMC_data_for_matrix <- reactive({
     object <- KMC_data_type()
+    
+    if(input$KMC_subset_Q == T){
+      object$split <- object[,input$KMC_trait_sub]
+      the_one <- input$KMC_trait_sub_spec
+      object <- subset(object, object$split == the_one)
+    }
+    
     if(input$KMC_use_means == T){
       pheno<-paste(input$KMC_pheno,"mean", sep = ".")
       sel <- subset(object, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,pheno))
@@ -7925,6 +7946,14 @@ function(input, output) {
   
   KMC_data_table_for_matrix <- reactive({
     object <- KMC_data_type()
+    
+    
+    if(input$KMC_subset_Q == T){
+      object$split <- object[,input$KMC_trait_sub]
+      the_one <- input$KMC_trait_sub_spec
+      object <- subset(object, object$split == the_one)
+    }
+    
     if(input$KMC_use_means == T){
       pheno<-paste(input$KMC_pheno,"mean", sep = ".")
       sel <- subset(object, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,pheno))
@@ -7953,8 +7982,6 @@ function(input, output) {
       for_matrix <- scale(for_matrix) 
     }
     
-    #for_matrix$id <- do.call(paste,c(sel[c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)], sep="_"))
-    #rownames(for_matrix) <- do.call(paste,c(sel[c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)], sep="_"))
     matrix<-cbind(ID=(do.call(paste,c(sel[c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime)], sep="_"))),for_matrix)
     matrix
     
@@ -7980,23 +8007,6 @@ function(input, output) {
   output$KMCluster_test <- renderDataTable({
     KMC_data_table_for_matrix()
   })
-  
-  # - - - - - >> DOWNLOAD TABLE << - - - - - - - - 
-  
-  
-  output$downl_KMC_for_matrix <- renderUI({
-    if(is.null(KMC_data_table_for_matrix())){
-      return()}
-    else
-      downloadButton("downl_for_matrix", label="Download data")
-  })  
-  
-  output$downl_for_matrix <- downloadHandler(
-    filename = paste("Data matrix to calculate K-means", input$KMC_pheno, "MVApp.csv"),
-    content <- function(file) {
-      temp <- KMC_data_table_for_matrix()
-      write.csv(temp, file)}
-  )
   
   
   # - - - - - - - >> ADVICE PLOTS << - - - - - - - - - 
@@ -8241,6 +8251,13 @@ function(input, output) {
   
   KMC_data_for_barplot <- reactive({
     mydata1 <- KMC_data_type()
+    
+    if(input$KMC_subset_Q == T){
+      mydata1$split <- mydata1[,input$KMC_trait_sub]
+      the_one <- input$KMC_trait_sub_spec
+      mydata1 <- subset(mydata1, mydata1$split == the_one)
+    }
+    
     mydata2 <- KMClusters()
     mydata1$cluster <- mydata2$cluster
     mydata1
@@ -8267,8 +8284,10 @@ function(input, output) {
       downloadButton("downl_KMC_test", label="Download data")
   })  
   
+ 
+  
   output$downl_KMC_test <- downloadHandler(
-    filename = paste("K-means clustering with K=", input$kmclusters, "MVApp.csv"),
+    filename = paste("K-means clustering with K=", input$kmclusters, " using", input$KMCluster_data,"subsetted for", input$KMC_trait_sub, "(", input$KMC_trait_sub_spec, ") MVApp.csv"),
     content <- function(file) {
       temp <- KMC_data_for_barplot()
       write.csv(temp, file)}
@@ -8303,40 +8322,6 @@ function(input, output) {
       )
   })
   
-  # Use the selected variable for a new data frame
-  
-  # barplotData <- reactive({
-  #   if(input$KMC_use_means == T){
-  #      df <- KMC_data_for_barplot()
-  #decreasing <- reorder("id",-df[,input$KMC_trait_to_plot])
-  #     bd <- df[, (c("id", input$KMC_trait_to_plot,"cluster"))]
-  #  }
-  
-  #  if(input$KMC_use_means == F){
-  #   df <- KMC_data_for_barplot()
-  #decreasing <- reorder(input$SelectGeno,-df[,input$KMC_trait_to_plot])
-  #  bd <- df[, (c(input$SelectGeno, input$KMC_trait_to_plot,"cluster"))]
-  
-  #    }
-  # bd
-  
-  # })
-  
-  
-  
-  #output$kmeans_barplots <- renderPlotly({
-  # if(is.null(barplotData())){return()}
-  #else
-  # df <- barplotData()
-  #decreasing <- reorder("id",-df[,input$KMC_trait_to_plot])
-  # p<-  ggplot(df, aes(x=deacreasing,y=df[,input$KMC_trait_to_plot],fill=df$cluster) )+ geom_bar(stat="identity") + 
-  # theme_classic() +xlab("") + ylab(colnames(df)[,input$KMC_trait_to_plot])+ theme(axis.text.x = element_text(angle = 90, hjust = 1))+  theme(legend.position="none")
-  #p
-  #p <- plot_ly(df, x = ~[,1], y = ~[,2] color = ~[,3], type = "bar")
-  #p
-  
-  # })  
-  
   
   output$facet_barplot_of_KMC <- renderUI({
     if(is.null(KMClusters())){return()}
@@ -8344,7 +8329,7 @@ function(input, output) {
       tagList(
         checkboxInput(
           inputId = "KMC_split_barplot",
-          label = "Would you like to facet/split the barplot?"))
+          label = "Would you like to split the barplot?"))
   })
   
   output$Select_KMC_facet_barplot <- renderUI({
@@ -8354,7 +8339,7 @@ function(input, output) {
         selectizeInput(
           inputId = "facet_KMC_barplot",
           label = "Split the barplot by",
-          choices = c(input$SelectIV,input$SelectGeno,input$SelectTime,input$SelectID),
+          choices = c(input$SelectIV,input$SelectGeno,input$SelectTime),
           multiple = F,
           selected= input$SelectIV))
   })
@@ -8394,27 +8379,15 @@ function(input, output) {
   # Use the selected variable for a new data frame
   
   barplotData <- reactive({
-    #eventReactive(input$Show_table,{
-    #if (input$KMC_split_barplot == T){
-    # if (input$KMC_split_barplot == T){
     bpd<-KMC_data_for_barplot()
     listIV<-c(input$SelectGeno, input$SelectIV, input$SelectTime)
     facet<-input$facet_KMC_barplot
     listNonSel<-setdiff(listIV,facet)
-    #KMC_data_type$id <- do.call(paste,c(KMC_data_type[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
     if(input$KMC_split_barplot == T){
       bpd$id <- do.call(paste, c(bpd[c(listNonSel)], sep="_"))}
     if(input$KMC_split_barplot == F){
       bpd$id <- do.call(paste, c(bpd[c(listIV)], sep="_"))}
-    # d <- barplotData()
-    #final_set <- subset(KMC_data_type, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$SelectDV))
-    # bd <-subset(bpd,select=c("id",input$KMC_trait_to_plot,"cluster"))
-    
-    # bd <- KMC_data_for_barplot()[,c("id", input$KMC_trait_to_plot,"cluster",input$facet_KMC_barplot)]
     bpd
-    
-    #  }
-    #  if(input$KMC_split_barplot == F) {return()}
   })
   
   output$KMC_test1 <- renderDataTable({
@@ -8428,13 +8401,11 @@ function(input, output) {
     if(input$KMC_use_means == T){
       df <- barplotData()
       df$cluster <-as.factor(df$cluster)
-      #df<-d[order(-d[,input$KMC_trait_to_plot]),]
       if(input$KMC_split_barplot == F){
         p <- ggplot(df, aes(x =reorder(id,-df[,input$KMC_trait_to_plot])  , y = df[,input$KMC_trait_to_plot], fill = cluster) )+ 
           geom_bar(stat="identity")+xlab(" ") +ylab(" ") +
           theme(axis.text.x = element_text(angle = 90, hjust = 1))}
       if(input$KMC_split_barplot == T){
-        #df2=df[with(df, order(-z, b)), ]
         df<- df %>%
           ungroup() %>%
           arrange(df[,input$facet_KMC_barplot],-df[,input$KMC_trait_to_plot]) %>%
@@ -8451,7 +8422,6 @@ function(input, output) {
     if(input$KMC_use_means == F){
       df <- barplotData()
       df$cluster <-as.factor(df$cluster)
-      # df<-reorder(df,-df[,input$KMC_trait_to_plot])
       p <- ggplot(df, aes(x = reorder(id,-df[,input$KMC_trait_to_plot]), y = df[,input$KMC_trait_to_plot], color = cluster)) + 
         geom_point() +xlab(" ") +ylab(" ") 
       if(input$KMC_split_barplot == T){
@@ -8481,53 +8451,55 @@ function(input, output) {
   })
   
   output$Legend_barplotKMC <- renderPrint({
-    # if(input$KMCluster_data == "raw data"){
-    #   KMC_data_type <- my_data()
-    # }
-    # if(input$KMCluster_data == "missing values removed data"){
-    #   KMC_data_type <- my_data()[complete.cases(my_data()),]
-    # }
-    # if(input$KMCluster_data == "r2 fitted curves curated data"){
-    #   KMC_data_type <- good_r2()
-    # }
-    # if(input$KMCluster_data == "r2 fitted curves curated data with missing values removed"){
-    #   KMC_data_type <- good_r2()[complete.cases(good_r2()),]
-    # }
-    # if(input$KMCluster_data == "outliers removed data"){
-    #   KMC_data_type <- Outlier_free_data()
-    # }
-    # 
-    # KMC_data_type <- na.omit(KMC_data_type)
-    # # replica number
-    # temp <- KMC_data_type()
-    # temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
-    # temp2 <- subset(temp, select = c("id", input$KMC_pheno))
-    # colnames(temp2)[2] <- "pheno"
-    # temp2 <- na.omit(temp2)
-    # sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})
-    # 
-    # reps <- mean(sum_temp2$pheno.n)
+    # Data curation:
+    if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
+      
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
     
     cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
     if(input$KMC_use_means == T){
       cat("Bar plot of", input$KMC_trait_to_plot, "of each", input$SelectGeno, "arranged in descending order, and colored by K-cluster, where K=", input$kmclusters,".") 
-      cat(" The data used were the means.")}
+      cat(" The mean values were used to calculate k-means clusters.")}
     if(input$KMC_use_means == F){
       cat("Scatter plot of", input$KMC_trait_to_plot, "of each", input$SelectGeno, "arranged in descending order, and colored by K-cluster, where K=", input$kmclusters,".") 
-      cat(" The data used were the individual data points.")}
+      cat(" The individual data points were used to calculate k-means clusters.")}
     if(input$KMCluster_scale_Q == T){
       cat(" The data was scaled to have a variance of 1 and a mean of 0, by subtracting the mean and dividing by the standard deviation.")}
     if(input$KMC_split_barplot == T){
       cat(" The plot was split by", input$facet_KMC_barplot, ".")}
+    if(input$KMC_subset_Q == T){
+      cat("The data was subsetted for", input$KMC_trait_sub, "(", input$KMC_trait_sub_spec, ").")
+    }
     
-    #"means of", round(reps, digits=2), "replicates on average."
-    #"individual data points of", round(reps, digits=2), "replicates on average."
+    # Data curation:
+    if(input$KMCluster_data == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(how_many == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
     
   })
-  
-  
   
   
   # - - - - - - - - - - - >> DOWNLOAD BAR PLOT << - - - - - - - - - - - 
@@ -8538,10 +8510,8 @@ function(input, output) {
       downloadButton("downl_kmeans_barplots", "Download plot")
   })
   
-  
-  
   output$downl_kmeans_barplots <- downloadHandler(
-    filename = function(){paste("Plot representing K-means clustering with ", input$kmclusters, " clusters for ", input$KMC_trait_to_plot, " MVApp.pdf")},
+    filename = function(){paste("Plot representing K-means clustering with", input$kmclusters, "clusters for", input$KMC_trait_to_plot, "using", input$KMCluster_data, "subsetted for", input$KMC_trait_sub, "(", input$KMC_trait_sub_spec, ") MVApp.pdf")},
     content = function(file) {
       pdf(file)
       plot <- kmeans_BP()
@@ -8579,22 +8549,14 @@ function(input, output) {
       )
   })
   
-  # Combine the selected variables into a new data frame
-  # selectedData <- reactive({
-  #  mydata2 <- KMC_data_type()
-  # mydata2[, c(input$xcol_kmeans, input$ycol_kmeans)]
-  # })
   
-  # output$KMC_test2 <- renderDataTable({
-  #  selectedData()
-  # })
   output$facet_scatterplot_of_KMC <- renderUI({
     if(is.null(KMClusters())){return()}
     else
       tagList(
         checkboxInput(
           inputId = "KMC_split_scatterplot",
-          label = "Would you like to facet/split the scatterplot?"))
+          label = "Would you like to split the scatterplot?"))
   })
   
   output$Select_KMC_facet_to_plot <- renderUI({
@@ -8687,52 +8649,53 @@ function(input, output) {
   })
   
   output$Legend_scatterplotKMC <- renderPrint({
-    # if(input$KMCluster_data == "raw data"){
-    #   KMC_data_type <- my_data()
-    # }
-    # if(input$KMCluster_data == "missing values removed data"){
-    #   KMC_data_type <- my_data()[complete.cases(my_data()),]
-    # }
-    # if(input$KMCluster_data == "r2 fitted curves curated data"){
-    #   KMC_data_type <- good_r2()
-    # }
-    # if(input$KMCluster_data == "r2 fitted curves curated data with missing values removed"){
-    #   KMC_data_type <- good_r2()[complete.cases(good_r2()),]
-    # }
-    # if(input$KMCluster_data == "outliers removed data"){
-    #   KMC_data_type <- Outlier_free_data()
-    # }
-    # 
-    # KMC_data_type <- na.omit(KMC_data_type)
-    # # replica number
-    # temp <- KMC_data_type()
-    # temp$id <- do.call(paste,c(temp[c(input$SelectGeno, input$SelectIV, input$SelectTime)], sep="_"))
-    # temp2 <- subset(temp, select = c("id", input$KMC_pheno))
-    # colnames(temp2)[2] <- "pheno"
-    # temp2 <- na.omit(temp2)
-    # sum_temp2 <- summaryBy(pheno ~ id, data=temp2, FUN = function(x){c(m = mean(x), n = length(x))})
-    # 
-    # reps <- mean(sum_temp2$pheno.n)
-    
+    if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
+      
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
+      }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
     
     cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
     cat("Scatter plot of", input$xcol_kmeans,"vs.", input$ycol_kmeans, "of each", input$SelectGeno, "colored by K-cluster, where K=", input$kmclusters,".") 
     if(input$KMC_use_means == T){
-      cat(" The data used were the means.")}
+      cat(" The mean values were used to calculate k-means clusters.")}
     if(input$KMC_use_means == F){
-      cat(" The data used were the individual data points.")}
+      cat(" The individual data points were used to calculate k-means clusters.")}
     if(input$KMCluster_scale_Q == T){
       cat(" The data was scaled to have a variance of 1 and a mean of 0, by subtracting the mean and dividing by the standard deviation.")}
     if(input$KMC_split_scatterplot == T){
       cat(" The plot was split by", input$facet_KMC_plot, ".")}
+    if(input$KMC_subset_Q == T){
+      cat("The data was subsetted for", input$KMC_trait_sub, "(", input$KMC_trait_sub_spec, ").")
+    }
     
-    #"means of", round(reps, digits=2), "replicates on average."
-    #"individual data points of", round(reps, digits=2), "replicates on average."
+    # Data curation:
+    if(input$KMCluster_data == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(how_many == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
     
   })
-  
   
   
   # - - - - - - - - - >> DOWNLOAD SCATTER PLOT << - - - - - - - - - - 
@@ -8743,10 +8706,8 @@ function(input, output) {
       downloadButton("downl_kmeans_scatter_plot", "Download plot")
   })
   
-  
-  
   output$downl_kmeans_scatter_plot <- downloadHandler(
-    filename = function(){paste("Plot representing K-means clustering with ", input$kmclusters, " clusters representing correlation between ", input$xcol_kmeans, " and ", input$ycol_kmeans, " MVApp.pdf")},
+    filename = function(){paste("Plot representing K-means clustering with ", input$kmclusters, " clusters representing correlation between ", input$xcol_kmeans, " and ", input$ycol_kmeans, "using", input$KMCluster_data, "subsetted for", input$KMC_trait_sub, "(", input$KMC_trait_sub_spec, ") MVApp.pdf")},
     content = function(file) {
       pdf(file)
       plot <- kmeans_SCP()
@@ -8842,7 +8803,7 @@ function(input, output) {
     }
     if(input$herit_facet == T){
       tagList(
-        selectInput("Heritfacet_choice", "Independent Variable to subset the data",
+        selectInput("Heritfacet_choice", "Subset the data by:",
                     choices = c(
                       input$SelectIV,
                       #input$SelectGeno,
@@ -8858,8 +8819,52 @@ function(input, output) {
     }
   })
   
+  
+  output$Herit_splito <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
+    if(input$herit_split == T){
+      lista <- c(input$SelectIV, input$SelectTime, input$SelectID)
+      listb <- setdiff(lista, input$Heritfacet_choice)
+      
+      tagList(
+        selectInput("Heritsplit_choice", "Subset the data by:",
+                    choices = c(listb),
+                    multiple = F))
+    }
+    else{
+      return()
+    }
+  })
+  
+  output$Herit_split_spec <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
+    if(input$herit_split == T){
+      my_data <- Herit_data_type()
+      my_data$splito <- my_data[,input$Heritsplit_choice]
+      
+      tagList(
+        selectInput("Heritsplit_choice_spec", "Use subset:",
+                    choices = c(as.character(unique(my_data$splito))),
+                    multiple = F))
+    }
+    else{
+      return()
+    }
+  })
+  
+  
   output$Heri_table <- renderDataTable({
     heritdata2<-Herit_data_type()
+    
+    if(input$herit_split == T){
+      the_one <- input$Heritsplit_choice_spec
+      heritdata2$splito <- heritdata2[,input$Heritsplit_choice]
+      heritdata2 <- subset(heritdata2, heritdata2$splito == the_one)
+    }
     
     if(input$SelectYear != "none" & input$SelectLocation != "none")  { 
       heritdata <- subset(heritdata2, select = c(input$HeritabDV,input$SelectGeno,input$Heritfacet_choice, input$SelectYear, input$SelectLocation))
@@ -8878,9 +8883,22 @@ function(input, output) {
   
   output$HeritValue<-renderPrint({
     heritdata2<-Herit_data_type()
+    
+    if(input$herit_split == T){
+      the_one <- input$Heritsplit_choice_spec
+      heritdata2$splito <- heritdata2[,input$Heritsplit_choice]
+      heritdata2 <- subset(heritdata2, heritdata2$splito == the_one)
+    }
+    
     Repnum<-as.numeric(input$RepID)
     cat(paste("The number of replicates is",Repnum, sep=":"))
     cat("\n")
+    
+    if(input$herit_split == T){
+      cat(" The data was subsetted per", input$Heritsplit_choice, " - displaying results for ", input$Heritsplit_choice, input$Heritsplit_choice_spec)
+      cat("\n")
+    }
+    
     if(input$herit_facet == F){
       if(input$SelectYear != "none" & input$SelectLocation != "none")  { 
         heritdata_na <- subset(heritdata2, select = c(input$HeritabDV,input$SelectGeno,input$Heritfacet_choice, input$SelectYear, input$SelectLocation))
@@ -9171,6 +9189,8 @@ function(input, output) {
   })  
   
   
+  
+  
   QA_data<- eventReactive(exists(input$data_to_use),{
     if(input$data_to_use == "raw data"){
       QA_data <- my_data()
@@ -9214,7 +9234,7 @@ function(input, output) {
     tagList(
       selectizeInput(
         inputId = "QA_subset",
-        label = "Subset the data by:",
+        label = "Split the data by:",
         choices=c(input$SelectGeno, input$SelectIV, input$SelectTime),
         multiple=T,
         options = list(maxItems = 2)
@@ -9248,8 +9268,53 @@ function(input, output) {
     )
   })
   
+  output$Quantile_sub_trait <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
+    if(input$Quantile_sub_Q == T){
+      lista <- c(input$SelectIV, input$SelectTime, input$SelectID, input$SelectGeno)
+      listb <- setdiff(lista, input$QA_subset)
+      
+      tagList(
+        selectInput("QAsplit_choice", "Subset the data by:",
+                    choices = c(listb),
+                    multiple = F))
+    }
+    else{
+      return()
+    }
+  })
+  
+  output$Quantile_sub_spec <- renderUI({
+    if(is.null(ItemList())){
+      return()
+    }
+    if(input$Quantile_sub_Q == T){
+      my_data <- QA_data()
+      my_data$splito <- my_data[,input$QAsplit_choice]
+      
+      listb <- as.character(unique(my_data$splito))
+      
+      tagList(
+        selectInput("QAsplit_choice_spec", "Specific subset:",
+                    choices = c(listb),
+                    multiple = F))
+    }
+    else{
+      return()
+    }
+  })
+  
+  
   QA_final_data_display <- eventReactive(input$Go_data,{
     temp <- data.frame(QA_data())
+    
+    if(input$Quantile_sub_Q == T){
+      the_one <- input$QAsplit_choice_spec
+      temp$splito <- temp[,input$QAsplit_choice]
+      temp <- subset(temp, temp$splito == the_one)
+    }
     
     
     if(input$Scale_QA==T){
@@ -9301,7 +9366,7 @@ function(input, output) {
       tagList(
         selectizeInput(
           inputId = "QA_subset_S",
-          label = "Subset:",
+          label = "Use subset:",
           choices=c(the_list),
           multiple=F
         ))}
@@ -9555,7 +9620,7 @@ function(input, output) {
     tagList(
       selectizeInput(
         inputId = "plot_subset",
-        label = "Choose subset:",
+        label = "Use subset:",
         choices = list,
         multiple=F
       )
@@ -9591,7 +9656,7 @@ function(input, output) {
   
   
   # Plots - single 
-  QA_plot_single <- eventReactive(input$Go_plot,{
+  QA_plot_single <- reactive({
     
     temp <-
       subset(
@@ -9702,7 +9767,7 @@ function(input, output) {
   
   
   # PLOTS - multiple 
-  QA_plot_multi <- eventReactive(input$Go_plot,{
+  QA_plot_multi <- reactive({
     
     temp <-
       subset(

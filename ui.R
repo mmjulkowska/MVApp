@@ -402,7 +402,7 @@ tabPanel("Correlations",
                           # which data set to use (summarized / na / original) selectize, multiple = F
                           uiOutput("cor_phenos",lable = "Choose nummeric variables from your data for correlation analysis"),
                           # which data set to use (summarized / na / original) selectize, multiple = F
-                          checkboxInput("cor_data_subset", label = "Subset your data for correlation analysis?"),
+                          checkboxInput("cor_data_subset", label = "Subset the data?"),
                           uiOutput("cor_subset"),
                           uiOutput("CorSpecIV_val")),
                         wellPanel(
@@ -459,10 +459,9 @@ tabPanel("Dimensionality reduction", icon = icon("object-group"),
                              sidebarPanel(
                                fluidRow(
                                  uiOutput("PCA_Pheno_data"),
-                                 actionButton("Go_PCAdata", label = "Set the dataset"),
                                  uiOutput("PCA_Select_pheno"),
                                  checkboxInput("PCA_Scale_Q", "Scale the data?"),
-                                 selectizeInput("PCA_data_subset", label = "Perform PCA on:", choices=c("full dataset", "subsetted dataset")),
+                                 checkboxInput("PCA_data_subset", label = "Subset the data?"),
                                  uiOutput("PCA_subset_trait"),
                                  uiOutput("PCA_subset_specific"),
                                  br(),
@@ -516,10 +515,9 @@ tabPanel("Dimensionality reduction", icon = icon("object-group"),
                                
                                fluidRow(
                                  uiOutput("MDS_Pheno_data"),
-                                 actionButton("Go_MDSdata", label = "Set the dataset"),
                                  uiOutput("MDS_Select_pheno"), 
                                  checkboxInput("MDS_Scale_Q", "Scale the data?"),
-                                 selectizeInput("MDS_subset_Q", label = "Perform MDS on:", choices=c("full dataset", "subsetted dataset")),
+                                 checkboxInput("MDS_subset_Q", label = "Subset the data?"),
                                  uiOutput("MDS_subset_trait"),
                                  uiOutput("MDS_subset_specific"),
                                  br(),
@@ -564,7 +562,7 @@ tabPanel("Clustering", icon = icon("sitemap"),
                                  uiOutput("Select_phenotypes_cluster"),
                                  checkboxInput(inputId = "Hcluster_scale_Q", label = "Scale the data prior to clustering"),
                                  checkboxInput("Cluster_pre_calc", label = "Perform cluster analysis on mean values?"),
-                                 checkboxInput("Cluster_subset_Q", label = "Subset the data for cluster analysis?"),
+                                 checkboxInput("Cluster_subset_Q", label = "Subset the data?"),
                                  uiOutput("Cluster_subset_trait"),
                                  uiOutput("Cluster_subset_specific"),
                                  uiOutput("Select_clustering_method"),
@@ -613,6 +611,9 @@ tabPanel("Clustering", icon = icon("sitemap"),
                  uiOutput("Select_DV_KMC"),
                  checkboxInput(inputId = "KMCluster_scale_Q", label = "Scale the data prior to clustering"),
                  checkboxInput("KMC_use_means", label = "Perform K-means cluster analysis on mean values?"),
+                 checkboxInput("KMC_subset_Q", label = "Subset the data?"),
+                 uiOutput("KMC_subset_trait"),
+                 uiOutput("KMC_subset_specific"),
                  #actionButton(inputId= "Select_data_KMC", label = "Set the dataset"),
                  br(),br(),
                  actionButton(inputId="Go_KMClustering_advise", label = "Unleash optimal cluster number estimation"),
@@ -626,11 +627,9 @@ tabPanel("Clustering", icon = icon("sitemap"),
                mainPanel(
                  navbarPage("KMC",
                             tabPanel("Selected dataset",
-                                     # column(12,uiOutput("downl_KMC_data_type")),
                                      dataTableOutput("KMC_data_table")
                             ),
                             tabPanel("Final data for K-means",
-                                     # column(12,uiOutput("downl_KMC_for_matrix")),
                                      dataTableOutput("KMCluster_test")
                             ),
                             
@@ -662,7 +661,7 @@ tabPanel("Clustering", icon = icon("sitemap"),
                                      column(12,checkboxInput("show_optimalK_legend", "Show the figure legend"),
                                             uiOutput("optimalK_legend_show"))
                             ),
-                            tabPanel("K means clustering barplots",
+                            tabPanel("K means clustering plots",
                                      column(4, uiOutput("Select_KMC_trait")),
                                      column(4, uiOutput("facet_barplot_of_KMC"),
                                             uiOutput("Select_KMC_facet_barplot")),
@@ -720,8 +719,11 @@ tabPanel("Heritability", icon=icon("pagelines"),
                         uiOutput("LocationID"),
                         numericInput("RepID", label="Type in the number of replications per location per year", value = 4, min=1),
                         uiOutput("HeritabilityDV"),
-                        checkboxInput("herit_facet", "Would you like to subset the data?"),
-                        uiOutput("Heritfacets")
+                        checkboxInput("herit_facet", "Split the data?"),
+                        uiOutput("Heritfacets"),
+                        checkboxInput("herit_split", "Subset the data?"),
+                        uiOutput("Herit_splito"),
+                        uiOutput("Herit_split_spec")
                       )),
          mainPanel(
                                dataTableOutput("Heri_table"),
@@ -741,8 +743,11 @@ tabPanel("Quantile regression", icon = icon("paper-plane-o"),
              uiOutput("QA_subset_trait"),
              uiOutput("Pheno_explanatory"),
              uiOutput("p_value_thresh"),
+             checkboxInput("Quantile_sub_Q", "Subset the data?"),
+             uiOutput("Quantile_sub_trait"),
+             uiOutput("Quantile_sub_spec"),
              checkboxInput("Scale_QA", label = "Scale the data for quantile analysis?"),
-             actionButton("Go_data", label = "Click to set the data ")
+             actionButton("Go_data", label = "Unleash the power of Quantile Regression")
            )), # end of sidebar panel
          mainPanel(
            navbarPage("Analyze it",
@@ -774,7 +779,6 @@ tabPanel("Quantile regression", icon = icon("paper-plane-o"),
                                  
                                ),
                                fluidRow(
-                                column(4,actionButton("Go_plot", label = "View plot(s):")),
                                 column(4,downloadButton("downl_plot_QA", "Download plot"))),
                                plotOutput("QA_plot", height = 425),
                                column(12,checkboxInput("show_QA_legend", "Show the figure legend"),
