@@ -9,104 +9,192 @@ The app is available [here](http://mvapp.kaust.edu.sa/MVApp/) or you can run it 
 
 (....it will take some time for the first time to upload all the libraries)
 
-## Purpose - What is MVApp for?
-MVApp was created to streamline data analysis for all kinds of biological queries - from investigating mutant phenotypes or the effects of an experimental treatment, to studying natural variation. 
+## Purpose statement - What is MVApp for?
 
-Although the MVApp development team is armpit-deep in Plant Science we are trying to make the App as applicable as possible for all biological disciplines and beyond...
+MVApp was created to streamline data analysis for all kinds of biological queries - from investigating mutant phenotypes or the effects of an experimental treatment, to studying natural variation using any biological system.  
 
-With the MVApp, we indend to provide a platform allowing:
+We believe that the MVApp will enhance data transparency and standardize data curation and analysis, save time, and empower the scientific community to perform complex analyses without extensive knowledge of R or statistics, while simultaneously it will improve the data analysis literacy in wider scientific community. 
 
-1. Fitting of simple curves (linear/quadratic/exponential/square root) as well as polynomial curves (cubic and smoothed splines) for datasets with a continuous Independent Variable (e.g. time, dose concentrations, latitude...)
-2. Data curation through detection and removal of outliers based on standard statistical methods
-3. Data exploration through analysis of distrubution, variance and significant differences across Independent Variables (e.g. individual genotypes, experimental treatment)
-5. Correlation Analyses between different Dependent Variables (i.e. phenotypes) across user defined data subsets (e.g. for a given genotype, experimental treatment)
-6. Principal Component Analysis and data normalization
-7. Cluster Analysis based on selected dependent variables 
+Although the MVApp development team is burried armpit-deep in Plant Science, we are trying to make the App as applicable as possible for all biological disciplines and beyond. If you have any suggestions on what other analyses we can include, please check out our guidelines on how to [contribute](https://github.com/mmjulkowska/MVApp/blob/master/CONTRIBUTING.md). 
+
+Currently MVApp has following features:
+1. Identification of outliers using different methods based on one or multiple phenotypes 
+2. Summary of the data dynamics by fitting simple functions or polynomial curves to data points
+3. Hypothesis testing using parametric and non-parametric tests, including testing the assumptions of normality and equal variance 
+4. Correlation analysis of measured traits within the specific subsets, as well as for the entire experiment
+5. Reduction of data dimensionality and identifying the traits that explain the most data variance using principal component analysis and multidimensional scaling 
+6. Clustering individual samples using hierarchical or k-means clustering 
+7. Estimation of broad-sense heritability of measured traits 
+8. Quantile regression analysis that allowa the identification of traits with significant contribution to traits of major interest
 
 ### How to cite the MVApp:
+
 The app is not published anywhere (yet - we are working on it), but if you wish to cite the app, please use the following:
 Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "MVApp.pre-release_v2.0 mmjulkowska/MVApp: MVApp.pre-release_v2.0", DOI: 10.5281/zenodo.1067974
 
 ## Table of contents:
 [1. DATA UPLOAD](#1-data-upload)
 #
-[2. DATA MODELLING](#2-data-modelling)
+
+[2. CURVE FITTING](#2-curve-fitting)
 #
+
 [3. OUTLIER SELECTION](#3-outlier-selection)
 #
+
 [4. DATA EXPLORATION](#4-data-exploration)
 #
+
 [5. CORRELATIONS](#5-correlations)
 #
+
 [6. REDUCTION IN DIMENSIONALITY](#6-reduction-in-dimensionality)
 #
+
 [7. CLUSTER ANALYSIS](#7-cluster-analysis)
 #
+
 [8. HERITABILITY](#8-heritability)
 #
+
 [9. QUANTILE REGRESSION](#9-quantile-regression)
 
 
 ### 1. DATA UPLOAD
 
-#### How should I format my data?
-MVApp can handle all kinds of data. It only requires that your data be in .csv format, with at least the following:
-* column with the genotype (if you use only one - please include the name)
-* column(s) with an Independent Variable (e.g. treatment, position, experiment number)
-* column(s) with a Dependent Variable (i.e. phenotypes)
+#### Data format:
 
-To fit curves to your data, you should also include columns containing:
+MVApp can handle .csv files containing at least following collumns: 
+* column with the genotype or the main Independent Variable (if you use only one genotype - we advise you to include one column with the genotype anyway and give the same name to all of your samples)
+* One or multiple column(s) with an Independent Variable (e.g. treatment, position, experimental batch number)
+* One or multiple column(s) containing Dependent Variable - numerical data of the measured traits - also known as the phenotypes
+
+If you have a timeseries experiment, or any other gradient, and you want to fit curves to your data, the input data should include columns containing:
 * Time (or other continuous Independent Variable) - this variable MUST be numeric (e.g. "1" instead of "Day 1")
-
-To perform data analysis on individual replicates, you should also include a column containing:
 * Sample ID - an identifier for each individual sample
 
-Your data should look something like the Example dataset:
+Your data should look similar like the Example dataset, with ID and TIME column being optional:
 ![mvapp_data](https://user-images.githubusercontent.com/14832460/32609292-48dc541c-c570-11e7-8f87-54ca02b646d8.png)
 
 #### Upload and annotate your data
 To upload your data, navigate to the "Upload your data" tab in the uppermost panel. Click on the "Browse" button and locate your .csv data file:
-![mvapp_data_upload1](https://user-images.githubusercontent.com/14832460/32609364-8044b6ce-c570-11e7-9002-dd9f21a700cf.png)
 
-Select the columns pertaining to Genotype, Independent Variables, Dependent Variables and, optionally, continuous Independent Variables and Sample IDs:
-![mvapp_data_upload2](https://user-images.githubusercontent.com/14832460/32609363-801c9950-c570-11e7-809b-d9922fb9a606.png)
+![01_data_upload_01](https://user-images.githubusercontent.com/14832460/38307578-cbd420d8-381c-11e8-919b-a14eeec20648.png)
 
-Finally, click on the "Lock in raw dataset" button to finalise data upload with selected columns and annotations (unselected columns from the original dataset will be dropped at this point). View the newly uploaded dataset in sub-tab "New Data":
-![mvapp_data_upload3](https://user-images.githubusercontent.com/14832460/32609362-7ff50520-c570-11e7-8191-d55065fbfdd6.png)
+Select the columns pertaining to Genotype, Independent Variables, Dependent Variables (phenotypes):
+
+![01_data_upload_02](https://user-images.githubusercontent.com/14832460/38307583-cda4fc3e-381c-11e8-8437-70812471e1cf.png)
+
+![01_data_upload_03](https://user-images.githubusercontent.com/14832460/38307589-d143890a-381c-11e8-8ab7-cc1fbb00996c.png)
+
+Optionally, continuous Independent Variables and Sample IDs:
+
+![01_data_upload_04](https://user-images.githubusercontent.com/14832460/38307590-d164a694-381c-11e8-9a15-5b05c9123e61.png)
+
+Finally, click on the "Click to set the data" button to finalise data upload with selected columns and annotations (unselected columns from the original dataset will be dropped at this point). 
+
+View the newly uploaded dataset in "New Data" sub-tab:
+
+![01_data_upload_05](https://user-images.githubusercontent.com/14832460/38307591-d188f8aa-381c-11e8-82fd-4ad52159d942.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 2. DATA MODELLING
+### 2. CURVE FITTING
 
 ####  Why model your data?
+
 If you have a continuous Independent Variable in your experiment, you might want to estimate how your Dependent Variables change across it. For example, you could investigate the the dynamics of plant/bacterial growth over time, or the dose dependency of a phenotypic response to a chemical treatment. [Fitting curves](https://en.wikipedia.org/wiki/Curve_fitting) will allow you to observe and model these response dynamics.
+
+#### Fitting simple functions
 
 At the moment, MVApp helps you to fit simple functions: linear, quadratic, exponential and square root functions. For these functions, we fit linear model (using lm() function) between the continuous Independent Variable indicated in the "Time" column and the Dependent Variable (phenotype). 
 
-Modelling of non-linear functionsis also relies on fitting a linear function, but after transformation of the Dependent Variable:
+Modelling of non-linear functionsis also relies on fitting a linear function, by transforming the Dependent Variable, so the linear model can be fitted:
 - square root transformation for fitting quadratic function
 - log transformation for fitting exponential function
 - quadratic transformation for fitting the square root function
 
 MVApp extracts the model parameters: y-intercept ("INTERCEPT") and the first regression coefficient ("DELTA"), as well as the r2 values to determine model performance.
 
+#### Fit curves with MVApp
 
-#### Fit curves
 First, in the side panel, select which the Independent Variable(s) you wish to group your samples by, and which Dependent Variable you would like to model. 
+
+![02_curve_fit_01](https://user-images.githubusercontent.com/14832460/38308597-4c0e8f10-3820-11e8-90f2-6de049425f80.png)
+
+![02_curve_fit_02](https://user-images.githubusercontent.com/14832460/38308598-4c2f6186-3820-11e8-9875-6485bdcebbe8.png)
 
 If you don't know which function will fit best, you can click on "Unleash model estimation" button. The best model will be indicated based on the r2 values presented in the table:
 
-![mvapp_model_estimation](https://user-images.githubusercontent.com/14832460/32610095-c63f08da-c572-11e7-88a8-65724913ef0a.png)
+![02_curve_fit_03](https://user-images.githubusercontent.com/14832460/38308599-4c518a86-3820-11e8-91e4-70f2e6370f9d.png)
 
 Decide which model you would like to apply for entire dataset and click "Unleash the model":
 
-![mvapp_model_calculated](https://user-images.githubusercontent.com/14832460/32610094-c60a9d0c-c572-11e7-82f1-9af9fbacf375.png)
+![02_curve_fit_04](https://user-images.githubusercontent.com/14832460/38308600-4c72bfbc-3820-11e8-88aa-a2f192ecdd2d.png)
 
-Whenever you fit the curves to the chosen Dependent Variable (phenotype), the MVApp will automatically calculate the coefficient of correlation (r2) that will indicate how well the fitted function models the observed data. The number of samples that have a poor fit (r2 < 0.7) will be indicated in the message box above the table.
+Whenever you fit the curves to the chosen Dependent Variable (phenotype), the MVApp will automatically calculate the coefficient of correlation (r2) that will indicate how well the fitted function models the observed data. The number of samples that have a poor fit (r2 < 0.7) will be indicated in the message box above the table:
+
+![02_curve_fit_05](https://user-images.githubusercontent.com/14832460/38308602-4c9905fa-3820-11e8-9037-42538b3f446a.png)
+
+You can change the threshold of the r2 by changing the r2 cut-off value:
+
+![02_curve_fit_06](https://user-images.githubusercontent.com/14832460/38308603-4cbbfc5e-3820-11e8-99a2-bad2d4b10339.png)
 
 You can view the lowest r2 values by sorting the samples based on r2 by clicking on the r2 column sorting arrow:
 
-![mvapp_model_rsq_sorted](https://user-images.githubusercontent.com/14832460/32610092-c5e8c0f6-c572-11e7-92ca-7934dd13e8ea.png)
+![02_curve_fit_07](https://user-images.githubusercontent.com/14832460/38308604-4cdb8f6a-3820-11e8-9a6a-f5249ad58ca4.png)
+
+You can download your data without the samples showing poor r2 fit by scrolling down and clicking on "Download curated data with r2 > cut-off" button:
+
+![02_curve_fit_08](https://user-images.githubusercontent.com/14832460/38308605-4d0221b6-3820-11e8-88b5-1d7870c359d6.png)
+
+#### Visualise goodness of fit of the dynamic curves with fit-plots
+
+You can examine how good your data fits to the selected model by viewing fit-plots - the names of the samples are merged by "Genotype_IndependentVariable_SampleID". You can either scroll through the sample list or type in the sample name:
+
+![02_curve_fit_09](https://user-images.githubusercontent.com/14832460/38308606-4d28e918-3820-11e8-89b2-fe4b26a8a8f9.png)
+
+If you are having trouble interpreting the graphs, or need a quick figure legend describing the graph, you can select "show figure legend" for the default version of figure legend to pop-up:
+
+![02_curve_fit_10](https://user-images.githubusercontent.com/14832460/38308607-4d4a1cdc-3820-11e8-80cd-fc991e1b7ae7.png)
+
+You can view multiple fit-plots simultaneously. The plots can be sorted by either increasing or decreasing r2 values:
+
+![02_curve_fit_11](https://user-images.githubusercontent.com/14832460/38308609-4d80554a-3820-11e8-94bc-809ef75d75ed.png)
+
+You can scroll through the individual graphs with the slider on the right side of the main window:
+
+![02_curve_fit_12](https://user-images.githubusercontent.com/14832460/38308610-4da68ec2-3820-11e8-9350-6f8f8c362304.png)
+
+#### Assess and compare the dynamics between Genotypes and / or Independent Variables
+
+Finally, you can have a look how the calculated DELTAs or Coefficients extracted from the models differ between your genotypes and other Independent Variables, such as "treatment". 
+
+You can examine the differences by clicking on sub-tab "Examine differences". The message box at the top provides ANOVA results, with the p-value threshold indicated below the graph:
+
+![02_curve_fit_13](https://user-images.githubusercontent.com/14832460/38308611-4dcabe1e-3820-11e8-9169-5a1741548029.png)
+
+You can use raw data, or data with r2 above the threshold value:
+
+![02_curve_fit_14](https://user-images.githubusercontent.com/14832460/38309174-fdb03c68-3821-11e8-83ce-920b2b75ad3e.png)
+
+By scrolling further down, you will find a panel to control the design of the graph, as well as threshold p-value for the ANOVA:
+
+![02_curve_fit_15](https://user-images.githubusercontent.com/14832460/38309240-2cfde01a-3822-11e8-8e77-27cc3e8cd755.png)
+
+You can change the graph to for example bar graph, remove background or determine what is represented by the error bars. The default figure legend will update automatically too:
+
+![02_curve_fit_18](https://user-images.githubusercontent.com/14832460/38309331-78926dfc-3822-11e8-803f-15762ed632b4.png)
+
+By scrolling further down, you can find the significant groups, as calculated per Tukey's pair-wise test, with the same p-value threshold as ANOVA:
+
+![02_curve_fit_20](https://user-images.githubusercontent.com/14832460/38309459-cb90b0e0-3822-11e8-9dd6-bb4c830b999c.png)
+
+By scrolling down even further, you will find a table containing the summary statistics for your data for all fitted values:
+
+![02_curve_fit_21](https://user-images.githubusercontent.com/14832460/38309493-db7246ae-3822-11e8-969e-5ab3def193c6.png)
+
+#### Fit polynomial curves with MVApp
 
 If your data shows signs of complex dynamics across your continuous Independent Variable (often particularly applicable for long time-series), you might consider fitting a polynomial curve.
 
@@ -119,43 +207,29 @@ For the smoothed splines, we use smooth.spline() function in R, with a choice be
 ![mvapp_model_smoothed](https://user-images.githubusercontent.com/14832460/32610089-c59f6abe-c572-11e7-90a1-7a50f1dd4cb4.png)
 
 
-#### Visualise fit-plots
-You can view how your data fits to the model by viewing single fit-plots - the names of the samples are merged by "Genotype_IndependentVariable_SampleID". You can either scroll through the sample list or type in the sample name:
-
-![mvapp_model_single_plot](https://user-images.githubusercontent.com/14832460/32610100-c6cd6332-c572-11e7-973f-45a99169dfa8.png)
-
-Alternatively, you can view multiple plots simultaneously. The plots can be sorted by either increasing or decreasing r2 values:
-
-![mvapp_model_multiple](https://user-images.githubusercontent.com/14832460/32610099-c6aa4078-c572-11e7-80b6-98efb766b710.png)
-
-Note: By examining the data, you can select the samples with odd dynamics with respect to other replicates and consider removing them from the dataset. 
-
-
-#### Assess and compare the dynamics between Genotypes and other Independent Variables
-Finally, you can have a look how the calculated DELTAs or Coefficients extracted from the models differ between Genotypes and Independent Variables, by clicking on sub-tab "Examine differences". The message box at the top provides ANOVA results, with the p-value threshold indicated below the graph:
-
-![mvapp_model_summarystats](https://user-images.githubusercontent.com/14832460/32610654-75e89eda-c574-11e7-9cf3-bdb69c4d299f.png)
-
-By scrolling further down, you will find a message containing the significance groups, as calculated per Tukey's pair-wise test, with the same p-value threshold as ANOVA.:
-
-![mvapp_model_summarystats](https://user-images.githubusercontent.com/14832460/32610098-c682f090-c572-11e7-8945-d5257b591ca3.png)
-
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 ### 3. OUTLIER SELECTION
 
 #### Why identify potential outliers?
+
 For those familiar with large(ish) scale experiments, you have probably had to curate your data, removing [outlier](https://en.wikipedia.org/wiki/Outlier#Working_with_outliers) samples that stem from experimental errors or even mistakes made while recording data. This will help avoid making spurrious conclusions based on unrepresentative data. 
 
 You likely identified these problem samples by simple graphical means, or based on their distance from the median in terms of the Standard Deviation or the Interquartile Range.
 
 MVApp helps to automatically highlight potential outliers based on a single or multiple Dependent Variables, using various approaches. However, be careful, outliers should not be removed mindlessly. It is good practice to justify outlier samples, perhaps refering to notes or images taken during the experiment that might explain the unusual result. It is possible that a "potential outlier" is in fact a valuable, if extreme, result. 
 
-
 #### Highlight potential outliers
-Begin by deciding whether or not to remove samples with missing values by clicking the check-box in the top-left corner of the side-bar.
 
-Then, select the Independent Variable(s) by which to group the samples, and the Dependent Variables you would like to investigate for outliers. By default, MVApp assumes that you would like to group the variables by Genotype, ALL Independent Variables and Time (Sample ID is excluded), across all Dependent Variables.
+Begin by deciding which data-set you would like to use. Whether or not to remove samples with missing values or (in case you have performed curve fitting) dataset with curated r2 values:
+
+![03_outliers_01](https://user-images.githubusercontent.com/14832460/38309888-d661cff8-3823-11e8-8c59-c3dd645f64a3.png)
+
+![03_outliers_02](https://user-images.githubusercontent.com/14832460/38309889-d6870818-3823-11e8-8814-b65f44427386.png)
+
+Select the Independent Variable(s) by which to group the samples, and whether you would like to select outliers based on one, some or all phenotypes / measured traits:
+
+![03_outliers_03](https://user-images.githubusercontent.com/14832460/38310382-0f991b2c-3825-11e8-9d1d-2eb76e13a374.png)
 
 Next, select which method you would like to use to highlight potential outliers. MVApp provides following methods:
 - 1.5x [Interquartile Range](http://www.purplemath.com/modules/boxwhisk3.htm): this is the most commonly used method and is visually very appealing, as the potential outliers will be identified on the boxplot as the "dots" outside of the whiskers
@@ -166,15 +240,15 @@ Next, select which method you would like to use to highlight potential outliers.
 - 2.5x Standard Deviation from the Median - all the samples that are further than 2.5xSD from the median are highlighted as potential outliers
 - 3x Standard Deviation from the Median - all the samples that are further than 3xSD from the median are highlighted as potential outliers
 
-![mvapp_outlier_methods](https://user-images.githubusercontent.com/14832460/32647173-51f8df5e-c5f0-11e7-8dc4-8ce1d9da152a.png)
+![03_outliers_04](https://user-images.githubusercontent.com/14832460/38309891-d6d85d3a-3823-11e8-8422-a38d88a8fdc9.png)
 
-Finally, if you decided to select outliers based on all Dependent Variables, use the slider input in the side panel to select the number of Dependent Variables a given sample must be an outlier in order to consider it an outlier across the whole experiment, i.e. the samples that extreme across so many phenotypes that they warrant being removed from the data analysis.
+You can now click on the "unleash the outlier highlighter" to view the curated data. In the main tab, the outlier message will appear indicating the number of potential outliers highlightes, as well as a table of your data. If you scroll to the right, you will see the columns marked "outl_Dependent Variable" (for example "outl_AREA"), where "true" will indicate this sample as being an outlier per genotype / day / independent variables selected. If considering all Dependent Variables, the final column will indicate whether a given sample is a potential outlier in a number of Dependent Variables that meets or exceeds the user-defined threshold (annotated as "true").
+The number of identified outliers will be shown in the text box above the table:
+
+
+If you decided to select outliers based on all Dependent Variables, use the slider input in the side panel to select the number of Dependent Variables a given sample must be an outlier in order to consider it an outlier across the whole experiment, i.e. the samples that extreme across so many phenotypes that they warrant being removed from the data analysis.
 
 ![mvapp_outlier_output1](https://user-images.githubusercontent.com/14832460/32647171-51b52f48-c5f0-11e7-8a46-6ae78ad193c3.png)
-
-Click on "Unleash outlier highlighter" to see the table with highlighted outliers. This might take a while - depending on the size of your dataset.
-
-In the main tab, the outlier message will appear indicating the number of potential outliers highlightes, as well as a table of your data. If you scroll to the right, you will see the columns marked "outl_Dependent Variable" (for example "outl_AREA"), where "true" will indicate this sample as being an outlier per genotype / day / independent variables selected. If considering all Dependent Variables, the final column will indicate whether a given sample is a potential outlier in a number of Dependent Variables that meets or exceeds the user-defined threshold (annotated as "true").
 
 
 #### Examine the data with and without potential outliers
@@ -184,11 +258,19 @@ Go to sidepanel sub-tab "Tweak the graphs" and select the Dependent Variable you
 
 Click on the main panel sub-tab "Graph containing outliers" to see your plots prior to removing potential outliers: 
 
-![mvapp_outlier_graph_bugs](https://user-images.githubusercontent.com/14832460/32647170-517e6c4c-c5f0-11e7-99a1-89a3adc59e1c.png)
+![03_outliers_08](https://user-images.githubusercontent.com/14832460/38309897-d79b8594-3823-11e8-9d6b-dbbfcc86d80a.png)
+
+You can reduce the number of genotypes you are examining simultaneously by changing the slider "Show ... number of samples":
+
+![03_outliers_09](https://user-images.githubusercontent.com/14832460/38309898-d7de9ab4-3823-11e8-8dc5-fadf8e51e148.png)
+
+You can change the portion of the data that you examine by changing the slider "Plot portion of the data starting from the element number ...":
+
+![03_outliers_10](https://user-images.githubusercontent.com/14832460/38309899-d80d3aae-3823-11e8-8f90-a5ac6e4cb43d.png)
 
 If you wish to color code your samples or split the plots based on your Independent Variables, you can do this in the side panel:
 
-![mvapp_outlier_graph_facet_color](https://user-images.githubusercontent.com/14832460/32647168-507f1f26-c5f0-11e7-9f9f-c0f162cf7f95.png)
+![03_outliers_11](https://user-images.githubusercontent.com/14832460/38309900-d83248f8-3823-11e8-9234-57fe8fec05ca.png)
 
 If you want to alter the order of your samples, you can swap the order of the Independent Variables in the sidebar sub-panel "Outlier selection":
 
@@ -202,21 +284,17 @@ If you want to look at the graphs with potential outliers removed (as highlighte
 
 IMPORTANT NOTE: This outlier test was developed to facilitate data curation. Please do NOT remove any data before making absolutely sure that there is a very good reason that the sample is not representative. We recommend downloading the dataset with outliers highlighted , manually removing samples that you can reasonably explain, and reuploading the curated dataset before continuing with your analysis.
 
-PICTURE OF MOUSE EATING A PLANT
-
-
 #### Calculate summary statistics
+
 MVApp can calculate [summary statistics](https://en.wikipedia.org/wiki/Summary_statistics) functions (e.g. mean, median, standard deviation) in the main panel sub-tab "Summary data".
 
-Select the dataset in the upper left corner of the tab, and select the functions that you want to be calculated in the upper right corner.
+Select the dataset that you would like to use in the upper left corner of the main tab, and select the functions that you want to be calculated in the upper right corner. After selecting everything click "Unleash summary statistics":
 
-NOTE: If you removed missing values prior to outlier selection, the dataset without outliers will NOT contain missing values. If you did not removed missing values, the dataset with outliers removed WILL contain missing values. 
+![03_outliers_17](https://user-images.githubusercontent.com/14832460/38311203-472c28a2-3827-11e8-846a-f89b377fb732.png)
 
-![mvapp_outlier_summ_stats](https://user-images.githubusercontent.com/14832460/32647166-503e1d64-c5f0-11e7-98ff-54ef9cc5fa02.png)
+Table containing all the calculations will appear in the main panel. You can download the data into your computer by clicking "Download summary statistics data" button:
 
-Click on "Unleas Summary Statistics" and the table will appear in the main panel:
-
-![mvapp_outlier_summstats2](https://user-images.githubusercontent.com/14832460/32647174-52602bd2-c5f0-11e7-87f7-616859da1044.png)
+![03_outliers_19](https://user-images.githubusercontent.com/14832460/38311204-474fdb62-3827-11e8-9852-b12780b37807.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
