@@ -34,28 +34,28 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 
 ## Table of contents:
 [1. DATA UPLOAD](#1-data-upload)
-#
+
 
 [2. CURVE FITTING](#2-curve-fitting)
-#
+
 
 [3. OUTLIER SELECTION](#3-outlier-selection)
-#
+
 
 [4. DATA EXPLORATION](#4-data-exploration)
-#
+
 
 [5. CORRELATIONS](#5-correlations)
-#
+
 
 [6. REDUCTION IN DIMENSIONALITY](#6-reduction-in-dimensionality)
-#
+
 
 [7. CLUSTER ANALYSIS](#7-cluster-analysis)
-#
+
 
 [8. HERITABILITY](#8-heritability)
-#
+
 
 [9. QUANTILE REGRESSION](#9-quantile-regression)
 
@@ -299,6 +299,7 @@ Table containing all the calculations will appear in the main panel. You can dow
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 ### 4. DATA EXPLORATION
+
 Once your data is nice and clean and ready to go, it's time to start having a proper look at it. A good place to start is to check out how your data is distributed using histograms and boxplots, grouping samples according to your various Independent Variables. From these you can get an idea of how your different genotypes are behaving, how your treatments are affecting your phenotypes, how variable your data is. 
 
 Beyond eyeballing, you can apply statistical tests such as ANOVA to test whether there are significant differences between groups. These are all easy things to do in MVApp, which also helps you check the assumptions of these statistical tests, such as normal distribution and homoscedasticity (i.e. equal variance).
@@ -308,56 +309,114 @@ In the side panel, you can choose:
 - The Independent Variable to subset the data by
 - The Dependent Variable you want to plot
 - The p-value threshold to be used in subsequent tests in the tab (e.g.: Levene's test, ANOVA, etc.). The default value is 0.05
-- If you want to facet your graphs by another Independent Variable, tick the checkbox "Would you like to facet the graph?" a dropdown menu with a list of independent variables appears. The user can choose the independent variable to split the plot.
+- If you want to facet your graphs by another Independent Variable, tick the checkbox "Split the graph?" a dropdown menu with a list of independent variables appears. The user can choose the independent variable to split the plot.
 
-<img width="1115" alt="data exploration input choices" src="https://user-images.githubusercontent.com/15339112/32780896-6bf2d2aa-c8ef-11e7-81f1-45add2e36d98.png">
+
+![04_explore_01](https://user-images.githubusercontent.com/14832460/38313740-731447a0-382d-11e8-974c-e26a14023931.png)
 
 Once the choices are made, the user can proceed to the different tests available in the DATA EXPLORATION tab.
 
 #### Examine distribution
-Start in the side-panel by selecting the dataset you want to examine, the Independent Variable you want to group your samples by, and the Dependent Variable you want to plot. If you want to split the graphs by another Independent Variable, tick the "Split graph?" checkbox and select the Independent Variable in the dropdown menu that appears. You can also select the p-value threshold for the subsequent statistical tests.
 
 Your histograms will appear in the "Testing normal distribution" sub-tab, where you can chose between having "Histograms with  counts on y-axis" or "Histograms with density on y-axis".
 
+![04_explore_03](https://user-images.githubusercontent.com/14832460/38313742-735eaf48-382d-11e8-81cf-c46d74818313.png)
+
+![04_explore_04](https://user-images.githubusercontent.com/14832460/38313743-7384a234-382d-11e8-96a7-2b5427adb3ca.png)
+
+You can split the graphs by Independent Variable, by ticking the box "Split the graph?" and chosing the Independent Variable that you would like to use for splitting:
+
+![04_explore_05](https://user-images.githubusercontent.com/14832460/38313744-73a72ad4-382d-11e8-81ec-6dc65e9fa85a.png)
+
+You can subset your data even further, by ticking the box "Subset the data?" in the main windown, and selecting yet another one of the Independent Variables, and selecting specific value of this variable that will be used for the displayed graphs:
+
+![04_explore_06](https://user-images.githubusercontent.com/14832460/38313746-73cb34a6-382d-11e8-97fd-d185c69c2d99.png)
+
 From these plots, you can look at the spread of your data across the Independent Variable groupings selected in the side-panel. Below the histograms, you will find a message that summarizes the groups/subgroups that seem to not have a normal distribution, where the p-value of the Shapiro-Wilk test is larger than the p-value threshold selected in the side-panel. Normal distribution is a requirement for performing an ANOVA test (less so for large sample sizes).
 
-<img width="1119" alt="testing normal distribution" src="https://user-images.githubusercontent.com/15339112/32780913-79ca2e14-c8ef-11e7-85e9-cdec4d163525.png">
+![04_explore_08](https://user-images.githubusercontent.com/14832460/38313752-7416180e-382d-11e8-9c00-a2251687c5a6.png)
 
 If you want to see the detailed results of the Shapiro-Wilk test for all groups/subgroups along with their QQ-plots, tick the checkbox "See detailed Shapiro-Wilk test and QQ-plots". The table shows p-value of the Shapiro-Wilk tests performed for each groups/subgroups. If the p-value of the Shapiro-Wilk test for a group is larger than the selected p-value threshold, in the final column the group will be noted with "Data has NORMAL distribution" appears.
 
-In this case there is not enough evidence to reject the null hypothesis, where the data is considered to be sampled from a normally distributed population. If the p-value of the Shapiro-Wilk test for a group is smaller than the selected p-value threshold, a message "Data might NOT be normally distributed" appears. In this case the null hypothesis is rejected, meaning the data appears not to be sampled from a normally distributed population. However, sample size affects the Shapiro-Wilk test and hence (the more the merrier), the user is strongly encouraged to check the QQ-plots.
+![04_explore_09](https://user-images.githubusercontent.com/14832460/38313755-743b55ba-382d-11e8-9d39-bc4bef2cc315.png)
 
-<img width="1038" alt="shapirowilk detailed and qq" src="https://user-images.githubusercontent.com/15339112/32780927-82b5c4ca-c8ef-11e7-8cf0-e95da533b0d5.png">
-
-If you ticked the "See detailed Shapiro-Wilk test and QQ-plots?" checkbox, sliders for QQ-plots also appear. These sliders help choose the optimum number of columns and plots for display. The first slider " Display QQ plots in ... columns:" allows the user to choose the number of columns for the display of the QQ-plots. If the number of plots is too large to be displayed all at once in the window, a second slider "Plot portion of the data starting from element number..." appears and the user can choose the portion of plots to be displayed. 
-
-<img width="1075" alt="qqplot slides" src="https://user-images.githubusercontent.com/15339112/32780970-a9d7add4-c8ef-11e7-9622-4dbb3fac5f76.png">
+Sample size affects the Shapiro-Wilk test and hence (the more the merrier), the user is strongly encouraged to check the QQ-plots. If you ticked the "See detailed Shapiro-Wilk test and QQ-plots?" checkbox, sliders for QQ-plots also appear. These sliders help choose the optimum number of columns and plots for display. The first slider " Display QQ plots in ... columns:" allows the user to choose the number of columns for the display of the QQ-plots. If the number of plots is too large to be displayed all at once in the window, a second slider "Plot portion of the data starting from element number..." appears and the user can choose the portion of plots to be displayed. 
 
 Based on the results obtained in this sub-tab, you can have a better judgement in the following sub-tab whether to check Bartlett or Levene test for equal variances.
 
 #### Examine variance
+
 In the "Testing equal variance" sub-tab, you can have a look at the results of the Bartlett test and Levene test of homogeneity of variances between the different groups and for each sub-groups. Equal variances, or homoscedasticity, is also a requirement for performing an ANOVA test.
 
-The null hypothesis of the Bartlett test and Levene tests assumes that the variances in each of the groups are the same. The Bartlett test is more robust when the data comes from a normal distribution, while Levene test is more robust in case of departures from normality.
+In the main window you see the boxplots for each group: left -  the observed data (y), middle - the data with the subtracted median (y-med(y)), right - the absolute deviations from the median (abs(y-med(y))).
 
-<img width="1113" alt="bartlett and levene test result" src="https://user-images.githubusercontent.com/15339112/32780973-b0b08f86-c8ef-11e7-865b-c87f88cb2a8a.png">
+![04_explore_11](https://user-images.githubusercontent.com/14832460/38313757-74758316-382d-11e8-85b2-60ceb99905db.png)
+
+If you scroll lower, you will see the results of both Bartlett and Levene tests. The null hypothesis of the Bartlett and Levene tests assumes that the variances in each of the groups are the same. The Bartlett test is more robust when the data comes from a normal distribution, while Levene test is more robust in case of departures from normality.
 
 The first table displays the results of the Bartlett test and the second table displays those of the Levene test. The tables show the p-value of tests performed for each groups/subgroups. If the p-value of the test for a group is larger than the selected p-value threshold, groups are noted as "Equal". In this case there is not enough evidence to reject the null hypothesis, where the variances are considered equal. If the p-value of the test for a group is smaller than the selected p-value threshold, groups are noted as "Not equal". In this case the null hypothesis is rejected and the variances are considered not equal.
 
+![04_explore_12](https://user-images.githubusercontent.com/14832460/38313758-749abcc6-382d-11e8-9260-6599b19de290.png)
+
 As indicated previously, the results of this sub-tab and the previous sub-tab are needed to for the ANOVA test performed in the following sub-tab. ANOVA assumes the data comes from a normal distribution and the variances are equal.
 
+#### One / two sample test
+
+In this subtab you can explore the differences between a certain value and your sample, or between two selected samples, with one/two sample t-test or Kolmogorov-Smirnov test (for non-parametric samples). 
+
+First select which test you would like to perform and how you wish to group your samples in the left panel of the main window:
+
+![04_explore_14](https://user-images.githubusercontent.com/14832460/38313759-74c039c4-382d-11e8-88bc-c1280fbb21b5.png)
+
+In the case of one-sample t-test you should enter "mu value" - to test for significant difference between the value and the mean value of your selected sample group. The results of the one t-test will be displayed above the boxplot:
+
+![04_explore_15](https://user-images.githubusercontent.com/14832460/38313760-74e2702a-382d-11e8-8782-00677e7419f9.png)
+
+For the two-sample t-test or Kolmogorov-Smirnov test, you should select two specific samples. The results of the test will be shown above the graph:
+
+![04_explore_16](https://user-images.githubusercontent.com/14832460/38313761-750774ec-382d-11e8-8177-f9f4cba93d4c.png)
+
 #### Test significant differences between groups
-In this sub-tab, you can check for signifcant differences in the means between different groups using analysis of variance (ANOVA). A table displays the p-value of the ANOVA test between different levels of the Independent Variable.
 
-<img width="1118" alt="testing significant differences_1" src="https://user-images.githubusercontent.com/15339112/32781415-6d3a68f6-c8f1-11e7-9f33-37b8bc9812ba.png">
+In this sub-tab, you can check for signifcant differences in the means between different groups using analysis of variance (ANOVA) or a non-parametric test (Kruskal-Wallis). A text box displays the p-value of the ANOVA test between different groups of Independent Variables:
 
-If the p-value of the ANOVA test for a group is larger than the selected p-value threshold, groups are noted with "Cannot reject H0". In this case there is not enough evidence to reject the null hypothesis and the means of the groups are assumed equal. If the p-value of the ANOVA test for a group is smaller than the selected p-value threshold, groups are noted with "Significant difference in means". In this case the null hypothesis, where the means of the group are considered equal, is rejected and the means of the groups can be considered significantly different. 
+![04_explore_17](https://user-images.githubusercontent.com/14832460/38313762-752b6ece-382d-11e8-8b2b-a87275348507.png)
 
-Boxplots display the distribution of the data for a specific trait (dependent variable) for the levels of the independent variable. The boxplots are split by the second Independent Variable, selected when if you ticked the checkbox for "Split graph?". 
+If the p-value of the ANOVA test for a group is larger than the selected p-value threshold, groups are noted with "NO significant difference in means". In this case there is not enough evidence to reject the null hypothesis and the means of the groups are assumed equal. If the p-value of the ANOVA test for a group is smaller than the selected p-value threshold, groups are noted with "SIGNIFICANT difference in means". In this case the null hypothesis, where the means of the group are considered equal, is rejected and the means of the groups can be considered significantly different. 
 
-A second table displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for the selected Dependent Variable. In the example below, there is no significant differences in PERIMETER between the salt and control groups for the Genotype C24. While there is a significant difference in PERIMETER between the salt and control groups for the Genotype Te.
+A second text bos displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for the selected Dependent Variable. 
 
-<img width="354" alt="tukey letters" src="https://user-images.githubusercontent.com/15339112/32781182-8d4c2360-c8f0-11e7-931c-2d64589dc1ce.png">
+![04_explore_18](https://user-images.githubusercontent.com/14832460/38313763-754f0aaa-382d-11e8-8dad-7178ff45a294.png)
+
+Boxplots display the distribution of the data for a specific trait (dependent variable) for the levels of the independent variable. The boxplots can be split by the second Independent Variable, selected when if you ticked the checkbox for "Split graph?". You can also change the main Independent Variable to compare differences between Genotypes across the individual subsets:
+
+![04_explore_19](https://user-images.githubusercontent.com/14832460/38313764-7572a4c4-382d-11e8-9816-bbc60a8fdf3e.png)
+
+You can also run a non-parametric test, by selecting it from the drop-down menu:
+
+![04_explore_20](https://user-images.githubusercontent.com/14832460/38313765-759745e0-382d-11e8-9421-a0bf12a3c55e.png)
+
+In case of non-parametric test, Wilcoxon / Mann-Whitney test will be used to make the pairwise comparison between individual groups. The results of the test are displayed in the lower text box:
+
+![04_explore_22](https://user-images.githubusercontent.com/14832460/38313768-760ffa94-382d-11e8-8ca5-ea30de0ce04a.png)
+
+#### Two-way ANOVA
+
+In this sub-tab you can explore the effect of two Independent Variables and interaction between them simultaneously. Select Independent Variable 1 and 2 from the drop-down menu's in the main window:
+
+![04_explore_23](https://user-images.githubusercontent.com/14832460/38313769-7638eb16-382d-11e8-9514-6781937ac340.png)
+
+You can additionally subset your data for yet another Independent Variable, by selecting the "Subset the data?" box, and picking the Independent Variable and specific subset to be displayed / analysed:
+
+![04_explore_24](https://user-images.githubusercontent.com/14832460/38313770-765d0a96-382d-11e8-8858-c2b960c7d5f6.png)
+
+The results of two-way ANOVA are displayed in the text box below the interaction plot. The Independent Variable 1 (IV1) is the variable selected in the most left drop-down menu, while Independent Variable 2 (IV2) is the variable selected in the center drop-down menu:
+
+![04_explore_25](https://user-images.githubusercontent.com/14832460/38313771-768a3c46-382d-11e8-94f6-daa863593fe4.png)
+
+If you scroll down, you can see the residual plot of the two-way ANOVA shown above. The residuals should not show any pattern, indicating the linear relationship between independent variables. If this is not the case, the results of two-way ANOVA should not be trusted:
+
+![04_explore_27](https://user-images.githubusercontent.com/14832460/38313775-76d5e650-382d-11e8-8a95-82e795896863.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
