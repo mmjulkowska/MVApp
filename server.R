@@ -4085,9 +4085,9 @@ function(input, output) {
     cat("\n")
     cat("The plot represents the variance in", which_hist_DV, "between", which_main_IV, "groups.")  
     if(input$plot_facet == T){
-      cat(" The data was subsetted for", second_IV, "(", which_2nd_IV,")")
+      cat(" The data was subsetted for", second_IV, "(", which_second_IV,")")
       if(input$plot_subsVar == T){
-        cat(" and ", third_IV, "(", which_3rd_IV, ").")
+        cat(" and ", third_IV, "(", which_third_IV, ").")
       }
       else
         cat(".")
@@ -4316,7 +4316,7 @@ function(input, output) {
     cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
-    cat("The plot represents the boxplot of", which_hist_DV, "of selected samples grouped according to the selected independent variable.")  
+    cat("The plot represents the boxplot of", which_hist_DV, "of selected samples grouped by", input$OT_grouping_IVskis, ".")  
     
     if(input$OT_testski == "One sample t-test"){
       cat(" The one sample t-test performed on the selected samples tests whether a difference between the mean of all selected samples is significantly different from",input$OT_muski , ".")
@@ -4470,10 +4470,10 @@ function(input, output) {
         pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
         cat("ANOVA", "\n")
         if(input$plot_subsANOVA==F){
-        cat(paste("The p-value of the ANOVA test between different ", input$HisIV, " is ", pvalue_ANOVA, ".", "\n", "\n", sep=""))}
+        cat(paste("The p-value of the ANOVA test between different ", input$HisIV, " is ", round(pvalue_ANOVA,4), ".", "\n", "\n", sep=""))}
         
         if(input$plot_subsANOVA==T){
-          cat(paste("The p-value of the ANOVA test between different ", input$HisIV, " for ", input$subsetdata_choiceANOVA, input$subsetdata_uniquechoiceANOVA, " is ", pvalue_ANOVA, ".", "\n", "\n", sep=""))}
+          cat(paste("The p-value of the ANOVA test between different ", input$HisIV, " for ", input$subsetdata_choiceANOVA, " ", input$subsetdata_uniquechoiceANOVA, " is ", round(pvalue_ANOVA,4), ".", "\n", "\n", sep=""))}
         
         if (summary(fit_anova)[[1]][[1,"Pr(>F)"]]  < as.numeric(as.character(input$Chosenthreshold)) ) {
           cat("SIGNIFICANT difference in means")
@@ -4485,11 +4485,11 @@ function(input, output) {
         fit_anova <- kruskal.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
         cat("Kruskal-Wallis test", "\n")
         if(input$plot_subsANOVA == T){
-        cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, " is ", fit_anova$p.value, ".", "\n", "\n", sep=""))
+        cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, " is ", round(fit_anova$p.value,4), ".", "\n", "\n", sep=""))
         }
         
         if(input$plot_subsANOVA == T){
-          cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, " for ", input$subsetdata_choiceANOVA, input$subsetdata_uniquechoiceANOVA, " is ", fit_anova$p.value, ".", "\n", "\n", sep=""))
+          cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, " for ", input$subsetdata_choiceANOVA, " ", input$subsetdata_uniquechoiceANOVA, " is ", round(fit_anova$p.value), ".", "\n", "\n", sep=""))
         }
         
         if(fit_anova$p.value < as.numeric(as.character(input$Chosenthreshold))){
@@ -8826,11 +8826,12 @@ function(input, output) {
     }
     if(input$herit_split == T){
       lista <- c(input$SelectIV, input$SelectTime, input$SelectID)
-      listb <- setdiff(lista, input$Heritfacet_choice)
+      if(input$herit_facet == T){
+      lista <- setdiff(lista, input$Heritfacet_choice)}
       
       tagList(
         selectInput("Heritsplit_choice", "Subset the data by:",
-                    choices = c(listb),
+                    choices = c(lista),
                     multiple = F))
     }
     else{
@@ -8895,7 +8896,7 @@ function(input, output) {
     cat("\n")
     
     if(input$herit_split == T){
-      cat(" The data was subsetted per", input$Heritsplit_choice, " - displaying results for ", input$Heritsplit_choice, input$Heritsplit_choice_spec)
+      cat("The data was subsetted per", input$Heritsplit_choice, " - displaying results for ", input$Heritsplit_choice, input$Heritsplit_choice_spec)
       cat("\n")
     }
     
