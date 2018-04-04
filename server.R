@@ -2705,14 +2705,15 @@ function(input, output) {
     cat("\n")
     cat("\n")
     cat("The", input$outlier_graph_type, "representing", phenotype, "from", which_data, ".")
-    cat(" The average number of replicates per",input$IV_outliers ,"is", round(reps, digits=2),".")
+    cat(" The average number of replicates per",input$IV_outliers ,"is", round(reps, 2),".")
     if(input$Outlier_on_data == "r2 fitted curves curated data"){
       cat(" The data was curated based on fitting the", input$model ,"function and the samples where goodness of fit (r2) was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
     if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
       cat(" The data was curated based on fitting the", input$model ,"function and the samples where goodness of fit (r2) was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
     if(input$outlier_colour == T){
       cat(" Different colors indicate different", color_by, "-s.")}
-    if(input$model_graph_plot == "bar graph"){
+    
+    if(input$outlier_graph_type == "bar graph"){
       cat(" The bars represent the mean value of the ", phenotype, "and the error bars represent", error_bar,".")}
   })
   
@@ -2879,9 +2880,10 @@ function(input, output) {
     if(input$outlier_colour == T){
       color_by <- input$Q_colour}
     
-    if(input$outlier_graph_type == "bar plot"){
+    if(input$outlier_graph_type == "bar graph"){
       error_bar <- input$out_error_bar  
     }
+    
     
     # Calculating number of replicates
     
@@ -2910,7 +2912,7 @@ function(input, output) {
       cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
     if(input$outlier_colour == T){
       cat(" Different colors indicate different", color_by, "-s.")}
-    if(input$model_graph_plot == "bar graph"){
+    if(input$outlier_graph_type == "bar graph"){
       cat(" The bars represent the mean value of the ", phenotype, "and the error bars represent", error_bar,".")}
   })
   
