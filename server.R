@@ -819,8 +819,7 @@ function(input, output) {
     cat("\n")
     cat("\n")
     cat("The Fit-plot for", input$ModelPheno, "using", model, ".")
-    cat("\n")
-    cat("The x-axis represents", input$SelectTime, "and the y-axis represents", input$ModelPheno, transformation)
+    cat(" The x-axis represents", input$SelectTime, "and the y-axis represents", input$ModelPheno, transformation)
   })
   
   output$Model_fit_graph_download_button <- renderUI({
@@ -2273,7 +2272,7 @@ function(input, output) {
       method <- paste(input$outlier_method)
     }
     
-    cat(paste("There are ", number," outliers identified based on", pheno, "using", method))
+    cat(paste("There are ", number," outliers identified based on", pheno, "using", method, "."))
     cat("\n")
     cat("\n")
     cat("DISCLAIMER:") 
@@ -2708,9 +2707,9 @@ function(input, output) {
     cat("The", input$outlier_graph_type, "representing", phenotype, "from", which_data, ".")
     cat(" The average number of replicates per",input$IV_outliers ,"is", round(reps, digits=2),".")
     if(input$Outlier_on_data == "r2 fitted curves curated data"){
-      cat(" The data was curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      cat(" The data was curated based on fitting the", input$model ,"function and the samples where goodness of fit (r2) was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
     if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
-      cat(" The data was curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      cat(" The data was curated based on fitting the", input$model ,"function and the samples where goodness of fit (r2) was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
     if(input$outlier_colour == T){
       cat(" Different colors indicate different", color_by, "-s.")}
     if(input$model_graph_plot == "bar graph"){
@@ -4607,6 +4606,9 @@ function(input, output) {
       box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
       box_graph<- box_graph + scale_fill_discrete(names(my_his_data[2]))
     }
+    
+    box_graph <- box_graph + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    
     box_graph
   })
   

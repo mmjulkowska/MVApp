@@ -768,18 +768,17 @@ tabPanel("Quantile regression", icon = icon("paper-plane-o"),
                       tabPanel("Quantile plots", 
                                fluidRow(
                                  column(4,uiOutput("Group_plot")),
-                                 column(4,uiOutput("subset_plot"))
+                                 column(4,uiOutput("model_plot_type")),
+                                 column(4,uiOutput("Select_model_variable"),
+                                          uiOutput("QA_plot_slider_input"))
                                ),
                                br(),
                                
+                              
+                               
                                fluidRow(
-                                 column(4,uiOutput("model_plot_type")),
-                                 column(4,uiOutput("Select_model_variable")),
-                                 column(4,uiOutput("QA_plot_slider_input"))
-                                 
-                               ),
-                               fluidRow(
-                                column(4,downloadButton("downl_plot_QA", "Download plot"))),
+                                column(4,downloadButton("downl_plot_QA", "Download plot")),
+                                column(4,uiOutput("subset_plot"))),
                                plotOutput("QA_plot", height = 425),
                                column(12,checkboxInput("show_QA_legend", "Show the figure legend"),
                                       uiOutput("QA_legend_show"))
