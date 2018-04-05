@@ -5073,7 +5073,10 @@ function(input, output) {
     if(input$cor_data == "outliers removed data"){
       Herit_data_type <- Outlier_free_data()
     }
+    
     Herit_data_type
+    
+    
   })
   
   
@@ -5141,6 +5144,9 @@ function(input, output) {
                    input$SelectTime,
                    input$Select_cor_phenos))
     
+    df0 <- na.omit(df0)
+    df <- na.omit(df)
+    
     if (input$cor_data_subset) {
       df0 <- subset(df[df[input$CorIV_sub] == input$CorIV_val, ],select=input$Select_cor_phenos)
     }
@@ -5186,11 +5192,17 @@ function(input, output) {
                    input$SelectTime,
                    input$Select_cor_phenos))
     
+    df <- na.omit(df)
+    
     if (input$cor_data_subset) {
       df0 <- nrow(subset(df[df[input$CorIV_sub] == input$CorIV_val, ],select=input$Select_cor_phenos))
     }
-    else {df0<- nrow(subset(cor_data_type(),select= input$Select_cor_phenos))}
+    else {
+      df <- subset(cor_data_type(),select= input$Select_cor_phenos)
+      df <- na.omit(df)
+      df0<- nrow(df)}
     
+      df0
   })
   
   
