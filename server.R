@@ -1551,11 +1551,25 @@ function(input, output) {
     if(input$Out_pheno_single_multi == "Single phenotype"){
       return()
     }
+    if(input$Out_pheno_single_multi == "Some phenotype"){
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        return()}
+      else{
+        data <- Outlier_overview()
+        max_out <- max(data$Add_outliers)
+        min_out <- min(data$Add_outliers)
+        sliderInput("outlier_cutoff", "Remove the samples which are characterized as an outlier in at least ... traits:", min_out, max_out, value = 2, step = 1)}  
+    }
+    
     if(input$Out_pheno_single_multi == "All phenotypes"){
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        return()
+      }
+      else{
       data <- Outlier_overview()
       max_out <- max(data$Add_outliers)
       min_out <- min(data$Add_outliers)
-      sliderInput("outlier_cutoff", "Remove the samples which are characterized as an outlier in at least ... traits:", min_out, max_out, value = 2, step = 1)  
+      sliderInput("outlier_cutoff", "Remove the samples which are characterized as an outlier in at least ... traits:", min_out, max_out, value = 2, step = 1)}  
     }
   })
   
@@ -1721,7 +1735,7 @@ function(input, output) {
         baddies <- car::outlierTest(mod)
         bad_shit <- names(baddies[[1]])
         bad_shit <- as.numeric(bad_shit)
-        colnames(faka_boom)[endCol + i] <- paste("out", input$SelectDV[i], sep = "")
+        #colnames(faka_boom)[endCol + i] <- paste("out", input$SelectDV[i], sep = "")
         faka_boom$outlier <- FALSE
         faka_boom[bad_shit,]$outlier <- TRUE
         colnames(faka_boom)[which(names(faka_boom) == "outlier")] <- paste("out", input$SelectDV[i], sep = "_")
@@ -2239,14 +2253,24 @@ function(input, output) {
   })
   
   # Outlier report
-  output$Outlier_report <- renderPrint({
+  
+  message_of_the_outliers <- eventReactive(input$Go_outliers,{
     
     tescior <- Outliers_final_data()
+    
     if(input$Out_pheno_single_multi == "All phenotypes"){
-      number0 <- subset(tescior, tescior$Add_outliers >= input$outlier_cutoff)
-      number <- nrow(number0)
-      pheno <- paste(input$Out_pheno_single_multi)
-      method <- paste(input$outlier_method, ". The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits")
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        number0 <- subset(tescior, tescior$Add_outliers >= input$outlier_cutoff)
+        number <- nrow(number0)
+        pheno <- paste(input$Out_pheno_single_multi)
+        method <- paste(input$outlier_method, ". The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits")
+      }
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        number0 <- subset(tescior, tescior$Add_outliers >= 1)
+        number <- nrow(number0)
+        pheno <-paste(input$DV_outliers)
+        method <- paste(input$outlier_method)
+      }
     }
     
     if(input$Out_pheno_single_multi == "Single phenotype"){
@@ -2255,24 +2279,44 @@ function(input, output) {
       pheno <-paste(input$DV_outliers)
       method <- paste(input$outlier_method)
     }
-    if(input$Out_pheno_single_multi == "Some phenotypes"){
-      
-      size <- length(input$DV_outliers)
-      start_row <- (dim(tescior)[2] - size + 1)
-      end_row <- dim(tescior)[2]
-      
-      for(x in 1:nrow(tescior)){
-        z <- tescior[x,start_row:end_row]
-        tescior$Add_outliers[x] <- length(z[z==TRUE]) 
-      }
-      number0 <- subset(tescior, tescior$Add_outliers >= 1)
-      
-      number <- nrow(number0)
-      pheno <-paste(input$DV_outliers)
-      method <- paste(input$outlier_method)
-    }
     
-    cat(paste("There are ", number," outliers identified based on", pheno, "using", method, "."))
+    if(input$Out_pheno_single_multi == "Some phenotypes"){
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        size <- length(input$DV_outliers)
+        start_row <- (dim(tescior)[2] - size + 1)
+        end_row <- dim(tescior)[2]
+        
+        for(e in 1:nrow(tescior)){
+          z <- tescior[e,start_row:end_row]
+          tescior$Add_outliers[e] <- length(z[z==TRUE]) 
+        } 
+        number0 <- subset(tescior, tescior$Add_outliers >= 1)
+        
+        number <- nrow(number0)
+        pheno <-paste(input$DV_outliers)
+        method <- paste(input$outlier_method)}
+      
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        size <- length(input$DV_outliers)
+        start_row <- (dim(tescior)[2] - size + 1)
+        end_row <- dim(tescior)[2]
+        
+        for(e in 1:nrow(tescior)){
+          z <- tescior[e,start_row:end_row]
+          tescior$Add_outliers[e] <- length(z[z==TRUE]) 
+        } 
+        number0 <- subset(tescior, tescior$Add_outliers >= 1)
+        
+        number0 <- subset(tescior, tescior$Add_outliers >= 1)
+        number <- nrow(number0)
+        pheno <-paste(input$DV_outliers)
+        method <- paste(input$outlier_method)
+      }
+    }
+    if(input$Out_pheno_single_multi == "All phenotypes"){
+      cat("There are ", number," outliers identified based on all phenotypes using", method, ".")}
+    else{
+      cat("There are ", number," outliers identified based on", input$DV_outliers, "using", method, ".")}
     cat("\n")
     cat("\n")
     cat("DISCLAIMER:") 
@@ -2280,7 +2324,12 @@ function(input, output) {
     cat("Please think twice before removing a sample from your data, as it might contain valuable information.") 
     cat("\n")
     cat("We advise you to go back to your original data, look at the pictures (if you have them) and make sure that the sample is not representative for a VERY good reason.")
+    
   })
+  
+  output$Outlier_report <- renderPrint({
+    message_of_the_outliers()
+     })
   
   # Outlier free data (and table)
   Outlier_free_data <- eventReactive(input$Go_outliers,{
@@ -2662,7 +2711,6 @@ function(input, output) {
   output$Legend_bad_stuff <- renderPrint({
     
     which_data <- input$Outlier_on_data  
-    how_many <- input$Out_pheno_single_multi  
     
     if(input$Out_pheno_single_multi == "Some phenotypes"){
       which_ones <- input$DV_outliers
@@ -2865,7 +2913,6 @@ function(input, output) {
   output$Legend_good_stuff <- renderPrint({
     
     which_data <- input$Outlier_on_data  
-    how_many <- input$Out_pheno_single_multi  
     
     if(input$Out_pheno_single_multi == "Some phenotypes"){
       which_ones <- input$DV_outliers
@@ -2900,7 +2947,7 @@ function(input, output) {
     cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
-    cat("The", input$outlier_graph_type, "representing", phenotype, "from", which_data, " with the outliers removed. The outliers are characterized using", input$outlier_method, "method for", how_many,".") 
+    cat("The", input$outlier_graph_type, "representing", phenotype, "from", which_data, " with the outliers removed. The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi,".") 
     if(input$What_happens_to_outliers == "removed together with entire row"){
       cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
     if(input$What_happens_to_outliers == "replaced by NA"){
@@ -3336,7 +3383,6 @@ function(input, output) {
     }
     # Data curation:
     if(input$Go_outliers == T){
-      how_many <- input$Out_pheno_single_multi  
       
       if(input$Out_pheno_single_multi == "Some phenotypes"){
         which_ones <- input$DV_outliers
@@ -3347,10 +3393,10 @@ function(input, output) {
     
     # Data curation:
     if(input$Histo_data == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
-      if(how_many == "Single phenotype"){
+      cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
+      if(input$Out_pheno_single_multi == "Single phenotype"){
         cat(" (", which_ones, ").")}
-      if(how_many == "Some phenotypes"){
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
         cat(" (", which_ones, ").")}
       else{
         cat(".")}
@@ -3739,7 +3785,6 @@ function(input, output) {
       
       # Data curation:
       if(input$Go_outliers == T){
-        how_many <- input$Out_pheno_single_multi  
         
         if(input$Out_pheno_single_multi == "Some phenotypes"){
           which_ones <- input$DV_outliers
@@ -3750,10 +3795,10 @@ function(input, output) {
       
       # Data curation:
       if(input$Histo_data == "outliers removed data"){    
-        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
-        if(how_many == "Single phenotype"){
+        cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
+        if(input$Out_pheno_single_multi == "Single phenotype"){
           cat(" (", which_ones, ").")}
-        if(how_many == "Some phenotypes"){
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
           cat(" (", which_ones, ").")}
         else{
           cat(".")}
@@ -4097,7 +4142,6 @@ function(input, output) {
     cat(" The figure was made using ", input$Histo_data, ".")
     # Data curation:
     if(input$Go_outliers == T){
-      how_many <- input$Out_pheno_single_multi  
       
       if(input$Out_pheno_single_multi == "Some phenotypes"){
         which_ones <- input$DV_outliers
@@ -4108,10 +4152,10 @@ function(input, output) {
     
     # Data curation:
     if(input$Histo_data == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
-      if(how_many == "Single phenotype"){
+      cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
+      if(input$Out_pheno_single_multi == "Single phenotype"){
         cat(" (", which_ones, ").")}
-      if(how_many == "Some phenotypes"){
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
         cat(" (", which_ones, ").")}
       else{
         cat(".")}
@@ -4333,7 +4377,6 @@ function(input, output) {
     cat(" The figure was made using ", input$Histo_data, ".")
     # Data curation:
     if(input$Go_outliers == T){
-      how_many <- input$Out_pheno_single_multi  
       
       if(input$Out_pheno_single_multi == "Some phenotypes"){
         which_ones <- input$DV_outliers
@@ -4344,10 +4387,10 @@ function(input, output) {
     
     # Data curation:
     if(input$Histo_data == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
-      if(how_many == "Single phenotype"){
+      cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
+      if(input$Out_pheno_single_multi == "Single phenotype"){
         cat(" (", which_ones, ").")}
-      if(how_many == "Some phenotypes"){
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
         cat(" (", which_ones, ").")}
       else{
         cat(".")}
@@ -4678,7 +4721,6 @@ function(input, output) {
     
     # Data curation:
     if(input$Go_outliers == T){
-      how_many <- input$Out_pheno_single_multi  
       
       if(input$Out_pheno_single_multi == "Some phenotypes"){
         which_ones <- input$DV_outliers
@@ -4689,10 +4731,10 @@ function(input, output) {
     
     # Data curation:
     if(input$Histo_data == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
-      if(how_many == "Single phenotype"){
+      cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
+      if(input$Out_pheno_single_multi == "Single phenotype"){
         cat(" (", which_ones, ").")}
-      if(how_many == "Some phenotypes"){
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
         cat(" (", which_ones, ").")}
       else{
         cat(".")}
@@ -4849,7 +4891,6 @@ function(input, output) {
       cat(" The data is subsetted for", input$TW_ANOVA_Sub_trait, "(", input$TW_ANOVA_Sub_UniqueChoice, ").")}
     
     if (input$Go_outliers == T) {
-      how_many <- input$Out_pheno_single_multi
       if (input$Out_pheno_single_multi == "Some phenotypes") {
         which_ones <- input$DV_outliers
       }
@@ -4860,11 +4901,11 @@ function(input, output) {
     
     # Data curation:
     if (input$Histo_data == "outliers removed data") {
-      cat("The outliers are characterized using", input$outlier_method,"method for", how_many)
-      if (how_many == "Single phenotype") {
+      cat("The outliers are characterized using", input$outlier_method,"method for", input$Out_pheno_single_multi)
+      if (input$Out_pheno_single_multi == "Single phenotype") {
         cat(" (", which_ones, ").")
       }
-      if (how_many == "Some phenotypes") {
+      if (input$Out_pheno_single_multi == "Some phenotypes") {
         cat(" (", which_ones, ").")
       }
       else{
@@ -4978,7 +5019,6 @@ function(input, output) {
       cat(" The data is subsetted for", input$TW_ANOVA_Sub_trait, "(", input$TW_ANOVA_Sub_UniqueChoice, ").")}
     
     if (input$Go_outliers == T) {
-      how_many <- input$Out_pheno_single_multi
       if (input$Out_pheno_single_multi == "Some phenotypes") {
         which_ones <- input$DV_outliers
       }
@@ -4989,11 +5029,11 @@ function(input, output) {
     
     # Data curation:
     if (input$Histo_data == "outliers removed data") {
-      cat("The outliers are characterized using", input$outlier_method,"method for", how_many)
-      if (how_many == "Single phenotype") {
+      cat("The outliers are characterized using", input$outlier_method,"method for", input$Out_pheno_single_multi)
+      if (input$Out_pheno_single_multi == "Single phenotype") {
         cat(" (", which_ones, ").")
       }
-      if (how_many == "Some phenotypes") {
+      if (input$Out_pheno_single_multi == "Some phenotypes") {
         cat(" (", which_ones, ").")
       }
       else{
@@ -5614,7 +5654,6 @@ function(input, output) {
     cat(" The correlation coefficients are calculated using", input$cor_data,", with the total number of", Cor_n(), "samples.")
     
     if (input$Go_outliers == T) {
-      how_many <- input$Out_pheno_single_multi
       if (input$Out_pheno_single_multi == "Some phenotypes") {
         which_ones <- input$DV_outliers
       }
@@ -5625,11 +5664,11 @@ function(input, output) {
     
     # Data curation:
     if (input$cor_data == "outliers removed data") {
-      cat(" The outliers are characterized using", input$outlier_method,"method for",how_many)
-      if (how_many == "Single phenotype") {
+      cat(" The outliers are characterized using", input$outlier_method,"method for",input$Out_pheno_single_multi)
+      if (input$Out_pheno_single_multi == "Single phenotype") {
         cat(" (", which_ones, ").")
       }
-      if (how_many == "Some phenotypes") {
+      if (input$Out_pheno_single_multi == "Some phenotypes") {
         cat(" (", which_ones, ").")
       }
       else{
@@ -5895,7 +5934,6 @@ function(input, output) {
       
       # Data curation:
       if(input$Go_outliers == T){
-        how_many <- input$Out_pheno_single_multi  
         
         if(input$Out_pheno_single_multi == "Some phenotypes"){
           which_ones <- input$DV_outliers
@@ -5918,10 +5956,10 @@ function(input, output) {
       
       # Data curation:
       if(input$PCA_data == "outliers removed data"){    
-        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
-        if(how_many == "Single phenotype"){
+        cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi, ".")
+        if(input$Out_pheno_single_multi == "Single phenotype"){
           cat(" (", which_ones, ").")}
-        if(how_many == "Some phenotypes"){
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
           cat(" (", which_ones, ").")}
         else{
           cat(".")}
@@ -6035,7 +6073,6 @@ function(input, output) {
       
       # Data curation:
       if(input$Go_outliers == T){
-        how_many <- input$Out_pheno_single_multi  
         
         if(input$Out_pheno_single_multi == "Some phenotypes"){
           which_ones <- input$DV_outliers
@@ -6063,10 +6100,10 @@ function(input, output) {
       
       # Data curation:
       if(input$PCA_data == "outliers removed data"){    
-        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
-        if(how_many == "Single phenotype"){
+        cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi, ".")
+        if(input$Out_pheno_single_multi == "Single phenotype"){
           cat(" (", which_ones, ").")}
-        if(how_many == "Some phenotypes"){
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
           cat(" (", which_ones, ").")}
         else{
           cat(".")}
@@ -6135,7 +6172,6 @@ function(input, output) {
       
       # Data curation:
       if(input$Go_outliers == T){
-        how_many <- input$Out_pheno_single_multi  
         
         if(input$Out_pheno_single_multi == "Some phenotypes"){
           which_ones <- input$DV_outliers
@@ -6165,10 +6201,10 @@ function(input, output) {
       
       # Data curation:
       if(input$PCA_data == "outliers removed data"){    
-        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
-        if(how_many == "Single phenotype"){
+        cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi, ".")
+        if(input$Out_pheno_single_multi == "Single phenotype"){
           cat(" (", which_ones, ").")}
-        if(how_many == "Some phenotypes"){
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
           cat(" (", which_ones, ").")}
         else{
           cat(".")}
@@ -6340,7 +6376,6 @@ function(input, output) {
       
       # Data curation:
       if(input$Go_outliers == T){
-        how_many <- input$Out_pheno_single_multi  
         
         if(input$Out_pheno_single_multi == "Some phenotypes"){
           which_ones <- input$DV_outliers
@@ -6368,10 +6403,10 @@ function(input, output) {
       
       # Data curation:
       if(input$PCA_data == "outliers removed data"){    
-        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
-        if(how_many == "Single phenotype"){
+        cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi, ".")
+        if(input$Out_pheno_single_multi == "Single phenotype"){
           cat(" (", which_ones, ").")}
-        if(how_many == "Some phenotypes"){
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
           cat(" (", which_ones, ").")}
         else{
           cat(".")}
@@ -6617,7 +6652,6 @@ function(input, output) {
       
       # Data curation:
       if(input$Go_outliers == T){
-        how_many <- input$Out_pheno_single_multi  
         
         if(input$Out_pheno_single_multi == "Some phenotypes"){
           which_ones <- input$DV_outliers
@@ -6642,10 +6676,10 @@ function(input, output) {
       
       # Data curation:
       if(input$MDS_data == "outliers removed data"){    
-        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
-        if(how_many == "Single phenotype"){
+        cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi, ".")
+        if(input$Out_pheno_single_multi == "Single phenotype"){
           cat(" (", which_ones, ").")}
-        if(how_many == "Some phenotypes"){
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
           cat(" (", which_ones, ").")}
         else{
           cat(".")}
@@ -6828,7 +6862,6 @@ function(input, output) {
       
       # Data curation:
       if(input$Go_outliers == T){
-        how_many <- input$Out_pheno_single_multi  
         
         if(input$Out_pheno_single_multi == "Some phenotypes"){
           which_ones <- input$DV_outliers
@@ -6853,10 +6886,10 @@ function(input, output) {
       
       # Data curation:
       if(input$MDS_data == "outliers removed data"){    
-        cat(" The outliers are characterized using", input$outlier_method, "method for", how_many, ".")
-        if(how_many == "Single phenotype"){
+        cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi, ".")
+        if(input$Out_pheno_single_multi == "Single phenotype"){
           cat(" (", which_ones, ").")}
-        if(how_many == "Some phenotypes"){
+        if(input$Out_pheno_single_multi == "Some phenotypes"){
           cat(" (", which_ones, ").")}
         else{
           cat(".")}
@@ -7105,7 +7138,6 @@ function(input, output) {
     
     # Data curation:
     if(input$Go_outliers == T){
-      how_many <- input$Out_pheno_single_multi  
       
       if(input$Out_pheno_single_multi == "Some phenotypes"){
         which_ones <- input$DV_outliers
@@ -7151,10 +7183,10 @@ function(input, output) {
     
     # Data curation:
     if(input$Cluster_data == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
-      if(how_many == "Single phenotype"){
+      cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
+      if(input$Out_pheno_single_multi == "Single phenotype"){
         cat(" (", which_ones, ").")}
-      if(how_many == "Some phenotypes"){
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
         cat(" (", which_ones, ").")}
       else{
         cat(".")}
@@ -7236,7 +7268,6 @@ function(input, output) {
     
     # Data curation:
     if(input$Go_outliers == T){
-      how_many <- input$Out_pheno_single_multi  
       
       if(input$Out_pheno_single_multi == "Some phenotypes"){
         which_ones <- input$DV_outliers
@@ -7282,10 +7313,10 @@ function(input, output) {
     
     # Data curation:
     if(input$Cluster_data == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
-      if(how_many == "Single phenotype"){
+      cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
+      if(input$Out_pheno_single_multi == "Single phenotype"){
         cat(" (", which_ones, ").")}
-      if(how_many == "Some phenotypes"){
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
         cat(" (", which_ones, ").")}
       else{
         cat(".")}
@@ -7618,7 +7649,6 @@ function(input, output) {
     
     # Data curation:
     if(input$Go_outliers == T){
-      how_many <- input$Out_pheno_single_multi  
       
       if(input$Out_pheno_single_multi == "Some phenotypes"){
         which_ones <- input$DV_outliers
@@ -7664,10 +7694,10 @@ function(input, output) {
     
     # Data curation:
     if(input$Cluster_data == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
-      if(how_many == "Single phenotype"){
+      cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
+      if(input$Out_pheno_single_multi == "Single phenotype"){
         cat(" (", which_ones, ").")}
-      if(how_many == "Some phenotypes"){
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
         cat(" (", which_ones, ").")}
       else{
         cat(".")}
@@ -8469,7 +8499,6 @@ function(input, output) {
   output$Legend_barplotKMC <- renderPrint({
     # Data curation:
     if(input$Go_outliers == T){
-      how_many <- input$Out_pheno_single_multi  
       
       if(input$Out_pheno_single_multi == "Some phenotypes"){
         which_ones <- input$DV_outliers
@@ -8497,10 +8526,10 @@ function(input, output) {
     
     # Data curation:
     if(input$KMCluster_data == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
-      if(how_many == "Single phenotype"){
+      cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
+      if(input$Out_pheno_single_multi == "Single phenotype"){
         cat(" (", which_ones, ").")}
-      if(how_many == "Some phenotypes"){
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
         cat(" (", which_ones, ").")}
       else{
         cat(".")}
@@ -8666,7 +8695,6 @@ function(input, output) {
   
   output$Legend_scatterplotKMC <- renderPrint({
     if(input$Go_outliers == T){
-      how_many <- input$Out_pheno_single_multi  
       
       if(input$Out_pheno_single_multi == "Some phenotypes"){
         which_ones <- input$DV_outliers
@@ -8693,10 +8721,10 @@ function(input, output) {
     
     # Data curation:
     if(input$KMCluster_data == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
-      if(how_many == "Single phenotype"){
+      cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
+      if(input$Out_pheno_single_multi == "Single phenotype"){
         cat(" (", which_ones, ").")}
-      if(how_many == "Some phenotypes"){
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
         cat(" (", which_ones, ").")}
       else{
         cat(".")}
@@ -10098,7 +10126,6 @@ function(input, output) {
   output$Legend_QA <- renderPrint({
     
     which_data <- input$Outlier_on_data  
-    how_many <- input$Out_pheno_single_multi  
     
     
     cat("# # # > > > Figure legend: < < < # # #")
@@ -10111,7 +10138,6 @@ function(input, output) {
     cat("The Quantile Regression Analysis was performed on", input$data_to_use,".")
     
     if(input$Go_outliers == T){
-      how_many <- input$Out_pheno_single_multi  
       
       if(input$Out_pheno_single_multi == "Some phenotypes"){
         which_ones <- input$DV_outliers
@@ -10122,10 +10148,10 @@ function(input, output) {
     
     # Data curation:
     if(input$data_to_use == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
-      if(how_many == "Single phenotype"){
+      cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
+      if(input$Out_pheno_single_multi == "Single phenotype"){
         cat(" (", which_ones, ").")}
-      if(how_many == "Some phenotypes"){
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
         cat(" (", which_ones, ").")}
       else{
         cat(".")}
