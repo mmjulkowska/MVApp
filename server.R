@@ -2465,7 +2465,18 @@ function(input, output) {
   })
   
   # Table containig only the outliers
-  output$Outlier_only_table <- renderDataTable({
+  output$Outlier_only_table <- renderUI({
+    if(is.null(Outliers_final_data())){
+      return()}
+    if(input$What_happens_to_outliers == "replaced by NA"){
+      return()}
+    else{
+      dataTableOutput("Outlier_table_only_if")
+    }
+  })
+    
+    
+  output$Outlier_table_only_if <- renderDataTable({
     test <- Outlier_only_data()
     for(i in 1:ncol(test)){
       if (class(test[,i]) == "numeric"){
@@ -2480,6 +2491,8 @@ function(input, output) {
   
   output$Full_outlier_download <- renderUI({
     if(is.null(Outliers_final_data())){
+      return()}
+    if(input$What_happens_to_outliers == "replaced by NA"){
       return()}
     else{
       downloadButton("full_data_outliers", label="Download table with indicated outliers")}
@@ -2496,6 +2509,8 @@ function(input, output) {
   
   output$Pheno_outlier_download <- renderUI({
     if(is.null(Outliers_final_data())){
+      return()}
+    if(input$What_happens_to_outliers == "replaced by NA"){
       return()}
     else{
       downloadButton("data_outliers", label="Download table containing ONLY the outliers")}

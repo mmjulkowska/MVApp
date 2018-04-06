@@ -247,7 +247,7 @@ fluidPage(
                                   br(),
                                   uiOutput("Pheno_outlier_download"),
                                   br(),
-                                  dataTableOutput("Outlier_only_table")),
+                                  uiOutput("Outlier_only_table")),
                          
                          tabPanel("Graph with outliers removed", icon=icon("birthday-cake"),
                                   uiOutput("downl_plot_NoOutlPlot_ui"),
