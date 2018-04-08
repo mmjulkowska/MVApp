@@ -9333,7 +9333,7 @@ function(input, output) {
       return()
     }
     if(input$Quantile_sub_Q == T){
-      lista <- c(input$SelectIV, input$SelectTime, input$SelectID, input$SelectGeno)
+      lista <- c(input$SelectIV, input$SelectTime, input$SelectGeno)
       listb <- setdiff(lista, input$QA_subset)
       
       tagList(
@@ -9524,25 +9524,32 @@ function(input, output) {
     
     
     summary= summary(fit_qr[[index]], se="boot")
-    significant_df_0.25=data.frame(summary[[1]]$coef[summary[[1]]$coef[,4] <= as.numeric(as.character(input$p_value_threshold)), 4])
-    var0.25 = c(rownames(significant_df_0.25))
-    if(var0.25[1] == "(Intercept)") {var0.25 =var0.25[-1]} else {var0.25= var0.25}
     
-    significant_df_0.5=data.frame(summary[[2]]$coef[summary[[2]]$coef[,4] <= as.numeric(as.character(input$p_value_threshold)), 4])
-    var0.5 = c(rownames(significant_df_0.5))
-    if(var0.5[1] == "(Intercept)") {var0.5 =var0.5[-1]} else {var0.5= var0.5}
+    ## if no significant variable then display "None", no need to show whether Intercept is significant or not
     
-    significant_df_0.75=data.frame(summary[[3]]$coef[summary[[3]]$coef[,4] <= as.numeric(as.character(input$p_value_threshold)), 4])
-    var0.75 = c(rownames(significant_df_0.75))
-    if(var0.75[1] == "(Intercept)") {var0.75 =var0.75[-1]} else {var0.75= var0.75}
+    df_sum1= data.frame(rownames(summary[[1]]$coef),as.matrix(summary[[1]]$coef))
+    significant_df_0.25=data.frame(df_sum1[df_sum1[,5] <= 0.05, ])[,1]
+    if(length(significant_df_0.25)==0) {significant_df_0.25 ="None"} else if(significant_df_0.25[1] == "(Intercept)") {significant_df_0.25 =significant_df_0.25[-1]} else {significant_df_0.25= significant_df_0.25}
+    if(length(significant_df_0.25)==0) {significant_df_0.25 ="None"}
+    
+    df_sum2= data.frame(rownames(summary[[2]]$coef),as.matrix(summary[[2]]$coef))
+    significant_df_0.5=data.frame(df_sum2[df_sum2[,5] <= 0.05, ])[,1]
+    if(length(significant_df_0.5)==0) {significant_df_0.5 ="None"} else if(significant_df_0.5[1] == "(Intercept)") {significant_df_0.5 =significant_df_0.5[-1]} else {significant_df_0.5= significant_df_0.5}
+    if(length(significant_df_0.5)==0) {significant_df_0.5 ="None"}
+    
+    df_sum3= data.frame(rownames(summary[[3]]$coef),as.matrix(summary[[3]]$coef))
+    significant_df_0.75=data.frame(df_sum3[df_sum3[,5] <= 0.05, ])[,1]
+    if(length(significant_df_0.75)==0) {significant_df_0.75 ="None"} else if(significant_df_0.75[1] == "(Intercept)") {significant_df_0.75 =significant_df_0.75[-1]} else {significant_df_0.75= significant_df_0.75}
+    if(length(significant_df_0.75)==0) {significant_df_0.75 ="None"}
+    
     
     cat(paste("The variables significant for different quantiles levels are:"))
     cat("\n")
-    cat(paste("Lower quantile (0.25):"), paste(var0.25, collapse = ", "))
+    cat(paste("Lower quantile (0.25):"), paste(significant_df_0.25, collapse = ", "))
     cat("\n")
-    cat(paste("Median quantile (0.5):"), paste(var0.5, collapse = ", "))
+    cat(paste("Median quantile (0.5):"), paste(significant_df_0.5, collapse = ", "))
     cat("\n")
-    cat(paste("Upper quantile (0.75):"), paste(var0.75, collapse = ", "))
+    cat(paste("Upper quantile (0.75):"), paste(significant_df_0.75, collapse = ", "))
     
   })
   
@@ -10141,6 +10148,7 @@ function(input, output) {
   output$Legend_QA <- renderPrint({
     
     which_data <- input$Outlier_on_data  
+    how_many <- input$Out_pheno_single_multi  
     
     
     cat("# # # > > > Figure legend: < < < # # #")
@@ -10153,6 +10161,7 @@ function(input, output) {
     cat("The Quantile Regression Analysis was performed on", input$data_to_use,".")
     
     if(input$Go_outliers == T){
+      how_many <- input$Out_pheno_single_multi  
       
       if(input$Out_pheno_single_multi == "Some phenotypes"){
         which_ones <- input$DV_outliers
@@ -10163,10 +10172,10 @@ function(input, output) {
     
     # Data curation:
     if(input$data_to_use == "outliers removed data"){    
-      cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
-      if(input$Out_pheno_single_multi == "Single phenotype"){
+      cat(" The outliers are characterized using", input$outlier_method, "method for", how_many)
+      if(how_many == "Single phenotype"){
         cat(" (", which_ones, ").")}
-      if(input$Out_pheno_single_multi == "Some phenotypes"){
+      if(how_many == "Some phenotypes"){
         cat(" (", which_ones, ").")}
       else{
         cat(".")}
