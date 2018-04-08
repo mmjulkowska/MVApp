@@ -48,16 +48,22 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 [5. CORRELATIONS](#5-correlations)
 
 
-[6. REDUCTION IN DIMENSIONALITY](#6-reduction-in-dimensionality)
+[6. PRINCIPAL COMPONENT ANALYSIS](#6-principal-component-analysis)
 
 
-[7. CLUSTER ANALYSIS](#7-cluster-analysis)
+[7. MULTIDIMENSIONAL SCALING](#7-multidimensional-scaling)
 
 
-[8. HERITABILITY](#8-heritability)
+[8. HIERARCHICAL CLUSTER ANALYSIS](#8-hierarchical-cluster-analysis)
 
 
-[9. QUANTILE REGRESSION](#9-quantile-regression)
+[9. K-MEANS CLUSTER ANALYSIS](#9-k-means-cluster-analysis)
+
+
+[10. HERITABILITY](#10-heritability)
+
+
+[11. QUANTILE REGRESSION](#11-quantile-regression)
 
 
 ### 1. DATA UPLOAD
@@ -449,7 +455,7 @@ If you scroll down, you can see the residual plot of the two-way ANOVA shown abo
 ### 5. CORRELATIONS
 This tab is to check how correlated the selected dependent variables (phenotypes) are in your data by creating a correlation matrix of the selected variables. Correlation coefficientss and p.values are provided for each variable pair. 
 
-#### 5.1 Select the dataset
+#### Select the dataset
 First of all select which dataset you would like to use to perform the correlation analysis. If you did not perform outlier emoval or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
 
 If you want to include / exlude some of the Dependent Variables from your data, you can do so by selecting or deselecting them from the "Choose from Dependent Variables to be plotted" window. 
@@ -458,7 +464,7 @@ If you want to include / exlude some of the Dependent Variables from your data, 
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### 5.2 Select the correlation method
+#### Select the correlation method
 
 There are two methods you can choose from to calculate correlations. The most common method is [Pearson] (https://en.wikipedia.org/wiki/Pearson_correlation_coefficient), but you can also use [Spearman correlation](https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient).
 
@@ -470,7 +476,7 @@ If you scroll down, you will find a table containing the [coefficient of determi
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### 5.3 Correlation for subsetted data
+#### Correlation for subsetted data
 
 The default is to perform correlation analysis across all dependent variables (phenotypes) across all independent variables. You can also choose to use a subset your data (for examples, phenotypes under a certain treatment, or from a certain day) to examine the correlation. 
 
@@ -484,7 +490,7 @@ As soon as you select to subset your correlation, you will also see the message 
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### 5.4 Customize the correlation plot
+#### Customize the correlation plot
 
 You can chose the plotting method. The default method is "circle" where the correlation strength between individual Dependent Variables is represented by the size and colour of the circle:
 
@@ -504,7 +510,7 @@ You can also indicate the non-significant correlation with a cross, by ticking t
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### 5.5 Scatterplots
+#### Scatterplots
 
 To examine the correlation between selected Dependent Variables in more detail, you can use scatterplot. The data used for this graph is exactly the same data as you chose in the "correlation plot" tab. From the sidebar panel choose two Dependent Variable that you wish to plot on x- and y-axis respectively, and the Independent Variable that you would like to use to color-code the graph:
 
@@ -524,9 +530,7 @@ The scatterplot is interactive, that will say that you can select the specific s
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 6. REDUCTION IN DIMENSIONALITY
-
-#### PRINCIPAL COMPONENT ANALYSIS
+### 6. PRINCIPAL COMPONENT ANALYSIS
 
 Principal component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or a specific timepoint) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
 
@@ -601,7 +605,7 @@ If you scroll down, you will see the table displaying the contribution of indivi
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### MULTIDIMENSIONAL SCALING
+### 7. MULTIDIMENSIONAL SCALING
 
 Multidimensional scaling [(MDS)](https://en.wikipedia.org/wiki/Multidimensional_scaling) is a multivariate data analysis approach that is used to visualize the similarity/dissimilarity between samples by plotting points in two dimensional plots. The input data for MDS is a dissimilarity matrix representing the distances between pairs of objects. MDS is mathematically and conceptually similar to PCA and factor analysis. PCA is more focused on the dimensions themselves, and seek to maximize explained variance, whereas MDS is more focused on relations among the scaled objects.
 
@@ -651,33 +655,73 @@ In the sub-tab "Scaling of traits", you can find a multidimensional scaling perf
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 7. CLUSTER ANALYSIS
+### 8. HIERARCHICAL CLUSTER ANALYSIS
+
+Hierarchical cluster analysis is an algorithmic approach to find discrete groups with varying degrees of (dis)similarity. The samples are hierarchically organised depending on the selected method and may be presented as a dendrogram. Hierarchical clustering is commonly used in discretising largely continuous ecological phenomena to aid structure detection and hypothesis generation. For example, if data were collected along a gradient, cluster analysis may help to identify distinct regions therein which may correspond to an ecologically meaningful grouping. Similarly, the hierarchical cluster analysis can be used in phenotype analysis from the experiment performed under controlled conditions, with and without stress, and group different genotypes into groups that show similar responses to stress conditions. 
+
+The hierarchical clustering approach was previously used for clustering the Arabidopsis accessions for based on their [root](http://www.plantphysiol.org/content/early/2014/09/30/pp.114.248963) and [shoot](https://academic.oup.com/jxb/article-lookup/doi/10.1093/jxb/erw015) responses to salt stress. Now you can perform this analysis within minutes on your own data using MVApp.
 
 #### Selecting the data
 
-![mvapp_hcluster_hotmap](https://user-images.githubusercontent.com/14832460/32647242-8e58ae48-c5f0-11e7-85fe-7501207fbfcd.png)
+Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
+
+Subsequently, select which Dependent Variables you want to use in the Hierarchical clustering. Please be aware that unlike in PCA, the greater number of traits will result in larger number of groups identified. Therefore - we advice to limit the number of Dependent Variable used as an input for Hierarchical Clustering Analysis:
+
+![08_hclust_02](https://user-images.githubusercontent.com/14832460/38467540-c424dc6e-3b42-11e8-87d6-faad73f502bc.png)
+
+You can additionally select whether you would like to scale the data (recomended if the values of individual Dependent Variables are differing in their scale), perform the Hierarchical Clustering on the mean data (means are calculated per Genotype, Independent Variable and Time points selected in "Data upload" tab), or run Hierarchical Clustering on a specific subset of your data. At this point you should also select method for clustering the samples. 
+
+You can chose between the following:
+* [Ward’s minimum variance method](https://en.wikipedia.org/wiki/Ward%27s_method)
+* [Complete linkage](https://en.wikipedia.org/wiki/Complete-linkage_clustering)
+* [Single linkage](https://en.wikipedia.org/wiki/Single-linkage_clustering)
+* [Average linkage](http://www.saedsayad.com/clustering_hierarchical.htm)
+* [Mcquitty - also known as Weighted Pair Group Method with Arithmetic Mean](https://en.wikipedia.org/wiki/WPGMA)
+* Median clustering or Weighted Pair Group Method with Centroid Averaging (WPGMCA)
+* [Centroid clustering](https://nlp.stanford.edu/IR-book/html/htmledition/centroid-clustering-1.html)
+
+![08_hclust_03](https://user-images.githubusercontent.com/14832460/38467541-c445d892-3b42-11e8-948c-a20e99eccf37.png)
+
+After selecting all of the above you can click "Unleash cluster analysis". You can view the selected dataset in the first tab called "Selected dataset", while the specific subset (scaled or non-scaled) used for the Hierarchical Clustering is displayed in the tab "Final data used for HClust":
+
+![08_hclust_04](https://user-images.githubusercontent.com/14832460/38467542-c4660d74-3b42-11e8-99ad-1e87f2f68b7f.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### What kind of clustering
+#### View the clusters and select the similarity distance for cluster separation
+
+The relationship between the accessions is established depending on the selected Dependent Variables and the method. In the sub-tab "Clustering your HOT HOT data" you can view a heatmap of the selected Dependent Variables displayed as separate rows, while the individual (or mean) values corresponding to individual samples will be displayed in separate columns. 
+
+![08_hclust_05](https://user-images.githubusercontent.com/14832460/38467543-c4880096-3b42-11e8-9c4d-46ae129f6b86.png)
+
+If you scroll down, you will find a dendrogram representing individual samples that are clustered as in the heat-map above, but now you will be able to see the (dis)similarity distance between the samples. Enter the distance at which you wish to separate the data into the clusters in the window "Separate clusters at:". 
+
+![08_hclust_06](https://user-images.githubusercontent.com/14832460/38467544-c4aa656e-3b42-11e8-9da8-d8dc2c9ee2ce.png)
+
+As soon as you enter a value, the message above the dendrogram will change, displaying the number of clusters. Please be aware that having too many clusters might not be informative and will significantly slow, or even crash, the cluster validation step.
+
+![08_hclust_07](https://user-images.githubusercontent.com/14832460/38467545-c4cbb872-3b42-11e8-92b2-23bbc971bf4f.png)
+
+If you scroll even further down, you will find a table containing the cluster ID for your specific samples.
+
+![08_hclust_08](https://user-images.githubusercontent.com/14832460/38467546-c4eec966-3b42-11e8-8309-172747cdc16f.png)
+
+#### Cluster Validation
+
+In the sub-tab "Cluster validation" you will find a message box displaying all the Dependent Variable for which ANOVA found significant effect of the clusters. In the graph below the message box you can find a box-plot representing individual clusters and the letters above the graph display significant groups calculated using Tukey.HSD test for pair-wise comparison.
+
+![08_hclust_10](https://user-images.githubusercontent.com/14832460/38467547-c511dfa0-3b42-11e8-8f4d-265696cfcb6c.png)
+
+You can view individual Dependent Variables by selecting them from a drop-down menu "View" above the box-plot.
+
+![08_hclust_11](https://user-images.githubusercontent.com/14832460/38467548-c5341b9c-3b42-11e8-98d2-78e5378d97ac.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### Select the distance for cluster separation
+### 9. K-MEANS CLUSTER ANALYSIS
 
-![mvapp_hcluster_dendro](https://user-images.githubusercontent.com/14832460/32647240-8df05d2a-c5f0-11e7-99dc-9b75a5430c96.png)
+### 10. HERITABILITY
 
-![mvapp_hcluster_dendro2](https://user-images.githubusercontent.com/14832460/32647243-8e890e94-c5f0-11e7-8312-08bf29ef78b2.png)
-
-[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
-
-###### Validate the cluster
-
-![mvapp_hcluster_clustervalidation](https://user-images.githubusercontent.com/14832460/32647239-8db955f0-c5f0-11e7-9e90-67fe21ae6f65.png)
-
-[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
-
-### 8. HERITABILITY
 Heritability is the proportion of the phenotypic variance that can be attributed to genetic variance. This statistic is important in the fields of genetics in order to assess if a trait is heritable (genetically controlled). MVapp allows you to calculate the broad-sense heritability, which is the ratio of total genetic variance to total phenotypic variance (https://www.ncbi.nlm.nih.gov/books/NBK21866/). 
 
 Make sure you enter the "Year" and/or "Location" as independent variables when you upload the data. Enter the number of replicates per year/per location. If year and/or location is missing, you can choose the option "none" from the drop-down lists. You can also use to subset the data, by treatment for example, to calculate heritability within for each treatment. 
@@ -690,7 +734,7 @@ The output as shown below gives the summary of the information entered (number o
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 9. QUANTILE REGRESSION
+### 11. QUANTILE REGRESSION
 
 [Quantile regression](https://en.wikipedia.org/wiki/Quantile_regression) is a way to estimate the conditional quantiles of a response variable distribution in the linear model that provides a complete view of possible causal relationships between variables. Quantile regression minimizes absolute errors and can provide a more comprehensive analysis of the effect of the predictors on the response variable than mean regression. Linear quantile regression is related to linear least-squares regression as both try to study the relationship between the predictor variables and the response variable, the only difference being that least-squares involves modeling the conditional mean of the response variable, whereas, quantile regression models the conditional quantile of response. It is especially useful in applications where extremes are important, such as environmental studies where upper quantiles of yield are critical.
 
