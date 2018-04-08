@@ -77,7 +77,10 @@ If you have a timeseries experiment, or any other gradient, and you want to fit 
 * Sample ID - an identifier for each individual sample
 
 Your data should look similar like the Example dataset, with ID and TIME column being optional:
+
 ![mvapp_data](https://user-images.githubusercontent.com/14832460/32609292-48dc541c-c570-11e7-8f87-54ca02b646d8.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### Upload and annotate your data
 To upload your data, navigate to the "Upload your data" tab in the uppermost panel. Click on the "Browse" button and locate your .csv data file:
@@ -119,6 +122,8 @@ Modelling of non-linear functionsis also relies on fitting a linear function, by
 
 MVApp extracts the model parameters: y-intercept ("INTERCEPT") and the first regression coefficient ("DELTA"), as well as the r2 values to determine model performance.
 
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
 #### Fit curves with MVApp
 
 First, in the side panel, select which the Independent Variable(s) you wish to group your samples by, and which Dependent Variable you would like to model. 
@@ -151,6 +156,8 @@ You can download your data without the samples showing poor r2 fit by scrolling 
 
 ![02_curve_fit_08](https://user-images.githubusercontent.com/14832460/38308605-4d0221b6-3820-11e8-88b5-1d7870c359d6.png)
 
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
 #### Visualise goodness of fit of the dynamic curves with fit-plots
 
 You can examine how good your data fits to the selected model by viewing fit-plots - the names of the samples are merged by "Genotype_IndependentVariable_SampleID". You can either scroll through the sample list or type in the sample name:
@@ -168,6 +175,8 @@ You can view multiple fit-plots simultaneously. The plots can be sorted by eithe
 You can scroll through the individual graphs with the slider on the right side of the main window:
 
 ![02_curve_fit_12](https://user-images.githubusercontent.com/14832460/38308610-4da68ec2-3820-11e8-9350-6f8f8c362304.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### Assess and compare the dynamics between Genotypes and / or Independent Variables
 
@@ -197,6 +206,8 @@ By scrolling down even further, you will find a table containing the summary sta
 
 ![02_curve_fit_21](https://user-images.githubusercontent.com/14832460/38309493-db7246ae-3822-11e8-969e-5ab3def193c6.png)
 
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
 #### Fit polynomial curves with MVApp
 
 If your data shows signs of complex dynamics across your continuous Independent Variable (often particularly applicable for long time-series), you might consider fitting a polynomial curve.
@@ -221,6 +232,8 @@ For those familiar with large(ish) scale experiments, you have probably had to c
 You likely identified these problem samples by simple graphical means, or based on their distance from the median in terms of the Standard Deviation or the Interquartile Range.
 
 MVApp helps to automatically highlight potential outliers based on a single or multiple Dependent Variables, using various approaches. However, be careful, outliers should not be removed mindlessly. It is good practice to justify outlier samples, perhaps refering to notes or images taken during the experiment that might explain the unusual result. It is possible that a "potential outlier" is in fact a valuable, if extreme, result. 
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### Highlight potential outliers
 
@@ -253,6 +266,7 @@ If you decided to select outliers based on all Dependent Variables, use the slid
 
 ![mvapp_outlier_output1](https://user-images.githubusercontent.com/14832460/32647171-51b52f48-c5f0-11e7-8a46-6ae78ad193c3.png)
 
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### Examine the data with and without potential outliers
 After highlighting potential outliers in your data, you can look at how the data looks with and without them.
@@ -286,6 +300,8 @@ If you want to look at the graphs with potential outliers removed (as highlighte
 ![mvapp_outliers_graph_no_outliers](https://user-images.githubusercontent.com/14832460/32647177-528bf596-c5f0-11e7-89dd-a8c85a287a47.png)
 
 IMPORTANT NOTE: This outlier test was developed to facilitate data curation. Please do NOT remove any data before making absolutely sure that there is a very good reason that the sample is not representative. We recommend downloading the dataset with outliers highlighted , manually removing samples that you can reasonably explain, and reuploading the curated dataset before continuing with your analysis.
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### Calculate summary statistics
 
