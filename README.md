@@ -46,6 +46,8 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 
 
 [5. CORRELATIONS](#5-correlations)
+[5.5 Scatterplots] (#5.5 Scatterplots)
+
 
 
 [6. REDUCTION IN DIMENSIONALITY](#6-reduction-in-dimensionality)
@@ -305,7 +307,7 @@ Once your data is nice and clean and ready to go, it's time to start having a pr
 Beyond eyeballing, you can apply statistical tests such as ANOVA to test whether there are significant differences between groups. These are all easy things to do in MVApp, which also helps you check the assumptions of these statistical tests, such as normal distribution and homoscedasticity (i.e. equal variance).
 
 In the side panel, you can choose:
-- The dataset to be used (raw data, data with missing values removed, or data with outliers removed). The default value is raw data.
+- The dataset to be used (raw data, data with missing values removed, or data with outliers removed). The default value is raw data. If you did not perform outlier emoval or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them.
 - The Independent Variable to subset the data by
 - The Dependent Variable you want to plot
 - The p-value threshold to be used in subsequent tests in the tab (e.g.: Levene's test, ANOVA, etc.). The default value is 0.05
@@ -423,36 +425,78 @@ If you scroll down, you can see the residual plot of the two-way ANOVA shown abo
 ### 5. CORRELATIONS
 This tab is to check how correlated the selected dependent variables (phenotypes) are in your data by creating a correlation matrix of the selected variables. Correlation coefficientss and p.values are provided for each variable pair. 
 
-#### Select the dataset
-Select which dataset you would like to use to perform the correlation analysis. You can choose from the following options: 
-raw data: use your selected data from “Upload your data” tab, you can check the data from the Data Magic - New data tab
-missing values removed: use data without rows with missing values outliers removed: use outlier-free data from “Data curation” tab
+#### 5.1 Select the dataset
+First of all select which dataset you would like to use to perform the correlation analysis. If you did not perform outlier emoval or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
 
-#### Select the correlation method
+If you want to include / exlude some of the Dependent Variables from your data, you can do so by selecting or deselecting them from the "Choose from Dependent Variables to be plotted" window. 
+
+![05_correlate_01](https://user-images.githubusercontent.com/14832460/38465501-31d36488-3b25-11e8-9bde-1828dc9a508b.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
+#### 5.2 Select the correlation method
+
 There are two methods you can choose from to calculate correlations. The most common method is [Pearson] (https://en.wikipedia.org/wiki/Pearson_correlation_coefficient), but you can also use [Spearman correlation](https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient).
 
-<img width="960" alt="screenshot1" src="https://user-images.githubusercontent.com/8470158/33008572-110563d6-cd80-11e7-84be-084880b31d2c.png">
+![05_correlate_01a](https://user-images.githubusercontent.com/14832460/38466385-00cc8886-3b31-11e8-85af-2ec805db265f.png)
 
-#### Correlation for subsetted data
+If you scroll down, you will find a table containing the [coefficient of determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) (R2) and the p-value for the goodness of fit:
+
+![picture1b](https://user-images.githubusercontent.com/14832460/38466384-008d4cf2-3b31-11e8-8570-5c780cc7d5c8.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
+#### 5.3 Correlation for subsetted data
+
 The default is to perform correlation analysis across all dependent variables (phenotypes) across all independent variables. You can also choose to use a subset your data (for examples, phenotypes under a certain treatment, or from a certain day) to examine the correlation. 
 
-Tick the checkbox “Subset your data for correlation analysis” and choose the condition to want to observe by choosing from the dropdown menu.
+Tick the checkbox “Subset your data for correlation analysis” and choose the specific subset to display the correlation for from the dropdown menu:
 
-<img width="960" alt="screenshot3" src="https://user-images.githubusercontent.com/8470158/33008571-10e523d2-cd80-11e7-9f59-2d6f6f95d590.png">
+![05_correlate_02a](https://user-images.githubusercontent.com/14832460/38466387-01117586-3b31-11e8-8643-3e745649a4e6.png)
 
-#### Customize the plot
-You can choose different plot method, plot type and label orders to customize your correlation plot by choosing from the dropdown menus on the left-side panel.
+As soon as you select to subset your correlation, you will also see the message displaying the top 5 most variable correlations. Those pairs of Dependent Variables are determined by examining the variance in R2 of the correlation between the individual subsets of the Independent Variable selected to subset for. The pairs are NOT selected based on the p-values of the correlation, so the variance in correlation should be examined in more detail, before making any conclusions:
 
-<img width="960" alt="screenshot2" src="https://user-images.githubusercontent.com/8470158/33008574-1146ca74-cd80-11e7-9270-e9b7bb13ebb7.png">
+![05_correlate_02b](https://user-images.githubusercontent.com/14832460/38466386-00ed6678-3b31-11e8-8489-5b81c5be2607.png)
 
-#### Scatterplots
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-To visualize the dependent variable data on a scatterplot,
-  -choose the fist phenotype to be plotted on the X-axis
-  -choose the second phenotype to be plotted on the Y-axis
-You can also choose to color your data points by choosing a certain independent variable (such as day, or treatment).
+#### 5.4 Customize the correlation plot
 
-<img width="960" alt="screenshot4" src="https://user-images.githubusercontent.com/8470158/33008573-1125b578-cd80-11e7-9676-9ac52742f056.png">
+You can chose the plotting method. The default method is "circle" where the correlation strength between individual Dependent Variables is represented by the size and colour of the circle:
+
+![05_correlate_02](https://user-images.githubusercontent.com/14832460/38465502-34eb9e06-3b25-11e8-8360-003d3595437f.png)
+
+Some of the correlation plot method only represent the correlation strength with the colour - such as "number" method, where the linear correlation strengh coefficient (R2) values are represented in the colours corresponding to the value:
+
+![05_correlate_03](https://user-images.githubusercontent.com/14832460/38465503-350b8144-3b25-11e8-85a3-927c1e7cf10b.png)
+
+You can also change the plot type, and plot the correlations between individual traits with full square matrix, or using lower or upper portion of the correlation matrix:
+
+![05_correlate_04](https://user-images.githubusercontent.com/14832460/38465504-352a2c20-3b25-11e8-9b4c-3080a5fa432f.png)
+
+You can also indicate the non-significant correlation with a cross, by ticking the box "indicate non-significant correlation" that is lower in the sidebar panel:
+
+![05_correlate_05](https://user-images.githubusercontent.com/14832460/38465505-354cc23a-3b25-11e8-9acc-c3b7e41ce4a9.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
+#### 5.5 Scatterplots
+
+To examine the correlation between selected Dependent Variables in more detail, you can use scatterplot. The data used for this graph is exactly the same data as you chose in the "correlation plot" tab. From the sidebar panel choose two Dependent Variable that you wish to plot on x- and y-axis respectively, and the Independent Variable that you would like to use to color-code the graph:
+
+![05_correlate_06](https://user-images.githubusercontent.com/14832460/38465506-356c867e-3b25-11e8-9a8e-22218f0181c4.png)
+
+You can chose to further subset your data by ticking the checkbox "Subset the data?" and selecting an Independent Variable for which you wish to subset:
+
+![05_correlate_07](https://user-images.githubusercontent.com/14832460/38465507-358c1048-3b25-11e8-95fa-598b37cf05e4.png)
+
+By scrolling with your pointer through the graph, you will get a specific information of the samples represented by individual datapoints. The sample identifier is representing GENOTYPE, Independent Variable, Timepoint and Sample ID (selected in "Data upload" tab). The R2 and p-value for individual correlations are reported in the Figure legend, that you can view by selecting "Show the figure legend" checkbox:
+
+![05_correlate_08](https://user-images.githubusercontent.com/14832460/38465508-35ad3d4a-3b25-11e8-8bf9-3e0f837420c8.png)
+
+The scatterplot is interactive, that will say that you can select the specific subsets indicated by individual colors to be hidden from the graph. Please NOTE that this will not affect the R2 and p-value presented in the figure legend - for those calculations all the values used for the original graph will still be considered:
+
+![05_correlate_09](https://user-images.githubusercontent.com/14832460/38465509-35cf6424-3b25-11e8-9f83-2c7dc46fc7d0.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
