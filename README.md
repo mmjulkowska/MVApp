@@ -211,18 +211,33 @@ By scrolling down even further, you will find a table containing the summary sta
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### Fit polynomial curves with MVApp
+#### Fitting polynomial curves with MVApp
 
-If your data shows signs of complex dynamics across your continuous Independent Variable (often particularly applicable for long time-series), you might consider fitting a polynomial curve.
+If your data shows signs of complex dynamics across your continuous Independent Variable (often particularly applicable for long time-series), you might consider fitting a polynomial curve. The splines usually have very high r2 values, and are therefore not included in the "model estimation" for the best fitting curves.
 
-For the [cubic splines](http://mathworld.wolfram.com/CubicSpline.html), we use lm(phenotype ~ bs(time, knots=X)) function in R, where the position of knots is indicated by the user:
+For the [cubic splines](http://mathworld.wolfram.com/CubicSpline.html), we use lm(phenotype ~ bs(time, knots=X)) function in R, where you can indicate the position of a knot in the "timepoint to split the cubic spline" box. 
 
-![mvapp_model_cubic](https://user-images.githubusercontent.com/14832460/32610090-c5c3bfcc-c572-11e7-87c2-d4090b8beb0d.png)
+![002_curves_cubicspline_01](https://user-images.githubusercontent.com/14832460/38469032-2d3c84a4-3b57-11e8-9114-9b47bf702947.png)
 
-For the smoothed splines, we use smooth.spline() function in R, with a choice between automatic or user-defined selection degrees of freedom:
+The fit-plots for the cubic splines carry a dashed diagonal line at the knot position. 
 
-![mvapp_model_smoothed](https://user-images.githubusercontent.com/14832460/32610089-c59f6abe-c572-11e7-90a1-7a50f1dd4cb4.png)
+![002_curves_cubicspline_02](https://user-images.githubusercontent.com/14832460/38469033-2d6424b4-3b57-11e8-97b3-9a4a3f415b15.png)
 
+For the smoothed splines, we use smooth.spline() function in R, and you can choose between between automatic or user-defined selection degrees of freedom. The user-defined degrees of freedom can be selected with the "Number of degrees of freedom" slider.
+
+![002_curves_smoothedspline_01](https://user-images.githubusercontent.com/14832460/38469035-2db1b49a-3b57-11e8-8ccc-8a4fc9a5a6cb.png)
+
+The fitplots for the smoothed splines are represented with the purple lines.
+
+![002_curves_smoothedspline_02](https://user-images.githubusercontent.com/14832460/38469036-2dd8c8aa-3b57-11e8-845d-8af642454c60.png)
+
+In case you choose to fit smoothed splines with automatically determined degrees of freedom, they will be displayed in the last collumn of the table in the sub-tab "Modelled data". Please be aware that the degree of freedom might differ between individual samples.
+
+![002_curves_smoothedspline_03](https://user-images.githubusercontent.com/14832460/38469037-2e007738-3b57-11e8-91d3-fd645abc5681.png)
+
+Although the polynomial functions commonly have better fit than the simple functions, like linear, quadratic or exponential ones, they often result in more coefficients describing the dynamics. So if you would like to use curve-fitting for simplifying your data, using polynomial functions might not be the best choice. 
+
+![002_curves_cubicspline_03](https://user-images.githubusercontent.com/14832460/38469034-2d8c430e-3b57-11e8-8305-55a50c955bc6.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
@@ -264,10 +279,16 @@ Next, select which method you would like to use to highlight potential outliers.
 You can now click on the "unleash the outlier highlighter" to view the curated data. In the main tab, the outlier message will appear indicating the number of potential outliers highlightes, as well as a table of your data. If you scroll to the right, you will see the columns marked "outl_Dependent Variable" (for example "outl_AREA"), where "true" will indicate this sample as being an outlier per genotype / day / independent variables selected. If considering all Dependent Variables, the final column will indicate whether a given sample is a potential outlier in a number of Dependent Variables that meets or exceeds the user-defined threshold (annotated as "true").
 The number of identified outliers will be shown in the text box above the table:
 
+![003_outliers_spare_02](https://user-images.githubusercontent.com/14832460/38468904-57e6c04a-3b55-11e8-9d2e-adca0d638b0f.png)
 
-If you decided to select outliers based on all Dependent Variables, use the slider input in the side panel to select the number of Dependent Variables a given sample must be an outlier in order to consider it an outlier across the whole experiment, i.e. the samples that extreme across so many phenotypes that they warrant being removed from the data analysis.
+If you decided to select outliers based on all Dependent Variables, and not replace them by NA (empty cells), but rather remove the entire column, use the slider input in the side panel to select the number of Dependent Variables a given sample must be an outlier in order to consider it an outlier across the whole experiment, i.e. the samples that extreme across so many phenotypes that they warrant being removed from the data analysis. 
 
-![mvapp_outlier_output1](https://user-images.githubusercontent.com/14832460/32647171-51b52f48-c5f0-11e7-8a46-6ae78ad193c3.png)
+![003_outliers_spare_03](https://user-images.githubusercontent.com/14832460/38468905-580ada8e-3b55-11e8-8c56-5efaf05b8584.png)
+
+As you slide the slider, the number of the outliers in the message box will change.
+
+![003_outliers_spare_04](https://user-images.githubusercontent.com/14832460/38468906-582e9ff0-3b55-11e8-8302-b57f2c6ad2da.png)
+
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
@@ -276,7 +297,7 @@ After highlighting potential outliers in your data, you can look at how the data
 
 Go to sidepanel sub-tab "Tweak the graphs" and select the Dependent Variable you wish to examine. You can also select the type of plot you would like: box plot, scatter plot or bar plot (we find box plots most informative).
 
-Click on the main panel sub-tab "Graph containing outliers" to see your plots prior to removing potential outliers: 
+Click on the main panel sub-tab "Graph containing outliers" to see your plots prior to removing potential outliers.
 
 ![03_outliers_08](https://user-images.githubusercontent.com/14832460/38309897-d79b8594-3823-11e8-9d6b-dbbfcc86d80a.png)
 
@@ -296,13 +317,21 @@ If you want to alter the order of your samples, you can swap the order of the In
 
 ![mvapp_outlier_graph_even_nicer](https://user-images.githubusercontent.com/14832460/32647167-5066effa-c5f0-11e7-9388-9620294702ff.png)
 
+You can also change the order of the samples, by adjusting the order of the Independent Variables in the side-panel 
+
+![003_outliers_spare_08](https://user-images.githubusercontent.com/14832460/38468910-58d9bebc-3b55-11e8-810d-c39f10897176.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
 
 #### Compare the data with outlier removed
 If you want to look at the graphs with potential outliers removed (as highlighted in main panel "The outliers test"), click on the main panel "Graphs with outliers removed". You can click between "Graph containing outliers" and "Graph with outliers removed" to compare both datasets.
 
-![mvapp_outliers_graph_no_outliers](https://user-images.githubusercontent.com/14832460/32647177-528bf596-c5f0-11e7-89dd-a8c85a287a47.png)
+![003_outliers_spare_05](https://user-images.githubusercontent.com/14832460/38468907-58539fda-3b55-11e8-8cf4-2e2f9ee050b9.png)
 
-IMPORTANT NOTE: This outlier test was developed to facilitate data curation. Please do NOT remove any data before making absolutely sure that there is a very good reason that the sample is not representative. We recommend downloading the dataset with outliers highlighted , manually removing samples that you can reasonably explain, and reuploading the curated dataset before continuing with your analysis.
+![003_outliers_spare_06](https://user-images.githubusercontent.com/14832460/38468908-5878014a-3b55-11e8-9e26-6246ab360641.png)
+
+IMPORTANT NOTE: This outlier test was developed to facilitate data curation. Please do NOT remove any data before making absolutely sure that there is a very good reason that the sample is not representative. We recommend downloading the dataset with outliers highlighted, manually removing samples that you can reasonably explain, and reuploading the curated dataset before continuing with your analysis.
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
