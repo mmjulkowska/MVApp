@@ -47,9 +47,6 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 
 [5. CORRELATIONS](#5-correlations)
 
-[5.5 Scatterplots](#5.5-scatterplots)
-
-
 
 [6. REDUCTION IN DIMENSIONALITY](#6-reduction-in-dimensionality)
 
@@ -335,6 +332,8 @@ In the side panel, you can choose:
 
 Once the choices are made, the user can proceed to the different tests available in the DATA EXPLORATION tab.
 
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
 #### Examine distribution
 
 Your histograms will appear in the "Testing normal distribution" sub-tab, where you can chose between having "Histograms with  counts on y-axis" or "Histograms with density on y-axis".
@@ -363,6 +362,8 @@ Sample size affects the Shapiro-Wilk test and hence (the more the merrier), the 
 
 Based on the results obtained in this sub-tab, you can have a better judgement in the following sub-tab whether to check Bartlett or Levene test for equal variances.
 
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
 #### Examine variance
 
 In the "Testing equal variance" sub-tab, you can have a look at the results of the Bartlett test and Levene test of homogeneity of variances between the different groups and for each sub-groups. Equal variances, or homoscedasticity, is also a requirement for performing an ANOVA test.
@@ -379,6 +380,8 @@ The first table displays the results of the Bartlett test and the second table d
 
 As indicated previously, the results of this sub-tab and the previous sub-tab are needed to for the ANOVA test performed in the following sub-tab. ANOVA assumes the data comes from a normal distribution and the variances are equal.
 
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
 #### One / two sample test
 
 In this subtab you can explore the differences between a certain value and your sample, or between two selected samples, with one/two sample t-test or Kolmogorov-Smirnov test (for non-parametric samples). 
@@ -394,6 +397,8 @@ In the case of one-sample t-test you should enter "mu value" - to test for signi
 For the two-sample t-test or Kolmogorov-Smirnov test, you should select two specific samples. The results of the test will be shown above the graph:
 
 ![04_explore_16](https://user-images.githubusercontent.com/14832460/38313761-750774ec-382d-11e8-8177-f9f4cba93d4c.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### Test significant differences between groups
 
@@ -418,6 +423,8 @@ You can also run a non-parametric test, by selecting it from the drop-down menu:
 In case of non-parametric test, Wilcoxon / Mann-Whitney test will be used to make the pairwise comparison between individual groups. The results of the test are displayed in the lower text box:
 
 ![04_explore_22](https://user-images.githubusercontent.com/14832460/38313768-760ffa94-382d-11e8-8ca5-ea30de0ce04a.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### Two-way ANOVA
 
@@ -520,73 +527,127 @@ The scatterplot is interactive, that will say that you can select the specific s
 ### 6. REDUCTION IN DIMENSIONALITY
 
 #### PRINCIPAL COMPONENT ANALYSIS
-Principal component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or genotype) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
+
+Principal component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or a specific timepoint) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
 
 #### Select data, subsets, and Dependent Variables
-Select the dataset to analyse from the dropdown menu at the top of the side panel and click "Set the dataset":
+Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them.
 
-![mvapp_pca_data_input1](https://user-images.githubusercontent.com/14832460/32647215-7829f348-c5f0-11e7-8416-c339543a8e9f.png)
+![06_pca_01](https://user-images.githubusercontent.com/14832460/38466629-ff660ec8-3b34-11e8-8417-67b89ab68b29.png)
 
-Then, select which Dependent Variables you want to use in the PCA and click "Unleash the PCA monster":
+Subsequently, select which Dependent Variables you want to use in the PCA:
 
-![mvapp_pca_data_input2](https://user-images.githubusercontent.com/14832460/32647214-78109808-c5f0-11e7-8303-663bb39cb05e.png)
+![06_pca_02](https://user-images.githubusercontent.com/14832460/38466630-ff87d7a6-3b34-11e8-8cf2-3ca17b0a2ab9.png)
 
-You can see your selected datasets in the first two sub-tabs.
+You can additionally select whether you would like to scale the data (recomended if the values of individual Dependent Variables are differing in their scale), and run PCA on a specific subset of your data. After selecting all of the above you can click "Unleash the PCA monster". 
 
-#### Visualize the PCs
-In the third sub-tab, [Eigenvalues](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors), the ["Scree plot"](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) are displayed showing the main principal components generated from the PCA in decreasing order of percentage variance explained by each Principal Component.
+![06_pca_03](https://user-images.githubusercontent.com/14832460/38466631-ffa9d9e6-3b34-11e8-870a-6796c7c05c45.png)
 
-![mvapp_pca_eigen](https://user-images.githubusercontent.com/14832460/32647217-788202b8-c5f0-11e7-9f1d-85f44ccc6a10.png)
+You can view the selected dataset in the first tab calles "Selected dataset": 
 
-The table summarizing the eigenvalues of each principal component (PC), their percentage of variance EXPLAINED and the cumulative percentages that add to 100% can be found below the plot. The table can be downloaded as a .csv file.
+![06_pca_04](https://user-images.githubusercontent.com/14832460/38466632-ffcc271c-3b34-11e8-80eb-c63ddbe68a5b.png)
 
-#### Visualize the general contribution of DVs per PC
-The 'Contribution per variable' sub-tab displays the contribution of the chosen Dependent Variables with respect to two PCs at a time. You can select individual PCs to be plotted on x- and y-axis from the two dropdown menus.
+The specific subset (scaled or non-scaled) in the tab "Final data for PCA":
 
-![mvapp_pca_trait_contrib](https://user-images.githubusercontent.com/14832460/32647213-77f03ef0-c5f0-11e7-8033-922fc073a36d.png)
+![06_pca_05](https://user-images.githubusercontent.com/14832460/38466633-ffee0d82-3b34-11e8-97b6-833ed54f1eae.png)
 
-#### Visualize the contribution of each DV value
-By scrolling down, you can see the PC coordinates of the individual samples. The x- and y-axis are controlled by the same dropdown menu as the contribution plots. You can color the plot by any of the Independent Variable to see if you have separation in PC coordinates between your genotype / treatment / time points:
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-![mvapp_pca_scatter](https://user-images.githubusercontent.com/14832460/32647923-ef68a3c0-c5f3-11e7-9321-ede2f7620bef.png)
+#### Visualize the Principal Components
 
-#### Visualize the contribution of each DV per PC
-In the sub-tab 'Contribution per PC' the contribution of individual Dependent Variable for each PC are displayed. You can download the specific percentange contribution data per PC below the graph:
+In the sub-tab called ["Eigenvalues"](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors), you can see the [scree plot](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) showing the main principal components generated from the PCA. The Principal components are ordered based on percentage variance explained by each Principal Component. You can download the plot as ".pdf" by clicking on "Download plot" button above the graph:
 
-![mvapp_pca_trait_contrib2](https://user-images.githubusercontent.com/14832460/32647216-78663bdc-c5f0-11e7-82ef-dd418670a6f8.png)
+![06_pca_06](https://user-images.githubusercontent.com/14832460/38466634-000eb2ee-3b35-11e8-9c14-e4012a692641.png)
 
+Below the graph, you can view a default figure legend:
+
+![06_pca_07](https://user-images.githubusercontent.com/14832460/38466635-002f2c4a-3b35-11e8-92b5-87573a4baf8c.png)
+
+If you scroll down, in the main window you will find the table summarizing the eigenvalues of each principal component (comp), their percentage of variance EXPLAINED and the cumulative percentages of all Principal Components that add to 100% for all PC's. The table can be downloaded as a ".csv" file, by clickin on "Download table" button:
+
+![06_pca_08](https://user-images.githubusercontent.com/14832460/38466636-00517b1a-3b35-11e8-9aa6-e01c9a731469.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
+#### Visualize the contribution of Dependent Variables to Principal Components
+
+In the sub-tab 'Contribution per variable' you can visualize the Dependent Variable contribution of the selected Principal Components. Select Principal Components to be plotted on x- and y-axis from the drop-down menus below the graph. The values between the brackets on the x- and y-axis indicate the percentage of the variance explained:
+
+![06_pca_09](https://user-images.githubusercontent.com/14832460/38466637-0071b92a-3b35-11e8-9a0c-02a962390515.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
+#### What are Principal Component's coordinates for the individual samples
+
+By scrolling down, you can see the PC coordinates of the individual samples, represented as a scatter plot. The x- and y-axis are controlled by the same dropdown menu as the contribution plots. You can color the plot by any of the Independent Variable, that you can select from the dropdown menu. 
+
+![06_pca_10](https://user-images.githubusercontent.com/14832460/38466638-0093d690-3b35-11e8-9741-227ef33dce3b.png)
+
+You can see whether you see a  separation in the PCs coordinates between different genotypes / treatments / timepoints for your samples, by changing the color-coding of the graph:
+
+![06_pca_11](https://user-images.githubusercontent.com/14832460/38466639-00d17f7c-3b35-11e8-9ef1-3b0925d0fb88.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
+#### Explain individual Principle Components by examining contribution of Dependent Variables
+
+In the sub-tab 'Contribution per PC' the contribution of individual Dependent Variable for each PC are displayed. You can download individual graphs by clicking "Download plot" button:
+
+![06_pca_12](https://user-images.githubusercontent.com/14832460/38466640-00f29428-3b35-11e8-89d3-9dc7060667dd.png)
+
+If you scroll down, you will see the table displaying the contribution of individual Dependent Variable for each Principle Component (Dim). You can download the table containing specific percentange contribution data per PC as a ".csv" file by clicking "Download the data" button:
+
+![06_pca_14](https://user-images.githubusercontent.com/14832460/38466641-0112713a-3b35-11e8-8158-815a2296d09e.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### MULTIDIMENSIONAL SCALING
+
 Multidimensional scaling [(MDS)](https://en.wikipedia.org/wiki/Multidimensional_scaling) is a multivariate data analysis approach that is used to visualize the similarity/dissimilarity between samples by plotting points in two dimensional plots. The input data for MDS is a dissimilarity matrix representing the distances between pairs of objects. MDS is mathematically and conceptually similar to PCA and factor analysis. PCA is more focused on the dimensions themselves, and seek to maximize explained variance, whereas MDS is more focused on relations among the scaled objects.
 
 #### Select data, subsets, and Dependent Variables
-Select the dataset to analyse from the dropdown menu at the top of the side panel and click "Set the dataset":
+Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them.
 
-![mds 1 dataset](https://user-images.githubusercontent.com/20439594/34207879-528ece2a-e59d-11e7-9e5e-5ac61043b839.png)
+![07_mds_01](https://user-images.githubusercontent.com/14832460/38466843-e4d96c64-3b37-11e8-9837-659e387e5e5c.png)
 
-You can see your selected datasets in the first two sub-tabs.
+Subsequently, select which Dependent Variables you want to use in the Multidimensional Scaling:
 
-Then, select which Dependent Variables you want to use in the MDS. You have the option of clicking the checkbox to scale the data. Then, click "Unleash the power of Multidimensional scaling":
+![07_mds_02](https://user-images.githubusercontent.com/14832460/38466844-e4fac292-3b37-11e8-989b-5cf638d872c9.png)
 
-![mds 2 dv](https://user-images.githubusercontent.com/20439594/34207880-52b47abc-e59d-11e7-8f84-ff4e970db7c3.png)
+You can additionally select whether you would like to scale the data (recomended if the values of individual Dependent Variables are differing in their scale), and run Multidimensional Scaling on a specific subset of your data. If you would like to segregate your scaled samples into a number of clusters, you can select "Cluster samples using k-means" checkbox and choose a number of clusters. 
 
-#### MDS of the samples
-In the third sub-tab, a scatter plot showing the two dimensions resulting from the MDS is displayed. If the clustering option was checked, the clusters would be highlighted in different colors on the graph. This plot can be downloaded as a .png file.
+After selecting all of the above you can click "Unleash the power of MDS". You can view the selected dataset in the first tab calles "Selected dataset": 
 
-![mds 3 run](https://user-images.githubusercontent.com/20439594/34207882-52d380ce-e59d-11e7-91b3-bd4a99c72564.png)
+![07_mds_03](https://user-images.githubusercontent.com/14832460/38466845-e51f2b96-3b37-11e8-85b4-47f6d607bd02.png)
 
-You can also click on the checkbox to perform K-means clustering of the MDS results. The default number of clusters is 3, but you can adjust it as required.
+The specific subset (scaled or non-scaled) in the tab "Final data for MDS":
 
-![mds 4 cluster](https://user-images.githubusercontent.com/20439594/34207883-52f35944-e59d-11e7-828e-5edc765811c0.png)
+![07_mds_04](https://user-images.githubusercontent.com/14832460/38466846-e53ffae2-3b37-11e8-84c2-1630bcc32ac0.png)
 
-The table summarizing the dimensions of the MDS results are shown, with the K-clusters if the option was chosen. The table can be downloaded as a .csv file.
 
-#### MDS on the individuals
-In the sub-tab 'Scaling of the Dependent Variables' the dataset is transposed to perform the MDS with reference to each Dependent Variable. The plot showing the coordinates of each variable is displayed and color-coded by cluster number if that option was included.
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-![mds 5 scaling dv](https://user-images.githubusercontent.com/20439594/34207884-53192764-e59d-11e7-8c92-094b134ad743.png)
+#### Multidimensional scaling of the samples
 
-The table below the plot summarizes the coordinates of each Dependent Variable with regards to the two MDS dimensions, with the K-cluster number for each variable if the clustering option was chosen. The table can be downloaded as a .csv file.
+In the sub-tab "MDS of the samples" you can view a scatter plot showing the two dimensions resulting from the MDS. If the k-means clustering option was selected, the individual samples would be displayed in colors corresponding to individual clusters. This plot can be downloaded as a ".pdf" file, by clicking "Download plot" button"
+
+![07_mds_05](https://user-images.githubusercontent.com/14832460/38466847-e560bc5a-3b37-11e8-8549-370054552454.png)
+
+By scrolling with your pointer through the graph, you will get a specific information of the samples represented by individual datapoints. The sample identifier is representing GENOTYPE, Independent Variable, Timepoint and Sample ID (selected in "Data upload" tab). 
+
+![07_mds_06](https://user-images.githubusercontent.com/14832460/38466848-e583c628-3b37-11e8-9d60-f29dfeba58fa.png)
+
+If you scroll down, you will see the table summarizing the coordinates of individual samples as calculated with Multidimensional Scaling, including the K-means clusters if the option for "k-mean clustering" was chosen. The table can be downloaded as a ".csv" file, by clicking on "Download table" button.
+
+![07_mds_07](https://user-images.githubusercontent.com/14832460/38466849-e5a53934-3b37-11e8-90f0-8e3f2ea2eb37.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
+#### Multidimensional scaling on the selected Dependent Variables
+
+In the sub-tab "Scaling of traits", you can find a multidimensional scaling performed on the selected Dependent Variables. The plot showing the coordinates of each Dependent Variable is displayed and color-coded by cluster number if that option was included. This kind of plot can provide you with an insight of the relationships between individual measured traits:
+
+![07_mds_08](https://user-images.githubusercontent.com/14832460/38466850-e5c56b0a-3b37-11e8-8012-7125123afd68.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
@@ -596,13 +657,19 @@ The table below the plot summarizes the coordinates of each Dependent Variable w
 
 ![mvapp_hcluster_hotmap](https://user-images.githubusercontent.com/14832460/32647242-8e58ae48-c5f0-11e7-85fe-7501207fbfcd.png)
 
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
 #### What kind of clustering
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### Select the distance for cluster separation
 
 ![mvapp_hcluster_dendro](https://user-images.githubusercontent.com/14832460/32647240-8df05d2a-c5f0-11e7-99dc-9b75a5430c96.png)
 
 ![mvapp_hcluster_dendro2](https://user-images.githubusercontent.com/14832460/32647243-8e890e94-c5f0-11e7-8312-08bf29ef78b2.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 ###### Validate the cluster
 
@@ -637,11 +704,15 @@ Select which dataset you would like to use to perform quantile regression. You c
 
 ![select dataset](https://user-images.githubusercontent.com/34129392/35613562-8e494a70-067d-11e8-8411-66407a9de61d.png)
 
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
 #### Select reponse, explanatory variable, subsets
 
 Select the phenotype you want as response of your quantile regression, you can only choose one variable. Select the independent varaibles to subset the data, you can choose a maximum of two variables. Then choose the explanatory variables of your quantile regression model, you can choose any number of explanatory variables. You can choose a p-value threshold to test the significance of the explantory variables. You have the option to scale the data which might be useful if your variables are in different units.
 
 ![select options](https://user-images.githubusercontent.com/34129392/35572617-0980bc3e-05e6-11e8-9dc7-f2477b3b8d3d.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### Set the data
 
@@ -665,11 +736,15 @@ The results from all the quantile regression models for different subsets are ta
 
 ![data table](https://user-images.githubusercontent.com/34129392/35572610-089b8074-05e6-11e8-8f81-b434390a042d.png)
 
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
 #### Visualize the results
 
 The plots of the regression models can be seen in the sub-tab 'Quantile plots'. You can choose the independent variable by which you want to group your plot. For example if you want to compare how a particular phenotype behaves in salt and control condition, then you can group your plot by Treatment. If you have chosen two independent variables to subset your data, then you can also choose the value of your another subset variable whose result you want to see. If you want to view a single plot, then choose the particular phenotype you want to view. If you want to view the results of all your phenotypes the you can choose 'multiple plots' from "View plots as:". Finallly click on "View plot(s)" button to display the plot(s).
 
 ![quantile plots](https://user-images.githubusercontent.com/34129392/35572609-0875f714-05e6-11e8-8092-caa76b3f762a.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### Quantile plots
 
@@ -684,9 +759,6 @@ If you choose to view your plots as multiple plots, the quantile plots of all th
 If you have more than four explanatory variables, then you can use the slider to view more plots.
 
 ![multiple plots slider](https://user-images.githubusercontent.com/34129392/35572605-080e38b8-05e6-11e8-9160-c9302cd56ac6.png)
-
-
-
 
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
