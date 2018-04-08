@@ -46,7 +46,8 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 
 
 [5. CORRELATIONS](#5-correlations)
-[5.5 Scatterplots] (#5.5 Scatterplots)
+
+[5.5 Scatterplots](#5.5-Scatterplots)
 
 
 
