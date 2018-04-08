@@ -720,17 +720,117 @@ You can view individual Dependent Variables by selecting them from a drop-down m
 
 ### 9. K-MEANS CLUSTER ANALYSIS
 
+K-means clustering is a type of unsupervised learning, which is used when you have unlabeled data (i.e., data without defined categories or groups). The goal of this algorithm is to find groups in the data, with the number of groups represented by the variable K. The algorithm works iteratively to assign each data point to one of K groups based on the features that are provided. The K-means clustering algorithm is used to find groups which have not been explicitly labeled in the data. This can be used to confirm business assumptions about what types of groups exist or to identify unknown groups in complex data sets.
+
+#### Selecting the data
+
+Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
+
+![09_kmclust_01](https://user-images.githubusercontent.com/14832460/38468250-f03fac4e-3b4b-11e8-82a6-41e5a7f8e94f.png)
+
+Subsequently, select which Dependent Variables you want to use in the K-means clustering. Please be aware that unlike in PCA, the greater number of traits will result in larger number of groups identified. Therefore - we advice to limit the number of Dependent Variable used as an input for K-means Clustering Analysis.
+
+You can additionally select whether you would like to scale the data (recomended if the values of individual Dependent Variables are differing in their scale), perform the K-means Clustering on the mean data (means are calculated per Genotype, Independent Variable and Time points selected in "Data upload" tab), or run K-means Clustering on a specific subset of your data. 
+
+![09_kmclust_02](https://user-images.githubusercontent.com/14832460/38468251-f063153a-3b4b-11e8-96be-274830255685.png)
+
+You can view the selected dataset in the first tab called "Selected dataset", while the specific subset (scaled or non-scaled) used for the Hierarchical Clustering is displayed in the tab "Final data used for K-means":
+
+![09_kmclust_03](https://user-images.githubusercontent.com/14832460/38468252-f0860d7e-3b4b-11e8-91ee-fbdddbba3e94.png)
+
+#### Optimal cluster number estimation
+
+If you don't know what is the best number of the cluster for your data, you can run a preliminary analysis in the sub-tab "Optimal number of clusters" by clicking "Unleash optimal cluster number estimation" button in the sidepanel.
+
+It will take some time for this analysis to finish - so please be patient...
+
+![09_kmclust_04](https://user-images.githubusercontent.com/14832460/38468253-f0aa5a3a-3b4b-11e8-8794-29edc80a566f.png)
+
+After the estimation script finished running, the graphs will appear in the main windown in the sub-tab "Optimal number of clusters". The graphs represent a graphical methods for cluster estimation. 
+
+The first graph visualize the [elbow method](https://bl.ocks.org/rpgove/0060ff3b656618e9136b). You can identify the optimal number of clusters by identifying the point at which the line is making the sharpest turn, so called "elbow".
+
+![09_kmclust_05](https://user-images.githubusercontent.com/14832460/38468254-f0cccd2c-3b4b-11e8-9630-a905e453ec69.png)
+
+If you scroll down, you will see the graph representing the ["silhouette method"](https://kapilddatascience.wordpress.com/2015/11/10/using-silhouette-analysis-for-selecting-the-number-of-cluster-for-k-means-clustering/), where the optimal number of clusters is indicated by dashed line.
+
+![09_kmclust_06](https://user-images.githubusercontent.com/14832460/38468255-f0efd560-3b4b-11e8-9a76-6a5d9674fe4d.png)
+
+Scrolling even lower, you will find a message box displaying the results of the cummulative tests, indicating the best cluster number according to the majority rule. 
+
+![09_kmclust_07](https://user-images.githubusercontent.com/14832460/38468256-f114adae-3b4b-11e8-903a-e4bd7de7867d.png)
+
+Below the message box, you will find the graphical representation of the cummulative cluter number indicated by different methods. 
+
+![09_kmclust_08](https://user-images.githubusercontent.com/14832460/38468257-f137e33c-3b4b-11e8-80c3-1a28d8efaa5e.png)
+
+#### Performing k-means clustering 
+
+Once you decided on the number of clusters to be used for k-means clustering, you shoud enter the cluster number in the "Cluster number" box and click "Unleash cluster analysis" on the side-panel.
+
+![09_kmclust_09](https://user-images.githubusercontent.com/14832460/38468258-f15b8738-3b4b-11e8-8e75-d40d9d4c3b82.png)
+
+The results of the k-means clustering will be displayed in sub-tab "K-means clustering plots", where you can view the individual samples plotted in the order of the selected Dependent Variable from the drop-down menu "Variable to plot" in the main window. The colors represent the individual clusters.
+
+![09_kmclust_10](https://user-images.githubusercontent.com/14832460/38468259-f17ee200-3b4b-11e8-835b-f5df3eea9ee2.png)
+
+You can split the graph by selecting "Split the graph" checkbox and the Independent Variable to split by, as well as modify the appearance of the graph modifying the boxes on the righ-hand side above the graph. 
+
+![09_kmclust_12](https://user-images.githubusercontent.com/14832460/38468260-f1c3596c-3b4b-11e8-80ef-9c702161faf7.png)
+
+In the sub-tab "K-means clustering scatter plots", you can plot the corelation between two selected Independent Variables, selected from the drop-down menus in the upper left corner above the plot. 
+
+![09_kmclust_13](https://user-images.githubusercontent.com/14832460/38468261-f1e54d24-3b4b-11e8-9b47-b9a66dc0d7b5.png)
+
+You can split the graph by selecting "Split the graph" checkbox and the Independent Variable to split by, as well as modify the appearance of the graph modifying the boxes on the righ-hand side above the graph. 
+
+![09_kmclust_14](https://user-images.githubusercontent.com/14832460/38468262-f215c76a-3b4b-11e8-8872-1a8e0cc5cd55.png)
+
+Finally, in the sub-tab "K-means clustering data table" you can view the table and which of your sample belong to which clusters. The columns with cluster identity is all the way at the right side end of the table. You can download the table as a ".csv" file by clickin on the button "Download data". 
+
+![09_kmclust_15](https://user-images.githubusercontent.com/14832460/38468263-f2382594-3b4b-11e8-8db6-4f1272c9deea.png)
+
 ### 10. HERITABILITY
 
-Heritability is the proportion of the phenotypic variance that can be attributed to genetic variance. This statistic is important in the fields of genetics in order to assess if a trait is heritable (genetically controlled). MVapp allows you to calculate the broad-sense heritability, which is the ratio of total genetic variance to total phenotypic variance (https://www.ncbi.nlm.nih.gov/books/NBK21866/). 
+Heritability is the proportion of the phenotypic variance that can be attributed to genetic variance. This statistic is important in the fields of genetics in order to assess if a trait is heritable (genetically controlled). MVapp allows you to calculate the [broad-sense heritability](https://www.ncbi.nlm.nih.gov/books/NBK21866/), which is the ratio of total genetic variance to total phenotypic variance. 
 
-Make sure you enter the "Year" and/or "Location" as independent variables when you upload the data. Enter the number of replicates per year/per location. If year and/or location is missing, you can choose the option "none" from the drop-down lists. You can also use to subset the data, by treatment for example, to calculate heritability within for each treatment. 
-In the example below, we have a column for Year but none for location (experiment is replicated across years in the same location). There are two replicates per accession per year.
-<img width="663" alt="heritability_1" src="https://user-images.githubusercontent.com/15339112/35803543-33443980-0a85-11e8-8973-67a87b97cf14.png">
+NOTE! Please, be aware that in order to estimate heritability, you should have at least 5 different genotypes. 
 
-The output as shown below gives the summary of the information entered (number of replications, number of years/locations and unique values per year/location) and the summary of the model used to calculate heritability.
+#### Selecting the data
 
-<img width="667" alt="heritability2_a" src="https://user-images.githubusercontent.com/15339112/35804191-c54e73c0-0a87-11e8-8e55-6cf50569d389.png">
+Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
+
+![10_heritability_01](https://user-images.githubusercontent.com/14832460/38468477-440a82e2-3b4f-11e8-97a6-f5ea31a908d7.png)
+
+If you performed your experiment across different year, experimental batches, please select the column indicating the year / experimental batch from the drop-down menu "Select column containing experimental batch / year". If you don't have this information, or your data was collected from one experiment, select "none". The model will still be able to run.
+
+The same applies for the drop-down menu "Select column containing location".
+
+![10_heritability_02](https://user-images.githubusercontent.com/14832460/38468478-442f697c-3b4f-11e8-84cd-fb848ec15104.png)
+
+Subsequently, enter the number of the replications per location and per year. 
+
+![10_heritability_03](https://user-images.githubusercontent.com/14832460/38468479-44544ac6-3b4f-11e8-8405-18875d13b8fd.png)
+
+If your data contains different treatments, you can split your data by selecting "Split the data?" checkbox and selecting an Independent Variable from the drop-down menu for which you wish to split. 
+
+![10_heritability_04](https://user-images.githubusercontent.com/14832460/38468480-44787720-3b4f-11e8-85ff-dfe62594e84e.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
+#### Estimated broad-sense heritability 
+
+In the main window, the message box will give a summary of information entered (number of replications, number of years/locations and unique values per year/location) and the summary of the model used to calculate heritability.
+
+![10_heritability_05](https://user-images.githubusercontent.com/14832460/38468481-449d3f7e-3b4f-11e8-9494-ba761b7884f4.png)
+
+In case you wish to subset your data even further, you can do it by selecting "Subset the data?" checkbox and selecting an Independent Variable from the drop-down menu for which you wish to subset, as well as specific subset to be displayed. As soon as you do that, the estimated broad-sense heritability values will adjust.
+
+![10_heritability_06](https://user-images.githubusercontent.com/14832460/38468482-44bf3c46-3b4f-11e8-8389-fe9b2ab26dd9.png)
+
+You can compare the heritability values between individual subset by changing them in the drop-down menu "Use subset"
+
+![10_heritability_07](https://user-images.githubusercontent.com/14832460/38468483-44e117ee-3b4f-11e8-960b-4b9ec4f98d6a.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
@@ -744,49 +844,67 @@ Quantile regression estimates are more robust against outliers in the response, 
 
 #### Select the dataset
 
-Select which dataset you would like to use to perform quantile regression. You can choose from the following options: raw data: use your selected data from “Upload your data” tab, you can check the data from the Data Magic - New data tab missing values removed: use data without rows with missing values outliers removed: use outlier-free data from “Data curation” tab. The dataset you chose to explore will be displayed in the 'Selected dataset' sub-tab.
+Select which dataset you would like to use to perform quantile regression from the drop-down menu at the top of the side panel. If you did not perform outlier removal or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
 
-![select dataset](https://user-images.githubusercontent.com/34129392/35613562-8e494a70-067d-11e8-8411-66407a9de61d.png)
+![11_qr_01](https://user-images.githubusercontent.com/14832460/38468577-16e393c4-3b51-11e8-83c7-c660bebf5a61.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### Select reponse, explanatory variable, subsets
 
-Select the phenotype you want as response of your quantile regression, you can only choose one variable. Select the independent varaibles to subset the data, you can choose a maximum of two variables. Then choose the explanatory variables of your quantile regression model, you can choose any number of explanatory variables. You can choose a p-value threshold to test the significance of the explantory variables. You have the option to scale the data which might be useful if your variables are in different units.
+Select the phenotype you want as response of your quantile regression, you can only choose one variable. 
 
-![select options](https://user-images.githubusercontent.com/34129392/35572617-0980bc3e-05e6-11e8-9dc7-f2477b3b8d3d.png)
+![11_qr_02](https://user-images.githubusercontent.com/14832460/38468578-1707cdd4-3b51-11e8-86f6-d803c3379ef2.png)
+
+Select the independent varaibles to subset the data, you can choose a maximum of two variables. 
+
+![11_qr_03](https://user-images.githubusercontent.com/14832460/38468579-172b55f6-3b51-11e8-9310-2c032ee209a3.png)
+
+Then choose the explanatory variables of your quantile regression model, you can choose any number of explanatory variables. 
+
+![11_qr_04](https://user-images.githubusercontent.com/14832460/38468580-174f54c4-3b51-11e8-8c21-dee3a91879df.png)
+
+You can also choose a p-value threshold to test the significance of the explantory variables. You have the option to scale the data which might be useful if your variables are in different units. After you select all of the neccessary parameters you can click on "Unleash the power of Quantile Regression" button. The selected dataset will be displayed in "Selected Dataset" sub-tab in the main window.
+
+![11_qr_04a](https://user-images.githubusercontent.com/14832460/38468628-bb6263e4-3b51-11e8-9fcc-05b964e0654e.png)
+
+The specific subset, selected for the quantile regression with / without scaling is displayed in "Final data for analysis" sub-tab.
+
+![11_qr_05](https://user-images.githubusercontent.com/14832460/38468581-17758978-3b51-11e8-8221-dc83ea4cc6a0.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
-
-#### Set the data
-
-Once you are done choosing the data, you can click on "Click to set the data" and the final data will be locked for further analysis and a set of quantile regression model will be run, based on your chosen variables and subsets of the data.
-
-![click to set](https://user-images.githubusercontent.com/34129392/35572616-091a773a-05e6-11e8-900f-9a1cccb206f4.png)
-
-#### Final data for analysis
-
-The final data used for analysis can be seen in the sub-tab 'Final data for analysis'.
-
-![final data](https://user-images.githubusercontent.com/34129392/35572615-08f9c8e6-05e6-11e8-8134-638e82a5c0e4.png)
 
 #### Results of quantile regression
 
-The result of the quantile regression model can be seen in the sub-tab 'Modelled data'. The message box displays the significant phenotypes for lower, median and upper quantiles of the response for the particular subset chosen from the drop down list. You can choose the subset whose result you want to see in the message box.
+The result of the quantile regression model can be seen in the sub-tab 'Modelled data'. You can chose a specific subset to view from the drop-down menu "Use subset" above the message box.
 
-![modelled data](https://user-images.githubusercontent.com/34129392/35572612-08cc6658-05e6-11e8-966c-c1160c2c9e32.png)
+![11_qr_06](https://user-images.githubusercontent.com/14832460/38468582-1798d072-3b51-11e8-8114-ea64d9fd1abb.png)
 
-The results from all the quantile regression models for different subsets are tabulated. The table can be downloaded as a .csv will all the results. You can also search for a particular subset or a particular quantile level from the 'Search:' box if you want to look at a particular result.
+The message box displays the significant phenotypes for lower, median and upper quantiles of the response for the particular subset chosen from the drop down list. You can choose the subset whose result you want to see in the message box.
 
-![data table](https://user-images.githubusercontent.com/34129392/35572610-089b8074-05e6-11e8-8f81-b434390a042d.png)
+The results from all the quantile regression models for different subsets are tabulated. The table can be downloaded as a ".csv" file by clicking the button "Download modelled data" containing all the results. 
+
+![11_qr_07](https://user-images.githubusercontent.com/14832460/38468583-17bdc396-3b51-11e8-90b7-c64cedecef02.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### Visualize the results
+#### Visualize the quantile regression results
 
-The plots of the regression models can be seen in the sub-tab 'Quantile plots'. You can choose the independent variable by which you want to group your plot. For example if you want to compare how a particular phenotype behaves in salt and control condition, then you can group your plot by Treatment. If you have chosen two independent variables to subset your data, then you can also choose the value of your another subset variable whose result you want to see. If you want to view a single plot, then choose the particular phenotype you want to view. If you want to view the results of all your phenotypes the you can choose 'multiple plots' from "View plots as:". Finallly click on "View plot(s)" button to display the plot(s).
+The plots of the regression models are displayed in the sub-tab 'Quantile plots'. You can choose the independent variable by which you want to group your plot. If you have chosen two independent variables to subset your data, then you can also choose the value of your another subset variable whose result you want to see. 
 
-![quantile plots](https://user-images.githubusercontent.com/34129392/35572609-0875f714-05e6-11e8-8092-caa76b3f762a.png)
+If you view a single plot, then choose the particular phenotype you want to view. 
+
+The coefficients of the phenotype are plotted against the quantile level. The colored dots represent that the variable is significant for the particular quantile level and the cross sign represent that it is not significant. The different colors represent the different unique realizations of the grouping variable. The different lines can be used to compare the behavior of phenotypes in different conditions or different days, depending on the grouping variable. The plot can be downloade by using the "Download plot" button above the plots.
+
+![11_qr_08](https://user-images.githubusercontent.com/14832460/38468584-17e1fa36-3b51-11e8-8f2c-adbc673c8730.png)
+
+If you want to view the results of all your phenotypes the you can choose 'multiple plots' from "View plots as:". The panel displaying the plots will update automatically. 
+
+![11_qr_09](https://user-images.githubusercontent.com/14832460/38468585-1805e824-3b51-11e8-8654-d40c19fafae7.png)
+
+You can view the contribution of different Dependent Variables by using a scroll bar "Show plot of variables starting from..."
+
+![11_qr_10](https://user-images.githubusercontent.com/14832460/38468586-1829ad90-3b51-11e8-8f80-8d0765ed17be.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
