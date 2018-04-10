@@ -749,7 +749,7 @@ You can view individual Dependent Variables by selecting them from a drop-down m
 
 ### 9. K-MEANS CLUSTER ANALYSIS
 
-K-means clustering is often used to find groups a data set, when categories or groups in the data are unknown. The K-means algorithm assigns the individuals to a number of centroids, defined by the user. The Euclidean distance between the individual and the cluster mean is computed and the individual is assigned to the closest centroid, so that the samples within the same cluster (K) are as similar as possible. This analysis is useful to confirm user's hypotheses about the existance of possible groups or to detect unidentified groups in complex data sets.
+K-means clustering is often used to find groups a data set, when categories or groups in the data are unknown. The K-means algorithm assigns the individuals to a number of centroids, defined by the user. The Euclidean distance between the individual and the cluster mean is computed and the individual is assigned to the closest centroid, so that the samples within the same cluster (K) are as similar as possible. This analysis is useful to confirm user's hypotheses about the existance of possible groups or to detect unidentified groups in complex datasets.
 
 #### Selecting the data
 
