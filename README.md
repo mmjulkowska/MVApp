@@ -749,7 +749,7 @@ You can view individual Dependent Variables by selecting them from a drop-down m
 
 ### 9. K-MEANS CLUSTER ANALYSIS
 
-K-means clustering is a type of unsupervised learning, which is used when you have unlabeled data (i.e., data without defined categories or groups). The goal of this algorithm is to find groups in the data, with the number of groups represented by the variable K. The algorithm works iteratively to assign each data point to one of K groups based on the features that are provided. The K-means clustering algorithm is used to find groups which have not been explicitly labeled in the data. This can be used to confirm business assumptions about what types of groups exist or to identify unknown groups in complex data sets.
+K-means clustering is often used to find groups a data set, when categories or groups in the data are unknown. The K-means algorithm assigns the individuals to a number of centroids, defined by the user. The Euclidean distance between the individual and the cluster mean is computed and the individual is assigned to the closest centroid, so that the samples within the same cluster (K) are as similar as possible. This analysis is useful to confirm user's hypotheses about the existance of possible groups or to detect unidentified groups in complex data sets.
 
 #### Selecting the data
 
@@ -757,19 +757,19 @@ Select the dataset to analyse from the dropdown menu at the top of the side pane
 
 ![09_kmclust_01](https://user-images.githubusercontent.com/14832460/38468250-f03fac4e-3b4b-11e8-82a6-41e5a7f8e94f.png)
 
-Subsequently, select which Dependent Variables you want to use in the K-means clustering. Please be aware that unlike in PCA, the greater number of traits will result in larger number of groups identified. Therefore - we advice to limit the number of Dependent Variable used as an input for K-means Clustering Analysis.
+Subsequently, select which Dependent Variables you want to use in the K-means clustering. We recommend that you only include non-redundant, informative traits, which can be selected by visualizing the correlations between all traits. The use of highly correlated traits could increase the importance of these specific traits and skew the clustering. Thus, excluding redundant traits is advised.
 
-You can additionally select whether you would like to scale the data (recomended if the values of individual Dependent Variables are differing in their scale), perform the K-means Clustering on the mean data (means are calculated per Genotype, Independent Variable and Time points selected in "Data upload" tab), or run K-means Clustering on a specific subset of your data. 
+You can additionally select whether you would like to scale the data (recomended if the values of individual Dependent Variables are in different units), perform the K-means Clustering on the mean data (means are calculated per Genotype, Independent Variable and Time points selected in "Data upload" tab), or run K-means Clustering on a specific subset of your data. 
 
 ![09_kmclust_02](https://user-images.githubusercontent.com/14832460/38468251-f063153a-3b4b-11e8-96be-274830255685.png)
 
-You can view the selected dataset in the first tab called "Selected dataset", while the specific subset (scaled or non-scaled) used for the Hierarchical Clustering is displayed in the tab "Final data used for K-means":
+You can view the selected dataset in the first tab called "Selected dataset", while the specific subset (scaled or non-scaled) used for the K-means clustering is displayed in the tab "Final data used for K-means":
 
 ![09_kmclust_03](https://user-images.githubusercontent.com/14832460/38468252-f0860d7e-3b4b-11e8-91ee-fbdddbba3e94.png)
 
 #### Optimal cluster number estimation
 
-If you don't know what is the best number of the cluster for your data, you can run a preliminary analysis in the sub-tab "Optimal number of clusters" by clicking "Unleash optimal cluster number estimation" button in the sidepanel.
+The number of clusters or centroids (K) must be defined by the user. If you don't know what is the best number of the cluster for your data, you can run a preliminary analysis in the sub-tab "Optimal number of clusters" by clicking "Unleash optimal cluster number estimation" button in the sidepanel.
 
 It will take some time for this analysis to finish - so please be patient...
 
@@ -785,11 +785,11 @@ If you scroll down, you will see the graph representing the ["silhouette method"
 
 ![09_kmclust_06](https://user-images.githubusercontent.com/14832460/38468255-f0efd560-3b4b-11e8-9a76-6a5d9674fe4d.png)
 
-Scrolling even lower, you will find a message box displaying the results of the cummulative tests, indicating the best cluster number according to the majority rule. 
+Scrolling even lower, you will find a message box displaying the results of the cummulative tests, using 30 different indexes, indicating the best cluster number according to the majority rule. 
 
 ![09_kmclust_07](https://user-images.githubusercontent.com/14832460/38468256-f114adae-3b4b-11e8-903a-e4bd7de7867d.png)
 
-Below the message box, you will find the graphical representation of the cummulative cluter number indicated by different methods. 
+Below the message box, you will find the graphical representation of the cummulative cluster number indicated by different methods. 
 
 ![09_kmclust_08](https://user-images.githubusercontent.com/14832460/38468257-f137e33c-3b4b-11e8-80c3-1a28d8efaa5e.png)
 
@@ -818,6 +818,7 @@ You can split the graph by selecting "Split the graph" checkbox and the Independ
 Finally, in the sub-tab "K-means clustering data table" you can view the table and which of your sample belong to which clusters. The columns with cluster identity is all the way at the right side end of the table. You can download the table as a ".csv" file by clickin on the button "Download data". 
 
 ![09_kmclust_15](https://user-images.githubusercontent.com/14832460/38468263-f2382594-3b4b-11e8-8db6-4f1272c9deea.png)
+
 
 ### 10. HERITABILITY
 
