@@ -13,9 +13,9 @@ The app is available [here](http://mvapp.kaust.edu.sa/MVApp/) or you can run it 
 
 MVApp was created to streamline data analysis for all kinds of biological queries - from investigating mutant phenotypes or the effects of an experimental treatment, to studying natural variation using any biological system.  
 
-We believe that the MVApp will enhance data transparency and standardize data curation and analysis, save time, and empower the scientific community to perform complex analyses without extensive knowledge of R or statistics, while simultaneously it will improve the data analysis literacy in wider scientific community. 
+We believe that the MVApp will enhance data transparency and standardize data curation and analysis, save time, and empower the scientific community to perform complex analyses without extensive knowledge of R or statistics, and simultaneously it will improve the data analysis literacy in wider scientific community. 
 
-Although the MVApp development team is burried armpit-deep in Plant Science, we are trying to make the App as applicable as possible for all biological disciplines and beyond. If you have any suggestions on what other analyses we can include, please check out our guidelines on how to [contribute](https://github.com/mmjulkowska/MVApp/blob/master/CONTRIBUTING.md). 
+Although the MVApp development team is burried armpit-deep in Plant Science, we are trying to make the App as applicable as possible for all biological disciplines and beyond. If you have any suggestions on other analyses we can include, please check out our guidelines on how to [contribute](https://github.com/mmjulkowska/MVApp/blob/master/CONTRIBUTING.md). 
 
 Currently MVApp has following features:
 1. Identification of outliers using different methods based on one or multiple phenotypes 
@@ -25,7 +25,7 @@ Currently MVApp has following features:
 5. Reduction of data dimensionality and identifying the traits that explain the most data variance using principal component analysis and multidimensional scaling 
 6. Clustering individual samples using hierarchical or k-means clustering 
 7. Estimation of broad-sense heritability of measured traits 
-8. Quantile regression analysis that allowa the identification of traits with significant contribution to traits of major interest
+8. Quantile regression analysis that allows the identification of traits with significant contribution to traits of major interest
 
 ### How to cite the MVApp:
 
@@ -70,16 +70,16 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 
 #### Data format:
 
-MVApp can handle .csv files containing at least following collumns: 
+MVApp can handle .csv files containing at least the following columns: 
 * column with the genotype or the main Independent Variable (if you use only one genotype - we advise you to include one column with the genotype anyway and give the same name to all of your samples)
 * One or multiple column(s) with an Independent Variable (e.g. treatment, position, experimental batch number)
-* One or multiple column(s) containing Dependent Variable - numerical data of the measured traits - also known as the phenotypes
+* One or multiple column(s) containing Dependent Variable - numerical data of the measured traits - also known as phenotypes
 
 If you have a timeseries experiment, or any other gradient, and you want to fit curves to your data, the input data should include columns containing:
 * Time (or other continuous Independent Variable) - this variable MUST be numeric (e.g. "1" instead of "Day 1")
 * Sample ID - an identifier for each individual sample
 
-Your data should look similar like the Example dataset, with ID and TIME column being optional:
+Your data should look similar to the Example dataset, with ID and TIME column being optional:
 
 ![mvapp_data](https://user-images.githubusercontent.com/14832460/32609292-48dc541c-c570-11e7-8f87-54ca02b646d8.png)
 
@@ -112,9 +112,9 @@ View the newly uploaded dataset in "New Data" sub-tab:
 
 ####  Why model your data?
 
-If you have a continuous Independent Variable in your experiment, you might want to estimate how your Dependent Variables change across it. For example, you could investigate the the dynamics of plant/bacterial growth over time, or the dose dependency of a phenotypic response to a chemical treatment. [Fitting curves](https://en.wikipedia.org/wiki/Curve_fitting) will allow you to observe and model these response dynamics.
+If you have a continuous Independent Variable in your experiment, you might want to estimate how your Dependent Variables change across it. For example, you could investigate the dynamics of plant/bacterial growth over time, or the dose dependency of a phenotypic response to a chemical treatment. [Fitting curves](https://en.wikipedia.org/wiki/Curve_fitting) will allow you to observe and model these response dynamics.
 
-#### Fitting simple functions
+#### Fit simple functions
 
 At the moment, MVApp helps you to fit simple functions: linear, quadratic, exponential and square root functions. For these functions, we fit linear model (using lm() function) between the continuous Independent Variable indicated in the "Time" column and the Dependent Variable (phenotype). 
 
@@ -135,7 +135,7 @@ First, in the side panel, select which the Independent Variable(s) you wish to g
 
 ![02_curve_fit_02](https://user-images.githubusercontent.com/14832460/38308598-4c2f6186-3820-11e8-9875-6485bdcebbe8.png)
 
-If you don't know which function will fit best, you can click on "Unleash model estimation" button. The best model will be indicated based on the r2 values presented in the table:
+If you do not know which function will fit best, you can click on "Unleash model estimation" button. The best model will be indicated based on the r2 values presented in the table:
 
 ![02_curve_fit_03](https://user-images.githubusercontent.com/14832460/38308599-4c518a86-3820-11e8-91e4-70f2e6370f9d.png)
 
@@ -197,11 +197,11 @@ By scrolling further down, you will find a panel to control the design of the gr
 
 ![02_curve_fit_15](https://user-images.githubusercontent.com/14832460/38309240-2cfde01a-3822-11e8-8e77-27cc3e8cd755.png)
 
-You can change the graph to for example bar graph, remove background or determine what is represented by the error bars. The default figure legend will update automatically too:
+You can change the graph to, for example, bar graph, remove background or determine what is represented by the error bars. The default figure legend will update automatically too:
 
 ![02_curve_fit_18](https://user-images.githubusercontent.com/14832460/38309331-78926dfc-3822-11e8-803f-15762ed632b4.png)
 
-By scrolling further down, you can find the significant groups, as calculated per Tukey's pair-wise test, with the same p-value threshold as ANOVA:
+By scrolling further down, you can find the significant groups, as calculated per Tukey's pairwise test, with the same p-value threshold as ANOVA:
 
 ![02_curve_fit_20](https://user-images.githubusercontent.com/14832460/38309459-cb90b0e0-3822-11e8-9dd6-bb4c830b999c.png)
 
@@ -211,7 +211,7 @@ By scrolling down even further, you will find a table containing the summary sta
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### Fitting polynomial curves with MVApp
+#### Fit polynomial curves with MVApp
 
 If your data shows signs of complex dynamics across your continuous Independent Variable (often particularly applicable for long time-series), you might consider fitting a polynomial curve. The splines usually have very high r2 values, and are therefore not included in the "model estimation" for the best fitting curves.
 
@@ -223,7 +223,7 @@ The fit-plots for the cubic splines carry a dashed diagonal line at the knot pos
 
 ![002_curves_cubicspline_02](https://user-images.githubusercontent.com/14832460/38469033-2d6424b4-3b57-11e8-97b3-9a4a3f415b15.png)
 
-For the smoothed splines, we use smooth.spline() function in R, and you can choose between between automatic or user-defined selection degrees of freedom. The user-defined degrees of freedom can be selected with the "Number of degrees of freedom" slider.
+For the smoothed splines, we use smooth.spline() function in R, and you can select between between automatic or user-defined degrees of freedom. The user-defined degrees of freedom can be selected with the "Number of degrees of freedom" slider.
 
 ![002_curves_smoothedspline_01](https://user-images.githubusercontent.com/14832460/38469035-2db1b49a-3b57-11e8-8ccc-8a4fc9a5a6cb.png)
 
@@ -231,7 +231,7 @@ The fitplots for the smoothed splines are represented with the purple lines.
 
 ![002_curves_smoothedspline_02](https://user-images.githubusercontent.com/14832460/38469036-2dd8c8aa-3b57-11e8-845d-8af642454c60.png)
 
-In case you choose to fit smoothed splines with automatically determined degrees of freedom, they will be displayed in the last collumn of the table in the sub-tab "Modelled data". Please be aware that the degree of freedom might differ between individual samples.
+In case you choose to fit smoothed splines with automatically determined degrees of freedom, they will be displayed in the last column of the table in the sub-tab "Modelled data". Please be aware that the degree of freedom might differ between individual samples.
 
 ![002_curves_smoothedspline_03](https://user-images.githubusercontent.com/14832460/38469037-2e007738-3b57-11e8-91d3-fd645abc5681.png)
 
@@ -245,17 +245,17 @@ Although the polynomial functions commonly have better fit than the simple funct
 
 #### Why identify potential outliers?
 
-For those familiar with large(ish) scale experiments, you have probably had to curate your data, removing [outlier](https://en.wikipedia.org/wiki/Outlier#Working_with_outliers) samples that stem from experimental errors or even mistakes made while recording data. This will help avoid making spurrious conclusions based on unrepresentative data. 
+For those familiar with large(ish) scale experiments, you have probably had to curate your data, removing [outlier](https://en.wikipedia.org/wiki/Outlier#Working_with_outliers) samples that stem from experimental errors or even mistakes made while recording data. This step helps avoid making spurious conclusions based on unrepresentative data. 
 
-You likely identified these problem samples by simple graphical means, or based on their distance from the median in terms of the Standard Deviation or the Interquartile Range.
+You likely identified these "weird" samples by simple graphical means, or based on their distance from the median in terms of the Standard Deviation or the Interquartile Range.
 
-MVApp helps to automatically highlight potential outliers based on a single or multiple Dependent Variables, using various approaches. However, be careful, outliers should not be removed mindlessly. It is good practice to justify outlier samples, perhaps refering to notes or images taken during the experiment that might explain the unusual result. It is possible that a "potential outlier" is in fact a valuable, if extreme, result. 
+MVApp helps to automatically highlight potential outliers based on a single or multiple Dependent Variables, using various approaches. However, be careful, outliers should not be automatically removed. It is good practice to justify outlier samples, perhaps refering to notes or images taken during the experiment that might explain the unusual result. It is possible that a "potential outlier" is in fact a valuable, if extreme, result. 
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 #### Highlight potential outliers
 
-Begin by deciding which data-set you would like to use. Whether or not to remove samples with missing values or (in case you have performed curve fitting) dataset with curated r2 values:
+Begin by deciding which dataset you would like to use. Whether or not to remove samples with missing values or (in case you have performed curve fitting) dataset with curated r2 values:
 
 ![03_outliers_01](https://user-images.githubusercontent.com/14832460/38309888-d661cff8-3823-11e8-8c59-c3dd645f64a3.png)
 
@@ -265,9 +265,9 @@ Select the Independent Variable(s) by which to group the samples, and whether yo
 
 ![03_outliers_03](https://user-images.githubusercontent.com/14832460/38310382-0f991b2c-3825-11e8-9d1d-2eb76e13a374.png)
 
-Next, select which method you would like to use to highlight potential outliers. MVApp provides following methods:
-- 1.5x [Interquartile Range](http://www.purplemath.com/modules/boxwhisk3.htm): this is the most commonly used method and is visually very appealing, as the potential outliers will be identified on the boxplot as the "dots" outside of the whiskers
-- [Cook's distance](https://en.wikipedia.org/wiki/Cook%27s_distance): this algorithm is actually used to determine the most influential points - meaning the points that could make the most difference in the correlation tests and such. However, if the sample is considered to be "influential" in majority of the traits, it might be worthwhile to check whether everything is OK with it.
+Next, select which method you would like to use to highlight potential outliers. MVApp provides the following methods:
+- 1.5x [Interquartile Range](http://www.purplemath.com/modules/boxwhisk3.htm): this is the most commonly used method and is visually very appealing, as potential outliers will be identified on the boxplot as "dots" outside of the whiskers.
+- [Cook's distance](https://en.wikipedia.org/wiki/Cook%27s_distance): this algorithm is actually used to determine the most influential points - meaning the points that could make the most difference in the correlation tests and such. However, if the sample is considered to be "influential" in the majority of traits, it might be worthwhile to check whether everything is OK with it.
 - [Bonferoni test](http://polisci.msu.edu/jacoby/icpsr/regress3/lectures/week3/11.Outliers.pdf): this is a test using the car::outlierTest() function from R
 - 1x Standard Deviation from the Median - all the samples that are further than 1xSD from the median are highlighted as potential outliers (this test is VERY strict and we do not recommend it)
 - 2x Standard Deviation from the Median - all the samples that are further than 2xSD from the median are highlighted as potential outliers
@@ -276,12 +276,12 @@ Next, select which method you would like to use to highlight potential outliers.
 
 ![03_outliers_04](https://user-images.githubusercontent.com/14832460/38309891-d6d85d3a-3823-11e8-8422-a38d88a8fdc9.png)
 
-You can now click on the "unleash the outlier highlighter" to view the curated data. In the main tab, the outlier message will appear indicating the number of potential outliers highlightes, as well as a table of your data. If you scroll to the right, you will see the columns marked "outl_Dependent Variable" (for example "outl_AREA"), where "true" will indicate this sample as being an outlier per genotype / day / independent variables selected. If considering all Dependent Variables, the final column will indicate whether a given sample is a potential outlier in a number of Dependent Variables that meets or exceeds the user-defined threshold (annotated as "true").
+You can now click on the "unleash the outlier highlighter" to view the curated data. In the main tab, the outlier message will appear indicating the number of potential outliers highlighted, as well as a table of your data. If you scroll to the right, you will see the columns marked "outl_Dependent Variable" (for example "outl_AREA"), where "true" will indicate this sample as being an outlier per genotype / day / independent variables selected. If considering all Dependent Variables, the final column will indicate whether a given sample is a potential outlier in the number of Dependent Variables that meets or exceeds the user-defined threshold (annotated as "true").
 The number of identified outliers will be shown in the text box above the table:
 
 ![003_outliers_spare_02](https://user-images.githubusercontent.com/14832460/38468904-57e6c04a-3b55-11e8-9d2e-adca0d638b0f.png)
 
-If you decided to select outliers based on all Dependent Variables, and not replace them by NA (empty cells), but rather remove the entire column, use the slider input in the side panel to select the number of Dependent Variables a given sample must be an outlier in order to consider it an outlier across the whole experiment, i.e. the samples that extreme across so many phenotypes that they warrant being removed from the data analysis. 
+If you decided to select outliers based on all Dependent Variables (remove the entire column), and not replace them by NA (empty cells), use the slider input in the side panel to select the number of Dependent Variables a given sample must be an outlier in order to be considered an outlier across the whole experiment, i.e. the samples that are extreme across many phenotypes and thus should be removed from the data analysis. 
 
 ![003_outliers_spare_03](https://user-images.githubusercontent.com/14832460/38468905-580ada8e-3b55-11e8-8c56-5efaf05b8584.png)
 
@@ -324,7 +324,7 @@ You can also change the order of the samples, by adjusting the order of the Inde
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 
-#### Compare the data with outlier removed
+#### Compare the data with outliers removed
 If you want to look at the graphs with potential outliers removed (as highlighted in main panel "The outliers test"), click on the main panel "Graphs with outliers removed". You can click between "Graph containing outliers" and "Graph with outliers removed" to compare both datasets.
 
 ![003_outliers_spare_05](https://user-images.githubusercontent.com/14832460/38468907-58539fda-3b55-11e8-8cf4-2e2f9ee050b9.png)
@@ -351,13 +351,13 @@ Table containing all the calculations will appear in the main panel. You can dow
 
 ### 4. DATA EXPLORATION
 
-Once your data is nice and clean and ready to go, it's time to start having a proper look at it. A good place to start is to check out how your data is distributed using histograms and boxplots, grouping samples according to your various Independent Variables. From these you can get an idea of how your different genotypes are behaving, how your treatments are affecting your phenotypes, how variable your data is. 
+Once your data is nice and clean and ready to go, it is time to start having a proper look at it. A good place to start is to check out how your data is distributed using histograms and boxplots, grouping samples according to your various Independent Variables. From these you can get an idea of how your different genotypes are behaving, how your treatments are affecting your phenotypes, and how variable your data is. 
 
 Beyond eyeballing, you can apply statistical tests such as ANOVA to test whether there are significant differences between groups. These are all easy things to do in MVApp, which also helps you check the assumptions of these statistical tests, such as normal distribution and homoscedasticity (i.e. equal variance).
 
 In the side panel, you can choose:
-- The dataset to be used (raw data, data with missing values removed, or data with outliers removed). The default value is raw data. If you did not perform outlier emoval or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them.
-- The Independent Variable to subset the data by
+- The dataset to be used (raw data, data with missing values removed, or data with outliers removed). The default value is raw data. If you did not perform outlier removal or curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them.
+- The Independent Variable to subset the data
 - The Dependent Variable you want to plot
 - The p-value threshold to be used in subsequent tests in the tab (e.g.: Levene's test, ANOVA, etc.). The default value is 0.05
 - If you want to facet your graphs by another Independent Variable, tick the checkbox "Split the graph?" a dropdown menu with a list of independent variables appears. The user can choose the independent variable to split the plot.
@@ -381,15 +381,15 @@ You can split the graphs by Independent Variable, by ticking the box "Split the 
 
 ![04_explore_05](https://user-images.githubusercontent.com/14832460/38313744-73a72ad4-382d-11e8-81ec-6dc65e9fa85a.png)
 
-You can subset your data even further, by ticking the box "Subset the data?" in the main windown, and selecting yet another one of the Independent Variables, and selecting specific value of this variable that will be used for the displayed graphs:
+You can subset your data even further, by ticking the box "Subset the data?" in the main windown, and selecting yet another one of the Independent Variables, and selecting specific value for this variable that will be used for the displayed graphs:
 
 ![04_explore_06](https://user-images.githubusercontent.com/14832460/38313746-73cb34a6-382d-11e8-97fd-d185c69c2d99.png)
 
-From these plots, you can look at the spread of your data across the Independent Variable groupings selected in the side-panel. Below the histograms, you will find a message that summarizes the groups/subgroups that seem to not have a normal distribution, where the p-value of the Shapiro-Wilk test is larger than the p-value threshold selected in the side-panel. Normal distribution is a requirement for performing an ANOVA test (less so for large sample sizes).
+From these plots, you can look at the spread of your data across the Independent Variable groupings selected in the side-panel. Below the histograms, you will find a message that summarizes the groups/subgroups that seem not to have a normal distribution, where the p-value of the Shapiro-Wilk test is larger than the p-value threshold selected in the side-panel. Normal distribution is a requirement for performing an ANOVA test (less so for large sample sizes).
 
 ![04_explore_08](https://user-images.githubusercontent.com/14832460/38313752-7416180e-382d-11e8-9c00-a2251687c5a6.png)
 
-If you want to see the detailed results of the Shapiro-Wilk test for all groups/subgroups along with their QQ-plots, tick the checkbox "See detailed Shapiro-Wilk test and QQ-plots". The table shows p-value of the Shapiro-Wilk tests performed for each groups/subgroups. If the p-value of the Shapiro-Wilk test for a group is larger than the selected p-value threshold, in the final column the group will be noted with "Data has NORMAL distribution" appears.
+If you want to see the detailed results of the Shapiro-Wilk test for all groups/subgroups along with their QQ-plots, tick the checkbox "See detailed Shapiro-Wilk test and QQ-plots". The table shows p-value of the Shapiro-Wilk tests performed for each groups/subgroups. If the p-value of the Shapiro-Wilk test for a group is larger than the selected p-value threshold, in the final column the group will be noted with "Data has NORMAL distribution".
 
 ![04_explore_09](https://user-images.githubusercontent.com/14832460/38313755-743b55ba-382d-11e8-9d39-bc4bef2cc315.png)
 
@@ -401,13 +401,13 @@ Based on the results obtained in this sub-tab, you can have a better judgement i
 
 #### Examine variance
 
-In the "Testing equal variance" sub-tab, you can have a look at the results of the Bartlett test and Levene test of homogeneity of variances between the different groups and for each sub-groups. Equal variances, or homoscedasticity, is also a requirement for performing an ANOVA test.
+In the "Testing equal variance" sub-tab, you can have a look at the results of the Bartlett test and Levene test of equal variances between the different groups and for each sub-groups. Equal variances, or homoscedasticity, is also a requirement for performing an ANOVA test.
 
 In the main window you see the boxplots for each group: left -  the observed data (y), middle - the data with the subtracted median (y-med(y)), right - the absolute deviations from the median (abs(y-med(y))).
 
 ![04_explore_11](https://user-images.githubusercontent.com/14832460/38313757-74758316-382d-11e8-85b2-60ceb99905db.png)
 
-If you scroll lower, you will see the results of both Bartlett and Levene tests. The null hypothesis of the Bartlett and Levene tests assumes that the variances in each of the groups are the same. The Bartlett test is more robust when the data comes from a normal distribution, while Levene test is more robust in case of departures from normality.
+If you scroll lower, you will see the results of both Bartlett and Levene tests. The null hypothesis of the Bartlett and Levene tests assumes that variances across the groups are the same. The Bartlett test is more robust when the data comes from a normal distribution, while Levene test is more robust in case of departures from normality.
 
 The first table displays the results of the Bartlett test and the second table displays those of the Levene test. The tables show the p-value of tests performed for each groups/subgroups. If the p-value of the test for a group is larger than the selected p-value threshold, groups are noted as "Equal". In this case there is not enough evidence to reject the null hypothesis, where the variances are considered equal. If the p-value of the test for a group is smaller than the selected p-value threshold, groups are noted as "Not equal". In this case the null hypothesis is rejected and the variances are considered not equal.
 
@@ -443,11 +443,11 @@ In this sub-tab, you can check for signifcant differences in the means between d
 
 If the p-value of the ANOVA test for a group is larger than the selected p-value threshold, groups are noted with "NO significant difference in means". In this case there is not enough evidence to reject the null hypothesis and the means of the groups are assumed equal. If the p-value of the ANOVA test for a group is smaller than the selected p-value threshold, groups are noted with "SIGNIFICANT difference in means". In this case the null hypothesis, where the means of the group are considered equal, is rejected and the means of the groups can be considered significantly different. 
 
-A second text bos displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for the selected Dependent Variable. 
+A second text box displays the significant groups based on Tukey's pairwise comparison. Groups that share a common letter do not have significantly different means for the selected Dependent Variable. 
 
 ![04_explore_18](https://user-images.githubusercontent.com/14832460/38313763-754f0aaa-382d-11e8-8dad-7178ff45a294.png)
 
-Boxplots display the distribution of the data for a specific trait (dependent variable) for the levels of the independent variable. The boxplots can be split by the second Independent Variable, selected when if you ticked the checkbox for "Split graph?". You can also change the main Independent Variable to compare differences between Genotypes across the individual subsets:
+Boxplots display the distribution of the data for a specific trait (dependent variable) for the levels of the independent variable. The boxplots can be split by the second Independent Variable, which can be selected once you tick the checkbox for "Split graph?". You can also change the main Independent Variable to compare differences between Genotypes across the individual subsets:
 
 ![04_explore_19](https://user-images.githubusercontent.com/14832460/38313764-7572a4c4-382d-11e8-9816-bbc60a8fdf3e.png)
 
@@ -463,11 +463,11 @@ In case of non-parametric test, Wilcoxon / Mann-Whitney test will be used to mak
 
 #### Two-way ANOVA
 
-In this sub-tab you can explore the effect of two Independent Variables and interaction between them simultaneously. Select Independent Variable 1 and 2 from the drop-down menu's in the main window:
+In this sub-tab you can explore the effect of two Independent Variables and interaction between them simultaneously. Select Independent Variable 1 and 2 from the drop-down menu in the main window:
 
 ![04_explore_23](https://user-images.githubusercontent.com/14832460/38313769-7638eb16-382d-11e8-9514-6781937ac340.png)
 
-You can additionally subset your data for yet another Independent Variable, by selecting the "Subset the data?" box, and picking the Independent Variable and specific subset to be displayed / analysed:
+You can additionally subset your data for yet another Independent Variable, by selecting the "Subset the data?" box, and choosing the Independent Variable and a specific subset to be displayed / analysed:
 
 ![04_explore_24](https://user-images.githubusercontent.com/14832460/38313770-765d0a96-382d-11e8-8858-c2b960c7d5f6.png)
 
@@ -482,12 +482,12 @@ If you scroll down, you can see the residual plot of the two-way ANOVA shown abo
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
 ### 5. CORRELATIONS
-This tab is to check how correlated the selected dependent variables (phenotypes) are in your data by creating a correlation matrix of the selected variables. Correlation coefficientss and p.values are provided for each variable pair. 
+This tab is used to check how selected dependent variables (phenotypes) correlate in your data by creating a correlation matrix of the selected variables. Correlation coefficients and p-values are provided for each variable pair. 
 
 #### Select the dataset
-First of all select which dataset you would like to use to perform the correlation analysis. If you did not perform outlier emoval or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
+First of all, select the dataset you would like to use to perform the correlation analysis. If you did not perform outlier removal or curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
 
-If you want to include / exlude some of the Dependent Variables from your data, you can do so by selecting or deselecting them from the "Choose from Dependent Variables to be plotted" window. 
+If you want to include / exclude some of the Dependent Variables from your data, you can do so by selecting or deselecting them from the "Choose from Dependent Variables to be plotted" window. 
 
 ![05_correlate_01](https://user-images.githubusercontent.com/14832460/38465501-31d36488-3b25-11e8-9bde-1828dc9a508b.png)
 
@@ -507,7 +507,7 @@ If you scroll down, you will find a table containing the [coefficient of determi
 
 #### Correlation for subsetted data
 
-The default is to perform correlation analysis across all dependent variables (phenotypes) across all independent variables. You can also choose to use a subset your data (for examples, phenotypes under a certain treatment, or from a certain day) to examine the correlation. 
+The default is to perform correlation analysis across all dependent variables (phenotypes) across all independent variables. You can also choose to use a subset of your data (for examples, phenotypes under a certain treatment, or from a certain day) to examine the correlation. 
 
 Tick the checkbox “Subset your data for correlation analysis” and choose the specific subset to display the correlation for from the dropdown menu:
 
@@ -521,11 +521,11 @@ As soon as you select to subset your correlation, you will also see the message 
 
 #### Customize the correlation plot
 
-You can chose the plotting method. The default method is "circle" where the correlation strength between individual Dependent Variables is represented by the size and colour of the circle:
+You can choose the plotting method. The default method is "circle" where the correlation strength between individual Dependent Variables is represented by the size and color of the circle:
 
 ![05_correlate_02](https://user-images.githubusercontent.com/14832460/38465502-34eb9e06-3b25-11e8-8360-003d3595437f.png)
 
-Some of the correlation plot method only represent the correlation strength with the colour - such as "number" method, where the linear correlation strengh coefficient (R2) values are represented in the colours corresponding to the value:
+Some of the correlation plot method only represent the correlation strength with the color - such as "number" method, where the linear correlation strengh coefficient (R2) values are represented in the colors corresponding to the value:
 
 ![05_correlate_03](https://user-images.githubusercontent.com/14832460/38465503-350b8144-3b25-11e8-85a3-927c1e7cf10b.png)
 
@@ -533,7 +533,7 @@ You can also change the plot type, and plot the correlations between individual 
 
 ![05_correlate_04](https://user-images.githubusercontent.com/14832460/38465504-352a2c20-3b25-11e8-9b4c-3080a5fa432f.png)
 
-You can also indicate the non-significant correlation with a cross, by ticking the box "indicate non-significant correlation" that is lower in the sidebar panel:
+You can also indicate the non-significant correlation with a cross, by ticking the box "indicate non-significant correlation", located lower in the sidebar panel:
 
 ![05_correlate_05](https://user-images.githubusercontent.com/14832460/38465505-354cc23a-3b25-11e8-9acc-c3b7e41ce4a9.png)
 
@@ -541,19 +541,19 @@ You can also indicate the non-significant correlation with a cross, by ticking t
 
 #### Scatterplots
 
-To examine the correlation between selected Dependent Variables in more detail, you can use scatterplot. The data used for this graph is exactly the same data as you chose in the "correlation plot" tab. From the sidebar panel choose two Dependent Variable that you wish to plot on x- and y-axis respectively, and the Independent Variable that you would like to use to color-code the graph:
+To examine the correlation between selected Dependent Variables in more details, you can use scatterplot. The data used for this graph is exactly the same data you chose in the "correlation plot" tab. From the sidebar panel, choose two Dependent Variable that you wish to plot on x- and y-axis respectively, and the Independent Variable that you would like to use to color-code the graph:
 
 ![05_correlate_06](https://user-images.githubusercontent.com/14832460/38465506-356c867e-3b25-11e8-9a8e-22218f0181c4.png)
 
-You can chose to further subset your data by ticking the checkbox "Subset the data?" and selecting an Independent Variable for which you wish to subset:
+You can choose to further subset your data by ticking the checkbox "Subset the data?" and selecting an Independent Variable for which you wish to subset:
 
 ![05_correlate_07](https://user-images.githubusercontent.com/14832460/38465507-358c1048-3b25-11e8-95fa-598b37cf05e4.png)
 
-By scrolling with your pointer through the graph, you will get a specific information of the samples represented by individual datapoints. The sample identifier is representing GENOTYPE, Independent Variable, Timepoint and Sample ID (selected in "Data upload" tab). The R2 and p-value for individual correlations are reported in the Figure legend, that you can view by selecting "Show the figure legend" checkbox:
+By scrolling with your pointer through the graph, you will get a specific information of the samples represented by individual datapoints. The sample identifier is representing GENOTYPE, Independent Variable, Timepoint and Sample ID (selected in "Data upload" tab). The R2 and p-value for individual correlations are reported in the figure legend, that you can view by selecting "Show the figure legend" checkbox:
 
 ![05_correlate_08](https://user-images.githubusercontent.com/14832460/38465508-35ad3d4a-3b25-11e8-8bf9-3e0f837420c8.png)
 
-The scatterplot is interactive, that will say that you can select the specific subsets indicated by individual colors to be hidden from the graph. Please NOTE that this will not affect the R2 and p-value presented in the figure legend - for those calculations all the values used for the original graph will still be considered:
+The scatterplot is interactive, so you can select the specific subsets indicated by individual colors to be hidden from the graph. Please NOTE that this will not affect the R2 and p-value presented in the figure legend since all the values used for the original graph will still be considered for those calculations :
 
 ![05_correlate_09](https://user-images.githubusercontent.com/14832460/38465509-35cf6424-3b25-11e8-9f83-2c7dc46fc7d0.png)
 
@@ -561,10 +561,10 @@ The scatterplot is interactive, that will say that you can select the specific s
 
 ### 6. PRINCIPAL COMPONENT ANALYSIS
 
-Principal component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, PCA is often not explored to its full potential. You can for example run PCA on data subsetted by an Independent Variable (e.g.treatment or a specific timepoint) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining observed variation. MVApp will allows you to do all this!
+Principal component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify the data into fewer dimensions, and also to check which traits explain majority of the variation in the population studied. However, PCA is often not explored to its full potential. You can, for example, run PCA on data subsetted by an Independent Variable (e.g.: treatment or a specific timepoint) and run PCA separately on those subsets to see how much each of your Dependent Variables contributes to explaining the observed variation. MVApp allows you to do all this!
 
 #### Select data, subsets, and Dependent Variables
-Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them.
+Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or  curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them.
 
 ![06_pca_01](https://user-images.githubusercontent.com/14832460/38466629-ff660ec8-3b34-11e8-8417-67b89ab68b29.png)
 
@@ -572,11 +572,11 @@ Subsequently, select which Dependent Variables you want to use in the PCA:
 
 ![06_pca_02](https://user-images.githubusercontent.com/14832460/38466630-ff87d7a6-3b34-11e8-8cf2-3ca17b0a2ab9.png)
 
-You can additionally select whether you would like to scale the data (recomended if the values of individual Dependent Variables are differing in their scale), and run PCA on a specific subset of your data. After selecting all of the above you can click "Unleash the PCA monster". 
+You can additionally select whether you would like to scale the data (recommended if the values of individual Dependent Variables are differing in their scale), and run PCA on a specific subset of your data. After selecting all of the above you can click "Unleash the PCA monster". 
 
 ![06_pca_03](https://user-images.githubusercontent.com/14832460/38466631-ffa9d9e6-3b34-11e8-870a-6796c7c05c45.png)
 
-You can view the selected dataset in the first tab calles "Selected dataset": 
+You can view the selected dataset in the first tab called "Selected dataset": 
 
 ![06_pca_04](https://user-images.githubusercontent.com/14832460/38466632-ffcc271c-3b34-11e8-80eb-c63ddbe68a5b.png)
 
@@ -586,9 +586,9 @@ The specific subset (scaled or non-scaled) in the tab "Final data for PCA":
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### Visualize the Principal Components
+#### Visualize the principal components
 
-In the sub-tab called ["Eigenvalues"](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors), you can see the [scree plot](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) showing the main principal components generated from the PCA. The Principal components are ordered based on percentage variance explained by each Principal Component. You can download the plot as ".pdf" by clicking on "Download plot" button above the graph:
+In the sub-tab called ["Eigenvalues"](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors), you can see the [scree plot](http://www.improvedoutcomes.com/docs/WebSiteDocs/PCA/Creating_a_Scree_Plot.htm) showing the main principal components generated from the PCA. The principal components are ordered based on percentage variance explained by each principal component. You can download the plot as ".pdf" by clicking on "Download plot" button above the graph:
 
 ![06_pca_06](https://user-images.githubusercontent.com/14832460/38466634-000eb2ee-3b35-11e8-9c14-e4012a692641.png)
 
@@ -596,33 +596,33 @@ Below the graph, you can view a default figure legend:
 
 ![06_pca_07](https://user-images.githubusercontent.com/14832460/38466635-002f2c4a-3b35-11e8-92b5-87573a4baf8c.png)
 
-If you scroll down, in the main window you will find the table summarizing the eigenvalues of each principal component (comp), their percentage of variance EXPLAINED and the cumulative percentages of all Principal Components that add to 100% for all PC's. The table can be downloaded as a ".csv" file, by clickin on "Download table" button:
+If you scroll down, in the main window you will find the table summarizing the eigenvalues of each principal component (comp), their percentage of variance EXPLAINED and the cumulative percentages of all principal components that add to 100% for all PCs. The table can be downloaded as a ".csv" file, by clickin on "Download table" button:
 
 ![06_pca_08](https://user-images.githubusercontent.com/14832460/38466636-00517b1a-3b35-11e8-9aa6-e01c9a731469.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### Visualize the contribution of Dependent Variables to Principal Components
+#### Visualize the contribution of dependent variables to principal components
 
-In the sub-tab 'Contribution per variable' you can visualize the Dependent Variable contribution of the selected Principal Components. Select Principal Components to be plotted on x- and y-axis from the drop-down menus below the graph. The values between the brackets on the x- and y-axis indicate the percentage of the variance explained:
+In the sub-tab 'Contribution per variable' you can visualize the Dependent Variable contribution of the selected principal components. Select the principal components to be plotted on x- and y-axis from the drop-down menus below the graph. The values between the brackets on the x- and y-axis indicate the percentage of the variance explained:
 
 ![06_pca_09](https://user-images.githubusercontent.com/14832460/38466637-0071b92a-3b35-11e8-9a0c-02a962390515.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### What are Principal Component's coordinates for the individual samples
+#### What are the principal component's coordinates for individual samples?
 
 By scrolling down, you can see the PC coordinates of the individual samples, represented as a scatter plot. The x- and y-axis are controlled by the same dropdown menu as the contribution plots. You can color the plot by any of the Independent Variable, that you can select from the dropdown menu. 
 
 ![06_pca_10](https://user-images.githubusercontent.com/14832460/38466638-0093d690-3b35-11e8-9741-227ef33dce3b.png)
 
-You can see whether you see a  separation in the PCs coordinates between different genotypes / treatments / timepoints for your samples, by changing the color-coding of the graph:
+You can see whether you see a separation in the PC's coordinates between different genotypes / treatments / timepoints for your samples, by changing the color-coding of the graph:
 
 ![06_pca_11](https://user-images.githubusercontent.com/14832460/38466639-00d17f7c-3b35-11e8-9ef1-3b0925d0fb88.png)
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### Explain individual Principle Components by examining contribution of Dependent Variables
+#### Explain individual principle components by examining contribution of dependent variables
 
 In the sub-tab 'Contribution per PC' the contribution of individual Dependent Variable for each PC are displayed. You can download individual graphs by clicking "Download plot" button:
 
@@ -636,20 +636,20 @@ If you scroll down, you will see the table displaying the contribution of indivi
 
 ### 7. MULTIDIMENSIONAL SCALING
 
-Multidimensional scaling [(MDS)](https://en.wikipedia.org/wiki/Multidimensional_scaling) is a multivariate data analysis approach that is used to visualize the similarity/dissimilarity between samples by plotting points in two dimensional plots. The input data for MDS is a dissimilarity matrix representing the distances between pairs of objects. MDS is mathematically and conceptually similar to PCA and factor analysis. PCA is more focused on the dimensions themselves, and seek to maximize explained variance, whereas MDS is more focused on relations among the scaled objects.
+Multidimensional scaling [(MDS)](https://en.wikipedia.org/wiki/Multidimensional_scaling) is a multivariate data analysis approach that is used to visualize the similarity/dissimilarity between samples by plotting points in two dimensional plots. The input data for MDS is a dissimilarity matrix representing the distances between pairs of objects. MDS is mathematically and conceptually similar to PCA and factor analysis. PCA is more focused on the dimensions themselves and seek to maximize explained variance, whereas MDS is more focused on relations among the scaled objects.
 
-#### Select data, subsets, and Dependent Variables
-Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them.
+#### Select data, subsets, and dependent variables
+Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or  curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them.
 
 ![07_mds_01](https://user-images.githubusercontent.com/14832460/38466843-e4d96c64-3b37-11e8-9837-659e387e5e5c.png)
 
-Subsequently, select which Dependent Variables you want to use in the Multidimensional Scaling:
+Subsequently, select which dependent variables you want to use in the multidimensional scaling:
 
 ![07_mds_02](https://user-images.githubusercontent.com/14832460/38466844-e4fac292-3b37-11e8-989b-5cf638d872c9.png)
 
-You can additionally select whether you would like to scale the data (recomended if the values of individual Dependent Variables are differing in their scale), and run Multidimensional Scaling on a specific subset of your data. If you would like to segregate your scaled samples into a number of clusters, you can select "Cluster samples using k-means" checkbox and choose a number of clusters. 
+You can additionally select whether you would like to scale the data (recommended if the values of individual Dependent Variables are differing in their scale), and run Multidimensional Scaling on a specific subset of your data. If you would like to segregate your scaled samples into a number of clusters, you can select "Cluster samples using k-means" checkbox and choose a number of clusters. 
 
-After selecting all of the above you can click "Unleash the power of MDS". You can view the selected dataset in the first tab calles "Selected dataset": 
+After selecting all of the above you can click "Unleash the power of MDS". You can view the selected dataset in the first tab called "Selected dataset": 
 
 ![07_mds_03](https://user-images.githubusercontent.com/14832460/38466845-e51f2b96-3b37-11e8-85b4-47f6d607bd02.png)
 
@@ -676,9 +676,9 @@ If you scroll down, you will see the table summarizing the coordinates of indivi
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-#### Multidimensional scaling on the selected Dependent Variables
+#### Multidimensional scaling on the selected dependent variables
 
-In the sub-tab "Scaling of traits", you can find a multidimensional scaling performed on the selected Dependent Variables. The plot showing the coordinates of each Dependent Variable is displayed and color-coded by cluster number if that option was included. This kind of plot can provide you with an insight of the relationships between individual measured traits:
+In the sub-tab "Scaling of traits", you can find a multidimensional scaling performed on the selected dependent variables. The plot showing the coordinates of each dependent variable is displayed and color-coded by cluster number if that option was included. This kind of plot can provide you with an insight of the relationships between individual measured traits:
 
 ![07_mds_08](https://user-images.githubusercontent.com/14832460/38466850-e5c56b0a-3b37-11e8-8012-7125123afd68.png)
 
@@ -686,19 +686,19 @@ In the sub-tab "Scaling of traits", you can find a multidimensional scaling perf
 
 ### 8. HIERARCHICAL CLUSTER ANALYSIS
 
-Hierarchical cluster analysis is an algorithmic approach to find discrete groups with varying degrees of (dis)similarity. The samples are hierarchically organised depending on the selected method and may be presented as a dendrogram. Hierarchical clustering is commonly used in discretising largely continuous ecological phenomena to aid structure detection and hypothesis generation. For example, if data were collected along a gradient, cluster analysis may help to identify distinct regions therein which may correspond to an ecologically meaningful grouping. Similarly, the hierarchical cluster analysis can be used in phenotype analysis from the experiment performed under controlled conditions, with and without stress, and group different genotypes into groups that show similar responses to stress conditions. 
+Hierarchical cluster analysis is an algorithmic approach to find discrete groups with varying degrees of (dis)similarity. The samples are hierarchically organised depending on the selected method and may be presented as a dendrogram. Hierarchical clustering is commonly used in discretising largely continuous ecological phenomena to aid structure detection and hypothesis generation. For example, if data were collected along a gradient, cluster analysis may help to identify distinct regions therein which may correspond to an ecologically meaningful grouping. Similarly, the hierarchical cluster analysis can be used in phenotype analysis from the experiment performed with and without stress, and group different genotypes into groups that show similar responses to stress conditions. 
 
-The hierarchical clustering approach was previously used for clustering the Arabidopsis accessions for based on their [root](http://www.plantphysiol.org/content/early/2014/09/30/pp.114.248963) and [shoot](https://academic.oup.com/jxb/article-lookup/doi/10.1093/jxb/erw015) responses to salt stress. Now you can perform this analysis within minutes on your own data using MVApp.
+The hierarchical clustering approach was previously used for clustering the Arabidopsis accessions based on their [root](http://www.plantphysiol.org/content/early/2014/09/30/pp.114.248963) and [shoot](https://academic.oup.com/jxb/article-lookup/doi/10.1093/jxb/erw015) responses to salt stress. Now you can perform this analysis within minutes on your own data using MVApp.
 
 #### Selecting the data
 
-Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
+Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
 
-Subsequently, select which Dependent Variables you want to use in the Hierarchical clustering. Please be aware that unlike in PCA, the greater number of traits will result in larger number of groups identified. Therefore - we advice to limit the number of Dependent Variable used as an input for Hierarchical Clustering Analysis:
+Subsequently, select which Dependent Variables you want to use in the Hierarchical clustering. Please be aware that unlike PCA, the greater number of traits will result in larger number of groups identified. Therefore - we advise to limit the number of dependent variables used as an input for Hierarchical Clustering Analysis:
 
 ![08_hclust_02](https://user-images.githubusercontent.com/14832460/38467540-c424dc6e-3b42-11e8-87d6-faad73f502bc.png)
 
-You can additionally select whether you would like to scale the data (recomended if the values of individual Dependent Variables are differing in their scale), perform the Hierarchical Clustering on the mean data (means are calculated per Genotype, Independent Variable and Time points selected in "Data upload" tab), or run Hierarchical Clustering on a specific subset of your data. At this point you should also select method for clustering the samples. 
+You can additionally select whether you would like to scale the data (recommended if the values of individual dependent variables are differing in their scale), perform the Hierarchical Clustering on the mean data (means are calculated per Genotype, Independent Variable and Time points selected in "Data upload" tab), or run Hierarchical Clustering on a specific subset of your data. At this point you should also select method for clustering the samples. 
 
 You can chose between the following:
 * [Ward’s minimum variance method](https://en.wikipedia.org/wiki/Ward%27s_method)
@@ -719,11 +719,11 @@ After selecting all of the above you can click "Unleash cluster analysis". You c
 
 #### View the clusters and select the similarity distance for cluster separation
 
-The relationship between the accessions is established depending on the selected Dependent Variables and the method. In the sub-tab "Clustering your HOT HOT data" you can view a heatmap of the selected Dependent Variables displayed as separate rows, while the individual (or mean) values corresponding to individual samples will be displayed in separate columns. 
+The relationship between the accessions is established depending on the selected dependent variables and the method. In the sub-tab "Clustering your HOT HOT data" you can view a heatmap of the selected dependent variables displayed as separate rows, while the individual (or mean) values corresponding to individual samples will be displayed in separate columns. 
 
 ![08_hclust_05](https://user-images.githubusercontent.com/14832460/38467543-c4880096-3b42-11e8-9c4d-46ae129f6b86.png)
 
-If you scroll down, you will find a dendrogram representing individual samples that are clustered as in the heat-map above, but now you will be able to see the (dis)similarity distance between the samples. Enter the distance at which you wish to separate the data into the clusters in the window "Separate clusters at:". 
+If you scroll down, you will find a dendrogram representing individual samples that are clustered as in the heatmap above, but now you will be able to see the (dis)similarity distance between the samples. Enter the distance at which you wish to separate the data into the clusters in the window "Separate clusters at:". 
 
 ![08_hclust_06](https://user-images.githubusercontent.com/14832460/38467544-c4aa656e-3b42-11e8-9da8-d8dc2c9ee2ce.png)
 
@@ -737,11 +737,11 @@ If you scroll even further down, you will find a table containing the cluster ID
 
 #### Cluster Validation
 
-In the sub-tab "Cluster validation" you will find a message box displaying all the Dependent Variable for which ANOVA found significant effect of the clusters. In the graph below the message box you can find a box-plot representing individual clusters and the letters above the graph display significant groups calculated using Tukey.HSD test for pair-wise comparison.
+In the sub-tab "Cluster validation" you will find a message box displaying all the dependent variables for which ANOVA found significant effect of the clusters. In the graph below the message box you can find a box-plot representing individual clusters and the letters above the graph display significant groups calculated using Tukey.HSD test for pairwise comparison.
 
 ![08_hclust_10](https://user-images.githubusercontent.com/14832460/38467547-c511dfa0-3b42-11e8-8f4d-265696cfcb6c.png)
 
-You can view individual Dependent Variables by selecting them from a drop-down menu "View" above the box-plot.
+You can view individual dependent variables by selecting them from a drop-down menu "View" above the box-plot.
 
 ![08_hclust_11](https://user-images.githubusercontent.com/14832460/38467548-c5341b9c-3b42-11e8-98d2-78e5378d97ac.png)
 
@@ -753,13 +753,13 @@ K-means clustering is often used to find groups a data set, when categories or g
 
 #### Selecting the data
 
-Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
+Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
 
 ![09_kmclust_01](https://user-images.githubusercontent.com/14832460/38468250-f03fac4e-3b4b-11e8-82a6-41e5a7f8e94f.png)
 
 Subsequently, select which Dependent Variables you want to use in the K-means clustering. We recommend that you only include non-redundant, informative traits, which can be selected by visualizing the correlations between all traits. The use of highly correlated traits could increase the importance of these specific traits and skew the clustering. Thus, excluding redundant traits is advised.
 
-You can additionally select whether you would like to scale the data (recomended if the values of individual Dependent Variables are in different units), perform the K-means Clustering on the mean data (means are calculated per Genotype, Independent Variable and Time points selected in "Data upload" tab), or run K-means Clustering on a specific subset of your data. 
+You can additionally select whether you would like to scale the data (recommended if the values of individual Dependent Variables are in different units), perform the K-means Clustering on the mean data (means are calculated per Genotype, Independent Variable and Time points selected in "Data upload" tab), or run K-means Clustering on a specific subset of your data. 
 
 ![09_kmclust_02](https://user-images.githubusercontent.com/14832460/38468251-f063153a-3b4b-11e8-96be-274830255685.png)
 
@@ -769,13 +769,13 @@ You can view the selected dataset in the first tab called "Selected dataset", wh
 
 #### Optimal cluster number estimation
 
-The number of clusters or centroids (K) must be defined by the user. If you don't know what is the best number of the cluster for your data, you can run a preliminary analysis in the sub-tab "Optimal number of clusters" by clicking "Unleash optimal cluster number estimation" button in the sidepanel.
+The number of clusters or centroids (K) must be defined by the user. If you do not know what is the best number of clusters for your data, you can run a preliminary analysis in the sub-tab "Optimal number of clusters" by clicking "Unleash optimal cluster number estimation" button in the sidepanel.
 
 It will take some time for this analysis to finish - so please be patient...
 
 ![09_kmclust_04](https://user-images.githubusercontent.com/14832460/38468253-f0aa5a3a-3b4b-11e8-8794-29edc80a566f.png)
 
-After the estimation script finished running, the graphs will appear in the main windown in the sub-tab "Optimal number of clusters". The graphs represent a graphical methods for cluster estimation. 
+After the estimation step finishes running, the graphs will appear in the main windown in the sub-tab "Optimal number of clusters". The graphs represent a graphical methods for cluster estimation. 
 
 The first graph visualize the [elbow method](https://bl.ocks.org/rpgove/0060ff3b656618e9136b). You can identify the optimal number of clusters by identifying the point at which the line is making the sharpest turn, so called "elbow".
 
@@ -785,7 +785,7 @@ If you scroll down, you will see the graph representing the ["silhouette method"
 
 ![09_kmclust_06](https://user-images.githubusercontent.com/14832460/38468255-f0efd560-3b4b-11e8-9a76-6a5d9674fe4d.png)
 
-Scrolling even lower, you will find a message box displaying the results of the cummulative tests, using 30 different indexes, indicating the best cluster number according to the majority rule. 
+Scrolling even lower, you will find a message box displaying the results of the cummulative tests, using 30 different indeces, indicating the best cluster number according to the majority rule. 
 
 ![09_kmclust_07](https://user-images.githubusercontent.com/14832460/38468256-f114adae-3b4b-11e8-903a-e4bd7de7867d.png)
 
@@ -795,7 +795,7 @@ Below the message box, you will find the graphical representation of the cummula
 
 #### Performing k-means clustering 
 
-Once you decided on the number of clusters to be used for k-means clustering, you shoud enter the cluster number in the "Cluster number" box and click "Unleash cluster analysis" on the side-panel.
+Once you decided on the number of clusters to be used for k-means clustering, you should enter the cluster number in the "Cluster number" box and click "Unleash cluster analysis" on the side-panel.
 
 ![09_kmclust_09](https://user-images.githubusercontent.com/14832460/38468258-f15b8738-3b4b-11e8-8e75-d40d9d4c3b82.png)
 
@@ -803,7 +803,7 @@ The results of the k-means clustering will be displayed in sub-tab "K-means clus
 
 ![09_kmclust_10](https://user-images.githubusercontent.com/14832460/38468259-f17ee200-3b4b-11e8-835b-f5df3eea9ee2.png)
 
-You can split the graph by selecting "Split the graph" checkbox and the Independent Variable to split by, as well as modify the appearance of the graph modifying the boxes on the righ-hand side above the graph. 
+You can split the graph by selecting "Split the graph" checkbox and the Independent Variable to split by, as well as modify the appearance of the graph modifying the boxes on the right-hand side above the graph. 
 
 ![09_kmclust_12](https://user-images.githubusercontent.com/14832460/38468260-f1c3596c-3b4b-11e8-80ef-9c702161faf7.png)
 
@@ -815,7 +815,7 @@ You can split the graph by selecting "Split the graph" checkbox and the Independ
 
 ![09_kmclust_14](https://user-images.githubusercontent.com/14832460/38468262-f215c76a-3b4b-11e8-8872-1a8e0cc5cd55.png)
 
-Finally, in the sub-tab "K-means clustering data table" you can view the table and which of your sample belong to which clusters. The columns with cluster identity is all the way at the right side end of the table. You can download the table as a ".csv" file by clickin on the button "Download data". 
+Finally, in the sub-tab "K-means clustering data table" you can view the table and which of your samples belong to which clusters. The columns with cluster identity is all the way at the right side end of the table. You can download the table as a ".csv" file by clicking on the button "Download data". 
 
 ![09_kmclust_15](https://user-images.githubusercontent.com/14832460/38468263-f2382594-3b4b-11e8-8db6-4f1272c9deea.png)
 
@@ -828,11 +828,11 @@ NOTE! Please, be aware that in order to estimate heritability, you should have a
 
 #### Selecting the data
 
-Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
+Select the dataset to analyse from the dropdown menu at the top of the side panel. If you did not perform outlier removal or curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
 
 ![10_heritability_01](https://user-images.githubusercontent.com/14832460/38468477-440a82e2-3b4f-11e8-97a6-f5ea31a908d7.png)
 
-If you performed your experiment across different year, experimental batches, please select the column indicating the year / experimental batch from the drop-down menu "Select column containing experimental batch / year". If you don't have this information, or your data was collected from one experiment, select "none". The model will still be able to run.
+If you performed your experiment across different years or experimental batches, please select the column indicating the year / experimental batch from the drop-down menu "Select column containing experimental batch / year". If you do not have this information, or your data was collected from one experiment, select "none". The model will still be able to run.
 
 The same applies for the drop-down menu "Select column containing location".
 
@@ -874,7 +874,7 @@ Quantile regression estimates are more robust against outliers in the response, 
 
 #### Select the dataset
 
-Select which dataset you would like to use to perform quantile regression from the drop-down menu at the top of the side panel. If you did not perform outlier removal or the curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
+Select which dataset you would like to use to perform quantile regression from the drop-down menu at the top of the side panel. If you did not perform outlier removal or curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
 
 ![11_qr_01](https://user-images.githubusercontent.com/14832460/38468577-16e393c4-3b51-11e8-83c7-c660bebf5a61.png)
 
