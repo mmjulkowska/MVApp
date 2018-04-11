@@ -487,6 +487,8 @@ This tab is used to check whether and how strongly your selected dependent varia
 #### Select the dataset
 First of all, select the dataset you would like to use to perform the correlation analysis. If you did not perform outlier removal or curve fitting, the "outliers removed" and "r2 fitted curves curated data" will not work properly, so please do not select them. 
 
+Note: be aware of the outliers in your selected data. While statistically there’s no harm if the data contains outliers, they can significantly skew the correlation coefficient and make it inaccurate. You can spot them visually from the scatterplot or use the outlier removal feature from Data Curation tab and select the outlier removed data for your correlation analysis.
+
 If you want to include / exclude some of the Dependent Variables from your data, you can do so by selecting or deselecting them from the "Choose from Dependent Variables to be plotted" window. 
 
 ![05_correlate_01](https://user-images.githubusercontent.com/14832460/38465501-31d36488-3b25-11e8-9bde-1828dc9a508b.png)
@@ -495,7 +497,7 @@ If you want to include / exclude some of the Dependent Variables from your data,
 
 #### Select the correlation method
 
-There are two methods you can choose from to calculate the correlation coefficients. The default Pearson r correlation is the most widely used correlation statistic to measure the degree of the relationship between linearly related variables. It assumes that your dataset to be correlated approximate the normal distribution and follow a linear relationship.(https://en.wikipedia.org/wiki/Pearson_correlation_coefficient).Alternatively, you can use Spearman correlation which assess statistical associations based on the ranks of the data and does not depend upon the assumptions of distributions of your data. [Spearman correlation](https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient).
+There are two methods you can choose from to calculate the correlation coefficients. The default Pearson r correlation is the most widely used correlation statistic to measure the degree of the relationship between linearly related variables. It assumes that your dataset to be correlated approximate the normal distribution and follow a linear relationship.(https://en.wikipedia.org/wiki/Pearson_correlation_coefficient).Alternatively, you can use Spearman correlation which assess statistical associations based on the ranks of the variables instead of the variables themselves, and it does not hold any assumptions about the distributions of your data. [Spearman correlation](https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient).
 
 ![05_correlate_01a](https://user-images.githubusercontent.com/14832460/38466385-00cc8886-3b31-11e8-85af-2ec805db265f.png)
 
@@ -513,7 +515,7 @@ Tick the checkbox “Subset your data for correlation analysis” and choose the
 
 ![05_correlate_02a](https://user-images.githubusercontent.com/14832460/38466387-01117586-3b31-11e8-8643-3e745649a4e6.png)
 
-As soon as you select to subset your correlation, you will also see the message displaying the top 5 most variable correlations. Those pairs of Dependent Variables are determined by examining the variance in R2 of the correlation between the individual subsets of the Independent Variable selected to subset for. The pairs are NOT selected based on the p-values of the correlation, so the variance in correlation should be examined in more details, before making any conclusions:
+Once you select to subset your correlation, you will see a message displaying the top 5 most variable correlation pairs. Those pairs of Dependent Variables are determined by examining the variance in R2 of the correlation between the individual subsets of the Independent Variable. The pairs are NOT selected based on the p-values of the correlation, so the variance in correlation should be examined in more details, before making any conclusions:
 
 ![05_correlate_02b](https://user-images.githubusercontent.com/14832460/38466386-00ed6678-3b31-11e8-8489-5b81c5be2607.png)
 
@@ -572,7 +574,7 @@ Subsequently, select which Dependent Variables you want to use in the PCA:
 
 ![06_pca_02](https://user-images.githubusercontent.com/14832460/38466630-ff87d7a6-3b34-11e8-8cf2-3ca17b0a2ab9.png)
 
-You can additionally select whether you would like to scale the data (recommended if the values of individual Dependent Variables are differing in their scale), and run PCA on a specific subset of your data. After selecting all of the above you can click "Unleash the PCA monster". 
+You can additionally select whether you would like to scale the data (recommended if the values of individual Dependent Variables are differing in their scale), and run PCA on a specific subset of your data. After selecting all of the above, click "Unleash the PCA monster". 
 
 ![06_pca_03](https://user-images.githubusercontent.com/14832460/38466631-ffa9d9e6-3b34-11e8-870a-6796c7c05c45.png)
 
