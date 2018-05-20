@@ -16,7 +16,7 @@ fluidPage(
         "Our background is plant biology - so you know where our bias is ;).",br(),br(),
         
         "The app is not published yet, but you can find the pre-print version of the MVApp manuscript on figshare: ", br(),br(),
-a("Julkowska, Magdalena; Saade, Stephanie; Agarwal, Gaurav; Gao, Ge; Pailles, Yveline; Morton, Mitchell; Awlia, Mariam; Tester, Mark (2018): MVAPP – Multivariate analysis application for streamlined data analysis and curation.", href = "https://figshare.com/articles/MVAPP_Multivariate_analysis_application_for_streamlined_data_analysis_and_curation/6291461"), br(),br(),
+      a("Julkowska, Magdalena; Saade, Stephanie; Agarwal, Gaurav; Gao, Ge; Pailles, Yveline; Morton, Mitchell; Awlia, Mariam; Tester, Mark (2018): MVAPP – Multivariate analysis application for streamlined data analysis and curation.", href = "https://figshare.com/articles/MVAPP_Multivariate_analysis_application_for_streamlined_data_analysis_and_curation/6291461", target = "_blank"), br(),br(),
 
     "If you wish to cite the app itself, please use the following:", br(),br(),
     "Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., MVApp.pre-release_v2.0 mmjulkowska/MVApp: MVApp.pre-release_v2.0, DOI: 10.5281/zenodo.1067974"
