@@ -19,7 +19,7 @@ fluidPage(
       a("Julkowska, Magdalena; Saade, Stephanie; Agarwal, Gaurav; Gao, Ge; Pailles, Yveline; Morton, Mitchell; Awlia, Mariam; Tester, Mark (2018): MVAPP – Multivariate analysis application for streamlined data analysis and curation.", href = "https://figshare.com/articles/MVAPP_Multivariate_analysis_application_for_streamlined_data_analysis_and_curation/6291461", target = "_blank"), br(),br(),
 
     "If you wish to cite the app itself, please use the following:", br(),br(),
-    "Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., MVApp.pre-release_v2.0 mmjulkowska/MVApp: MVApp.pre-release_v2.0, DOI: 10.5281/zenodo.1067974"
+    "Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., MVApp.pre-release_v2.0 mmjulkowska/MVApp: MVApp.pre-release_v2.0, DOI: 10.5281/zenodo.1067974",
         br(), br(),
         "The example dataset is available ", a("here", href = "https://drive.google.com/file/d/0B08MX6N7rXcZX0xQamtweUZCbDQ/view?usp=sharing", target = "_blank"),br(), br(),
         "If you have any problems / questions / ", span("suggestions how we can improve this APP so that YOU can do your analysis smoother", style="color:red") ,"- or simply you would like to tell us how amazing the App is - please contact ",span("Magdalena.Julkowska@kaust.edu.sa", style="color:blue")
