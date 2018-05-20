@@ -29,7 +29,10 @@ Currently MVApp has following features:
 
 ### How to cite the MVApp:
 
-The app is not published anywhere (yet - we are working on it), but if you wish to cite the app, please use the following:
+The app is not published yet, but you can find the pre-print version of the MVApp manuscript on figshare:
+[Julkowska, Magdalena; Saade, Stephanie; Agarwal, Gaurav; Gao, Ge; Pailles, Yveline; Morton, Mitchell; Awlia, Mariam; Tester, Mark (2018): MVAPP – Multivariate analysis application for streamlined data analysis and curation. figshare. Paper.](https://figshare.com/articles/MVAPP_Multivariate_analysis_application_for_streamlined_data_analysis_and_curation/6291461)
+
+If you wish to cite the app itself, please use the following:
 Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "MVApp.pre-release_v2.0 mmjulkowska/MVApp: MVApp.pre-release_v2.0", DOI: 10.5281/zenodo.1067974
 
 ## Table of contents:
