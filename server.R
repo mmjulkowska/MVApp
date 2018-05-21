@@ -6963,7 +6963,7 @@ function(input, output) {
         selectizeInput(
           inputId = "Cluster_method",
           label = "Clustering method:",
-          choices = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"), multiple = F))
+          choices = c("ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"), multiple = F))
   })   
   
   

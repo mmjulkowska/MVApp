@@ -15,7 +15,6 @@ fluidPage(
         "This app is meant to streamline the data analysis that is common in many biological studies - especially when screaning large populations such as diversity panels or comparing multiple mutant lines to wild type.", 
         "Our background is plant biology - so you know where our bias is ;).",br(),br(),
         "You can follow the MVApp news on twitter ", a("@MVApp007", href="https://twitter.com/MVApp007", target = "_blank"),".", 
-        
         "The MVApp is not published yet, but you can find the pre-print version of the MVApp manuscript on figshare: ", br(),br(),
       a("Julkowska, Magdalena; Saade, Stephanie; Agarwal, Gaurav; Gao, Ge; Pailles, Yveline; Morton, Mitchell; Awlia, Mariam; Tester, Mark (2018): MVAPP – Multivariate analysis application for streamlined data analysis and curation.", href = "https://figshare.com/articles/MVAPP_Multivariate_analysis_application_for_streamlined_data_analysis_and_curation/6291461", target = "_blank"), br(),br(),
 
@@ -32,8 +31,10 @@ fluidPage(
       br(),br(),
       "Using the MVApp is completely safe! The MVApp will not save any of your data on the server, ensuring that your rights to the uploaded data are perserved.",
       br(),br(),
-      h3("User guide is available ", a("HERE", href="https://mmjulkowska.github.io/MVApp/", target = "_blank"), ", our tutorial videos can be found ", a("HERE", href="https://www.youtube.com/channel/UCeTCqj3dHWbjIbt9cXVjHMQ", , target = "_blank")," and you can leave the feedback ", a("HERE", href = "https://goo.gl/forms/kpMdpMpswdbb9BJv2", target = "_blank")),
-      br(),br(),
+      "User guide is available ", a("HERE", href="https://mmjulkowska.github.io/MVApp/", target = "_blank"), 
+         ", our tutorial videos can be found ", a("HERE", href="https://www.youtube.com/channel/UCeTCqj3dHWbjIbt9cXVjHMQ", target = "_blank"),
+         " and you can leave the feedback ", a("HERE", href = "https://goo.gl/forms/kpMdpMpswdbb9BJv2", target = "_blank"), "- thank YOU :)",
+      br(),
       h3("Our App empowers you to easily perform:"),
       br(),
       h4("1. Fitting the curves using simple functions (linear, quadratic, exponential and square root) as well as by fitting cubic and smoothed splines"),
