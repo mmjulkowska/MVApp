@@ -1,5 +1,5 @@
 # MVApp
-Glittery multivariate analysis platform for all kinds of data
+Glittery multivariate analysis platform for all kinds of data. Follow us on twitter [@MVApp007](https://twitter.com/MVApp007). 
 
 The app is available [here](http://mvapp.kaust.edu.sa/MVApp/) or you can run it locally from your device by typing the following command in your R window:
 
@@ -27,6 +27,8 @@ Currently MVApp has following features:
 7. Estimation of broad-sense heritability of measured traits 
 8. Quantile regression analysis that allows the identification of traits with significant contribution to traits of major interest
 
+You can read the instructions below, or watch one of our video-tutorials on [youtube](https://www.youtube.com/channel/UCeTCqj3dHWbjIbt9cXVjHMQ).
+
 ### How to cite the MVApp:
 
 The app is not published yet, but you can find the pre-print version of the MVApp manuscript on figshare:
@@ -36,6 +38,8 @@ If you wish to cite the app itself, please use the following:
 Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "MVApp.pre-release_v2.0 mmjulkowska/MVApp: MVApp.pre-release_v2.0", DOI: 10.5281/zenodo.1067974
 
 ## Table of contents:
+
+
 [1. DATA UPLOAD](#1-data-upload)
 
 
