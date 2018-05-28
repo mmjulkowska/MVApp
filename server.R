@@ -595,7 +595,8 @@ function(input, output) {
     if(input$model == "lin"){
       pheno <- docelowy[,input$ModelPheno]
       time <- docelowy[,input$SelectTime]
-      title <- unique(docelowy$selection)
+      rski <- summary(lm(pheno ~ time))$r.squared
+      title <- paste(unique(docelowy$selection), " r2 = ", round(rski,4), sep="")
       plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
       abline(lm(pheno ~ time), col="red")
     }
@@ -604,7 +605,8 @@ function(input, output) {
       docelowy$helper <- sqrt(docelowy[, input$ModelPheno])
       pheno <- docelowy$helper
       time <- docelowy[,input$SelectTime]
-      title <- unique(docelowy$selection)
+      rski <- summary(lm(pheno ~ time))$r.squared
+      title <- paste(unique(docelowy$selection), " r2 = ", round(rski,4), sep="")
       plot(pheno ~ time, main = title, ylab = paste("sqrt(",input$ModelPheno,")"), xlab = input$SelectTime)
       abline(lm(pheno ~ time), col="red")
     }
@@ -613,7 +615,8 @@ function(input, output) {
       docelowy$helper <- log(docelowy[, input$ModelPheno])
       pheno <- docelowy$helper
       time <- docelowy[,input$SelectTime]
-      title <- unique(docelowy$selection)
+      rski <- summary(lm(pheno ~ time))$r.squared
+      title <- paste(unique(docelowy$selection), " r2 = ", round(rski,4), sep="")
       plot(pheno ~ time, main = title, ylab = paste("log(",input$ModelPheno,")"), xlab = input$SelectTime)
       abline(lm(pheno ~ time), col="red")
     }
@@ -622,7 +625,8 @@ function(input, output) {
       docelowy$helper <- (docelowy[, input$ModelPheno])^2
       pheno <- docelowy$helper
       time <- docelowy[,input$SelectTime]
-      title <- unique(docelowy$selection)
+      rski <- summary(lm(pheno ~ time))$r.squared
+      title <- paste(unique(docelowy$selection), " r2 = ", round(rski,4), sep="")
       plot(pheno ~ time, main = title, ylab = paste(input$ModelPheno, "^2"), xlab = input$SelectTime)
       abline(lm(pheno ~ time), col="red")
     }
@@ -630,8 +634,10 @@ function(input, output) {
     if(input$model == "cubic"){
       pheno <- docelowy[,input$ModelPheno]
       time <- docelowy[,input$SelectTime]
-      fit_cub <- lm(pheno ~ bs(time, knots = input$cubic_knots))
-      title <- unique(docelowy$selection)
+      knoty <- input$cubic_knots
+      fit_cub <- lm(pheno ~ bs(time, knots=knoty))
+      rski <- summary(fit_cub)$r.squared
+      title <- paste(unique(docelowy$selection), " r2 = ", round(rski,4), sep="")
       timelims <- range(time)
       time.grid <- seq(from = timelims[1], to = timelims[2])
       plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
@@ -640,10 +646,27 @@ function(input, output) {
     }
     
     if(input$model == "smooth"){
-      fit_smooth <- smooth.spline(x = docelowy[,4], y = docelowy[,5], cv=T)
+      
+      if(input$spline_df == "user defined"){
+        degree <- input$model_smoothski_df
+        fit_smooth <- smooth.spline(x = docelowy[, 4], y = docelowy[, 5], df=degree)}
+      if(input$spline_df == "automatic"){
+        fit_smooth <- smooth.spline(x = docelowy[, 4], y = docelowy[, 5], cv=T)}
+      
+      pred <- c()
+      
+      for(g in 1:length(docelowy[,4])){
+        pred <- c(pred, predict(fit_smooth, docelowy[g,4])$y) }
+      
+      x <- pred
+      y <- docelowy[,5]
+      test <- data.frame(x,y)
+      rski <- cor(test,method="pearson")[1,2]^2
+      
       pheno <- docelowy[,input$ModelPheno]
       time <- docelowy[,input$SelectTime]
-      title <- unique(docelowy$selection)
+      title <- paste(unique(docelowy$selection), " r2 = ", round(rski,4), sep="")
+      
       plot(docelowy[,5] ~ docelowy[,4], main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
       lines(fit_smooth, col="purple", lwd=2)
     }
@@ -716,7 +739,8 @@ function(input, output) {
       if(input$model == "lin"){
         pheno <- super_temp[,input$ModelPheno]
         time <- super_temp[,input$SelectTime]
-        title <- real_list[i]
+        rski <- summary(lm(pheno ~ time))$r.squared
+        title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")
         plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
         abline(lm(pheno ~ time), col="red")
       }
@@ -725,7 +749,8 @@ function(input, output) {
         super_temp$helper <- sqrt(super_temp[, input$ModelPheno])
         pheno <- super_temp$helper
         time <- super_temp[,input$SelectTime]
-        title <- real_list[i]
+        rski <- summary(lm(pheno ~ time))$r.squared
+        title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")
         plot(pheno ~ time, main = title, ylab = paste("sqrt(",input$ModelPheno,")"), xlab = input$SelectTime)
         abline(lm(pheno ~ time), col="red")
       }
@@ -734,7 +759,8 @@ function(input, output) {
         super_temp$helper <- log(super_temp[, input$ModelPheno])
         pheno <- super_temp$helper
         time <- super_temp[,input$SelectTime]
-        title <- real_list[i]
+        rski <- summary(lm(pheno ~ time))$r.squared
+        title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")
         plot(pheno ~ time, main = title, ylab = paste("log(",input$ModelPheno,")"), xlab = input$SelectTime)
         abline(lm(pheno ~ time), col="red")
       }
@@ -743,16 +769,19 @@ function(input, output) {
         super_temp$helper <- (super_temp[, input$ModelPheno])^2
         pheno <- super_temp$helper
         time <- super_temp[,input$SelectTime]
-        title <- real_list[i]
+        rski <- summary(lm(pheno ~ time))$r.squared
+        title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")
         plot(pheno ~ time, main = title, ylab = paste(input$ModelPheno, "^2"), xlab = input$SelectTime)
         abline(lm(pheno ~ time), col="red")
       }
       
       if(input$model == "cubic"){
+        
         pheno <- super_temp[,input$ModelPheno]
         time <- super_temp[,input$SelectTime]
         fit_cub <- lm(pheno ~ bs(time, knots = input$cubic_knots))
-        title <- real_list[i]
+        rski <- summary(fit_cub)$r.squared
+        title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")
         timelims <- range(time)
         time.grid <- seq(from = timelims[1], to = timelims[2])
         plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
@@ -761,10 +790,25 @@ function(input, output) {
       }
       
       if(input$model == "smooth"){
-        fit_smooth <- smooth.spline(x = super_temp[,4], y = super_temp[,5], cv=T)
-        pheno <- super_temp[,input$ModelPheno]
-        time <- super_temp[,input$SelectTime]
-        title <- real_list[i]
+        
+        if(input$spline_df == "user defined"){
+          degree <- input$model_smoothski_df
+          fit_smooth <- smooth.spline(x = super_temp[, 4], y = super_temp[, 5], df=degree)}
+        if(input$spline_df == "automatic"){
+          fit_smooth <- smooth.spline(x = super_temp[, 4], y = super_temp[, 5], cv=T)}
+        
+        pred <- c()
+        
+        for(g in 1:length(super_temp[,4])){
+          pred <- c(pred, predict(fit_smooth, super_temp[g,4])$y) }
+        
+        x <- pred
+        y <- super_temp[,5]
+        test <- data.frame(x,y)
+        rski <- cor(test,method="pearson")[1,2]^2
+        
+        title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")
+        
         plot(super_temp[,5] ~ super_temp[,4], main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
         lines(fit_smooth, col="purple", lwd=2)
       }
@@ -843,7 +887,8 @@ function(input, output) {
         if(input$model == "lin"){
           pheno <- docelowy[,input$ModelPheno]
           time <- docelowy[,input$SelectTime]
-          title <- unique(docelowy$selection)
+          rski <- summary(lm(pheno ~ time))$r.squared
+          title <- paste(unique(docelowy$selection), " r2 = ", round(rski,4), sep="")
           print(plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime))
           abline(lm(pheno ~ time), col="red")
         }
@@ -852,7 +897,8 @@ function(input, output) {
           docelowy$helper <- sqrt(docelowy[, input$ModelPheno])
           pheno <- docelowy$helper
           time <- docelowy[,input$SelectTime]
-          title <- unique(docelowy$selection)
+          rski <- summary(lm(pheno ~ time))$r.squared
+          title <- paste(unique(docelowy$selection), " r2 = ", round(rski,4), sep="")
           print(plot(pheno ~ time, main = title, ylab = paste("sqrt(",input$ModelPheno,")"), xlab = input$SelectTime))
           abline(lm(pheno ~ time), col="red")
         }
@@ -861,7 +907,8 @@ function(input, output) {
           docelowy$helper <- log(docelowy[, input$ModelPheno])
           pheno <- docelowy$helper
           time <- docelowy[,input$SelectTime]
-          title <- unique(docelowy$selection)
+          rski <- summary(lm(pheno ~ time))$r.squared
+          title <- paste(unique(docelowy$selection), " r2 = ", round(rski,4), sep="")
           print(plot(pheno ~ time, main = title, ylab = paste("log(",input$ModelPheno,")"), xlab = input$SelectTime))
           abline(lm(pheno ~ time), col="red")
         }
@@ -870,7 +917,8 @@ function(input, output) {
           docelowy$helper <- (docelowy[, input$ModelPheno])^2
           pheno <- docelowy$helper
           time <- docelowy[,input$SelectTime]
-          title <- unique(docelowy$selection)
+          rski <- summary(lm(pheno ~ time))$r.squared
+          title <- paste(unique(docelowy$selection), " r2 = ", round(rski,4), sep="")
           print(plot(pheno ~ time, main = title, ylab = paste(input$ModelPheno, "^2"), xlab = input$SelectTime))
           abline(lm(pheno ~ time), col="red")
         }
@@ -879,7 +927,8 @@ function(input, output) {
           pheno <- docelowy[,input$ModelPheno]
           time <- docelowy[,input$SelectTime]
           fit_cub <- lm(pheno ~ bs(time, knots = input$cubic_knots))
-          title <- unique(docelowy$selection)
+          rski <- summary(fit_cub)$r.squared
+          title <- paste(unique(docelowy$selection), " r2 = ", round(rski,4), sep="")
           timelims <- range(time)
           time.grid <- seq(from = timelims[1], to = timelims[2])
           print(plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime))
@@ -888,15 +937,28 @@ function(input, output) {
         }
         
         if(input$model == "smooth"){
-          fit_smooth <- smooth.spline(x = docelowy[,4], y = docelowy[,5], cv=T)
-          pheno <- docelowy[,input$ModelPheno]
-          time <- docelowy[,input$SelectTime]
-          title <- unique(docelowy$selection)
-          print(plot(docelowy[,5] ~ docelowy[,4], main = title, ylab = input$ModelPheno, xlab = input$SelectTime))
+          
+          if(input$spline_df == "user defined"){
+            degree <- input$model_smoothski_df
+            fit_smooth <- smooth.spline(x = docelowy[, 4], y = docelowy[, 5], df=degree)}
+          if(input$spline_df == "automatic"){
+            fit_smooth <- smooth.spline(x = docelowy[, 4], y = docelowy[, 5], cv=T)}
+          
+          pred <- c()
+          
+          for(g in 1:length(docelowy[,4])){
+            pred <- c(pred, predict(fit_smooth, docelowy[g,4])$y) }
+          
+          x <- pred
+          y <- docelowy[,5]
+          test <- data.frame(x,y)
+          rski <- cor(test,method="pearson")[1,2]^2
+          
+          title <- paste(unique(docelowy$selection), " r2 = ", round(rski,4), sep="")
+          
+          plot(docelowy[,5] ~ docelowy[,4], main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
           lines(fit_smooth, col="purple", lwd=2)
         } 
-        
-        
       }
       
       if(input$Select_model_type_plot == "multiple plots"){
@@ -914,7 +976,8 @@ function(input, output) {
           if(input$model == "lin"){
             pheno <- super_temp[,input$ModelPheno]
             time <- super_temp[,input$SelectTime]
-            title <- real_list[i]
+            rski <- summary(lm(pheno ~ time))$r.squared
+            title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")
             print(plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime))
             abline(lm(pheno ~ time), col="red")
           }
@@ -923,7 +986,8 @@ function(input, output) {
             super_temp$helper <- sqrt(super_temp[, input$ModelPheno])
             pheno <- super_temp$helper
             time <- super_temp[,input$SelectTime]
-            title <- real_list[i]
+            rski <- summary(lm(pheno ~ time))$r.squared
+            title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")
             print(plot(pheno ~ time, main = title, ylab = paste("sqrt(",input$ModelPheno,")"), xlab = input$SelectTime))
             abline(lm(pheno ~ time), col="red")
           }
@@ -932,7 +996,8 @@ function(input, output) {
             super_temp$helper <- log(super_temp[, input$ModelPheno])
             pheno <- super_temp$helper
             time <- super_temp[,input$SelectTime]
-            title <- real_list[i]
+            rski <- summary(lm(pheno ~ time))$r.squared
+            title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")
             print(plot(pheno ~ time, main = title, ylab = paste("log(",input$ModelPheno,")"), xlab = input$SelectTime))
             abline(lm(pheno ~ time), col="red")
           }
@@ -941,7 +1006,8 @@ function(input, output) {
             super_temp$helper <- (super_temp[, input$ModelPheno])^2
             pheno <- super_temp$helper
             time <- super_temp[,input$SelectTime]
-            title <- real_list[i]
+            rski <- summary(lm(pheno ~ time))$r.squared
+            title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")
             print(plot(pheno ~ time, main = title, ylab = paste(input$ModelPheno, "^2"), xlab = input$SelectTime))
             abline(lm(pheno ~ time), col="red")
           }
@@ -950,7 +1016,8 @@ function(input, output) {
             pheno <- super_temp[,input$ModelPheno]
             time <- super_temp[,input$SelectTime]
             fit_cub <- lm(pheno ~ bs(time, knots = input$cubic_knots))
-            title <- real_list[i]
+            rski <- summary(fit_cub)$r.squared
+            title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")
             timelims <- range(time)
             time.grid <- seq(from = timelims[1], to = timelims[2])
             print(plot(pheno ~ time, main = title, ylab = input$ModelPheno, xlab = input$SelectTime))
@@ -959,13 +1026,26 @@ function(input, output) {
           }
           
           if(input$model == "smooth"){
-            fit_smooth <- smooth.spline(x = super_temp[,4], y = super_temp[,5], cv=T)
-            pheno <- super_temp[,input$ModelPheno]
-            time <- super_temp[,input$SelectTime]
-            title <- real_list[i]
-            print(plot(super_temp[,5] ~ super_temp[,4], main = title, ylab = input$ModelPheno, xlab = input$SelectTime))
+            if(input$spline_df == "user defined"){
+              degree <- input$model_smoothski_df
+              fit_smooth <- smooth.spline(x = super_temp[, 4], y = super_temp[, 5], df=degree)}
+            if(input$spline_df == "automatic"){
+              fit_smooth <- smooth.spline(x = super_temp[, 4], y = super_temp[, 5], cv=T)}
+            
+            pred <- c()
+            
+            for(g in 1:length(super_temp[,4])){
+              pred <- c(pred, predict(fit_smooth, super_temp[g,4])$y) }
+            
+            x <- pred
+            y <- super_temp[,5]
+            test <- data.frame(x,y)
+            rski <- cor(test,method="pearson")[1,2]^2
+            
+            title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")            
+            plot(super_temp[,5] ~ super_temp[,4], main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
             lines(fit_smooth, col="purple", lwd=2)
-          }
+                      }
         }
       }
       dev.off()
@@ -2492,8 +2572,6 @@ function(input, output) {
   output$Full_outlier_download <- renderUI({
     if(is.null(Outliers_final_data())){
       return()}
-    if(input$What_happens_to_outliers == "replaced by NA"){
-      return()}
     else{
       downloadButton("full_data_outliers", label="Download table with indicated outliers")}
   })  
@@ -3051,7 +3129,13 @@ function(input, output) {
       melted_icecream <- my_data()
       drops <-input$SelectID
       melted_icecream <- melted_icecream[ , !(names(melted_icecream)%in% drops)]
-      melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))
+      
+      if(input$TimeCheck == T){
+        melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))  
+      }
+      else{
+        melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV))  
+      }
     }
     
     if(input$SelectDataSumm == "r2 fitted curves curated data"){
@@ -3064,7 +3148,13 @@ function(input, output) {
       melted_icecream <- my_data()[complete.cases(my_data()),]
       drops <-input$SelectID
       melted_icecream <- melted_icecream[ , !(names(melted_icecream)%in% drops)]
-      melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))
+      
+      if(input$TimeCheck == T){
+        melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))  
+      }
+      else{
+        melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV))  
+      }
     }
     if(input$SelectDataSumm == "r2 fitted curves curated data with missing values removed"){
       melted_icecream <- good_r2()[complete.cases(good_r2()),]
