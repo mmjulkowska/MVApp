@@ -5367,14 +5367,27 @@ function(input, output) {
     filename = function(){paste("Correlation plot with ", input$corrplotMethod,", ", input$corType, " and ordered with ", input$corOrder, "subsetted per", input$CorIV_sub ,"(", input$CorIV_val, ") MVApp.pdf")},
     content = function(file) {
       pdf(file)
-      df <- na.omit(subset(cor_data_type(), select = input$Select_cor_phenos))
+      
+      req(input$Select_cor_phenos)
+      df0<- subset(cor_data_type(),select= input$Select_cor_phenos)
+      df <- subset(cor_data_type(), 
+                   select = c(
+                     input$SelectGeno,
+                     input$SelectIV,
+                     input$SelectID,
+                     input$SelectTime,
+                     input$Select_cor_phenos))
+      
+      df0 <- na.omit(df0)
+      df <- na.omit(df)
+      
       if (input$cor_data_subset) {
-        df <- na.omit(df[df[input$CorIV_sub] == input$CorIV_val, ])
+        df0 <- subset(df[df[input$CorIV_sub] == input$CorIV_val, ],select=input$Select_cor_phenos)
       }
       
       if(input$cor_sig_show == F){
-        biggie <- corrplot(
-          cor(df, method = input$corMethod),
+       biggie <-  corrplot(
+          cor(df0, method = input$corMethod),
           method = input$corrplotMethod,
           type = input$corType,
           order = input$corOrder,
@@ -5383,11 +5396,10 @@ function(input, output) {
       
       if(input$cor_sig_show == T){
         thres <- as.numeric(as.character(input$cor_sig_threshold))
-        res1 <- cor.mtest(df, conf.level = (1-thres))
-        
+        res1 <- cor.mtest(df0, conf.level = (1-thres))
         
         biggie <- corrplot(
-          cor(df, method = input$corMethod),
+          cor(df0, method = input$corMethod),
           p.mat = res1$p,
           sig.level = thres,
           
