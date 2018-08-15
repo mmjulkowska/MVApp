@@ -377,7 +377,7 @@ function(input, output) {
       if (input$model == "exp") {
         super_temp3$transformed <- log(super_temp3[, 5])
         fit_exp <- lm(super_temp3$transformed ~ super_temp3[, 4])
-        things_to_model[i, 4] <- log(coefficients(fit_exp)[2])
+        things_to_model[i, 4] <- coefficients(fit_exp)[2]
         things_to_model[i, 5] <- coefficients(fit_exp)[1]
         things_to_model[i, 6] <- summary(fit_exp)$r.squared
         colnames(things_to_model)[4] <- "DELTA"
