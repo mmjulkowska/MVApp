@@ -8888,7 +8888,7 @@ function(input, output) {
         selectizeInput(
           inputId = "Herit_data",
           label = "Dataset used to calculate heritability:",
-          choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), selected="raw data", multiple = F))
+          choices= c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted curves curated data", "r2 fitted curves curated data with missing values removed", "outliers removed data"), multiple = F))
   })  
   
   
@@ -9366,7 +9366,7 @@ function(input, output) {
     if(input$data_to_use == "r2 fitted curves curated data with missing values removed"){
       QA_data <- good_r2()[complete.cases(good_r2()),]
     }
-    if(input$data_to_use == "outliers removed"){
+    if(input$data_to_use == "outliers removed data"){
       QA_data <- Outlier_free_data()
     }
     QA_data
@@ -9705,14 +9705,14 @@ function(input, output) {
     
     summary = summary(fit_qr[[1]], se="boot")
     tablesum = data.frame(cbind(round(coef(summary[[1]])[,"Value"], digits = 4), round(coef(summary[[1]])[,"Pr(>|t|)"], digits = 4), rep(0.25, ncol(tempexpl)), rep(things_to_model_QA$subsetid[1],ncol(tempexpl))))
-    tablesum =rbind(tablesum,data.frame(cbind(round(coef(summary[[2]])[,"Value"], digits = 4), round(coef(summary[[1]])[,"Pr(>|t|)"], digits = 4), rep(0.5, ncol(tempexpl)), rep(things_to_model_QA$subsetid[1],ncol(tempexpl)))))
-    tablesum =rbind(tablesum,data.frame(cbind(round(coef(summary[[3]])[,"Value"], digits = 4), round(coef(summary[[1]])[,"Pr(>|t|)"], digits = 4), rep(0.75, ncol(tempexpl)), rep(things_to_model_QA$subsetid[1],ncol(tempexpl)))))
+    tablesum =rbind(tablesum,data.frame(cbind(round(coef(summary[[2]])[,"Value"], digits = 4), round(coef(summary[[2]])[,"Pr(>|t|)"], digits = 4), rep(0.5, ncol(tempexpl)), rep(things_to_model_QA$subsetid[1],ncol(tempexpl)))))
+    tablesum =rbind(tablesum,data.frame(cbind(round(coef(summary[[3]])[,"Value"], digits = 4), round(coef(summary[[3]])[,"Pr(>|t|)"], digits = 4), rep(0.75, ncol(tempexpl)), rep(things_to_model_QA$subsetid[1],ncol(tempexpl)))))
     
     for(i in 2:nrow(things_to_model_QA)){
       summary = summary(fit_qr[[i]], se="boot")
       tablesum = rbind(tablesum,data.frame(cbind(round(coef(summary[[1]])[,"Value"], digits = 4), round(coef(summary[[1]])[,"Pr(>|t|)"], digits = 4), rep(0.25, ncol(tempexpl)), rep(things_to_model_QA$subsetid[i],ncol(tempexpl)))))
-      tablesum = rbind(tablesum,data.frame(cbind(round(coef(summary[[2]])[,"Value"], digits = 4), round(coef(summary[[1]])[,"Pr(>|t|)"], digits = 4), rep(0.5, ncol(tempexpl)), rep(things_to_model_QA$subsetid[i],ncol(tempexpl)))))
-      tablesum = rbind(tablesum,data.frame(cbind(round(coef(summary[[3]])[,"Value"], digits = 4), round(coef(summary[[1]])[,"Pr(>|t|)"], digits = 4), rep(0.75, ncol(tempexpl)), rep(things_to_model_QA$subsetid[i],ncol(tempexpl)))))
+      tablesum = rbind(tablesum,data.frame(cbind(round(coef(summary[[2]])[,"Value"], digits = 4), round(coef(summary[[2]])[,"Pr(>|t|)"], digits = 4), rep(0.5, ncol(tempexpl)), rep(things_to_model_QA$subsetid[i],ncol(tempexpl)))))
+      tablesum = rbind(tablesum,data.frame(cbind(round(coef(summary[[3]])[,"Value"], digits = 4), round(coef(summary[[3]])[,"Pr(>|t|)"], digits = 4), rep(0.75, ncol(tempexpl)), rep(things_to_model_QA$subsetid[i],ncol(tempexpl)))))
       
     }
     
