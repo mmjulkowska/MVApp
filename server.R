@@ -377,7 +377,7 @@ function(input, output) {
       if (input$model == "exp") {
         super_temp3$transformed <- log(super_temp3[, 5])
         fit_exp <- lm(super_temp3$transformed ~ super_temp3[, 4])
-        things_to_model[i, 4] <- log(coefficients(fit_exp)[2])
+        things_to_model[i, 4] <- coefficients(fit_exp)[2]
         things_to_model[i, 5] <- coefficients(fit_exp)[1]
         things_to_model[i, 6] <- summary(fit_exp)$r.squared
         colnames(things_to_model)[4] <- "DELTA"
@@ -1097,7 +1097,7 @@ function(input, output) {
         selectizeInput(
           inputId = "model_graph_plot",
           label = "Graph type",
-          choices = c("box plot", "scatter plot", "bar graph"),
+          choices = c("box plot", "box plot + jitter", "scatter plot","violin plot", "violin plot + jitter", "bar graph"),
           multiple=F
         ))}
   })
@@ -1494,6 +1494,13 @@ function(input, output) {
       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
     }
     
+    if(input$model_graph_plot == "box plot + jitter"){
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
+      benc <- benc + geom_boxplot() + geom_jitter(position=position_jitter(0.2))
+      benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
+      # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
+    }
+    
     if(input$model_graph_plot == "scatter plot"){
       benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
       benc <- benc + geom_point()
@@ -1501,6 +1508,20 @@ function(input, output) {
       
       benc <- benc + facet_wrap(~ facet, scale = input$Select_model_facet_sc)
       #benc <- benc + scale_color_brewer(palette = input$Select_model_color_sc)
+    }
+    
+    if(input$model_graph_plot == "violin plot"){
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
+      benc <- benc + geom_violin(trim = F)
+      benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
+      # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
+    }
+    
+    if(input$model_graph_plot == "violin plot + jitter"){
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
+      benc <- benc + geom_violin(trim = F) + geom_jitter(position=position_jitter(0.2))
+      benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
+      # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
     }
     
     if(input$Select_model_background == T){
@@ -2737,6 +2758,19 @@ function(input, output) {
       #taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)
     }
     
+    if(input$outlier_graph_type == "box plot + jitter"){
+      if(input$outlier_colour == T){
+        taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))
+      }
+      else{
+        taka <- ggplot(outl, aes(x = id_test, y= pheno))   
+      }
+      
+      taka <- taka + geom_boxplot(position="dodge") +  geom_jitter(position=position_jitter(0.2))
+      #taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)
+    }
+    
+    
     if(input$outlier_graph_type == "scatter plot"){
       
       if(input$outlier_colour == T){
@@ -2748,6 +2782,30 @@ function(input, output) {
       
       taka <- taka + geom_point(position=position_dodge(1))
       #taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)
+    }
+    
+    if(input$outlier_graph_type == "violin plot"){
+      if(input$outlier_colour == T){
+        taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))
+      }
+      else{
+        taka <- ggplot(outl, aes(x = id_test, y= pheno))   
+      }
+      
+      taka <- taka + geom_violin(position="dodge", trim = F)
+      #taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)
+    }
+    
+    if(input$outlier_graph_type == "violin plot + jitter"){
+      if(input$outlier_colour == T){
+        taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))
+      }
+      else{
+        taka <- ggplot(outl, aes(x = id_test, y= pheno))   
+      }
+      
+      taka <- taka + geom_violin(position="dodge", trim = F) +  geom_jitter(position=position_jitter(0.2))
+      #taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)
     }
     
     if(input$outlier_facet == T){
@@ -2950,14 +3008,20 @@ function(input, output) {
     if(input$outlier_graph_type == "box plot"){
       if(input$outlier_colour == T){
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
-        jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
-      }
+        jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))}
       else{
-        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
-      }
-      
-      #jaka <- jaka + scale_fill_brewer(palette = input$Select_outl_color_sc)
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))}
       jaka <- jaka + geom_boxplot(position="dodge")}
+      
+      if(input$outlier_graph_type == "box plot + jitter"){
+        if(input$outlier_colour == T){
+          jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+          jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
+        }
+        else{
+          jaka <- ggplot(clean_data, aes(x = id_test, y= pheno)) 
+        }
+      jaka <- jaka + geom_boxplot(position="dodge") +  geom_jitter(position=position_jitter(0.2))}
     
     if(input$outlier_graph_type == "scatter plot"){
       if(input$outlier_colour == T){
@@ -2968,8 +3032,29 @@ function(input, output) {
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
       }
       jaka <- jaka + geom_point(position=position_dodge(1))
-      #jaka <- jaka + scale_color_brewer(palette = input$Select_outl_color_sc)
     }
+      
+      if(input$outlier_graph_type == "violin plot"){
+        if(input$outlier_colour == T){
+          jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+          jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
+        }
+        else{
+          jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
+        }
+        jaka <- jaka + geom_violin(position="dodge", trim = F)}
+        
+        if(input$outlier_graph_type == "violin plot + jitter"){
+          if(input$outlier_colour == T){
+            jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+            jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
+          }
+          else{
+            jaka <- ggplot(clean_data, aes(x = id_test, y= pheno)) 
+          }
+          
+          #jaka <- jaka + scale_fill_brewer(palette = input$Select_outl_color_sc)
+          jaka <- jaka + geom_violin(position="dodge", trim = F) +  geom_jitter(position=position_jitter(0.2))}
     
     if(input$outlier_facet == T){
       jaka <- jaka + facet_wrap(~listb, ncol=3, scale = input$out_facet_scale)}
@@ -4749,16 +4834,33 @@ function(input, output) {
       my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]}
     
     if(input$plot_facet ==T){
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) 
       box_graph<- box_graph + facet_wrap(~facetIV) + scale_fill_discrete(names(my_his_data[2]))
     }
     else{
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) + geom_boxplot()
+      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) 
       box_graph<- box_graph + scale_fill_discrete(names(my_his_data[2]))
     }
     
-    box_graph <- box_graph + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    if(input$ANOVA_graph_type == "box plot"){
+      box_graph <- box_graph + geom_boxplot()}
+      
+    if(input$ANOVA_graph_type == "box plot + jitter"){
+      box_graph <- box_graph + geom_boxplot() + geom_jitter(position=position_jitter(0.2))}
     
+    if(input$ANOVA_graph_type == "violin plot"){
+      box_graph <- box_graph + geom_violin(trim = F)
+    }
+    
+    if(input$ANOVA_graph_type == "violin plot + jitter"){
+      box_graph <- box_graph + geom_violin(trim = F) + geom_jitter(position=position_jitter(0.2))  
+    }
+    
+    if(input$ANOVA_graph_type == "scatter plot"){
+      box_graph <- box_graph + geom_point() 
+    }
+    
+    box_graph <- box_graph + theme(axis.text.x = element_text(angle = 90, hjust = 1))
     box_graph
   })
   
@@ -5278,6 +5380,25 @@ function(input, output) {
     }
   })
   
+  output$corr_lm_shade <- renderUI({
+    if(input$corr_add_lm == F){
+      return()
+    }
+    if(input$corr_add_lm == T){
+      checkboxInput("corr_shade_lm", "Add the confidence interval?")
+    }
+  })
+  
+  output$corr_lm_extend <- renderUI({
+    if(input$corr_add_lm == F){
+      return()
+    }
+    if(input$corr_add_lm == T){
+      checkboxInput("corr_extend_lm", "Extend the regression line?")
+    }
+  })
+  
+  
   COR_BIG <- reactive({
     req(input$Select_cor_phenos)
     df0<- subset(cor_data_type(),select= input$Select_cor_phenos)
@@ -5704,15 +5825,37 @@ function(input, output) {
     else{
       scatman <- scatman + geom_point(aes(text=id)) +  theme_minimal()  
     }
+    scatman <- scatman + stat_cor(aes(color = input$Color), label.x = 3)
+    
+      if(input$corr_add_lm == T){
+        if(input$corr_shade_lm == F){
+          if(input$corr_extend_lm == F){
+            scatman <- scatman + geom_smooth(method=lm, se = F)}
+          if(input$corr_extend_lm == T){
+            scatman <- scatman + geom_smooth(method=lm, se=F, fullrange = T)}}
+        if(input$corr_shade_lm == T){
+          if(input$corr_extend_lm == F){
+            scatman <- scatman + geom_smooth(method=lm, se = T)}
+          if(input$corr_extend_lm == T){
+            scatman <- scatman + geom_smooth(method=lm, se=T, fullrange = T)}
+        }}
+      
+      if(input$corr_add_margin == T){
+          scatman <- scatman + geom_rug()}
+    
       scatman <- scatman + xlab(input$Pheno1)
       scatman <- scatman + ylab(input$Pheno2)
+      
       scatman
     
   })
   
+  
+  
   output$scatterplot <- renderPlotly({
     scatter_cor()
   })
+  
   
   output$downl_scatter_corr_ui <- renderUI({
     if(is.null(scatter_cor())){
