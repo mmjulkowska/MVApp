@@ -72,6 +72,21 @@ function(input, output) {
       )
   })
   
+  # Select collumn(s) containing spatial information:
+  output$SpatialID <- renderUI({
+    if ((is.null(ItemList())) | (input$SpatialCheck == FALSE)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "SelectSpatial",
+          label = "Select column(s) containing spatial information",
+          choices = ItemList(),
+          multiple = T
+        )
+      )
+  })
+  
   # Select time column
   output$CustomTimepoint <- renderUI({
     if ((is.null(ItemList())) | (input$TimeCheck == F)) {
@@ -134,6 +149,7 @@ function(input, output) {
           input$SelectGeno,
           input$SelectIV,
           input$SelectID,
+          input$SelectSpatial,
           input$SelectTime,
           input$SelectDV
         )
@@ -141,6 +157,9 @@ function(input, output) {
     if(input$TimeCheck == T){
       my_data[, input$SelectTime] <- as.factor(my_data[,input$SelectTime])
       return(my_data)}
+    if(input$SpatialCheck == T){
+      my_data[, input$SelectSpatial] <- as.numeric(my_data[,input$SelectSpatial])
+    }
     else{
       return(my_data)  
     }
@@ -148,6 +167,149 @@ function(input, output) {
   
   output$my_data <- renderDataTable({
     my_data()
+  })
+  
+  
+  
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - >> SPATIAL CORRECTION! << - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
+  output$Pheno_spatial <- renderUI({
+    if ((is.null(input$SelectDV)) |
+        (input$SpatialCheck == FALSE)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "SpatialPheno",
+          label = "Phenotype examined for spatial variation",
+          choices = c(input$SelectDV),
+          multiple = F
+        )
+      )
+  })
+  
+  output$Spatial_X <- renderUI({
+    if ((is.null(input$SelectDV)) |
+        (input$SpatialCheck == FALSE)) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "SpatialX",
+          label = "Spatial Variable 1",
+          choices = c(input$SelectSpatial),
+          multiple = T
+        )
+      )
+  })
+  
+  output$Spatial_Y <- renderUI({
+    if ((is.null(input$SelectDV)) |
+        (input$SpatialCheck == FALSE)) {
+      return ()
+    } else
+      My_list <- setdiff(input$SelectSpatial, input$SpatialX)
+      tagList(
+        selectizeInput(
+          inputId = "SpatialY",
+          label = "Spatial Variable 2",
+          choices = My_list,
+          multiple = T
+        ))
+  })
+  
+  output$Spatial_facet_Q <- renderUI({
+    if ((is.null(input$SelectDV)) |
+        (input$SpatialCheck == FALSE)) {
+      return ()
+    } else
+      checkboxInput("Facet_spatial_Q", "Split the graph?", value = F)
+  })
+  
+  output$Spatial_facet <- renderUI({
+    if ((is.null(input$SelectDV)) |
+        (input$SpatialCheck == FALSE) | (input$Facet_spatial_Q == FALSE)) {
+      return ()}
+    else
+      My_list <- setdiff(input$SelectSpatial, c(input$SpatialX, input$SpatialY))
+      tagList(
+        selectizeInput(
+          inputId = "SpatialF",
+          label = "Split by",
+          choices = My_list,
+          multiple = F
+        ))
+  })
+  
+  output$Spatial_subset_Q <- renderUI({
+    if ((is.null(input$SelectDV)) |
+        (input$SpatialCheck == FALSE)) {
+      return ()
+    } else
+      checkboxInput("Subset_spatial_Q", "Subset the data?", value = F)
+  })
+  
+  output$Spatial_subset <- renderUI({
+    if ((is.null(input$SelectDV)) |
+        (input$SpatialCheck == FALSE) | (input$Subset_spatial_Q == FALSE)) {
+      return ()}
+    else
+      tagList(
+        selectizeInput(
+          inputId = "Spatial_sub",
+          label = "Subset by:",
+          choices = c(input$SelectTime, input$SelectIV, input$SelectGeno),
+          multiple = F
+        ))
+  })
+  
+  output$Spatial_subset_spec <- renderUI({
+    if ((is.null(input$SelectDV)) |
+        (input$SpatialCheck == FALSE) | (input$Subset_spatial_Q == FALSE)) {
+      return ()}
+    else
+    subset_lista <- input$Spatial_sub
+    data <- my_data()
+    data$subset_id <- data[,subset_lista]
+    the_list <- unique(data$subset_id)
+    
+    tagList(
+      selectizeInput(
+        inputId = "SSpaSub",
+        label = "Subset",
+        choices = the_list,
+        multiple = F
+      ))
+  })
+  
+  output$Spatial_Go_button <- renderUI({
+    if ((is.null(input$SelectDV)) |
+        (input$SpatialCheck == FALSE)) {
+      return ()}
+    else
+      actionButton("SpatialViz_Go", label = "Unleash spatial viz")
+  })
+  
+  
+  VarViz <- eventReactive(input$SpatialViz_Go, {
+    benc_data <- my_data()
+    
+    if(input$Subset_spatial_Q == T){
+      benc_data$sub <- benc_data[,input$Spatial_sub]
+      benc_data <- subset(benc_data, benc_data$sub == input$SSpaSub)
+      }
+    
+    benc_data$var1 <- paste(benc_data[,input$SpatialX], sep="_")
+    benc_data$var2 <- paste(benc_data[,input$Spatialy], sep="_")
+    benc_data$resp <- benc_data[,input$SpatialPheno]
+    benc_data
+  })
+  
+  output$var_viz_graph <- renderDataTable({
+    benc_data <- VarViz()
+    return(benc_data)
   })
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -5825,7 +5987,7 @@ function(input, output) {
     else{
       scatman <- scatman + geom_point(aes(text=id)) +  theme_minimal()  
     }
-    scatman <- scatman + stat_cor(aes(color = input$Color), label.x = 3)
+    scatman <- scatman + stat_cor(aes(color = input$Color))
     
       if(input$corr_add_lm == T){
         if(input$corr_shade_lm == F){
@@ -5847,7 +6009,6 @@ function(input, output) {
       scatman <- scatman + ylab(input$Pheno2)
       
       scatman
-    
   })
   
   
@@ -5953,38 +6114,8 @@ function(input, output) {
   })
   
   
-  # r2 and p-value ----------------------------------------------------------
-  
-  output$corrsq <- renderText({
-    my_data <- my_data()
-    if(input$corr_scatter_sub == T){
-      my_data$sub_trait <- my_data[,input$corr_scatter_trait]
-      amazeballs <- input$corr_scatter_specific
-      my_data <- subset(my_data, my_data$sub_trait == amazeballs)
-    }
-    
-    cor_data <- my_data[, c(input$Pheno1, input$Pheno2)]
-    correl <- lm(cor_data[, 1] ~ cor_data[, 2])
-    r2 <- summary(correl)$r.squared
-    paste("The R2 value is", signif(r2, 3))
-  })
-  
-  
-  output$corpval <- renderText({
-    my_data <- my_data()
-    if(input$corr_scatter_sub == T){
-      my_data$sub_trait <- my_data[,input$corr_scatter_trait]
-      amazeballs <- input$corr_scatter_specific
-      my_data <- subset(my_data, my_data$sub_trait == amazeballs)
-    }
-    
-    cor_data <- my_data[, c(input$Pheno1, input$Pheno2)]
-    correl <- lm(cor_data[, 1] ~ cor_data[, 2])
-    pval <- summary(correl)$coefficients[8]
-    paste("The p-value is", signif(pval, 3))
-  })
-  
-  
+  # Legend ----------------------------------------------------------
+ 
   output$scatter_legend_show <- renderUI({
     if(input$show_scatter_legend == F){
       return()
@@ -5999,6 +6130,11 @@ function(input, output) {
     correl <- lm(cor_data[, 1] ~ cor_data[, 2])
     r2 <- summary(correl)$r.squared
     pval <- summary(correl)$coefficients[8]
+    
+    y <- cor_data[,2]
+    ndatapoints <- length(y)
+    MSE <- sum((fitted(correl)- y)^2)/ndatapoints
+    
     cat("# # # > > > Figure legend: < < < # # #")
     cat("\n")
     cat("\n")
@@ -6006,7 +6142,7 @@ function(input, output) {
     if(input$corr_scatter_sub == T){
       cat(" The data is subsetted for", input$corr_scatter_trait, "(", input$corr_scatter_specific, ").")
     }
-    cat(" The R2 value for the linear fitting is", round(signif(r2, 3),4), "and the p-value is", round(signif(pval, 3),4), ".")
+    cat(" The R2 value for the linear fitting is", round(signif(r2, 3),4), "and the p-value is", round(signif(pval, 3),4), ". The Mean Square Error is", MSE)
     
   })
   
