@@ -81,6 +81,9 @@ fluidPage(
           uiOutput("CustomGeno"),
           uiOutput("CustomIndepVar"),
           uiOutput("CustomPheno"),
+          
+          checkboxInput("SpatialCheck", label = "Data contains information on spatial distribution of collected data?", value = F),
+          uiOutput("SpatialID"),
           checkboxInput("IdCheck", label = "Data contains Sample ID information?", value = F),
           uiOutput("CustomID"),
           checkboxInput("TimeCheck", label = "Data contains Time / gradient that can be used for modeling", value = F),
@@ -102,7 +105,40 @@ fluidPage(
       ))
       # end of Tab2
     ),
-   
+  
+# Tab = = = = = = = = = = = = = = >> SPATIAL VARIATION << = = = = = = = = = = = = = = = = = = 
+  tabPanel("Spatial variation", icon = icon("map-signs"),
+    sidebarPanel(
+      fluidRow(
+        uiOutput("Pheno_spatial"),
+        uiOutput("Spatial_X"),
+        uiOutput("Spatial_Y"),
+        uiOutput("Spatial_threshold_mb"),
+        uiOutput("Spatial_facet_Q"),
+        uiOutput("Spatial_facet"),
+        uiOutput("Spatial_subset_Q"),
+        uiOutput("Spatial_subset"),
+        uiOutput("Spatial_subset_spec"),
+        uiOutput("Spatial_Go_button")
+      )),
+      # Main panel
+      mainPanel(
+        navbarPage("",
+                   tabPanel("Spatial variation visualization", icon=icon("envelope"),
+                            uiOutput("var_viz_download"),
+                            plotOutput("var_viz_graph_real"),
+                            checkboxInput("show_var_viz_legend", "Show the figure legend"),
+                            uiOutput("show_var_viz_legend_txt"),
+                            verbatimTextOutput("var_viz_ANOVA_report"))#,
+                  # tabPanel("Model estimation for spatial variation", icon=icon("key"),
+                  #          "This tab is under construction and requires significantly increased brain function to produce - stay tuned ;)"),
+                  # tabPanel("Correction of spatial variation", icon=icon("envelope-open"),
+                  #          "This tab is under construction and requires significantly increased brain function to produce - stay tuned ;)")
+                   )
+      )
+    
+      # end of Spatial tab
+    ),
    # Tab 3 = = = = = = = = = = = = = = >> MODELING DATA << = = = = = = = = = = = = = = = = = = 
    
    tabPanel("Fitting curves to the data",icon = icon("wrench"),
