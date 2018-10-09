@@ -113,6 +113,7 @@ fluidPage(
         uiOutput("Pheno_spatial"),
         uiOutput("Spatial_X"),
         uiOutput("Spatial_Y"),
+        uiOutput("Spatial_threshold_mb"),
         uiOutput("Spatial_facet_Q"),
         uiOutput("Spatial_facet"),
         uiOutput("Spatial_subset_Q"),
@@ -125,13 +126,14 @@ fluidPage(
         navbarPage("",
                    tabPanel("Spatial variation visualization", icon=icon("envelope"),
                             uiOutput("var_viz_download"),
-                            dataTableOutput("var_viz_graph"),
+                            plotOutput("var_viz_graph_real"),
                             checkboxInput("show_var_viz_legend", "Show the figure legend"),
-                            verbatimTextOutput("var_viz_ANOVA_report")),
-                   tabPanel("Model estimation for spatial variation", icon=icon("key"),
-                            "This tab is under construction and requires significantly increased brain function to produce - stay tuned ;)"),
-                   tabPanel("Correction of spatial variation", icon=icon("envelope-open"),
-                            "This tab is under construction and requires significantly increased brain function to produce - stay tuned ;)")
+                            uiOutput("show_var_viz_legend_txt"),
+                            verbatimTextOutput("var_viz_ANOVA_report"))#,
+                  # tabPanel("Model estimation for spatial variation", icon=icon("key"),
+                  #          "This tab is under construction and requires significantly increased brain function to produce - stay tuned ;)"),
+                  # tabPanel("Correction of spatial variation", icon=icon("envelope-open"),
+                  #          "This tab is under construction and requires significantly increased brain function to produce - stay tuned ;)")
                    )
       )
     

@@ -142,24 +142,29 @@ function(input, output) {
   # Table in the Tab2 - main window - selected variables by the user
   my_data <- eventReactive(input$Go_Data, {
     d2 = read.csv(input$your_data$datapath)
-    my_data <-
-      subset(
-        d2,
-        select = c(
-          input$SelectGeno,
-          input$SelectIV,
-          input$SelectID,
-          input$SelectSpatial,
-          input$SelectTime,
-          input$SelectDV
-        )
-      )
+    
+    if(input$TimeCheck == F & input$SpatialCheck == F & input$IdCheck == F){
+      my_data <- subset(d2, select=c(input$SelectGeno, input$SelectIV, input$selectDV))}
+    if(input$TimeCheck == T & input$SpatialCheck == F & input$IdCheck == F){
+      my_data <- subset(d2, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectDV))}
+    if(input$TimeCheck == F & input$SpatialCheck == T & input$IdCheck == F){
+      my_data <- subset(d2, select=c(input$SelectGeno, input$SelectIV, input$SelectSpatial, input$SelectDV))}
+    if(input$TimeCheck == F & input$SpatialCheck == F & input$IdCheck == T){
+      my_data <- subset(d2, select=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectDV))}
+    if(input$TimeCheck == T & input$SpatialCheck == F & input$IdCheck == T){
+      my_data <- subset(d2, select=c(input$SelectGeno, input$SelectIV, input$SelectID, input$SelectTime, input$SelectDV))}
+    if(input$TimeCheck == T & input$SpatialCheck == T & input$IdCheck == F){
+      my_data <- subset(d2, select=c(input$SelectGeno, input$SelectIV, input$SelectSpatial, input$SelectTime, input$SelectDV))}
+    if(input$TimeCheck == F & input$SpatialCheck == T & input$IdCheck == T){
+      my_data <- subset(d2, select=c(input$SelectGeno, input$SelectIV, input$SelectSpatial, input$SelectID, input$SelectDV))}
+    if(input$TimeCheck == T & input$SpatialCheck == T & input$IdCheck == T){
+      my_data <- subset(d2, select=c(input$SelectGeno, input$SelectIV, input$SelectSpatial, input$SelectID, input$SelectTime, input$SelectDV))}
+    
+    
     if(input$TimeCheck == T){
       my_data[, input$SelectTime] <- as.factor(my_data[,input$SelectTime])
       return(my_data)}
-    if(input$SpatialCheck == T){
-      my_data[, input$SelectSpatial] <- as.numeric(my_data[,input$SelectSpatial])
-    }
+    
     else{
       return(my_data)  
     }
@@ -226,6 +231,16 @@ function(input, output) {
       return ()
     } else
       checkboxInput("Facet_spatial_Q", "Split the graph?", value = F)
+  })
+  
+  output$Spatial_threshold_mb <- renderUI({
+    if ((is.null(input$SelectDV)) |
+        (input$SpatialCheck == FALSE)) {
+      return ()
+    } else
+      numericInput("Spatial_threshold", 
+                     label = "p-value threshold:",
+                     value = 0.05)
   })
   
   output$Spatial_facet <- renderUI({
@@ -296,21 +311,128 @@ function(input, output) {
   VarViz <- eventReactive(input$SpatialViz_Go, {
     benc_data <- my_data()
     
+    benc_data$Var_1 <- "none"
+    benc_data$Var_2 <- "benc"
+    
     if(input$Subset_spatial_Q == T){
-      benc_data$sub <- benc_data[,input$Spatial_sub]
-      benc_data <- subset(benc_data, benc_data$sub == input$SSpaSub)
+      subski <- input$Spatial_sub
+      benc_data$sub <- benc_data[,subski]
+      this_I_want <- input$SSpaSub
+      benc_data <- subset(benc_data, benc_data$sub == this_I_want)
       }
     
-    benc_data$var1 <- paste(benc_data[,input$SpatialX], sep="_")
-    benc_data$var2 <- paste(benc_data[,input$Spatialy], sep="_")
-    benc_data$resp <- benc_data[,input$SpatialPheno]
+    Mr_x <- input$SpatialX
+    Mr_y <- input$SpatialY
+    resp <- input$SpatialPheno
+    
+    
+    if(length(Mr_x) > 1){
+    var1_temp <- subset(benc_data, select=c(Mr_x))
+    var1_temp$var1 <- do.call(paste, c(var1_temp, sep="_"))
+    benc_data$Var_1 <- var1_temp$var1}
+    if(length(Mr_x) < 2){
+      benc_data$Var_1 <- benc_data[,Mr_x]
+    }
+    
+    if(length(Mr_y) > 1){
+    var2_temp <- subset(benc_data, select=c(Mr_y))
+    var2_temp$var2 <- do.call(paste, c(var2_temp, sep="_"))
+    benc_data$Var_2 <- var2_temp$var2}
+    if(length(Mr_y) < 2){
+      benc_data$Var_2 <- benc_data[,Mr_y]
+    }
+    
+    benc_data$resp <- benc_data[,resp]
+    benc_data <- subset(benc_data, select = c("Var_1", "Var_2", "resp"))
     benc_data
   })
   
-  output$var_viz_graph <- renderDataTable({
+  output$var_viz_graph_real <- renderPlot({
     benc_data <- VarViz()
-    return(benc_data)
+    x_lab <- input$SpatialX
+    y_lab <- input$SpatialY
+    becki <- qplot(data = benc_data, Var_1, Var_2, fill=resp, geom="tile", ylab=y_lab, xlab=x_lab)
+    becki
   })
+  
+  output$var_viz_download <- renderUI({
+    if(is.null(VarViz())){
+      return()
+    }
+    else
+      downloadButton("Download_VarViz", label = "Download plot")
+  })
+  
+  output$Download_VarViz <- downloadHandler(
+    filename = function(){paste("Spatial variation for", input$SpatialPheno, "across", input$SpatialX, "and", input$SpatialY, "subsetted for", input$Spatial_sub,"(", input$SSpaSub,")", "MVApp.pdf") },
+    content <- function(file){
+      pdf(file)
+      benc_data <- VarViz()
+      x_lab <- input$SpatialX
+      y_lab <- input$SpatialY
+      becki <- qplot(data = benc_data, Var_1, Var_2, fill=resp, geom="tile", ylab=y_lab, xlab=x_lab)
+      print(becki)
+      dev.off()})
+  
+  output$var_viz_ANOVA_report <- renderPrint({
+    
+    tresik <- as.numeric(as.character(input$Spatial_threshold))
+
+    fraka <- VarViz()
+
+    amod <- aov(resp ~ Var_1 + Var_2 + Var_1*Var_2, data = fraka)
+    
+    cat("If spatial components have a significant effect on your data, you should consider performing spatial correction.")
+    cat("\n")
+    cat("\n")
+    cat("\n")
+    cat("ANOVA report")
+    cat("\n")
+    if(summary(amod)[[1]][[5]][1] < tresik){
+      cat("The effect of ", input$SpatialX, "is SIGNIFICANT on ", input$SpatialPheno, "with a p-value of ", round(summary(amod)[[1]][[5]][1],4), ".")
+    }
+    if(summary(amod)[[1]][[5]][1] > tresik){
+      cat("The effect of ", input$SpatialX, "is NOT significant on ", input$SpatialPheno, "with a p-value of ", round(summary(amod)[[1]][[5]][1],4), ".")
+    }
+    
+    if(summary(amod)[[1]][[5]][2] < tresik){
+      cat("\n")
+      cat("The effect of ", input$SpatialY, "is SIGNIFICANT on ", input$SpatialPheno, "with a p-value of ", round(summary(amod)[[1]][[5]][2],4), ".")
+    }
+    if(summary(amod)[[1]][[5]][2] > tresik){
+      cat("\n")
+      cat("The effect of ", input$SpatialY, "is NOT significant on ", input$SpatialPheno, "with a p-value of ", round(summary(amod)[[1]][[5]][2],4), ".")
+    }
+    
+    if(summary(amod)[[1]][[5]][3] < tresik){
+      cat("\n")
+      cat("The interaction between ", input$SpatialY, "and ",  input$SpatialX, "is SIGNIFICANT on ", input$SpatialPheno, "with a p-value of ", round(summary(amod)[[1]][[5]][3],4), ".")
+    }  
+    if(summary(amod)[[1]][[5]][3] > tresik){
+      cat("\n")
+      cat("The interaction between ", input$SpatialY, "and ",  input$SpatialX, "is NOT significant on ", input$SpatialPheno, "with a p-value of ", round(summary(amod)[[1]][[5]][3],4), ".")
+    }
+    
+  })
+  
+  output$show_var_viz_legend_txt <- renderUI({
+    if(input$show_var_viz_legend == F){
+      return()
+    }
+    else{
+      verbatimTextOutput("Legend_Spatial_plot")
+    }
+  })
+  
+  output$Legend_Spatial_plot <- renderPrint({
+      cat("# # # > > > Figure legend: < < < # # #")
+      cat("\n")
+      cat("\n")
+      cat("The tile plot representing the distribution of", input$SpatialPheno,"across", input$SpatialX, "and", input$SpatialY, ".")
+      cat("")
+  })
+  
+ 
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - >> MODELING IN 3rd TAB << - - - - - - - - - - - - -
