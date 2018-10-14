@@ -101,6 +101,8 @@ fluidPage(
                  dataTableOutput("Data_tabl")),
         tabPanel("New data", icon = icon("magic"),
                  verbatimTextOutput("selected_data_report"),
+                 checkboxInput("R_input_chk", "Show me the code"),
+                 uiOutput("R_input_ui"),
                  dataTableOutput("my_data"))
       ))
       # end of Tab2
