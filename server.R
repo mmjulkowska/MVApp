@@ -144,7 +144,7 @@ function(input, output) {
     d2 = read.csv(input$your_data$datapath)
     
     if(input$TimeCheck == F & input$SpatialCheck == F & input$IdCheck == F){
-      my_data <- subset(d2, select=c(input$SelectGeno, input$SelectIV, input$selectDV))}
+      my_data <- subset(d2, select=c(input$SelectGeno, input$SelectIV, input$SelectDV))}
     if(input$TimeCheck == T & input$SpatialCheck == F & input$IdCheck == F){
       my_data <- subset(d2, select=c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectDV))}
     if(input$TimeCheck == F & input$SpatialCheck == T & input$IdCheck == F){
@@ -174,6 +174,66 @@ function(input, output) {
     my_data()
   })
   
+  output$R_input_ui <- renderUI({
+    if(input$R_input_chk == F){
+      return()}
+    if(input$R_input_chk == T){
+      verbatimTextOutput("R_input")
+    }
+  })
+  
+  output$R_input <- renderPrint({
+    cat("# The code to use in R")
+    cat("\n")
+    cat("# The text behind # is a comment and will not be execuded in the R")
+    cat("\n")
+    cat("# Check what is your current directory:")
+    cat("\n")
+    cat("getwd()")
+    cat("\n")
+    cat("# Change your directory where you have your csv file (for example):")
+    cat("\n")
+    cat("setwd(/Users/you/Desktop/Super_important_project)")
+    cat("\n")
+    cat("# Check if your file is in the selected folder:")
+    cat("\n")
+    cat("list.files()")
+    cat("\n")
+    cat("# Now you can read in your data:")
+    cat("\n")
+    cat("my_data <- read.csv('your data.csv')")
+    cat("\n")
+    cat("# Show first few collumns:")
+    cat("\n")
+    cat("head(my_data)")
+    cat("\n")
+    cat("# Show last few collumns:")
+    cat("\n")
+    cat("tail(my_data)")
+    cat("\n")
+    cat("# Show data dimensions:")
+    cat("\n")
+    cat("dim(my_data)")
+    cat("\n")
+    cat("# Select only the columns containing the selected variables (genotype, treatment, time, spatial variables, phenotype...):")
+    cat("\n")
+    if(input$TimeCheck == F & input$SpatialCheck == F & input$IdCheck == F){
+      cat("my_data <- subset(my_data, select=c(",paste("'",input$SelectGeno,"',"), paste("'",input$SelectIV,"',"), paste("'",input$SelectDV,"',"),")")}
+    if(input$TimeCheck == T & input$SpatialCheck == F & input$IdCheck == F){
+      cat("my_data <- subset(my_data, select=c(",paste("'",input$SelectGeno,"',"), paste("'",input$SelectIV,"',"), paste("'",input$SelectTime,"',"), paste("'",input$SelectDV,"',"),")")}
+    if(input$TimeCheck == F & input$SpatialCheck == T & input$IdCheck == F){
+      cat("my_data <- subset(my_data, select=c(", paste("'",input$SelectGeno,"',"), paste("'",input$SelectIV,"',"), paste("'",input$SelectSpatial,"',"), paste("'",input$SelectDV,"',"),")")}
+    if(input$TimeCheck == F & input$SpatialCheck == F & input$IdCheck == T){
+      cat("my_data <- subset(my_data, select=c(", paste("'",input$SelectGeno,"',"), paste("'",input$SelectIV,"',"), paste("'",input$SelectID,"',"), paste("'",input$SelectDV,"',"),")")}
+    if(input$TimeCheck == T & input$SpatialCheck == F & input$IdCheck == T){
+      cat("my_data <- subset(my_data, select=c(", paste("'",input$SelectGeno,"',"), paste("'",input$SelectIV,"',"), paste("'",input$SelectTime,"',"), paste("'",input$SelectID,"',"), paste("'",input$SelectDV,"',"),")")}
+    if(input$TimeCheck == T & input$SpatialCheck == T & input$IdCheck == F){
+      cat("my_data <- subset(my_data, select=c(", paste("'",input$SelectGeno,"',"), paste("'",input$SelectIV,"',"), paste("'",input$SelectTime,"',"), paste("'",input$SelectSpatial,"',"), paste("'",input$SelectDV,"',"),")")}
+    if(input$TimeCheck == F & input$SpatialCheck == T & input$IdCheck == T){
+      cat("my_data <- subset(my_data, select=c(", paste("'",input$SelectGeno,"',"), paste("'",input$SelectIV,"',"), paste("'",input$SelectSpatial,"',"), paste("'",input$SelectID,"',"), paste("'",input$SelectDV,"',"),")")}
+    if(input$TimeCheck == T & input$SpatialCheck == T & input$IdCheck == T){
+      cat("my_data <- subset(my_data, select=c(", paste("'",input$SelectGeno,"',"), paste("'",input$SelectIV,"',"), paste("'",input$SelectTime,"',"), paste("'",input$SelectSpatial,"',"),paste("'",input$SelectID,"',"), paste("'",input$SelectDV,"',"),")")}
+  })
   
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
