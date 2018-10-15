@@ -931,7 +931,7 @@ function(input, output) {
     cat("\n")
     cat("# Let's make a dataset containing only the collumns that are relevant to modeling of the selected trait:")
     cat("\n")
-    cat("model_data <- subset(my_data, select=c( '", input$ModelIV,"','", input$ModelSubIV, "','", input$SelectID, "','", input$SelectTime, "','", input$ModelPheno,"')")
+    cat("temp <- subset(my_data, select=c( '", input$ModelIV,"','", input$ModelSubIV, "','", input$SelectID, "','", input$SelectTime, "','", input$ModelPheno,"')")
     cat("\n")
     cat("\n")
     cat("# Make sure that your time variable is a numeric value:")
@@ -2508,7 +2508,7 @@ function(input, output) {
     cat("\n")
     cat("library('doBy', 'plotrix', 'reshape', 'ggplot')")
     cat("\n")
-    ("temp <- things_to_model")
+    cat("temp <- things_to_model")
     cat("\n")
     if(input$ModelSum_data == "r2 fitted curves curated data"){
     cat("# Select only the samples with R-square above the threshold:")
@@ -3467,6 +3467,19 @@ function(input, output) {
   })
   
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_out_table_ui <- renderUI({
+    if(input$R_out_table_chk == F){
+      return()}
+    if(input$R_out_table_chk == T){
+      verbatimTextOutput("R_out_table")}
+  })
+  
+  output$R_out_table <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
+  
   Outliers_final_data <- eventReactive(input$Go_outliers,{
     if(input$Out_pheno_single_multi == "All phenotypes"){
       data_blob <- Outlier_overview()
@@ -4044,6 +4057,20 @@ function(input, output) {
       dev.off()
     })  
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_out_y_graph_ui <- renderUI({
+    if(input$R_out_y_graph_chk == F){
+      return()}
+    if(input$R_out_y_graph_chk == T){
+      verbatimTextOutput("R_out_y_graph")}
+  })
+  
+  output$R_out_y_graph <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
+  
+  
   
   # FIGURE LEGEND:
   
@@ -4275,6 +4302,20 @@ function(input, output) {
     jaka
   })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_out_n_graph_ui <- renderUI({
+    if(input$R_out_n_graph_chk == F){
+      return()}
+    if(input$R_out_n_graph_chk == T){
+      verbatimTextOutput("R_out_n_graph")}
+  })
+  
+  output$R_out_n_graph <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
+  
+  
   # Figure legend:
   output$good_stuff_legend_show <- renderUI({
     if(input$show_good_stuff_legend == F){
@@ -4461,6 +4502,18 @@ function(input, output) {
     colnames(sum_my_data)<-c(input$SelectGeno, input$SelectIV, input$SelectTime, "Dependent_Variable", input$SelectSumm)
     
     return(sum_my_data)
+  })
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_summ_stat_ui <- renderUI({
+    if(input$R_summ_stat_chk == F){
+      return()}
+    if(input$R_summ_stat_chk == T){
+      verbatimTextOutput("R_summ_stat")}
+  })
+  
+  output$R_summ_stat <- renderPrint({
+    cat("\n")
   })
   
   output$sum_data <- renderDataTable({
@@ -4700,6 +4753,19 @@ function(input, output) {
     fit
   })
 
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_histo_ui <- renderUI({
+    if(input$R_hist_chk == F){
+      return()}
+    if(input$R_hist_chk == T){
+      verbatimTextOutput("R_histo")}
+  })
+  
+  output$R_histo <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
   
   output$download_HistPlot <- downloadHandler(
     filename = function(){paste("Plot of", input$HistType, "for",input$HisDV, "subsetted per",  input$Plotfacet_choice,  "and", input$subsetdata_choice, "(", input$subsetdata_uniquechoice, "), using", input$Hist_data, "MVApp.pdf")},
@@ -5438,6 +5504,19 @@ function(input, output) {
     }
   })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_var_ui <- renderUI({
+    if(input$R_var_chk == F){
+      return()}
+    if(input$R_var_chk == T){
+      verbatimTextOutput("R_var")}
+  })
+  
+  output$R_var <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
+  
   output$downl_Variance_ui <- renderUI({
     if(is.null(Histo_data_type())){
       return()
@@ -5685,6 +5764,19 @@ function(input, output) {
     bencki <- bencki + xlab(input$OT_grouping_IVskis)
     bencki <- bencki + ylab(input$HisDV)
     bencki
+  })
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_ttest_ui <- renderUI({
+    if(input$R_ttest_chk == F){
+      return()}
+    if(input$R_ttest_chk == T){
+      verbatimTextOutput("R_ttest")}
+  })
+  
+  output$R_ttest <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
   })
   
   output$OT_graph_download_ui <- renderUI({
@@ -6068,6 +6160,19 @@ function(input, output) {
       downloadButton("ANOVA_graph_download", label="Download plot")
   }) 
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_ANOVA_ui <- renderUI({
+    if(input$R_ANOVA_chk == F){
+      return()}
+    if(input$R_ANOVA_chk == T){
+      verbatimTextOutput("R_ANOVA")}
+  })
+  
+  output$R_ANOVA <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
+  
   output$ANOVA_graph_download <- downloadHandler(
     filename = function(){paste("Boxplot of", input$Sig_diff_test, " subsetted for", input$Plotfacet_choice, "and", input$subsetdata_choiceANOVA, "(", input$subsetdata_uniquechoiceANOVA, "), examining significant differences in", input$HisDV, "using", input$Histo_data, "MVApp.pdf")},
     content = function(file) {
@@ -6265,6 +6370,19 @@ function(input, output) {
       return()}
     else
       TW_ANOVA()
+  })
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_2w_ANOVA_ui <- renderUI({
+    if(input$R_2w_ANOVA_chk == F){
+      return()}
+    if(input$R_2w_ANOVA_chk == T){
+      verbatimTextOutput("R_2w_ANOVA")}
+  })
+  
+  output$R_2w_ANOVA <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
   })
   
   # # # # # >> FIGURE LEGEND << # # # # # # 
@@ -6788,6 +6906,18 @@ function(input, output) {
     test
   })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_corrplot_ui <- renderUI({
+    if(input$R_corrplot_chk == F){
+      return()}
+    if(input$R_corrplot_chk == T){
+      verbatimTextOutput("R_corrplot")}
+  })
+  
+  output$R_corrplot <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
   
   ########### download button ####################################  
   output$cortable_button <- renderUI({
@@ -7052,6 +7182,19 @@ function(input, output) {
     scatter_cor()
   })
   
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_corrscat_ui <- renderUI({
+    if(input$R_corrscat_chk == F){
+      return()}
+    if(input$R_corrscat_chk == T){
+      verbatimTextOutput("R_corrscat")}
+  })
+  
+  output$R_corrscat <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
   
   output$downl_scatter_corr_ui <- renderUI({
     if(is.null(scatter_cor())){
@@ -7347,6 +7490,20 @@ function(input, output) {
       dev.off()
     })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_PCAeig_ui <- renderUI({
+    if(input$R_PCAeig_chk == F){
+      return()}
+    if(input$R_PCAeig_chk == T){
+      verbatimTextOutput("R_PCAeig")}
+  })
+  
+  output$R_PCAeig <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
+  
+  
   #### FIGURE LEGEND ####
   output$Eigen_legend_show <- renderUI({
     if(input$show_Eigen_legend == F){
@@ -7473,6 +7630,19 @@ function(input, output) {
                             high="red", midpoint=mid)+theme_bw()
   })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_PCAcontrib_ui <- renderUI({
+    if(input$R_PCAcontrib_chk == F){
+      return()}
+    if(input$R_PCAcontrib_chk == T){
+      verbatimTextOutput("R_PCAcontrib")}
+  })
+  
+  output$R_PCAcontrib <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
+  
   output$PCA_contribution_plot_download <- downloadHandler(
     filename = function(){paste("PC trait contributionn for", input$Which_PC1, "and", input$Which_PC2, "using", input$PCA_pheno, "and", input$PCA_data, "subsetted for", input$PCA_subset_T, "(", input$PCA_subset_S, ").pdf") },
     content = function(file) {
@@ -7573,6 +7743,20 @@ function(input, output) {
     res.pca <- PCA(PCA_ready, graph = FALSE)
     fviz_contrib(res.pca, choice = 'var', axes = c(as.numeric(input$Which_PC_contrib)), xtickslab.rt = 90)
   })
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_PCAcontrib_bar_ui <- renderUI({
+    if(input$R_PCAcontrib_bar_chk == F){
+      return()}
+    if(input$R_PCAcontrib_bar_chk == T){
+      verbatimTextOutput("R_PCAcontrib_bar")}
+  })
+  
+  output$R_PCAcontrib_bar <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
+  
   
   output$Contrib_trait_plot_download <- downloadHandler(
     filename = function(){paste("Trait contribution for", input$Which_PC_contrib, "with", input$PCA_pheno,"using", input$PCA_data, ".pdf") },
@@ -7738,6 +7922,19 @@ function(input, output) {
       }
     }
     our_table
+  })
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_PCAscat_ui <- renderUI({
+    if(input$R_PCAscat_chk == F){
+      return()}
+    if(input$R_PCAscat_chk == T){
+      verbatimTextOutput("R_PCAscat")}
+  })
+  
+  output$R_PCAscat <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
   })
   
   output$Coord_download_ind <- renderUI({
@@ -8042,6 +8239,19 @@ function(input, output) {
     
   })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_MDS_ui <- renderUI({
+    if(input$R_MDS_chk == F){
+      return()}
+    if(input$R_MDS_chk == T){
+      verbatimTextOutput("R_MDS")}
+  })
+  
+  output$R_MDS <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
+  
   output$MDS_plot_download <- downloadHandler(
     filename = function(){paste("The scatterplot of MDS for", input$MDS_pheno, "subsetted for", input$MDS_subset_T, "(", input$MDS_subset_S, "), using", input$MDS_data, "MVApp.pdf") },
     content = function(file) {
@@ -8251,6 +8461,19 @@ function(input, output) {
     super_plot <- super_plot + ylab("Dimension 2")
     super_plot
     
+  })
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_tMDS_ui <- renderUI({
+    if(input$R_tMDS_chk == F){
+      return()}
+    if(input$R_tMDS_chk == T){
+      verbatimTextOutput("R_tMDS")}
+  })
+  
+  output$R_tMDS <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
   })
   
   output$MDS_plot_download_transposed <- downloadHandler(
@@ -8679,6 +8902,19 @@ function(input, output) {
     HHeatMap()
   })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_Hclu_HM_ui <- renderUI({
+    if(input$R_Hclu_HM_chk == F){
+      return()}
+    if(input$R_Hclu_HM_chk == T){
+      verbatimTextOutput("R_Hclu_HM")}
+  })
+  
+  output$R_Hclu_HM <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
+  
   # Figure legend:
   output$HHCC_legend_show <- renderUI({
     if(input$show_HHMCC_legend == F){
@@ -9056,6 +9292,19 @@ function(input, output) {
   
   output$HotANOVA <- renderPlot({
     HANOVA()
+  })
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_Hclu_val_ui <- renderUI({
+    if(input$R_Hclu_val_chk == F){
+      return()}
+    if(input$R_Hclu_val_chk == T){
+      verbatimTextOutput("R_Hclu_val")}
+  })
+  
+  output$R_Hclu_val <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
   })
   
   # HC ANOVA Figure legend:
@@ -9740,6 +9989,19 @@ function(input, output) {
     mydata1
   })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_Kclu_bar_ui <- renderUI({
+    if(input$R_Kclu_bar_chk == F){
+      return()}
+    if(input$R_Kclu_bar_chk == T){
+      verbatimTextOutput("R_Kclu_bar")}
+  })
+  
+  output$R_Kclu_bar <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
+  
   output$KMC_test <- renderDataTable({
     test <- KMC_data_for_barplot()
     
@@ -10106,6 +10368,19 @@ function(input, output) {
       p <- p + theme(panel.grid.major = element_blank())}
     
     p
+  })
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_Kclu_scat_ui <- renderUI({
+    if(input$R_Kclu_scat_chk == F){
+      return()}
+    if(input$R_Kclu_scat_chk == T){
+      verbatimTextOutput("R_Kclu_scat")}
+  })
+  
+  output$R_Kclu_scat <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
   })
   
   
@@ -10650,6 +10925,19 @@ function(input, output) {
     
   })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_heri_ui <- renderUI({
+    if(input$R_heri_chk == F){
+      return()}
+    if(input$R_heri_chk == T){
+      verbatimTextOutput("R_heri")}
+  })
+  
+  output$R_heri <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
+  })
+  
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - >>  Quantile Analysis in 10th TAB <<- - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -11048,6 +11336,19 @@ function(input, output) {
     else
       Calculate_table()
     
+  })
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_QR_table_ui <- renderUI({
+    if(input$R_QR_table_chk == F){
+      return()}
+    if(input$R_QR_table_chk == T){
+      verbatimTextOutput("R_QR_table")}
+  })
+  
+  output$R_QR_table <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("\n")
   })
   
   output$table_download_button <- renderUI({
