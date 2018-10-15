@@ -287,10 +287,14 @@ fluidPage(
                                   verbatimTextOutput("Outlier_report"),
                                   br(),
                                   uiOutput("Full_outlier_download"),
+                                  checkboxInput("R_out_table_chk", "Show me the code"),
+                                  uiOutput("R_out_table_ui"),
                                   br(),
                                   DT::dataTableOutput("Outlier_overview_table")),
                          tabPanel("Graph containing outliers", icon=icon("bug"),
                                   uiOutput("downl_plot_OutlPlot_ui"),
+                                  checkboxInput("R_out_y_graph_chk", "Show me the code"),
+                                  uiOutput("R_out_y_graph_ui"),
                                   plotlyOutput("outlier_graph"),
                                   hr(),
                                   column(12,checkboxInput("show_bad_stuff_legend", "Show the figure legend"),
@@ -302,6 +306,8 @@ fluidPage(
                          
                          tabPanel("Graph with outliers removed", icon=icon("birthday-cake"),
                                   uiOutput("downl_plot_NoOutlPlot_ui"),
+                                  checkboxInput("R_out_n_graph_chk", "Show me the code"),
+                                  uiOutput("R_out_n_graph_ui"),
                                   plotlyOutput("no_outliers_graph"),
                                   hr(),
                                   column(12,checkboxInput("show_good_stuff_legend", "Show the figure legend"),
@@ -317,6 +323,8 @@ fluidPage(
                                          uiOutput("Sum_download_button")), 
                                   hr(),
                                   br(),
+                                  checkboxInput("R_summ_stat_chk", "Show me the code"),
+                                  uiOutput("R_summ_stat_ui"),
                                   dataTableOutput("sum_data"))
               ))
             # end of Tab#4         

@@ -931,7 +931,7 @@ function(input, output) {
     cat("\n")
     cat("# Let's make a dataset containing only the collumns that are relevant to modeling of the selected trait:")
     cat("\n")
-    cat("model_data <- subset(my_data, select=c( '", input$ModelIV,"','", input$ModelSubIV, "','", input$SelectID, "','", input$SelectTime, "','", input$ModelPheno,"')")
+    cat("temp <- subset(my_data, select=c( '", input$ModelIV,"','", input$ModelSubIV, "','", input$SelectID, "','", input$SelectTime, "','", input$ModelPheno,"')")
     cat("\n")
     cat("\n")
     cat("# Make sure that your time variable is a numeric value:")
@@ -2508,7 +2508,7 @@ function(input, output) {
     cat("\n")
     cat("library('doBy', 'plotrix', 'reshape', 'ggplot')")
     cat("\n")
-    ("temp <- things_to_model")
+    cat("temp <- things_to_model")
     cat("\n")
     if(input$ModelSum_data == "r2 fitted curves curated data"){
     cat("# Select only the samples with R-square above the threshold:")
@@ -3467,6 +3467,18 @@ function(input, output) {
   })
   
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_out_table_ui <- renderUI({
+    if(input$R_out_table_chk == F){
+      return()}
+    if(input$R_out_table_chk == T){
+      verbatimTextOutput("R_out_table")}
+  })
+  
+  output$R_out_table <- renderPrint({
+    cat("\n")
+  })
+  
   Outliers_final_data <- eventReactive(input$Go_outliers,{
     if(input$Out_pheno_single_multi == "All phenotypes"){
       data_blob <- Outlier_overview()
@@ -4044,6 +4056,19 @@ function(input, output) {
       dev.off()
     })  
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_out_y_graph_ui <- renderUI({
+    if(input$R_out_y_graph_chk == F){
+      return()}
+    if(input$R_out_y_graph_chk == T){
+      verbatimTextOutput("R_out_y_graph")}
+  })
+  
+  output$R_out_y_graph <- renderPrint({
+    cat("\n")
+  })
+  
+  
   
   # FIGURE LEGEND:
   
@@ -4275,6 +4300,19 @@ function(input, output) {
     jaka
   })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_out_n_graph_ui <- renderUI({
+    if(input$R_out_n_graph_chk == F){
+      return()}
+    if(input$R_out_n_graph_chk == T){
+      verbatimTextOutput("R_out_n_graph")}
+  })
+  
+  output$R_out_n_graph <- renderPrint({
+    cat("\n")
+  })
+  
+  
   # Figure legend:
   output$good_stuff_legend_show <- renderUI({
     if(input$show_good_stuff_legend == F){
@@ -4461,6 +4499,18 @@ function(input, output) {
     colnames(sum_my_data)<-c(input$SelectGeno, input$SelectIV, input$SelectTime, "Dependent_Variable", input$SelectSumm)
     
     return(sum_my_data)
+  })
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_summ_stat_ui <- renderUI({
+    if(input$R_summ_stat_chk == F){
+      return()}
+    if(input$R_summ_stat_chk == T){
+      verbatimTextOutput("R_summ_stat")}
+  })
+  
+  output$R_summ_stat <- renderPrint({
+    cat("\n")
   })
   
   output$sum_data <- renderDataTable({
