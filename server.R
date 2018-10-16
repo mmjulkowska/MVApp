@@ -2843,30 +2843,23 @@ function(input, output) {
       )})
   
   output$Outliers_selection_pheno  <- renderUI({
-    if(is.null(Outlier_overview())){
-      return()
-    }
     if(input$Out_pheno_single_multi == "Single phenotype"){
-      return()
-    }
+      return()}
+    
     if(input$Out_pheno_single_multi == "Some phenotype"){
       if(input$What_happens_to_outliers == "replaced by NA"){
         return()}
-      else{
-        data <- Outlier_overview()
-        max_out <- max(data$Add_outliers)
-        min_out <- min(data$Add_outliers)
-        sliderInput("outlier_cutoff", "Remove the samples which are characterized as an outlier in at least ... traits:", min_out, max_out, value = 2, step = 1)}  
-    }
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        max_out <- length(input$DV_outliers)
+        min_out <- 1
+        sliderInput("outlier_cutoff", "Remove the samples which are characterized as an outlier in at least ... traits:", min_out, max_out, value = 2, step = 1)}}
     
     if(input$Out_pheno_single_multi == "All phenotypes"){
       if(input$What_happens_to_outliers == "replaced by NA"){
-        return()
-      }
-      else{
-      data <- Outlier_overview()
-      max_out <- max(data$Add_outliers)
-      min_out <- min(data$Add_outliers)
+        return()}
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        max_out <- length(input$SelectDV)
+        min_out <- 1
       sliderInput("outlier_cutoff", "Remove the samples which are characterized as an outlier in at least ... traits:", min_out, max_out, value = 2, step = 1)}  
     }
   })
@@ -3476,7 +3469,295 @@ function(input, output) {
   })
   
   output$R_out_table <- renderPrint({
-    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("# The code to use in R:")
+    cat("\n")
+    cat("\n")
+    cat("# For this section you will need libraries - please install them by typing:")
+    cat("\n")
+    cat("install.packages('doBy', 'reshape', 'plotrix')")
+    cat("\n")
+    cat("# And make sure that they are loaded by typing:")
+    cat("\n")
+    cat("library('doBy', 'reshape', 'plotrix')")
+    cat("\n")
+    cat("# First let's decide on which data to use:")
+    cat("\n")
+    
+    if(input$Outlier_on_data == "raw data"){
+      cat("use_this <- my_data")}
+    if(input$Outlier_on_data == "r2 fitted curves curated data"){
+      cat("use_this <- curve_data")}
+    if(input$Outlier_on_data == "missing values removed data"){  
+      cat("use_this <- my_data_nona")}
+    if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+      cat("use_this <- curve_data_nona")}
+    cat("\n")
+    cat("# Then let's make one collumn containing the sample ID for which you want to group:\n")
+    cat("# For example genotype, treatment and day, but not SampleID")
+    cat("\n")
+    cat("use_this$id_test <- do.call(paste,c(use_this[c('", paste(input$IV_outliers, sep="','"), "')], sep = '_'))")
+    cat("\n")
+    cat("# Then we loop the outlier identification for all of the phenotypes:")
+    cat("\n")  
+    cat("# Put all of your phenotypes in the list:")
+    cat("\n")  
+    if(input$Out_pheno_single_multi == "All phenotypes"){
+    cat("pheno_list <- c('", paste(input$SelectDV, sep="', '"),"')")  }
+    if(input$Out_pheno_single_multi == "Single phenotype"){
+      cat("pheno_list <- c('", input$DV_outliers,"')") }
+    if(input$Out_pheno_single_multi == "Some phenotypes"){
+      cat("pheno_list <- c('", paste(input$DV_outliers,sep="', '"),"')") }
+    cat("\n") 
+      cat("for(i in 1:length(pheno_list)){")
+      cat("\n")  
+      cat(  "out_select <- subset(use_this, select=c('id_test', pheno_list[i]))")
+      cat("\n")  
+      cat("out_select$pheno <- out_select[,(pheno_list[i])]")
+      cat("\n")  
+      
+      if(input$outlier_method == "1.5*IQR away from the mean (default)"){
+        cat("bad_stuff <- boxplot(out_select$pheno ~ out_select$id_test)$out")
+        cat("\n")
+        cat("# loop to add outliers to the main table:")
+        cat("\n")
+        cat("for(f in 1:nrow(use_this)){")
+        cat("\n")
+        cat("  if(out_select$pheno[f] %in% bad_stuff){")
+        cat("\n")
+        cat("  use_this$outlier[f] <- TRUE}")
+        cat("\n")
+        cat("  else{")
+        cat("\n")
+        cat("    use_this$outlier[f] <- FALSE}")
+        cat("\n")}
+      
+      if(input$outlier_method == "Cook's Distance"){
+        cat("  mod <- lm(out_select$pheno ~ out_select$id_test)")
+        cat("\n")
+        cat("cooksd <- cooks.distance(mod)")
+        cat("\n")
+        cat("use_this$outlier <- cooksd > 4*mean(cooksd)")
+        cat("\n")}
+      
+      if(input$outlier_method == "Bonferonni outlier test"){
+        cat("mod <- lm(out_select$pheno ~ out_select$id_test)")
+        cat("\n")
+        cat("baddies <- car::outlierTest(mod)")
+        cat("\n")
+        cat("bad_stuff <- names(baddies[[1]])")
+        cat("\n")
+        cat("bad_tuff <- as.numeric(bad_stuff)")
+        cat("\n")
+        cat("use_this$outlier <- FALSE")
+        cat("\n")
+        cat("use_this[bad_stuff,]$outlier <- TRUE")
+        cat("\n")
+      }
+      if(input$outlier_method == "1xStDev from the median"){
+        cat("out_sum <- summaryBy(pheno ~ id_test, data = out_select, FUN=function(x) {c(median = median(x), sd = sd(x))})")
+        cat("\n")
+        cat("out_sum$min <- (out_sum$pheno.median - (1*out_sum$pheno.sd))")
+        cat("\n")
+        cat("out_sum$max <- (out_sum$pheno.median + (1*out_sum$pheno.sd))")
+        cat("\n")
+        cat("out_sum <- subset(out_sum, select=c('id_test', 'min', 'max'))")
+        cat("\n")
+        cat("# Merge with your original data to set min-max range for all of your ID-subsets:")
+        cat("\n")
+        cat("out_select <- merge(out_select, out_sum, by='id_test')")
+        cat("\n")
+        cat("\n")
+        cat("# Loop to recognize if individual values are outside of your min-max range:")
+        cat("\n")
+        cat("for(e in 1:nrow(out_select)){")
+        cat("\n")
+        cat("  if(out_select$pheno[e] > out_select$max[e]){")
+        cat("\n")
+        cat("    use_this$outlier[e] <- TRUE}")
+        cat("\n")
+        cat("  if(out_select$pheno[e] < out_select$min[e]){")
+        cat("\n")
+        cat("    use_this$outlier[e] <- TRUE}")
+        cat("\n")
+        cat("  else{")
+        cat("\n")
+        cat("    use_this$outlier[e] <- FALSE}}")
+        cat("\n")
+        cat("\n")
+        cat("# Drop the collumns you dont need anymore")
+        cat("\n")
+        cat("drops <- c('min', 'max')")
+        cat("\n")
+        cat("use_this <- use_this[, !(names(use_this) %in% drops)]")}
+      
+        if(input$outlier_method == "2xStDev from the median"){
+          cat("out_sum <- summaryBy(pheno ~ id_test, data = out_select, FUN=function(x) {c(median = median(x), sd = sd(x))})")
+          cat("\n")
+          cat("out_sum$min <- (out_sum$pheno.median - (2*out_sum$pheno.sd))")
+          cat("\n")
+          cat("out_sum$max <- (out_sum$pheno.median + (2*out_sum$pheno.sd))")
+          cat("\n")
+          cat("out_sum <- subset(out_sum, select=c('id_test', 'min', 'max'))")
+          cat("\n")
+          cat("# Merge with your original data to set min-max range for all of your ID-subsets:")
+          cat("\n")
+          cat("out_select <- merge(out_select, out_sum, by='id_test')")
+          cat("\n")
+          cat("\n")
+          cat("# Loop to recognize if individual values are outside of your min-max range:")
+          cat("\n")
+          cat("for(e in 1:nrow(out_select)){")
+          cat("\n")
+          cat("  if(out_select$pheno[e] > out_select$max[e]){")
+          cat("\n")
+          cat("    use_this$outlier[e] <- TRUE}")
+          cat("\n")
+          cat("  if(out_select$pheno[e] < out_select$min[e]){")
+          cat("\n")
+          cat("    use_this$outlier[e] <- TRUE}")
+          cat("\n")
+          cat("  else{")
+          cat("\n")
+          cat("    use_this$outlier[e] <- FALSE}}")
+          cat("\n")
+          cat("\n")
+          cat("# Drop the collumns you dont need anymore")
+          cat("\n")
+          cat("drops <- c('min', 'max')")
+          cat("\n")
+          cat("use_this <- use_this[, !(names(use_this) %in% drops)]")}
+        
+        if(input$outlier_method == "2.5xStDev from the median"){
+          cat("out_sum <- summaryBy(pheno ~ id_test, data = out_select, FUN=function(x) {c(median = median(x), sd = sd(x))})")
+          cat("\n")
+          cat("out_sum$min <- (out_sum$pheno.median - (2.5*out_sum$pheno.sd))")
+          cat("\n")
+          cat("out_sum$max <- (out_sum$pheno.median + (2.5*out_sum$pheno.sd))")
+          cat("\n")
+          cat("out_sum <- subset(out_sum, select=c('id_test', 'min', 'max'))")
+          cat("\n")
+          cat("# Merge with your original data to set min-max range for all of your ID-subsets:")
+          cat("\n")
+          cat("out_select <- merge(out_select, out_sum, by='id_test')")
+          cat("\n")
+          cat("\n")
+          cat("# Loop to recognize if individual values are outside of your min-max range:")
+          cat("\n")
+          cat("for(e in 1:nrow(out_select)){")
+          cat("\n")
+          cat("  if(out_select$pheno[e] > out_select$max[e]){")
+          cat("\n")
+          cat("    use_this$outlier[e] <- TRUE}")
+          cat("\n")
+          cat("  if(out_select$pheno[e] < out_select$min[e]){")
+          cat("\n")
+          cat("    use_this$outlier[e] <- TRUE}")
+          cat("\n")
+          cat("  else{")
+          cat("\n")
+          cat("    use_this$outlier[e] <- FALSE}}")
+          cat("\n")
+          cat("\n")
+          cat("# Drop the collumns you dont need anymore")
+          cat("\n")
+          cat("drops <- c('min', 'max')")
+          cat("\n")
+          cat("use_this <- use_this[, !(names(use_this) %in% drops)]")}
+        
+        if(input$outlier_method == "3xStDev from the median"){
+          cat("out_sum <- summaryBy(pheno ~ id_test, data = out_select, FUN=function(x) {c(median = median(x), sd = sd(x))})")
+          cat("\n")
+          cat("out_sum$min <- (out_sum$pheno.median - (3*out_sum$pheno.sd))")
+          cat("\n")
+          cat("out_sum$max <- (out_sum$pheno.median + (3*out_sum$pheno.sd))")
+          cat("\n")
+          cat("out_sum <- subset(out_sum, select=c('id_test', 'min', 'max'))")
+          cat("\n")
+          cat("# Merge with your original data to set min-max range for all of your ID-subsets:")
+          cat("\n")
+          cat("out_select <- merge(out_select, out_sum, by='id_test')")
+          cat("\n")
+          cat("\n")
+          cat("# Loop to recognize if individual values are outside of your min-max range:")
+          cat("\n")
+          cat("for(e in 1:nrow(out_select)){")
+          cat("\n")
+          cat("  if(out_select$pheno[e] > out_select$max[e]){")
+          cat("\n")
+          cat("    use_this$outlier[e] <- TRUE}")
+          cat("\n")
+          cat("  if(out_select$pheno[e] < out_select$min[e]){")
+          cat("\n")
+          cat("    use_this$outlier[e] <- TRUE}")
+          cat("\n")
+          cat("  else{")
+          cat("\n")
+          cat("    use_this$outlier[e] <- FALSE}}")
+          cat("\n")
+          cat("\n")
+          cat("# Drop the collumns you dont need anymore")
+          cat("\n")
+          cat("drops <- c('min', 'max')")
+          cat("\n")
+          cat("use_this <- use_this[, !(names(use_this) %in% drops)]")}
+      cat("\n")
+      cat("\n")
+    cat("# for each phenotype - we have to remember to change the column name from outlier to specific_outlier")
+    cat("\n")
+    cat("# otherwise we might forget which trait was used to identify inividual outlier sets :) ")
+    cat("\n")
+    cat("colnames(use_this)[which(names(use_this) == 'outlier')] <- paste('out', pheno_lista[i], sep = '_')")
+    cat("\n")
+    cat("}")
+    cat("\n")
+    cat("\n")
+    cat("# once we finished running the loop for all the selected traits we can drop the not-useful names - like id_test")
+    cat("\n")
+    cat("  drops <- ('id_test')")
+    cat("\n")
+    cat("  use_this <- use_this[ , !(names(use_this) %in% drops)]")
+    cat("\n")
+    cat("\n")
+    cat("data_outliers_highlight <- use_this[, !(names(use_this) %in% dropski)]")
+    cat("\n")
+    cat("\n")
+    cat("# finally - make one collumn where you add all the traits identified as outliers for specific sample")
+    cat("\n")
+    cat("  for(x in 1:nrow(use_this)){")
+    cat("\n")
+    cat("    z <- data_outliers_highlight[x,]")
+    cat("\n")
+    cat("    data_outliers_highlight$Add_outliers[x] <- length(z[z==TRUE]) ")
+    cat("\n")
+    cat("}")
+    cat("\n")  
+    cat("\n")  
+cat("# Then create the dataset with outliers kicked-out:")       
+cat("\n")  
+    if(input$What_happens_to_outliers == "replaced by NA"){
+      cat("for(i in 1:length(pheno_lista)){")
+      cat("\n")  
+      cat(  "element <- pheno_lista[i] ")
+      cat("\n")  
+      cat("  selector <- paste('out', pheno_lista[i], sep = '_')")
+      cat("\n")  
+      cat("  for(e in 1:nrow(data_outliers_highlight)){")
+      cat("\n")  
+      cat("    if(data_outliers_highlight[e,selector] == TRUE)")
+      cat("\n")  
+      cat("    {data_outliers_highlight[e,element] <- NA }")
+      cat("\n")  
+      cat("  }}")
+      cat("\n")  
+      cat("no_out_data <- data_outliers_highlight")
+      cat("\n")  
+      cat("\n")}
+    
+    if(input$What_happens_to_outliers == "removed together with entire row"){
+      cat("no_out_data <- subset(data_outliers_highlight, data_outliers_highlight$Add_outliers < ", input$outlier_cutoff, ")")
+      cat("\n")  
+    }
+    cat("\n") 
     cat("\n")
   })
   
