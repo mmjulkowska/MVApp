@@ -9780,7 +9780,7 @@ cat("\n")
   )
   
   
-  # = = = = = = = = = = = = = = >>> K MEANS CLUSTERING <<< =  = = = = = = = = = = = = = = = = #
+   # = = = = = = = = = = = = = = >>> K MEANS CLUSTERING <<< =  = = = = = = = = = = = = = = = = #
   
   # input gadgets:
   # Message
@@ -10015,6 +10015,142 @@ cat("\n")
     KMC_data_table_for_matrix()
   })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_Kclu_res_ui <- renderUI({
+    if(input$R_Kclu_res_chk == F){
+      return()}
+    if(input$R_Kclu_res_chk == T){
+      verbatimTextOutput("R_Kclu_res")}
+  })
+  
+  output$R_Kclu_res <- renderPrint({
+    cat("#R code for K means clustering:")
+    cat("\n")
+    cat("# Make sure you have installed theses packages and loaded the corresponding libraries: 'factoextra','NbClust', and 'ggplot2'.")
+    cat("\n")
+    
+    cat("library('factoextra')")
+    cat("\n")
+    cat("library('NbClust')")
+    cat("\n")
+    cat("library('ggplot2')")
+    cat("\n")
+    
+    cat("#Choose your data")
+    cat("\n")
+    if(input$KMCluster_data == "raw data"){
+      cat("KMC_data_type <- my_data)")
+      cat("\n")
+    }
+    if(input$KMCluster_data == "missing values removed data"){
+      cat("KMC_data_type <- my_data_nona")
+      cat("\n")
+    }
+    if(input$KMCluster_data == "r2 fitted curves curated data"){
+      cat("KMC_data_type <- curve_data")
+      cat("\n")
+    }
+    if(input$KMCluster_data == "r2 fitted curves curated data with missing values removed"){
+      cat("KMC_data_type <- curve_data_nona")
+      cat("\n")
+    }
+    if(input$KMCluster_data == "outliers removed data"){
+      cat("KMC_data_type <- no_outl_data")
+      cat("\n")
+    }
+    
+    
+    cat("#Prepare Data")
+    cat("\n")
+    cat("# K means will not take missing data, so either use 'na.omit' or impute data. For simplification purposes we use 'na.omit'")
+    cat("\n")
+    cat("KMC_data_type <- na.omit(KMC_data_type) # listwise deletion of missing data")
+    cat("\n")
+    
+    if(input$KMC_use_means == T){
+      cat("# If you have multiple replicates and have cleaned your data from outliers, you can calculate k means clustering using the means. To obtain a new data frame with means, use the following code:")
+      cat("\n")
+      cat("library(doBy)")
+      cat("\n")
+      cat("KMC_data_type <- subset(KMC_data_type, 
+          select=c('", paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$SelectDV, sep="', '"), "')")
+      cat("\n")
+      cat("genotype<-c('",input$SelectGeno,"')")
+      cat("\n")
+      cat("KMC_data <- summaryBy(list(c('",input$SelectDV,"'),c('" ,paste(input$SelectGeno, input$SelectIV, input$SelectTime, sep="', '"),"')), data=KMC_data, id=c('",input$SelectID,"'),FUN=mean)")
+      cat("\n")     
+    }
+    
+    if(input$KMC_use_means == F){
+      
+      cat("KMC_data <- subset(KMC_data_type, select=c('",paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$SelectDV, sep="', '"),"'))")
+      cat("\n")          
+    }
+    
+    
+    #KMC_data_for_matrix <- reactive({
+    #  object <- KMC_data()
+    
+    if(input$KMC_subset_Q == T){
+      cat("KMC_data$split <- KMC_data[,'",input$KMC_trait_sub,"']")
+      cat("\n")
+      cat("the_one <- '",input$KMC_trait_sub_spec,"'")
+      cat("\n")
+      cat("KMC_data <- subset(KMC_data, KMC_data$split == the_one)")
+      cat("\n")
+    }
+    
+    if(input$KMC_use_means == T){
+      
+      cat("pheno<-paste('",input$KMC_pheno,"','mean', sep = '.')")
+      cat("\n")
+      cat("sel <- subset(KMC_data, select=c('",paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,pheno, sep="', '"),"'))")
+      cat("\n")
+    }
+    
+    if(input$KMC_use_means == F){
+      
+      cat("sel <- subset(KMC_data, select=c('",paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,input$KMC_pheno, sep="', '"),"'))")
+      cat("\n")
+      
+    }
+    cat("#To move only the numerical data into a new matrix:")
+    cat("\n")
+    cat("beginCol <-
+        length(c('",paste(input$SelectIV,
+                          input$SelectGeno,
+                          input$SelectTime,
+                          input$SelectID, sep"', '"),"')) + 1")
+    cat("\n")
+    
+    cat("endCol <- ncol(sel)")
+    cat("\n")
+    
+    cat("KMC_matrix <- sel[,(beginCol:endCol)]")
+    cat("\n") 
+    cat("KMC_matrix <- na.omit(KMC_matrix)")
+    cat("\n") 
+    
+    if(input$KMCluster_scale_Q == T){
+      cat("# When using variables with different units of measurement, it is highly reccomendable to scale your data prior to analysis.")
+      cat("\n")
+      cat("KMC_matrix <- scale(KMC_matrix) # standardize variables")
+      cat("\n")     
+    }   
+    
+    cat("#K means clustering:")
+    cat("\n")
+    cat("set.seed(20)")
+    cat("\n")
+    cat("KMClusters <- kmeans(KMC_matrix,", input$kmclusters, ", nstart = 20)")
+    cat("\n")
+    cat("KMClusters$cluster<- as.factor(KMClusters$cluster)")
+    cat("\n")
+    cat("# To append cluster number assigned to the individual samples in the original data:")
+    cat("\n")
+    cat("KMC_data$cluster<-KMClusters$cluster")
+    cat("\n")
+  })
   
   # - - - - - - - >> ADVICE PLOTS << - - - - - - - - - 
   
@@ -10254,6 +10390,43 @@ cat("\n")
     
   })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_Kclu_opt_ui <- renderUI({
+    if(input$R_Kclu_opt_chk == F){
+      return()}
+    if(input$R_Kclu_opt_chk == T){
+      verbatimTextOutput("R_Kclu_opt")}
+  })
+  
+  output$R_Kclu_opt <- renderPrint({
+    cat("#R code for determining the optimal number of K means clusters")
+    cat("\n")
+    cat("# Elbow method")
+    cat("\n")
+    cat("fviz_nbclust(mydata, kmeans, method = 'wss') +")
+    cat("\n")
+    cat("geom_vline(xintercept = 4, linetype = 2)+")
+    cat("\n")
+    cat("labs(title = 'Elbow method')")
+    cat("\n")
+    cat("# Silhouette method")
+    cat("\n")
+    cat("fviz_nbclust(mydata, kmeans, method = 'silhouette')+")
+    cat("\n")
+    cat("labs(title = 'Silhouette method')")
+    cat("\n")
+    cat("#Majority of 30 indices")
+    cat("\n")
+    cat("nb <- NbClust(mydata, distance = 'euclidean', min.nc = 2,
+        max.nc = 10, method = 'kmeans')")
+    cat("\n")
+    cat("fviz_nbclust(nb)")
+    
+    cat("\n")
+    
+  })
+  
+  
   ###  BARPLOTS K-MEANS CLUSTERING 
   
   KMC_data_for_barplot <- reactive({
@@ -10268,19 +10441,6 @@ cat("\n")
     mydata2 <- KMClusters()
     mydata1$cluster <- mydata2$cluster
     mydata1
-  })
-  
-  # # # # # R-Snipets to do # # # # # 
-  output$R_Kclu_bar_ui <- renderUI({
-    if(input$R_Kclu_bar_chk == F){
-      return()}
-    if(input$R_Kclu_bar_chk == T){
-      verbatimTextOutput("R_Kclu_bar")}
-  })
-  
-  output$R_Kclu_bar <- renderPrint({
-    cat("We are currently working to add this R-code snippet - please check in few days")
-    cat("\n")
   })
   
   output$KMC_test <- renderDataTable({
@@ -10459,6 +10619,95 @@ cat("\n")
     plot <- kmeans_BP()
     plot
   })
+  
+  # # # # # R-Snipets to do # # # # # 
+  output$R_Kclu_bar_ui <- renderUI({
+    if(input$R_Kclu_bar_chk == F){
+      return()}
+    if(input$R_Kclu_bar_chk == T){
+      verbatimTextOutput("R_Kclu_bar")}
+  })
+  
+  output$R_Kclu_bar <- renderPrint({
+    cat("# One way of visualising k means clustering of your data is using bar plots. To plot your data and the assigned clusters, first select a variable.")
+    cat("\n")
+    cat("listIV<-c('", paste(input$SelectGeno, input$SelectIV, input$SelectTime, sep="', '"), "')")
+    cat("\n")
+    cat("facet<-'",input$facet_KMC_barplot,"'")
+    cat("\n")
+    cat("listNonSel<-setdiff(listIV,facet)")
+    cat("\n")
+    if(input$KMC_split_barplot == T){
+      cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listNonSel)], sep='_'))")
+      cat("\n")
+    }
+    if(input$KMC_split_barplot == F){
+      cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listIV)], sep='_'))")
+      cat("\n")
+    }
+    
+    if(input$KMC_use_means == T){
+      if(input$KMC_split_barplot == F){
+        cat("p <- ggplot(KMC_data, aes(x =reorder(id,-KMC_data[,'",input$KMC_trait_to_plot,"']) , y = KMC_data[,'",input$KMC_trait_to_plot,"'], fill = cluster) )+")
+        cat("\n")
+        cat("geom_bar(stat='identity')+xlab(' ') +ylab(' ') +")
+        cat("\n")
+        cat("theme(axis.text.x = element_text(angle = 90, hjust = 1))")
+      }
+      if(input$KMC_split_barplot == T){
+        cat("KMC_data<- KMC_data %>%")
+        cat("\n")
+        cat("ungroup() %>%")
+        cat("\n")
+        cat("arrange(KMC_data[,'",input$facet_KMC_barplot,"'],-KMC_data[,'",input$KMC_trait_to_plot,"']) %>%")
+        cat("\n")
+        cat("mutate(.r=row_number())")
+        cat("\n")
+        cat("p <- ggplot(KMC_data, aes(x =.r,y = KMC_data[,'",input$KMC_trait_to_plot,"'], fill = cluster) )+")
+        cat("\n")
+        cat("geom_bar(stat='identity')+xlab(' ') +ylab(' ') +")
+        cat("\n")
+        cat("theme(axis.text.x = element_text(angle = 90, hjust = 1))")
+        cat("\n")
+        cat("p<-p + facet_wrap(~ KMC_data[,'",input$facet_KMC_barplot,"'], scale = '",input$Select_KMC_barplot_sc,"')+")
+        cat("\n")
+        cat("scale_x_continuous(breaks=KMC_data$.r,labels=KMC_data$id)")
+        cat("\n")
+      }
+      if(input$Select_KMC_background_barplot == T){
+        cat("p <- p + theme_minimal()+theme(axis.text.x = element_text(angle = 90, hjust = 1))")
+        cat("\n")
+      }
+      if(input$Select_KMC_grid_barplot == T){
+        cat("p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1),panel.grid.major = element_blank())")
+        cat("\n")
+      }
+    }
+    if(input$KMC_use_means == F){
+      cat("p <- ggplot(KMC_data, aes(x = reorder(id,-KMC_data[,'",input$KMC_trait_to_plot,"']), y = KMC_data[,'",input$KMC_trait_to_plot,"'], color = cluster)) + ")
+      cat("\n")
+      cat("geom_point() +xlab(' ') +ylab(' ')")
+      cat("\n")
+      if(input$KMC_split_barplot == T){
+        cat("p<-p + facet_wrap(~ KMC_data[,'",input$facet_KMC_barplot,"'], scale = '",input$Select_KMC_barplot_sc,"')")
+        cat("\n")
+      }
+      if(input$Select_KMC_background_barplot == T){
+        cat("p <- p + theme_minimal()")
+        cat("\n")
+      }
+      if(input$Select_KMC_grid_barplot == T){
+        cat("p <- p + theme(panel.grid.major = element_blank())")
+        cat("\n")
+      }
+    }
+    cat("p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1))")
+    cat("\n")
+    cat("p")
+    cat("\n")
+    
+  })
+  
   
   # Figure legend:
   output$barplotKMC_legend_show <- renderUI({
@@ -10660,7 +10909,44 @@ cat("\n")
   })
   
   output$R_Kclu_scat <- renderPrint({
-    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("Another, more common, way of visualising k means clustering of your data is using scatter plots. To plot your data and the assigned clusters:")
+    cat("\n")
+    
+    
+    cat("listIV<-c('", paste(input$SelectGeno, input$SelectIV, input$SelectTime, sep="', '"), "')")
+    cat("\n")
+    cat("facet<-'",input$facet_KMC_plot,"'")
+    cat("\n")
+    cat("listNonSel<-setdiff(listIV,facet)")
+    cat("\n")
+    if(input$KMC_split_scatterplot == T){
+      cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listNonSel)], sep='_'))")
+      cat("\n")
+    }
+    if(input$KMC_split_scatterplot == F){
+      cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listIV)], sep='_'))")
+      cat("\n")
+    }
+    
+    cat("p <- ggplot(KMC_data, aes(x = KMC_data[,'",input$xcol_kmeans,"'], y = KMC_data[,'",input$ycol_kmeans,"'], color = cluster)) + ")
+    cat("\n")
+    cat("geom_point(aes(text=id))+")
+    cat("\n")
+    cat("xlab('",input$xcol_kmeans,"') +ylab('",input$ycol_kmeans,"') ")
+    cat("\n")
+    if(input$KMC_split_scatterplot == T){
+      cat("p<- p+ facet_wrap(~ KMC_data[,'",input$facet_KMC_plot,"'], scale = '",input$Select_KMC_facet_sc,"')")
+      cat("\n")
+    }
+    if(input$Select_KMC_background == T){
+      cat("p <- p + theme_minimal()")
+      cat("\n")
+    }
+    if(input$Select_KMC_grid == T){
+      cat("p <- p + theme(panel.grid.major = element_blank())")
+      cat("\n")
+    }
+    cat("p")
     cat("\n")
   })
   
@@ -10745,6 +11031,7 @@ cat("\n")
       print(plot)
       dev.off()
     })
+  
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - >> HERITABILITY IN 9th TAB << - - - - - - - - - - - -
@@ -11219,7 +11506,7 @@ cat("\n")
     cat("\n")
   })
   
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - >>  Quantile Analysis in 10th TAB <<- - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ##select dataset
@@ -11627,10 +11914,185 @@ cat("\n")
       verbatimTextOutput("R_QR_table")}
   })
   
+
   output$R_QR_table <- renderPrint({
-    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("# The code to use in R:")
     cat("\n")
-  })
+    cat("\n")
+    cat("# For this section we will need a library. Install the package by typing:")
+    cat("\n")
+    cat("\n")
+    cat("install.packages('quantreg')")
+    cat("\n")
+    cat("\n")
+    cat("# Load the packages by:")
+    cat("\n")
+    cat("\n")
+    cat("library('quantreg')")
+    cat("\n")
+    cat("\n")
+    cat("# Select only the columns containing the variables to split the data by, reponse variable and explanatory variables")
+    cat("\n")  
+    
+    cat("temp <-
+      subset(
+        QA_final_data_display(),
+        select = c(
+        '", input$QA_subset,"',
+        '",input$ResponsePheno,"',
+        '",input$ExplanatoryPheno,"'
+        )
+    )")
+    cat("\n")
+    cat("\n")
+    cat("# Subsetting the data to fit different quantile regression models")
+    cat("\n")
+    cat("sub_set <- '",input$QA_subset,"'")
+    cat("\n")
+    cat("things_to_model_QA <- unique(temp[sub_set])")
+    cat("\n")
+    cat("\n")
+   
+    cat("# Setting the quantile levels")
+    cat("\n") 
+    cat("tau = c(0.25,0.5,0.75)")
+    cat("\n")
+        
+    cat("fit_qr=list()")
+    cat("\n")
+    cat("\n")
+    cat("# Fitting quantile regression models for the splitted data")   
+    cat("\n")
+    cat("for (i in 1:nrow(things_to_model_QA)) {
+        if(ncol(things_to_model_QA)==1){
+        super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+        
+        } else 
+        {
+        super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+        
+        } 
+        super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+        colnames(super_temp2)[1]= 'y'
+        fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+        
+        }")
+    cat("\n")
+    cat("\n")  
+    
+    cat("# Choosing a particular subset to display the results in the box ")   
+    cat("\n") 
+    cat("sub_set <- '",input$QA_subset,"'")
+    cat("\n")
+    cat("things_to_model_QA <- unique(temp[sub_set])")
+    cat("\n")
+        
+        
+    cat("things_to_model_QA$subsetid= do.call(paste,c(things_to_model_QA['",input$QA_subset,"'], sep='_'))")
+    cat("\n")
+    cat("index= which('",input$QA_subset_S,"' == things_to_model_QA$subsetid )")
+    cat("\n")
+        
+    cat("tempexpl <-
+        subset(
+        QA_final_data_display(),
+        select = c(
+        '",input$ExplanatoryPheno,"'
+        )
+        )")
+    cat("\n")    
+    cat("\n")
+    cat("# Obtaining the summary of the results of fitted quantile regression models")   
+    cat("\n") 
+    cat("summary = summary(fit_qr[[1]], se='boot')")
+    cat("\n")
+    cat("\n")
+    cat("# Summarizing the results of the chosen subset")
+    cat("\n") 
+    cat("df_sum1= data.frame(rownames(summary[[1]]$coef),as.matrix(summary[[1]]$coef))")
+    cat("\n") 
+    cat("significant_df_0.25=data.frame(df_sum1[df_sum1[,5] <= 0.05, ])[,1]")
+    cat("\n") 
+    cat("if(length(significant_df_0.25)==0) {significant_df_0.25 ='None'} else if(significant_df_0.25[1] == '(Intercept)') {significant_df_0.25 =significant_df_0.25[-1]} else {significant_df_0.25= significant_df_0.25}")
+    cat("\n") 
+    cat("if(length(significant_df_0.25)==0) {significant_df_0.25 ='None'}")
+    cat("\n") 
+    cat("\n")
+    cat("df_sum2= data.frame(rownames(summary[[2]]$coef),as.matrix(summary[[2]]$coef))")
+    cat("\n") 
+    cat("significant_df_0.5=data.frame(df_sum2[df_sum2[,5] <= 0.05, ])[,1]")
+    cat("\n") 
+    cat("if(length(significant_df_0.5)==0) {significant_df_0.5 ='None'} else if(significant_df_0.5[1] == '(Intercept)') {significant_df_0.5 =significant_df_0.5[-1]} else {significant_df_0.5= significant_df_0.5}")
+    cat("\n") 
+    cat("if(length(significant_df_0.5)==0) {significant_df_0.5 ='None'}")
+    cat("\n")
+    cat("\n") 
+    cat("df_sum3= data.frame(rownames(summary[[3]]$coef),as.matrix(summary[[3]]$coef))")
+    cat("\n") 
+    cat("significant_df_0.75=data.frame(df_sum3[df_sum3[,5] <= 0.05, ])[,1]")
+    cat("\n") 
+    cat("if(length(significant_df_0.75)==0) {significant_df_0.75 ='None'} else if(significant_df_0.75[1] == '(Intercept)') {significant_df_0.75 =significant_df_0.75[-1]} else {significant_df_0.75= significant_df_0.75}")
+    cat("\n") 
+    cat("if(length(significant_df_0.75)==0) {significant_df_0.75 ='None'}")
+    
+    cat("\n")
+    cat("\n") 
+    cat("# Printing the results of the chosen subset")
+    cat("\n") 
+    cat("cat(paste('The variables significant for different quantiles levels are:'))")
+    cat("\n") 
+    cat("cat('\n)")
+    cat("\n") 
+    cat("cat(paste('Lower quantile (0.25):'), paste(significant_df_0.25, collapse = ', '))")
+    cat("\n") 
+    cat("cat('\n')")
+    cat("\n") 
+    cat("cat(paste('Median quantile (0.5):'), paste(significant_df_0.5, collapse = ', '))")
+    cat("\n") 
+    cat("cat(paste('Upper quantile (0.75):'), paste(significant_df_0.75, collapse = ', '))")
+    cat("\n") 
+    
+    cat("\n")
+    cat("# Arranging the summary of the results of fitted quantile regression models in a table")   
+    cat("\n") 
+    cat(" tablesum = data.frame(cbind(round(coef(summary[[1]])[,'Value'], digits = 4), round(coef(summary[[1]])[,'Pr(>|t|)'], digits = 4), rep(0.25, ncol(tempexpl)), rep(things_to_model_QA$subsetid[1],ncol(tempexpl))))")
+    cat("\n")
+    cat("  tablesum =rbind(tablesum,data.frame(cbind(round(coef(summary[[2]])[,'Value'], digits = 4), round(coef(summary[[2]])[,'Pr(>|t|)'], digits = 4), rep(0.5, ncol(tempexpl)), rep(things_to_model_QA$subsetid[1],ncol(tempexpl)))))")
+    cat("\n")
+    cat(" tablesum =rbind(tablesum,data.frame(cbind(round(coef(summary[[3]])[,'Value'], digits = 4), round(coef(summary[[3]])[,'Pr(>|t|)'], digits = 4), rep(0.75, ncol(tempexpl)), rep(things_to_model_QA$subsetid[1],ncol(tempexpl)))))")
+    cat("\n")    
+    cat("for(i in 2:nrow(things_to_model_QA)){
+        summary = summary(fit_qr[[i]], se='boot')
+        tablesum = rbind(tablesum,data.frame(cbind(round(coef(summary[[1]])[,'Value'], digits = 4), round(coef(summary[[1]])[,'Pr(>|t|)'], digits = 4), rep(0.25, ncol(tempexpl)), rep(things_to_model_QA$subsetid[i],ncol(tempexpl)))))
+        tablesum = rbind(tablesum,data.frame(cbind(round(coef(summary[[2]])[,'Value'], digits = 4), round(coef(summary[[2]])[,'Pr(>|t|)'], digits = 4), rep(0.5, ncol(tempexpl)), rep(things_to_model_QA$subsetid[i],ncol(tempexpl)))))
+        tablesum = rbind(tablesum,data.frame(cbind(round(coef(summary[[3]])[,'Value'], digits = 4), round(coef(summary[[3]])[,'Pr(>|t|)'], digits = 4), rep(0.75, ncol(tempexpl)), rep(things_to_model_QA$subsetid[i],ncol(tempexpl)))))
+        
+        }")
+    cat("\n")
+    cat("\n")
+    cat("# Naming the columns of the summary tale")   
+    
+    cat("\n")    
+    cat("colnames(tablesum)[1] = 'Coefficient value'")
+    cat("\n")
+    cat("colnames(tablesum)[2] = 'p-value'")
+    cat("\n")
+    cat("colnames(tablesum)[3] = 'Quantile'")
+    cat("\n")
+    cat("colnames(tablesum)[4] = 'Subset'")
+    cat("\n")
+    cat("rownames(tablesum) = NULL")
+    cat("\n")
+    cat("variable_names = rep(c('Intercept',colnames(tempexpl)), times=nrow(things_to_model_QA)*3 )")
+    cat("\n")
+    cat("tablesum = cbind(variable_names, tablesum)")
+    cat("\n")
+    cat("colnames(tablesum)[1] = 'Variable'")
+    cat("\n")
+    cat("return(tablesum)")
+    cat("\n")
+  
+})
   
   output$table_download_button <- renderUI({
     #if(is.null(Model_est_QA())){
@@ -11719,6 +12181,151 @@ cat("\n")
       )
   })
   
+  # # # # # R-Snipets to do # # # # # 
+  output$R_QR_plot_ui <- renderUI({
+    if(input$R_QR_plot_chk == F){
+      return()}
+    if(input$R_QR_plot_chk == T){
+      verbatimTextOutput("R_QR_plot")}
+  })
+  
+  output$R_QR_plot <- renderPrint({
+    cat("# The code to use in R:")
+    cat("\n")
+    cat("\n")
+    cat("# For this section we will need a library. Install the package by typing:")
+    cat("\n")
+    cat("\n")
+    cat("install.packages('quantreg')")
+    cat("\n")
+    cat("\n")
+    cat("# Load the packages by:")
+    cat("\n")
+    cat("\n")
+    cat("library('quantreg')")
+    cat("\n")
+    cat("\n")
+    cat("# Select only the columns containing the variables to split the data by, reponse variable and explanatory variables")
+    cat("\n")
+    cat("\n")
+    cat("temp <-
+        subset(
+        QA_final_data_display(),
+        select = c(
+        '", input$QA_subset,"',
+        '",input$ResponsePheno,"',
+        '",input$ExplanatoryPheno,"'
+        )
+        )")
+    cat("\n")
+    cat("\n")
+    cat("# Subsetting the data to fit different quantile regression models")
+    cat("\n")
+    
+    cat("sub_set <- '",input$QA_subset,"'")
+    cat("\n")
+    cat("things_to_model_QA <- unique(temp[sub_set])")
+    cat("\n")
+    cat("\n")
+    cat("# Setting the quantile levels")
+    cat("tau = c(0.25,0.5,0.75)")
+    cat("\n")
+    
+    cat("fit_qr=list()")
+    cat("\n")
+    cat("\n")
+    cat("# Fitting quantile regression models for the splitted data")   
+    cat("\n")
+    cat("for (i in 1:nrow(things_to_model_QA)) {
+        if(ncol(things_to_model_QA)==1){
+        super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+        
+        } else 
+        {
+        super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+        
+        } 
+        super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+        colnames(super_temp2)[1]= 'y'
+        fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
+        
+  }")
+    cat("\n")
+    
+        
+    cat("\n")
+    cat("# Subsetting and grouping the plots")
+    
+    cat("\n")
+    cat("sub= setdiff('",input$QA_subset,"', '",input$group_plot_by,"')")
+    cat("\n")    
+    cat("if(is_empty(sub)){
+        index=c(1:nrow(things_to_model_QA))
+        }else{
+        index = which( things_to_model_QA[,sub] == '",input$plot_subset,"')
+        }")
+    cat("\n")    
+    cat("listgroupby <- unique(as.matrix(temp['",input$group_plot_by,"']))")
+    cat("\n")    
+    cat("tau= c(0.25, 0.5, 0.75)")
+    cat("\n")   
+    cat("pvalues=rep(0, length(tau))")
+    cat("\n")
+    cat("plist= list()")
+    cat("\n")   
+    cat("\n")
+    cat("# Extracting the p-values of the explanatory variables")
+    cat("\n") 
+    cat("for(k in 1:nrow(listgroupby)){
+        for(i in 1:length(tau)){
+        pvalues[i]=cbind(coef(summary(fit_qr[[index[k]]],se='boot')[[i]])['",input$Model_variable_select,"', 'Pr(>|t|)'])
+        }
+        plist[[k]]= pvalues
+        }")
+    cat("\n")   
+    cat("coeffi=matrix(0,nrow(listgroupby),length(tau))")
+    cat("\n")
+    cat("\n")
+    
+    cat("# Extracting the value of the estimated regression coefficients")
+    cat("for(i in 1:nrow(listgroupby)){
+        coeffi[i,]=coef(fit_qr[[index[i]]])['",input$Model_variable_select,"',] 
+        }")
+    cat("\n")   
+    cat("col= rainbow(nrow(listgroupby))")
+    
+    cat("\n")   
+    cat("par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)")
+    cat("\n")
+    cat("\n")
+    cat("# Plotting the results of quantile regression for the first group")
+    cat("\n") 
+    cat("plot(tau,coef(fit_qr[[index[1]]])['",input$Model_variable_select,"',],
+        pch=ifelse(plist[[1]]< as.numeric(as.character('",input$p_value_threshold,"')) ,20,4),
+        col=ifelse(plist[[1]]< as.numeric(as.character('",input$p_value_threshold,"')) ,col[1],'black'),
+        cex=1.5, xlab = 'Quantiles', ylab = 'Coefficient',
+        cex.main=1.5, cex.lab=1.5, main='",input$Model_variable_select,"',
+        ylim=c(min(coeffi), max(coeffi)))")
+    cat("\n")    
+    cat("lines(tau,coef(fit_qr[[index[1]]])['",input$Model_variable_select,"',],col=col[1], cex=1.5)")
+    cat("\n")   
+    cat("\n")
+    cat("# Plotting the results of quantile regression for the remaining groups")
+    cat("\n") 
+    cat("for(k in 2:nrow(listgroupby)){
+        points (tau,coef(fit_qr[[index[k]]])['",input$Model_variable_select,"',],
+        col=ifelse(plist[[k]]< as.numeric(as.character('",input$p_value_threshold,"')) ,col[k],'black'),
+        pch=ifelse(plist[[k]]<as.numeric(as.character('",input$p_value_threshold,"')) ,20,4),cex=1.5)
+        lines (tau,coef(fit_qr[[index[k]]])['",input$Model_variable_select,"',],col=col[k],cex=1.5)
+        }")
+    cat("\n")    
+    
+    
+    cat("legend('topright',inset=c(-0.17,0),legend=c(listgroupby,'Not significant'),horiz = F, pch = c(rep(20, nrow(listgroupby)),4),col = c(col,'black'),
+        bty = 'n',xpd=NA,cex=1)
+        ")
+    cat("\n")
+  })
   
   # Plots - single 
   QA_plot_single <- reactive({
@@ -12190,5 +12797,6 @@ cat("\n")
     
   })
   
+
   # end of the script
 }
