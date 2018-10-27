@@ -10120,7 +10120,7 @@ cat("\n")
         length(c('",paste(input$SelectIV,
                           input$SelectGeno,
                           input$SelectTime,
-                          input$SelectID, sep"', '"),"')) + 1")
+                          input$SelectID, sep = "', '"),"')) + 1")
     cat("\n")
     
     cat("endCol <- ncol(sel)")
