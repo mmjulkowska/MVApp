@@ -704,7 +704,7 @@ tabPanel("Clustering", icon = icon("sitemap"),
                              uiOutput("HCANOVA_legend_show")))
                                
            ))),
-      tabPanel("K-means Clustering", icon = icon("barcode"),
+ tabPanel("K-means Clustering", icon = icon("barcode"),
                sidebarPanel(
                  uiOutput("Select_data_K_mean_cluster"),
                  uiOutput("Select_DV_KMC"),
@@ -755,10 +755,18 @@ tabPanel("Clustering", icon = icon("sitemap"),
                                      verbatimTextOutput("indices_majority_KMC"),
                                      #dataTableOutput("KMCluster_test"),
                                      column(12,  uiOutput("downl_indices_plots_KMC_3_ui"),
+                                     column(12,checkboxInput("R_Kclu_opt_chk", "Show me the code"),
+                                                uiOutput("R_Kclu_opt_ui")),
                                             plotOutput("indices_plots_KMC_3")),
                                      hr(),
                                      column(12,checkboxInput("show_optimalK_legend", "Show the figure legend"),
                                             uiOutput("optimalK_legend_show"))
+                            ),
+                            tabPanel("K-means clustering data table",
+                                     column(12,uiOutput("downl_KMC_test_ui")),
+                                     dataTableOutput("KMC_test"),
+                                     column(12,checkboxInput("R_Kclu_res_chk", "Show me the code"),
+                                            uiOutput("R_Kclu_res_ui"))
                             ),
                             tabPanel("K means clustering plots",
                                      column(4, uiOutput("Select_KMC_trait")),
@@ -793,11 +801,8 @@ tabPanel("Clustering", icon = icon("sitemap"),
                                      hr(),
                                      column(12,checkboxInput("show_scatterplotKMC_legend", "Show the figure legend"),
                                             uiOutput("scatterplotKMC_legend_show"))
-                            ),
-                            tabPanel("K-means clustering data table",
-                                     column(12,uiOutput("downl_KMC_test_ui")),
-                                     dataTableOutput("KMC_test")
                             )
+                           
                             #   tabPanel("Cluster validation",
                             #         verbatimTextOutput("kmcAnovaNews"),
                             
@@ -877,11 +882,13 @@ tabPanel("Quantile regression", icon = icon("paper-plane-o"),
                                  column(4,uiOutput("Group_plot")),
                                  column(4,uiOutput("model_plot_type")),
                                  column(4,uiOutput("Select_model_variable"),
-                                          uiOutput("QA_plot_slider_input"))
+                                          uiOutput("QA_plot_slider_input")
+                                        )
                                ),
                                br(),
                                
-                              
+                               checkboxInput("R_QR_plot_chk", "Show me the code"),
+                               uiOutput("R_QR_plot_ui"),
                                
                                fluidRow(
                                 column(4,downloadButton("downl_plot_QA", "Download plot")),
