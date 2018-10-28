@@ -10401,28 +10401,143 @@ cat("\n")
   output$R_Kclu_opt <- renderPrint({
     cat("#R code for determining the optimal number of K means clusters")
     cat("\n")
-    cat("# Elbow method")
+    cat("#Load the neccessary libraries:")
+    cat("# Make sure you have installed theses packages and loaded the corresponding libraries: 'factoextra','NbClust', and 'ggplot2'.")
     cat("\n")
-    cat("fviz_nbclust(mydata, kmeans, method = 'wss') +")
+    
+    cat("library('factoextra')")
+    cat("\n")
+    cat("library('NbClust')")
+    cat("\n")
+    cat("library('ggplot2')")
+    cat("\n")
+    
+    cat("#Choose your data")
+    cat("\n")
+    if(input$KMCluster_data == "raw data"){
+      cat("KMC_data_type <- my_data)")
+      cat("\n")
+    }
+    if(input$KMCluster_data == "missing values removed data"){
+      cat("KMC_data_type <- my_data_nona")
+      cat("\n")
+    }
+    if(input$KMCluster_data == "r2 fitted curves curated data"){
+      cat("KMC_data_type <- curve_data")
+      cat("\n")
+    }
+    if(input$KMCluster_data == "r2 fitted curves curated data with missing values removed"){
+      cat("KMC_data_type <- curve_data_nona")
+      cat("\n")
+    }
+    if(input$KMCluster_data == "outliers removed data"){
+      cat("KMC_data_type <- no_outl_data")
+      cat("\n")
+    }
+    
+    
+    cat("#Prepare Data")
+    cat("\n")
+    cat("# K means will not take missing data, so either use 'na.omit' or impute data. For simplification purposes we use 'na.omit'")
+    cat("\n")
+    cat("KMC_data_type <- na.omit(KMC_data_type) # listwise deletion of missing data")
+    cat("\n")
+    
+    if(input$KMC_use_means == T){
+      cat("# If you have multiple replicates and have cleaned your data from outliers, you can calculate k means clustering using the means. To obtain a new data frame with means, use the following code:")
+      cat("\n")
+      cat("library(doBy)")
+      cat("\n")
+      cat("KMC_data_type <- subset(KMC_data_type, 
+          select=c('", paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$SelectDV, sep="', '"), "')")
+      cat("\n")
+      cat("genotype<-c('",input$SelectGeno,"')")
+      cat("\n")
+      cat("KMC_data <- summaryBy(list(c('",input$SelectDV,"'),c('" ,paste(input$SelectGeno, input$SelectIV, input$SelectTime, sep="', '"),"')), data=KMC_data, id=c('",input$SelectID,"'),FUN=mean)")
+      cat("\n")     
+    }
+    
+    if(input$KMC_use_means == F){
+      
+      cat("KMC_data <- subset(KMC_data_type, select=c('",paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$SelectDV, sep="', '"),"'))")
+      cat("\n")          
+    }
+    
+    
+    #KMC_data_for_matrix <- reactive({
+    #  object <- KMC_data()
+    
+    if(input$KMC_subset_Q == T){
+      cat("KMC_data$split <- KMC_data[,'",input$KMC_trait_sub,"']")
+      cat("\n")
+      cat("the_one <- '",input$KMC_trait_sub_spec,"'")
+      cat("\n")
+      cat("KMC_data <- subset(KMC_data, KMC_data$split == the_one)")
+      cat("\n")
+    }
+    
+    if(input$KMC_use_means == T){
+      
+      cat("pheno<-paste('",input$KMC_pheno,"','mean', sep = '.')")
+      cat("\n")
+      cat("sel <- subset(KMC_data, select=c('",paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,pheno, sep="', '"),"'))")
+      cat("\n")
+    }
+    
+    if(input$KMC_use_means == F){
+      
+      cat("sel <- subset(KMC_data, select=c('",paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,input$KMC_pheno, sep="', '"),"'))")
+      cat("\n")
+      
+    }
+    cat("#To move only the numerical data into a new matrix:")
+    cat("\n")
+    cat("beginCol <-
+        length(c('",paste(input$SelectIV,
+                          input$SelectGeno,
+                          input$SelectTime,
+                          input$SelectID, sep = "', '"),"')) + 1")
+    cat("\n")
+    
+    cat("endCol <- ncol(sel)")
+    cat("\n")
+    
+    cat("KMC_matrix <- sel[,(beginCol:endCol)]")
+    cat("\n") 
+    cat("KMC_matrix <- na.omit(KMC_matrix)")
+    cat("\n") 
+    
+    if(input$KMCluster_scale_Q == T){
+      cat("# When using variables with different units of measurement, it is highly recommendable to scale your data prior to analysis.")
+      cat("\n")
+      cat("KMC_matrix <- scale(KMC_matrix) # standardize variables")
+      cat("\n")     
+    }   
+    
+    cat("\n")
+    cat("\n")
+    cat("# Determine the number of optimal clusters using elbow method")
+    cat("\n")
+    cat("fviz_nbclust(KMC_matrix, kmeans, method = 'wss') +")
     cat("\n")
     cat("geom_vline(xintercept = 4, linetype = 2)+")
     cat("\n")
     cat("labs(title = 'Elbow method')")
     cat("\n")
+    cat("\n")
     cat("# Silhouette method")
     cat("\n")
-    cat("fviz_nbclust(mydata, kmeans, method = 'silhouette')+")
+    cat("fviz_nbclust(KMC_matrix, kmeans, method = 'silhouette')+")
     cat("\n")
     cat("labs(title = 'Silhouette method')")
     cat("\n")
+    cat("\n")
     cat("#Majority of 30 indices")
     cat("\n")
-    cat("nb <- NbClust(mydata, distance = 'euclidean', min.nc = 2,
+    cat("nb <- NbClust(KMC_matrix, distance = 'euclidean', min.nc = 2,
         max.nc = 10, method = 'kmeans')")
     cat("\n")
     cat("fviz_nbclust(nb)")
-    
-    cat("\n")
     
   })
   
@@ -10633,13 +10748,14 @@ cat("\n")
     cat("\n")
     cat("listIV<-c('", paste(input$SelectGeno, input$SelectIV, input$SelectTime, sep="', '"), "')")
     cat("\n")
+    
+    if(input$KMC_split_barplot == T){
     cat("facet<-'",input$facet_KMC_barplot,"'")
     cat("\n")
     cat("listNonSel<-setdiff(listIV,facet)")
+    cat("\n") 
+    cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listNonSel)], sep='_'))")
     cat("\n")
-    if(input$KMC_split_barplot == T){
-      cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listNonSel)], sep='_'))")
-      cat("\n")
     }
     if(input$KMC_split_barplot == F){
       cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listIV)], sep='_'))")
@@ -10915,13 +11031,14 @@ cat("\n")
     
     cat("listIV<-c('", paste(input$SelectGeno, input$SelectIV, input$SelectTime, sep="', '"), "')")
     cat("\n")
+    
+    if(input$KMC_split_scatterplot == T){
     cat("facet<-'",input$facet_KMC_plot,"'")
     cat("\n")
     cat("listNonSel<-setdiff(listIV,facet)")
     cat("\n")
-    if(input$KMC_split_scatterplot == T){
-      cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listNonSel)], sep='_'))")
-      cat("\n")
+    cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listNonSel)], sep='_'))")
+    cat("\n")
     }
     if(input$KMC_split_scatterplot == F){
       cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listIV)], sep='_'))")
