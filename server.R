@@ -1,4 +1,4 @@
-function(input, output) {
+function(input, output, session) {
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - >> DATA UPLOAD IN 2nd TAB<< - - - - - - - - - - - -
@@ -20,7 +20,7 @@ function(input, output) {
     } else
       tagList(
         selectizeInput(
-          inputId = "SelectGeno",
+          inputId = "SelectGeno",  
           label = "Select column containing Genotype information",
           choices = ItemList(),
           multiple = F
@@ -72,7 +72,7 @@ function(input, output) {
       )
   })
   
-  # Select collumn(s) containing spatial information:
+  # Select column(s) containing spatial information:
   output$SpatialID <- renderUI({
     if ((is.null(ItemList())) | (input$SpatialCheck == FALSE)) {
       return ()
@@ -107,6 +107,16 @@ function(input, output) {
   
   # Table in the Tab2 - main window - uploaded file overview
   output$Data_tabl <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
+    
     if (is.null(input$your_data)) {
       return(NULL)
     } else{
@@ -171,6 +181,15 @@ function(input, output) {
   })
   
   output$my_data <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     my_data()
   })
   
@@ -208,12 +227,12 @@ function(input, output) {
     cat("my_data <- read.csv('your data.csv')")
     cat("\n")
     cat("\n")
-    cat("# Show first few collumns:")
+    cat("# Show first few columns:")
     cat("\n")
     cat("head(my_data)")
     cat("\n")
     cat("\n")
-    cat("# Show last few collumns:")
+    cat("# Show last few columns:")
     cat("\n")
     cat("tail(my_data)")
     cat("\n")
@@ -416,6 +435,16 @@ function(input, output) {
   })
   
   output$var_viz_graph_real <- renderPlot({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     benc_data <- VarViz()
     x_lab <- input$SpatialX
     y_lab <- input$SpatialY
@@ -431,6 +460,43 @@ function(input, output) {
       verbatimTextOutput("R_spatial")
     }
   })
+  
+  
+  output$var_viz_download <- renderUI({  
+  if(is.null(VarViz())){
+    return()}
+  else
+    downloadButton("Download_spatial", label="Download plot")
+})
+  
+  output$Download_spatial <- downloadHandler(
+      filename = function(){paste("Spatial variation of", input$SpatialPheno, " MVApp.pdf") },
+      content <- function(file){
+        pdf(file)
+        
+        benc_data <- VarViz()
+        x_lab <- input$SpatialX
+        y_lab <- input$SpatialY
+        becki <- qplot(data = benc_data, Var_1, Var_2, fill=resp, geom="tile", ylab=y_lab, xlab=x_lab)
+        print(becki)
+        dev.off()
+        })
+
+  output$Spatial_warning <- renderUI({
+    if(input$SpatialCheck == F){
+      verbatimTextOutput("Spatial_warning_message")}
+    else
+      return()
+  })
+  
+  output$Spatial_warning_message <- renderPrint({
+    cat("WARNING!")
+    cat("\n")
+    cat("\n")
+    cat("You did not select a column containing spatial information element - therefore analysis of spatial variation is not possible.")
+    cat("\n")
+    cat("To perform spatial analysis - please go back to >>Upload your data<< tab to select columns containing spatial information") 
+    })
   
   
   output$R_spatial <- renderPrint({
@@ -461,7 +527,7 @@ function(input, output) {
     cat("resp <- '", input$SpatialPheno,"'")
     cat("\n")
     cat("\n")
-    cat("# Add the specific collumns to your data conta containing your Spatial Variable Import the two spatial variables and response as R objects (especially if you use more than one spatial variable):")
+    cat("# Add the specific columns to your data conta containing your Spatial Variable Import the two spatial variables and response as R objects (especially if you use more than one spatial variable):")
     cat("\n")
     if(length(input$SpatialX) > 1){
       cat("# First we make a temporary object where we store all Variables to be used as X:")
@@ -763,6 +829,15 @@ function(input, output) {
   })
   
   output$Model_estimation <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     test <- Model_est_data()
     for(i in 1:ncol(test)){
       if (class(test[,i]) == "numeric"){
@@ -909,7 +984,9 @@ function(input, output) {
       frajka_boom <- subset(frajka, select=c("r_squared"))
       frajka_boom <- subset(frajka_boom, frajka_boom$r_squared < input$rsq_limit)                      
       how_much <- nrow(frajka_boom)
-      
+      cat("WARNING!")
+      cat("\n")
+      cat("\n")
       cat(paste("There are ", how_much, " samples with r-square value below r2 of ", input$rsq_limit))
       cat("\n")
       cat("You should consider checking those samples using fit-plots and even going back to your original data.")
@@ -929,7 +1006,7 @@ function(input, output) {
   output$R_model_calc <- renderPrint({
     cat("# The code to use in R:")
     cat("\n")
-    cat("# Let's make a dataset containing only the collumns that are relevant to modeling of the selected trait:")
+    cat("# Let's make a dataset containing only the columns that are relevant to modeling of the selected trait:")
     cat("\n")
     cat("temp <- subset(my_data, select=c( '", input$ModelIV,"','", input$ModelSubIV, "','", input$SelectID, "','", input$SelectTime, "','", input$ModelPheno,"')")
     cat("\n")
@@ -979,7 +1056,7 @@ function(input, output) {
     cat("things_to_model[i, 6] <- summary(fit_lin)$r.squared")
     cat("\n")   
     cat("\n")   
-    cat("# And re-name the collumns into more informative variables:")
+    cat("# And re-name the columns into more informative variables:")
     cat("\n")   
     cat("colnames(things_to_model)[4] <- 'DELTA'")
     cat("\n")   
@@ -1007,7 +1084,7 @@ function(input, output) {
     cat("\n")
     cat("things_to_model[i, 6] <- summary(fit_quad)$r.squared")
     cat("\n")
-    cat("# And re-name the collumns into more informative variables:")
+    cat("# And re-name the columns into more informative variables:")
     cat("\n")   
     cat("colnames(things_to_model)[4] <- 'DELTA'")
     cat("\n")   
@@ -1031,7 +1108,7 @@ function(input, output) {
         cat("\n")
         cat("things_to_model[i, 6] <- summary(fit_exp)$r.squared")
         cat("\n")
-        cat("# And re-name the collumns into more informative variables:")
+        cat("# And re-name the columns into more informative variables:")
         cat("\n")   
         cat("colnames(things_to_model)[4] <- 'DELTA'")
         cat("\n")   
@@ -1059,7 +1136,7 @@ function(input, output) {
         cat("\n")
         cat("things_to_model[i, 6] <- summary(fit_sq)$r.squared")
         cat("\n")
-        cat("# And re-name the collumns into more informative variables:")
+        cat("# And re-name the columns into more informative variables:")
         cat("\n")   
         cat("colnames(things_to_model)[4] <- 'DELTA'")
         cat("\n")   
@@ -1092,7 +1169,7 @@ function(input, output) {
         cat("# And the model fit:")
         cat("things_to_model[i,(4+length(fit_cub$coef))] <- summary(fit_cub)$r.squared")
         cat("\n")
-        cat("# And re-name the collumns into more informative variables:")
+        cat("# And re-name the columns into more informative variables:")
         cat("\n")   
         cat("colnames(things_to_model)[4] <- 'INTERCEPT'")
         cat("\n")   
@@ -1151,7 +1228,7 @@ function(input, output) {
         cat("\n")
         cat("colnames(things_to_model)[5 + e] <- 'df'")
         cat("\n")
-        cat("# And re-name the collumns into more informative variables:")
+        cat("# And re-name the columns into more informative variables:")
         cat("\n")
         cat("super_temp$predict  ")
         cat("\n")
@@ -1190,6 +1267,15 @@ function(input, output) {
   })
   
   output$Good_r2_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     if(is.null(Model_temp_data())){
       return(NULL)
     }
@@ -1215,6 +1301,15 @@ function(input, output) {
   
   
   output$Model_data <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     test <- Model_temp_data()
     for(i in 1:ncol(test)){
       if (class(test[,i]) == "numeric"){
@@ -1529,6 +1624,17 @@ function(input, output) {
   })
   
   output$Fit_plot_only_graph <- renderPlot({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
+    
     if(input$Select_model_type_plot == "single plot"){
       Model_plot_single()
     }
@@ -1549,7 +1655,7 @@ function(input, output) {
   output$R_model_fitplot <- renderPrint({
     cat("# The code to use in R:")
     cat("\n")
-    cat("# Let's make a dataset containing only the collumns that are relevant to modeling of the selected trait:")
+    cat("# Let's make a dataset containing only the columns that are relevant to modeling of the selected trait:")
     cat("\n")
     cat("model_data <- subset(my_data, select=c( '", input$ModelIV,"','", input$ModelSubIV, "','", input$SelectID, "','", input$SelectTime, "','", input$ModelPheno,"')")
     cat("\n")
@@ -2001,12 +2107,35 @@ function(input, output) {
     }
   )
   
+  output$Model_warning_message <- renderUI({
+    if(input$TimeCheck == F){
+     return(verbatimTextOutput("Fit_warning_message"))}
+    if(input$IdCheck == F){
+      return(verbatimTextOutput("Fit_warning_message"))}
+    else
+      return()
+    })
+  
   output$Model_download_button <- renderUI({
     if(is.null(Model_temp_data())){
       return()}
     else
       downloadButton("Download_model_data", label="Download modelled data")
   })  
+  
+  output$Fit_warning_message <- renderPrint({
+    cat("WARNING!")
+    cat("\n")
+    cat("\n")
+    cat("You did not select a column containing the time/gradient information element and/or sample ID - therefore fitting curves is not possible.")
+    cat("\n")
+    cat("\n")
+    cat("To fit the curves - please go back to >>Upload your data<< tab to select columns containing:") 
+    cat("\n")
+    cat("1. Numeric time / gradient information element")
+    cat("\n")
+    cat("2. Sample ID element")
+  })
   
   output$Download_model_data <- downloadHandler(
     filename = function(){paste("Modelled ",input$ModelPheno, "estimated using", input$model, "(", input$spline_df, ") MVApp.csv") },
@@ -2272,6 +2401,15 @@ function(input, output) {
   })
   
   output$model_comparison_summary <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     temp <- Model_temp_data()
     temp[,input$SelectID] <- NULL
     temp_melt <- melt(temp, id=c(input$ModelIV, input$ModelSubIV))
@@ -2739,6 +2877,16 @@ function(input, output) {
   
   
   output$model_comparison_plotski <- renderPlotly({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     MCP()
   })
   
@@ -3492,7 +3640,7 @@ function(input, output) {
     if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
       cat("use_this <- curve_data_nona")}
     cat("\n")
-    cat("# Then let's make one collumn containing the sample ID for which you want to group:\n")
+    cat("# Then let's make one column containing the sample ID for which you want to group:\n")
     cat("# For example genotype, treatment and day, but not SampleID")
     cat("\n")
     cat("use_this$id_test <- do.call(paste,c(use_this[c('", paste(input$IV_outliers, sep="','"), "')], sep = '_'))")
@@ -3584,7 +3732,7 @@ function(input, output) {
         cat("    use_this$outlier[e] <- FALSE}}")
         cat("\n")
         cat("\n")
-        cat("# Drop the collumns you dont need anymore")
+        cat("# Drop the columns you dont need anymore")
         cat("\n")
         cat("drops <- c('min', 'max')")
         cat("\n")
@@ -3621,7 +3769,7 @@ function(input, output) {
           cat("    use_this$outlier[e] <- FALSE}}")
           cat("\n")
           cat("\n")
-          cat("# Drop the collumns you dont need anymore")
+          cat("# Drop the columns you dont need anymore")
           cat("\n")
           cat("drops <- c('min', 'max')")
           cat("\n")
@@ -3658,7 +3806,7 @@ function(input, output) {
           cat("    use_this$outlier[e] <- FALSE}}")
           cat("\n")
           cat("\n")
-          cat("# Drop the collumns you dont need anymore")
+          cat("# Drop the columns you dont need anymore")
           cat("\n")
           cat("drops <- c('min', 'max')")
           cat("\n")
@@ -3695,7 +3843,7 @@ function(input, output) {
           cat("    use_this$outlier[e] <- FALSE}}")
           cat("\n")
           cat("\n")
-          cat("# Drop the collumns you dont need anymore")
+          cat("# Drop the columns you dont need anymore")
           cat("\n")
           cat("drops <- c('min', 'max')")
           cat("\n")
@@ -3721,7 +3869,7 @@ function(input, output) {
     cat("data_outliers_highlight <- use_this[, !(names(use_this) %in% dropski)]")
     cat("\n")
     cat("\n")
-    cat("# finally - make one collumn where you add all the traits identified as outliers for specific sample")
+    cat("# finally - make one column where you add all the traits identified as outliers for specific sample")
     cat("\n")
     cat("  for(x in 1:nrow(use_this)){")
     cat("\n")
@@ -3835,6 +3983,16 @@ cat("\n")
   
   # Table with outliers marked out
   output$Outlier_overview_table <- renderDataTable({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     test <- Outliers_final_data()
     for(i in 1:ncol(test)){
       if (class(test[,i]) == "numeric"){
@@ -4047,6 +4205,16 @@ cat("\n")
   
   # Table without the outliers
   output$Outlier_free_table <- renderDataTable({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     test <- Outlier_free_data()
     for(i in 1:ncol(test)){
       if (class(test[,i]) == "numeric"){
@@ -4069,6 +4237,16 @@ cat("\n")
     
     
   output$Outlier_table_only_if <- renderDataTable({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     test <- Outlier_only_data()
     for(i in 1:ncol(test)){
       if (class(test[,i]) == "numeric"){
@@ -4317,12 +4495,37 @@ cat("\n")
     taka
   })
   
+  
+  output$outlier_graph_UI <- renderUI({
+    if(is.null(input$DV_graph_outliers)){
+      return(verbatimTextOutput("outliers_message"))
+    }
+    else
+      plotlyOutput("outlier_graph")
+  })
+  
+  output$outliers_message <- renderPrint({
+    cat("You did not yet select a phenotype to be displayed in the graph.")
+    cat("\n")
+    cat("Please select the phenotype to plot from the >>Tweak the graphs<< menu to view the plot.")
+  })
+  
   output$outlier_graph <- renderPlotly({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     OutG()
   })
   
   output$downl_plot_OutlPlot_ui <- renderUI({
-    if(is.null(OutG())){
+    if(is.null(input$DV_graph_outliers)){
       return()
     }
     else
@@ -4583,6 +4786,34 @@ cat("\n")
     jaka
   })
   
+  output$no_outlier_graph_UI <- renderUI({
+    if(is.null(input$DV_graph_outliers)){
+      return(verbatimTextOutput("outliers_message2"))
+    }
+    else
+      plotlyOutput("no_outliers_graph")
+  })
+  
+  output$outliers_message2 <- renderPrint({
+    cat("You did not yet select a phenotype to be displayed in the graph.")
+    cat("\n")
+    cat("Please select the phenotype to plot from the >>Tweak the graphs<< menu to view the plot.")
+  })
+  
+  output$no_outliers_graph <- renderPlotly({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
+    NoOutG()
+  })
+  
   # # # # # R-Snipets to do # # # # # 
   output$R_out_n_graph_ui <- renderUI({
     if(input$R_out_n_graph_chk == F){
@@ -4661,16 +4892,14 @@ cat("\n")
   })
   
   output$downl_plot_NoOutlPlot_ui <- renderUI({
-    if(is.null(NoOutG())){
+    if(is.null(input$DV_graph_outliers)){
       return()
     }
     else
       downloadButton("downl_no_outliers_graph", "Download plot")    
   })
   
-  output$no_outliers_graph <- renderPlotly({
-    NoOutG()
-  })
+ 
   
   output$downl_no_outliers_graph <- downloadHandler(
     filename = function(){paste("Plot with outliers excluded based on ",input$Out_pheno_single_multi,"(", input$DV_outliers ,"), identified with", input$outlier_method, "MVApp.pdf")},
@@ -4728,7 +4957,7 @@ cat("\n")
                  Sum = function(x) sum(x),
                  No.samples = function(x) length(x))
   
-  sum_data <- eventReactive(input$Go_SummaryStat, {
+  sum_data_reactive <- eventReactive(input$Go_SummaryStat, {
     if(input$SelectDataSumm == "raw data"){
       melted_icecream <- my_data()
       drops <-input$SelectID
@@ -4773,9 +5002,6 @@ cat("\n")
       melted_icecream <- melt(melted_icecream, id=c(input$SelectGeno, input$SelectIV, input$SelectTime))
     }
     
-    # TO DO:
-    # we need to get rid of the SelectID column before doing any Summary Stat on the data <3<3<3 MMJ <3<3<3
-    
     ## Added call to selected summary stats functions "FUN=summfuns[input$SelectSumm]"     %% Mitch %%
     sum_my_data<-summaryBy(value ~., data=melted_icecream, FUN=summfuns[input$SelectSumm])
     
@@ -4797,18 +5023,27 @@ cat("\n")
     cat("\n")
   })
   
-  output$sum_data <- renderDataTable({
-    test <- sum_data()
+  output$Sum_data_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
+    test <- sum_data_reactive()
     for(i in 1:ncol(test)){
       if (class(test[,i]) == "numeric"){
-        test[,i] <- round(test[,i], digits = 4)
-      }
+        test[,i] <- round(test[,i], digits = 4)}
     }
+    
     test
   })
   
   output$Sum_download_button <- renderUI({
-    if(is.null(sum_data())){
+    if(is.null(sum_data_reactive())){
       return()}
     else
       downloadButton("data_sum", label="Download summary statistics data")
@@ -4817,7 +5052,7 @@ cat("\n")
   output$data_sum <- downloadHandler(
     filename = function(){paste("Summary statistics using ", input$SelectDataSum, " with ", input$SelectSum ,"calculated MVApp.csv")},
     content <- function(file) {
-      write.csv(sum_data(), file)}
+      write.csv(sum_data_reactive(), file)}
   )
   
   
@@ -4907,22 +5142,7 @@ cat("\n")
   })
   
   
-  ###to choose the method to correct for multiple testing
-  #output$Chosenmultipletest <- renderUI({
-  # if ((input$Go_Data == FALSE)) {
-  #  return ()
-  #} else
-  # tagList(
-  #  selectizeInput(
-  #   inputId = "Chosenmultipletesting",
-  #  label = "Select the method to correct p-values for multiple testing",
-  # choices = c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"),
-  #selected = "bonferroni",
-  #multiple = F
-  #)
-  #)
-  #})
-  
+ 
   output$Plotfacets <- renderUI({
     if(is.null(ItemList())){
       return()
@@ -4956,10 +5176,6 @@ cat("\n")
         )
       )
   })
-  
-  
-  
- 
   
   output$Plotsubs <- renderUI({
     if(is.null(ItemList())){
@@ -5008,8 +5224,6 @@ cat("\n")
     if(input$plot_facet ==T){
       my_his_data$facetIV<-my_his_data[,3]
     }
-    
-    
   
     if(input$plot_facet ==T){
         if (input$HistType == "Histogram with counts on y-axis") {
@@ -5020,7 +5234,6 @@ cat("\n")
           fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
           fit <- fit + facet_wrap(~facetIV)}
         }
-      
 
     if(input$plot_facet ==F){
         if (input$HistType == "Histogram with counts on y-axis") {
@@ -5058,6 +5271,15 @@ cat("\n")
   
   
   output$HistPlot <- renderPlotly({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     HistoPl()
   })
   
@@ -5317,6 +5539,15 @@ cat("\n")
   
   
   output$QQplot <- renderPlot({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     if(input$showShapirotest==T){
       my_shapiro_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice, input$subsetdata_choice)]
       my_shapiro_data[,input$HisDV] <- as.numeric(as.character(my_shapiro_data[,input$HisDV]))
@@ -5754,6 +5985,15 @@ cat("\n")
   
   output$Var_graph <- renderPlot({
     
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice,input$subsetdata_choiceVar)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
     my_his_data[,2]<-as.factor(my_his_data[,2])
@@ -6091,6 +6331,15 @@ cat("\n")
     })  
   
   output$OT_graph <- renderPlotly({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     if(is.null(OTG())){
       return(NULL)
     }
@@ -6463,6 +6712,15 @@ cat("\n")
     })  
   
   output$Boxes <- renderPlotly({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     BoxANOVA()})
   
   
@@ -6647,6 +6905,15 @@ cat("\n")
   
   
   output$TW_ANOVA_interaction_plot <- renderPlot({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     if(is.null(TW_ANOVA())){
       return()}
     else
@@ -6753,6 +7020,15 @@ cat("\n")
   })
   
   output$TW_ANOVA_QQ_plot <- renderPlot({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
       mydata <- Histo_data_type()
       
       if(input$plot_sub_TWANOVA==T){
@@ -7040,6 +7316,15 @@ cat("\n")
   })
   
   output$corrplot <- renderPlot({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     COR_BIG()
   })
   
@@ -7130,25 +7415,19 @@ cat("\n")
       dev.off()
     })  
   
-  ################ cor_table output###################
-  
-  # output$cor_lineplot <- renderPlot({
-  #   df <- cor_data_type()
-  #   
-  #   make_cor_by_iv <- function(df, iv, dv) {
-  #     vals <- df[iv] %>% unique()
-  #     lst <- lapply(vals, function(x) {
-  #       df %>% filter() select(dv)
-  #     })
-  #   }
-  #   df %>% group_by(input$CorIV_sub) %>% select(input$SelectDV) %>% cor()
-  #   
-  # })
-  
   
   ################# correlation table display #################
   
   output$cor_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     req(input$Select_cor_phenos)
     
     df<- subset(cor_data_type(),select= input$Select_cor_phenos)
@@ -7460,6 +7739,14 @@ cat("\n")
   
   
   output$scatterplot <- renderPlotly({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     scatter_cor()
   })
   
@@ -7642,6 +7929,15 @@ cat("\n")
   })
   
   output$PCA_raw_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     PCA_data_type()
   })
   
@@ -7732,6 +8028,15 @@ cat("\n")
   })
   
   output$PCA_final_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     PCA_final_data()
   })
   
@@ -7743,6 +8048,16 @@ cat("\n")
   })
   
   output$PCA_eigen_plot <- renderPlot({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     eigenvalues <- PCA_eigen_data()
     barplot(eigenvalues[, 2], names.arg=1:nrow(eigenvalues), 
             main = "Variances",
@@ -7860,6 +8175,15 @@ cat("\n")
   )
   
   output$Eigen_data_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     our_table <- PCA_eigen_data()
     for(i in 1:ncol(our_table)){
       if(class(our_table[,i]) == "numeric"){
@@ -7903,6 +8227,15 @@ cat("\n")
   })
   
   output$PCA_contribution_plot <- renderPlot({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     PCA_ready <- PCA_final_data()
     res.pca <- PCA(PCA_ready, graph = FALSE)
     mid=median(res.pca$var$contrib)
@@ -8020,6 +8353,16 @@ cat("\n")
   })
   
   output$Contrib_trait_plot <- renderPlot({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     PCA_ready <- PCA_final_data()
     res.pca <- PCA(PCA_ready, graph = FALSE)
     fviz_contrib(res.pca, choice = 'var', axes = c(as.numeric(input$Which_PC_contrib)), xtickslab.rt = 90)
@@ -8126,6 +8469,15 @@ cat("\n")
   })
   
   output$PCA_contribution_var <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     PCA_contrib_var()
     our_table <- PCA_contrib_var()
     
@@ -8194,6 +8546,16 @@ cat("\n")
   })
   
   output$PCA_coordinates_ind <- renderDataTable({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     PCA_coord_ind()
     our_table <- PCA_coord_ind()
     
@@ -8232,6 +8594,15 @@ cat("\n")
   )
   
   output$PCA_scatterplot <- renderPlotly({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     la_table <- PCA_coord_ind()
     PC_x_axis <- paste('Dim', input$Which_PC1)
     PC_y_axis <- paste('Dim', input$Which_PC2)  
@@ -8367,6 +8738,16 @@ cat("\n")
   })
   
   output$MDS_raw_table <- renderDataTable({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     MDS_data_type()
   })
   
@@ -8470,6 +8851,16 @@ cat("\n")
   })
   
   output$MDS_final_table <- renderDataTable({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     MDS_final_data()
   })
   
@@ -8503,6 +8894,16 @@ cat("\n")
   })
   
   output$MDS_sample_graph <- renderPlotly({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     data <- MDS_Calculations()
     
     if(input$MDS_KMC_Q == T){
@@ -8620,6 +9021,16 @@ cat("\n")
   })
   
   output$MDS_table_samples  <- renderDataTable({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     data <- MDS_Calculations()
     
     for(i in 1:ncol(data)){
@@ -8677,6 +9088,16 @@ cat("\n")
   })
   
   output$MDS_sample_table_transposed_dt <- renderDataTable({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     data <- MDS_Calculations_transposed()
     
     if(input$MDS_KMC_Q == T){
@@ -8726,6 +9147,15 @@ cat("\n")
   )
   
   output$MDS_sample_graph_transposed <- renderPlot({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     data <- MDS_Calculations_transposed()
     
     if(input$MDS_KMC_Q == T){
@@ -8905,6 +9335,15 @@ cat("\n")
   
   
   output$Data_cluster_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     test <- Data_for_cluster()
     
     for(i in 1:ncol(test)){
@@ -8973,6 +9412,14 @@ cat("\n")
   })
   
   output$data_HClust_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
     Data_for_cluster()
   })
   
@@ -9025,6 +9472,15 @@ cat("\n")
   })
   
   output$Final_cluster_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     test <- Final_data_cluster()
     for(i in 1:ncol(test)){
       if (class(test[,i]) == "numeric"){
@@ -9049,6 +9505,15 @@ cat("\n")
   })
   
   output$ClusterTree <- renderPlot({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     Cluster_DENDRO()
   })
   
@@ -9180,6 +9645,15 @@ cat("\n")
   })
   
   output$HotHeatMap <- renderPlot({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     HHeatMap()
   })
   
@@ -9400,6 +9874,15 @@ cat("\n")
   
   
   output$Cluster_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     test <- Cluster_table_data()
     for(i in 1:ncol(test)){
       if (class(test[,i]) == "numeric"){
@@ -9572,6 +10055,15 @@ cat("\n")
   })
   
   output$HotANOVA <- renderPlot({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     HANOVA()
   })
   
@@ -9862,6 +10354,15 @@ cat("\n")
   
   
   output$KMC_data_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     if(is.null(KMC_data_type())){
       return()
     }
@@ -10012,6 +10513,15 @@ cat("\n")
   
   # = = = = == = = = = >> MAIN CALCULATIONS / DATA OUTPUT << = = =  
   output$KMCluster_test <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     KMC_data_table_for_matrix()
   })
   
@@ -10155,6 +10665,15 @@ cat("\n")
   # - - - - - - - >> ADVICE PLOTS << - - - - - - - - - 
   
   output$elbow_graph_KMC <- renderPlot({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     if(is.null(Optimal_cluster_number())){return()}
     else
       mydata <- KMC_data_for_matrix()
@@ -10206,6 +10725,16 @@ cat("\n")
   
   
   output$silhouette_graph_KMC <- renderPlot({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     if(is.null(Optimal_cluster_number())){return()}
     else
       mydata <- KMC_data_for_matrix()
@@ -10257,6 +10786,16 @@ cat("\n")
     })
   
   output$indices_plots_KMC_1 <- renderPlot({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     if(is.null(Optimal_cluster_number())){return()}
     else
       mydata <- KMC_data_for_matrix()
@@ -10309,6 +10848,16 @@ cat("\n")
     })
   
   output$indices_plots_KMC_2 <- renderPlot({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     if(is.null(Optimal_cluster_number())){return()}
     else
       mydata <- KMC_data_for_matrix()
@@ -10344,6 +10893,16 @@ cat("\n")
     })
   
   output$indices_plots_KMC_3 <- renderPlot({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     if(is.null(Optimal_cluster_number())){return()}
     else
       mydata <- KMC_data_for_matrix()
@@ -10559,6 +11118,16 @@ cat("\n")
   })
   
   output$KMC_test <- renderDataTable({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     test <- KMC_data_for_barplot()
     
     for(i in 1:ncol(test)){
@@ -10686,6 +11255,16 @@ cat("\n")
   })
   
   output$KMC_test1 <- renderDataTable({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     barplotData()
   })
   
@@ -10731,6 +11310,16 @@ cat("\n")
   })
   
   output$kmeans_barplots <- renderPlotly({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     plot <- kmeans_BP()
     plot
   })
@@ -11069,6 +11658,16 @@ cat("\n")
   
   
   output$kmeans_scatter_plot <- renderPlotly({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     plot <- kmeans_SCP()
     plot
   })
@@ -11294,6 +11893,16 @@ cat("\n")
   
   
   output$Heri_table <- renderDataTable({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     heritdata2<-Herit_data_type()
     
     if(input$herit_split == T){
@@ -11660,6 +12269,15 @@ cat("\n")
   })
   
   output$QA_raw_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     QA_data()
   })
   
@@ -11785,6 +12403,15 @@ cat("\n")
   
   
   output$QA_final_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     QA_final_data_display()
   })
   
@@ -12016,6 +12643,15 @@ cat("\n")
   })
   
   output$Result_table <- renderDataTable({
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Table calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     if(is.null(Calculate_table())){
       return()}
     else
@@ -12657,6 +13293,16 @@ cat("\n")
   
   ## plot output
   output$QA_plot <- renderPlot({
+    
+    progress <- Progress$new(session, min=1, max=15)
+    on.exit(progress$close())
+    
+    progress$set(message = 'Plot calculation in progress',
+                 detail = 'Please wait')
+    
+    for (i in 1:15) {
+      progress$set(value = i)}
+    
     if(input$model_type_plot == "single plot"){
       QA_plot_single()
     }
