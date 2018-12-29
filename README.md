@@ -43,34 +43,37 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 [1. DATA UPLOAD](#1-data-upload)
 
 
-[2. CURVE FITTING](#2-curve-fitting)
+[2. TESTING THE EFFECT OF SPATIAL VARIATION] (#2-testing-the-effect-of-spatial-variation)
 
 
-[3. OUTLIER SELECTION](#3-outlier-selection)
+[3. CURVE FITTING](#3-curve-fitting)
 
 
-[4. DATA EXPLORATION](#4-data-exploration)
+[4. OUTLIER SELECTION](#4-outlier-selection)
 
 
-[5. CORRELATIONS](#5-correlations)
+[5. DATA EXPLORATION](#5-data-exploration)
 
 
-[6. PRINCIPAL COMPONENT ANALYSIS](#6-principal-component-analysis)
+[6. CORRELATIONS](#6-correlations)
 
 
-[7. MULTIDIMENSIONAL SCALING](#7-multidimensional-scaling)
+[7. PRINCIPAL COMPONENT ANALYSIS](#7-principal-component-analysis)
 
 
-[8. HIERARCHICAL CLUSTER ANALYSIS](#8-hierarchical-cluster-analysis)
+[8. MULTIDIMENSIONAL SCALING](#8-multidimensional-scaling)
 
 
-[9. K-MEANS CLUSTER ANALYSIS](#9-k-means-cluster-analysis)
+[9. HIERARCHICAL CLUSTER ANALYSIS](#9-hierarchical-cluster-analysis)
 
 
-[10. HERITABILITY](#10-heritability)
+[10. K-MEANS CLUSTER ANALYSIS](#10-k-means-cluster-analysis)
 
 
-[11. QUANTILE REGRESSION](#11-quantile-regression)
+[11. HERITABILITY](#11-heritability)
+
+
+[12. QUANTILE REGRESSION](#12-quantile-regression)
 
 
 ### 1. DATA UPLOAD
@@ -115,7 +118,41 @@ View the newly uploaded dataset in "New Data" sub-tab:
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 2. CURVE FITTING
+### 2. TESTING THE EFFECT OF SPATIAL VARIATION
+
+### Why test spatial variation?
+
+Any environment where plants are grown is susceptible to spatial variation resulting in e.g. light, temperature and humidity gradients. These can affect the growth of the plants, and thus have an effect on the obtained results. While we encourage the experimental designs which will minimize the effect of spatial variation, we also allow to test the spatial variation effects on the individual data. 
+
+At the moment MVApp does not include specific models to correct for spatial variation, as these require advanced statistical insight and commercial R-packages which we cannot provide in a reliable way. Nevertheless, we are happy to recieve [contributions](https://github.com/mmjulkowska/MVApp/blob/master/CONTRIBUTING.md) from the community. 
+
+### Upload the spatial information into the MVApp
+
+In order to test the spatial effects, you need to include the collumns containing spatial information in the uploaded dataset. You can do it by selecting the box "Data contains information on spatial distribution of collected data?" and add more than one collumn containing spatial information:
+
+![spatial_dataupload](https://user-images.githubusercontent.com/14832460/50540946-932a3800-0b69-11e9-8b90-ff013b727dd2.png)
+
+### Examine the effect of spatial variation on individual phenotypes
+
+By navigating into the Spatial Variation tab, you can select the phenotype you want to examine and the spatial components of which the effect will be tested. Once you have selected everything, click on the button "Unleash spatial viz" to run the analysis. In the main panel, you will find the graph indicating the trait value across the spatial gradient for visual examination:
+
+![spatial_dataselect](https://user-images.githubusercontent.com/14832460/50540945-932a3800-0b69-11e9-9f0f-cb6282e0f1e4.png)
+
+When you scroll down, you will find the ANOVA results of the effect of the selected spatial components:
+
+![spatial_datatest](https://user-images.githubusercontent.com/14832460/50540944-9291a180-0b69-11e9-8666-d435e6b547b6.png)
+
+You can also perform the spatial variation analysis on multiple spatial components, by selecting more than one component into the "Spatial Variable" widnow. Please press "Unleash spatial viz" button to update the analysis:
+
+![spatial_multi_iv](https://user-images.githubusercontent.com/14832460/50540943-9291a180-0b69-11e9-9f15-4a552ae8cafe.png)
+
+If you collected data across multiple time points / treatments, and would like to perform spatial analysis separately for each time point, you can select "Subset the data?" checkbox and select the specific subset you would like to explore. Please press "Unleash spatial viz" button to update the analysis:
+
+![spatial_subset](https://user-images.githubusercontent.com/14832460/50540942-9291a180-0b69-11e9-8046-b8a8c4baa017.png)
+
+[GO BACK TO TABLE OF CONTENTS](#table-of-contents)
+
+### 3. CURVE FITTING
 
 ####  Why model your data?
 
@@ -248,7 +285,7 @@ Although the polynomial functions commonly have better fit than the simple funct
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 3. OUTLIER SELECTION
+### 4. OUTLIER SELECTION
 
 #### Why identify potential outliers?
 
@@ -356,7 +393,7 @@ Table containing all the calculations will appear in the main panel. You can dow
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 4. DATA EXPLORATION
+### 5. DATA EXPLORATION
 
 Once your data is nice and clean and ready to go, it is time to start having a proper look at it. A good place to start is to check out how your data is distributed using histograms and boxplots, grouping samples according to your various Independent Variables. From these you can get an idea of how your different genotypes are behaving, how your treatments are affecting your phenotypes, and how variable your data is. 
 
@@ -488,7 +525,7 @@ If you scroll down, you can see the residual plot of the two-way ANOVA shown abo
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 5. CORRELATIONS
+### 6. CORRELATIONS
 This tab is used to check whether and how strongly your selected dependent variables (phenotypes) are related by creating a correlation matrix of the selected variable pairs. Correlation coefficients and p-values are provided for each variable pair. 
 
 #### Select the dataset
@@ -568,7 +605,7 @@ The scatterplot is interactive, so you can select the specific subsets indicated
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 6. PRINCIPAL COMPONENT ANALYSIS
+### 7. PRINCIPAL COMPONENT ANALYSIS
 
 Principal component analysis [(PCA)](https://en.wikipedia.org/wiki/Principal_component_analysis) is often used to simplify data into fewer dimensions and to check which traits explain the majority of the variation found in the population studied. However, PCA is often not explored to its full potential. You can, for example, run PCA on data subsetted by an Independent Variable (e.g.: treatment or a specific timepoint) or run PCA separately on those subsets to see how much each of your Dependent Variables (traits) contribute to explaining the observed variation. MVApp allows you to do all this!
 
@@ -643,7 +680,7 @@ If you scroll down, you will find a table summarizing the contribution of the De
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 7. MULTIDIMENSIONAL SCALING
+### 8. MULTIDIMENSIONAL SCALING
 
 Multidimensional scaling [(MDS)](https://en.wikipedia.org/wiki/Multidimensional_scaling) is a multivariate data analysis approach that is used to visualize the similarity/dissimilarity between samples by plotting points in two dimensions. The input data for MDS is a dissimilarity matrix representing the distances among pairs of objects. MDS is mathematically and conceptually similar to PCA and factor analysis, but PCA is more focused on the dimensions themselves and seeks to identify the traits that explain the most variance, whereas MDS is more focused on the relationships found between the scaled objects.
 
@@ -693,7 +730,7 @@ In the sub-tab "Scaling of traits", you can find an MDS performed on the selecte
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 8. HIERARCHICAL CLUSTER ANALYSIS
+### 9. HIERARCHICAL CLUSTER ANALYSIS
 
 Hierarchical cluster analysis is an algorithmic approach to find discrete groups with varying degrees of (dis)similarity. The samples are hierarchically organised depending on the selected method and may be presented as a dendrogram. Hierarchical clustering is commonly used in discretising largely continuous ecological phenomena to aid structure detection and hypothesis generation. For example, if data were collected along a gradient, cluster analysis may help to identify distinct regions therein which may correspond to an ecologically meaningful grouping. Similarly, the hierarchical cluster analysis can be used in phenotype analysis from the experiment performed with and without stress, and group different genotypes into groups that show similar responses to stress conditions. 
 
@@ -756,7 +793,7 @@ You can view individual dependent variables by selecting them from a drop-down m
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 9. K-MEANS CLUSTER ANALYSIS
+### 10. K-MEANS CLUSTER ANALYSIS
 
 K-means clustering is often used to find groups a data set, when categories or groups in the data are unknown. The K-means algorithm assigns the individuals to a number of centroids, defined by the user. The Euclidean distance between the individual and the cluster mean is computed and the individual is assigned to the closest centroid, so that the samples within the same cluster (K) are as similar as possible. This analysis is useful to confirm user's hypotheses about the existance of possible groups or to detect unidentified groups in complex datasets.
 
@@ -829,7 +866,7 @@ Finally, in the sub-tab "K-means clustering data table" you can view the table a
 ![09_kmclust_15](https://user-images.githubusercontent.com/14832460/38468263-f2382594-3b4b-11e8-8db6-4f1272c9deea.png)
 
 
-### 10. HERITABILITY
+### 11. HERITABILITY
 
 Heritability is the proportion of the phenotypic variance that can be attributed to genetic variance. This statistic is important in the fields of genetics in order to assess if a trait is heritable (genetically controlled). MVapp allows you to calculate the [broad-sense heritability](https://www.ncbi.nlm.nih.gov/books/NBK21866/), which is the ratio of total genetic variance to total phenotypic variance. 
 
@@ -873,7 +910,7 @@ You can compare the heritability values between individual subset by changing th
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 11. QUANTILE REGRESSION
+### 12. QUANTILE REGRESSION
 
 [Quantile regression](https://en.wikipedia.org/wiki/Quantile_regression) is a way to estimate the conditional quantiles of a response variable distribution in the linear model that provides a complete view of possible causal relationships between variables. Quantile regression minimizes absolute errors and can provide a more comprehensive analysis of the effect of the predictors on the response variable than mean regression. Linear quantile regression is related to linear least-squares regression as both try to study the relationship between the predictor variables and the response variable, the only difference being that least-squares involves modeling the conditional mean of the response variable, whereas, quantile regression models the conditional quantile of response. It is especially useful in applications where extremes are important, such as environmental studies where upper quantiles of yield are critical.
 
