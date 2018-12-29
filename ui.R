@@ -71,6 +71,8 @@ fluidPage(
       icon = icon("table"),
       sidebarPanel(
         fluidRow(
+          "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#1-data-upload", target = "_blank"),
+          br(),br(),
           fileInput(
             "your_data",
             label = "Upload your file",
@@ -112,6 +114,8 @@ fluidPage(
   tabPanel("Spatial variation", icon = icon("map-signs"),
     sidebarPanel(
       fluidRow(
+        "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp", target = "_blank"),
+        br(),br(),
         uiOutput("Pheno_spatial"),
         uiOutput("Spatial_X"),
         uiOutput("Spatial_Y"),
@@ -149,10 +153,12 @@ fluidPage(
    tabPanel("Fitting curves to the data",icon = icon("wrench"),
             sidebarPanel(
               fluidRow(
+                "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#2-curve-fitting", target = "_blank"),
+                br(),br(),
                 uiOutput("Pheno_to_model"),
                 uiOutput("IV_to_model"),
                 uiOutput("IV_subset_model"),
-                actionButton("Go_HelpModel", label = "Unleash model estimation"),
+                actionButton("Go_HelpModel", label = "Unleash model estimation", icon = icon("question")),
                 selectInput("model",
                             label = "Select method for modeling",
                             choices = list(
@@ -240,7 +246,9 @@ fluidPage(
             sidebarPanel(
               fluidRow(
                 navbarPage("",
-                           tabPanel("Outlier selection",            
+                           tabPanel("Outlier selection", 
+                                    "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#3-outlier-selection", target = "_blank"),
+                                    br(),br(),
                                     selectizeInput("Outlier_on_data", label = "Use the following dataset for outlier selelction", 
                                                    choices =c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted and missing values removed data")),
                                     br(),
@@ -262,7 +270,7 @@ fluidPage(
                                     uiOutput("Pheno_outliers"),
                                     uiOutput("Outliers_selection_pheno"),
                                     br(),
-                                    actionButton("Go_outliers", label = "Unleash outlier highlighter")),
+                                    actionButton("Go_outliers", label = "Unleash outlier highlighter", icon = icon("play-circle"))),
                            
                            tabPanel("Tweak the graphs",
                                     uiOutput("Pheno_graph_outliers"),
@@ -342,6 +350,8 @@ tabPanel("Data exploration", icon=icon("binoculars"),
         tabPanel("Numerical data analysis",
          sidebarPanel(
            fluidRow(
+             "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#4-data-exploration", target = "_blank"),
+             br(),br(),
              uiOutput("Histo_Pheno_data"),
              uiOutput("HisIV"),
              uiOutput("HisDV"),
@@ -474,6 +484,8 @@ tabPanel("Correlations",
                       "Correlation Plot",
                       sidebarPanel(
                         wellPanel(
+                          "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#5-correlations", target = "_blank"),
+                          br(),br(),
                           uiOutput("cor_Pheno_data"),
                           # which data set to use (summarized / na / original) selectize, multiple = F
                           uiOutput("cor_phenos",lable = "Choose nummeric variables from your data for correlation analysis"),
@@ -544,6 +556,8 @@ tabPanel("Dimensionality reduction", icon = icon("object-group"),
                     tabPanel("Principle Component Analysis",
                              sidebarPanel(
                                fluidRow(
+                                 "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#6-principal-component-analysis", target = "_blank"),
+                                 br(),br(),
                                  uiOutput("PCA_Pheno_data"),
                                  uiOutput("PCA_Select_pheno"),
                                  checkboxInput("PCA_Scale_Q", "Scale the data?"),
@@ -608,6 +622,8 @@ tabPanel("Dimensionality reduction", icon = icon("object-group"),
                              sidebarPanel(
                                
                                fluidRow(
+                                 "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#7-multidimensional-scaling", target = "_blank"),
+                                 br(),br(),
                                  uiOutput("MDS_Pheno_data"),
                                  uiOutput("MDS_Select_pheno"), 
                                  checkboxInput("MDS_Scale_Q", "Scale the data?"),
@@ -617,7 +633,7 @@ tabPanel("Dimensionality reduction", icon = icon("object-group"),
                                  br(),
                                  checkboxInput("MDS_KMC_Q", label = "Cluster samples using k-means?"),
                                  uiOutput("MDS_KMC_number"),
-                                 actionButton("Go_MDS", label = "Unleash the power of MDS"))),
+                                 actionButton("Go_MDS", label = "Unleash the power of MDS", icon = icon("play-circle")))),
                              
                              mainPanel(
                                navbarPage("MDS",
@@ -656,17 +672,19 @@ tabPanel("Clustering", icon = icon("sitemap"),
       tabPanel("Hierarchical clustering", 
          
          sidebarPanel(
-                                 uiOutput("Select_data_cluster"),
-                                 uiOutput("Select_phenotypes_cluster"),
-                                 checkboxInput(inputId = "Hcluster_scale_Q", label = "Scale the data prior to clustering"),
-                                 checkboxInput("Cluster_pre_calc", label = "Perform cluster analysis on mean values?"),
-                                 checkboxInput("Cluster_subset_Q", label = "Subset the data?"),
-                                 uiOutput("Cluster_subset_trait"),
-                                 uiOutput("Cluster_subset_specific"),
-                                 uiOutput("Select_clustering_method"),
-                                 actionButton("Go_cluster", "Unleash cluster analysis"),
-                                 hr(),
-                                 numericInput("Split_cluster", "Separate clusters at:", value = 4)),
+           "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#8-hierarchical-cluster-analysis", target = "_blank"),
+           br(),br(),
+           uiOutput("Select_data_cluster"),
+           uiOutput("Select_phenotypes_cluster"),
+           checkboxInput(inputId = "Hcluster_scale_Q", label = "Scale the data prior to clustering"),
+           checkboxInput("Cluster_pre_calc", label = "Perform cluster analysis on mean values?"),
+           checkboxInput("Cluster_subset_Q", label = "Subset the data?"),
+           uiOutput("Cluster_subset_trait"),
+           uiOutput("Cluster_subset_specific"),
+           uiOutput("Select_clustering_method"),
+           actionButton("Go_cluster", "Unleash cluster analysis", icon = icon("play-circle")),
+           hr(),
+           numericInput("Split_cluster", "Separate clusters at:", value = 4)),
          mainPanel(
            navbarPage("Happy clustering",
                       tabPanel("Selected dataset",
@@ -710,6 +728,8 @@ tabPanel("Clustering", icon = icon("sitemap"),
            ))),
  tabPanel("K-means Clustering", icon = icon("barcode"),
                sidebarPanel(
+                 "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#9-k-means-cluster-analysis", target = "_blank"),
+                 br(),br(),
                  uiOutput("Select_data_K_mean_cluster"),
                  uiOutput("Select_DV_KMC"),
                  checkboxInput(inputId = "KMCluster_scale_Q", label = "Scale the data prior to clustering"),
@@ -719,12 +739,12 @@ tabPanel("Clustering", icon = icon("sitemap"),
                  uiOutput("KMC_subset_specific"),
                  #actionButton(inputId= "Select_data_KMC", label = "Set the dataset"),
                  br(),br(),
-                 actionButton(inputId="Go_KMClustering_advise", label = "Unleash optimal cluster number estimation"),
+                 actionButton(inputId="Go_KMClustering_advise", label = "Unleash optimal cluster number estimation", icon = icon("question")),
                  hr(),
                  uiOutput("Select_numer_of_cluster_to_perform"),
                  numericInput("kmclusters", "Cluster number", 3,
                               min = 1, max = 9),
-                 actionButton(inputId="Go_KMClustering", label = "Unleash k-means clustering")
+                 actionButton(inputId="Go_KMClustering", label = "Unleash k-means clustering", icon = icon("play-circle"))
                ),
                
                mainPanel(
@@ -738,6 +758,8 @@ tabPanel("Clustering", icon = icon("sitemap"),
                             
                             tabPanel("Optimal number of clusters",
                                      verbatimTextOutput("Yve_message"),
+                                     column(12,checkboxInput("R_Kclu_opt_chk", "Show me the code"),
+                                            uiOutput("R_Kclu_opt_ui")),
                                      uiOutput("downl_elbow_graph_KMC_ui"),
                                             plotOutput("elbow_graph_KMC"),
                                      hr(),
@@ -748,19 +770,8 @@ tabPanel("Clustering", icon = icon("sitemap"),
                                      hr(),
                                      column(12,checkboxInput("show_silhouette_legend", "Show the figure legend"),
                                             uiOutput("silhouette_legend_show")),
-                                     #plotOutput("gapstat_graph_KMC"),
-                                     # This worked with Yveline but isnt working now - dont know why - I ll hash it for now 
-                                     #h5("Hubert index ***", align = "center"),
-                                     #column(12,uiOutput("downl_indices_plots_KMC_1_ui"),
-                                     #       plotOutput("indices_plots_KMC_1")),
-                                     #h5("D index ***", align = "center"),
-                                     # column(12, uiOutput("downl_indices_plots_KMC_2_ui"),
-                                     #  plotOutput("indices_plots_KMC_2")),
                                      verbatimTextOutput("indices_majority_KMC"),
-                                     #dataTableOutput("KMCluster_test"),
                                      column(12,  uiOutput("downl_indices_plots_KMC_3_ui"),
-                                     column(12,checkboxInput("R_Kclu_opt_chk", "Show me the code"),
-                                                uiOutput("R_Kclu_opt_ui")),
                                             plotOutput("indices_plots_KMC_3")),
                                      hr(),
                                      column(12,checkboxInput("show_optimalK_legend", "Show the figure legend"),
@@ -777,8 +788,6 @@ tabPanel("Clustering", icon = icon("sitemap"),
                                      column(4, uiOutput("facet_barplot_of_KMC"),
                                             uiOutput("Select_KMC_facet_barplot")),
                                      column(4, uiOutput("Select_KMC_scale_barplot"),
-                                            #actionButton(inputId= "Show_table", label = "Show barplot table"),
-                                            #dataTableOutput("KMC_test1"),
                                             uiOutput("Select_KMC_background_barplot"),
                                             uiOutput("Select_KMC_grid_barplot")),
                                      column(12,uiOutput("downl_kmeans_barplots_ui")),
@@ -797,7 +806,6 @@ tabPanel("Clustering", icon = icon("sitemap"),
                                      column(4,uiOutput("Select_KMC_facet_scale"),
                                             uiOutput("Select_KMC_background_to_plot"),
                                             uiOutput("Select_KMC_grid_to_plot")),
-                                     #dataTableOutput("KMC_test2"),
                                      column(12, uiOutput("downl_kmeans_scatter_plot_ui"),
                                             checkboxInput("R_Kclu_scat_chk", "Show me the code"),
                                             uiOutput("R_Kclu_scat_ui")),
@@ -826,6 +834,8 @@ tabPanel("Heritability", icon=icon("pagelines"),
          
          sidebarPanel("",
                       fluidRow(
+                        "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#10-heritability", target = "_blank"),
+                        br(),br(),
                         uiOutput("Herit_Pheno_data"),
                         uiOutput("YearID"),
                         uiOutput("LocationID"),
@@ -852,6 +862,8 @@ tabPanel("Heritability", icon=icon("pagelines"),
 tabPanel("Quantile regression", icon = icon("paper-plane-o"),
          sidebarPanel(
            fluidRow(
+             "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#11-quantile-regression", target = "_blank"),
+             br(),br(),
              uiOutput("QA_data_type"),
              uiOutput("Pheno_Response"),
              uiOutput("QA_subset_trait"),
@@ -861,7 +873,7 @@ tabPanel("Quantile regression", icon = icon("paper-plane-o"),
              uiOutput("Quantile_sub_trait"),
              uiOutput("Quantile_sub_spec"),
              checkboxInput("Scale_QA", label = "Scale the data for quantile analysis?"),
-             actionButton("Go_data", label = "Unleash the power of Quantile Regression")
+             actionButton("Go_data", label = "Unleash the power of Quantile Regression", icon = icon("play-circle"))
            )), # end of sidebar panel
          mainPanel(
            navbarPage("Analyze it",
@@ -873,7 +885,6 @@ tabPanel("Quantile regression", icon = icon("paper-plane-o"),
                       ),
                       tabPanel("Modelled data", 
                                uiOutput("Choose_subset_specific"),
-                               #actionButton("Go_QA", label = "Unleash model estimation"),
                                verbatimTextOutput("significant_variables"),
                                uiOutput("table_download_button"),
                                checkboxInput("R_QR_table_chk", "Show me the code"),

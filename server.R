@@ -391,7 +391,7 @@ function(input, output, session) {
         (input$SpatialCheck == FALSE)) {
       return ()}
     else
-      actionButton("SpatialViz_Go", label = "Unleash spatial viz")
+      actionButton("SpatialViz_Go", label = "Unleash spatial viz", icon = icon("play-circle"))
   })
   
   
