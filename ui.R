@@ -114,7 +114,7 @@ fluidPage(
   tabPanel("Spatial variation", icon = icon("map-signs"),
     sidebarPanel(
       fluidRow(
-        "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp", target = "_blank"),
+        "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#2-spatial-variation", target = "_blank"),
         br(),br(),
         uiOutput("Pheno_spatial"),
         uiOutput("Spatial_X"),
@@ -153,7 +153,7 @@ fluidPage(
    tabPanel("Fitting curves to the data",icon = icon("wrench"),
             sidebarPanel(
               fluidRow(
-                "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#2-curve-fitting", target = "_blank"),
+                "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#3-curve-fitting", target = "_blank"),
                 br(),br(),
                 uiOutput("Pheno_to_model"),
                 uiOutput("IV_to_model"),
@@ -247,7 +247,7 @@ fluidPage(
               fluidRow(
                 navbarPage("",
                            tabPanel("Outlier selection", 
-                                    "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#3-outlier-selection", target = "_blank"),
+                                    "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#4-outlier-selection", target = "_blank"),
                                     br(),br(),
                                     selectizeInput("Outlier_on_data", label = "Use the following dataset for outlier selelction", 
                                                    choices =c("raw data", "r2 fitted curves curated data", "missing values removed data", "r2 fitted and missing values removed data")),
@@ -350,7 +350,7 @@ tabPanel("Data exploration", icon=icon("binoculars"),
         tabPanel("Numerical data analysis",
          sidebarPanel(
            fluidRow(
-             "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#4-data-exploration", target = "_blank"),
+             "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#5-data-exploration", target = "_blank"),
              br(),br(),
              uiOutput("Histo_Pheno_data"),
              uiOutput("HisIV"),
@@ -484,7 +484,7 @@ tabPanel("Correlations",
                       "Correlation Plot",
                       sidebarPanel(
                         wellPanel(
-                          "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#5-correlations", target = "_blank"),
+                          "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#6-correlations", target = "_blank"),
                           br(),br(),
                           uiOutput("cor_Pheno_data"),
                           # which data set to use (summarized / na / original) selectize, multiple = F
@@ -556,7 +556,7 @@ tabPanel("Dimensionality reduction", icon = icon("object-group"),
                     tabPanel("Principle Component Analysis",
                              sidebarPanel(
                                fluidRow(
-                                 "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#6-principal-component-analysis", target = "_blank"),
+                                 "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#7-principal-component-analysis", target = "_blank"),
                                  br(),br(),
                                  uiOutput("PCA_Pheno_data"),
                                  uiOutput("PCA_Select_pheno"),
@@ -622,7 +622,7 @@ tabPanel("Dimensionality reduction", icon = icon("object-group"),
                              sidebarPanel(
                                
                                fluidRow(
-                                 "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#7-multidimensional-scaling", target = "_blank"),
+                                 "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#8-multidimensional-scaling", target = "_blank"),
                                  br(),br(),
                                  uiOutput("MDS_Pheno_data"),
                                  uiOutput("MDS_Select_pheno"), 
@@ -672,7 +672,7 @@ tabPanel("Clustering", icon = icon("sitemap"),
       tabPanel("Hierarchical clustering", 
          
          sidebarPanel(
-           "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#8-hierarchical-cluster-analysis", target = "_blank"),
+           "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#9-hierarchical-cluster-analysis", target = "_blank"),
            br(),br(),
            uiOutput("Select_data_cluster"),
            uiOutput("Select_phenotypes_cluster"),
@@ -728,7 +728,7 @@ tabPanel("Clustering", icon = icon("sitemap"),
            ))),
  tabPanel("K-means Clustering", icon = icon("barcode"),
                sidebarPanel(
-                 "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#9-k-means-cluster-analysis", target = "_blank"),
+                 "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#10-k-means-cluster-analysis", target = "_blank"),
                  br(),br(),
                  uiOutput("Select_data_K_mean_cluster"),
                  uiOutput("Select_DV_KMC"),
@@ -834,7 +834,7 @@ tabPanel("Heritability", icon=icon("pagelines"),
          
          sidebarPanel("",
                       fluidRow(
-                        "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#10-heritability", target = "_blank"),
+                        "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#11-heritability", target = "_blank"),
                         br(),br(),
                         uiOutput("Herit_Pheno_data"),
                         uiOutput("YearID"),
@@ -862,7 +862,7 @@ tabPanel("Heritability", icon=icon("pagelines"),
 tabPanel("Quantile regression", icon = icon("paper-plane-o"),
          sidebarPanel(
            fluidRow(
-             "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#11-quantile-regression", target = "_blank"),
+             "Need help? Click ", a("here!", href="https://mmjulkowska.github.io/MVApp/#12-quantile-regression", target = "_blank"),
              br(),br(),
              uiOutput("QA_data_type"),
              uiOutput("Pheno_Response"),
