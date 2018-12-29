@@ -43,7 +43,7 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 [1. DATA UPLOAD](#1-data-upload)
 
 
-[2. TESTING THE EFFECT OF SPATIAL VARIATION] (#2-testing-the-effect-of-spatial-variation)
+[2. SPATIAL VARIATION] (#2-spatial-variation)
 
 
 [3. CURVE FITTING](#3-curve-fitting)
@@ -118,7 +118,7 @@ View the newly uploaded dataset in "New Data" sub-tab:
 
 [GO BACK TO TABLE OF CONTENTS](#table-of-contents)
 
-### 2. TESTING THE EFFECT OF SPATIAL VARIATION
+### 2. SPATIAL VARIATION
 
 ### Why test spatial variation?
 
