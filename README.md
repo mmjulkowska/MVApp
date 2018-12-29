@@ -43,7 +43,7 @@ Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., "M
 [1. DATA UPLOAD](#1-data-upload)
 
 
-[2. SPATIAL VARIATION] (#2-spatial-variation)
+[2. SPATIAL VARIATION](#2-spatial-variation)
 
 
 [3. CURVE FITTING](#3-curve-fitting)
