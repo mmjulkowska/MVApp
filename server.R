@@ -3608,7 +3608,7 @@ function(input, output, session) {
   })
   
   
-  # # # # # R-Snipets to do # # # # # 
+  # # # # # R-Snipets # # # # # 
   output$R_out_table_ui <- renderUI({
     if(input$R_out_table_chk == F){
       return()}
@@ -5020,6 +5020,7 @@ cat("\n")
   })
   
   output$R_summ_stat <- renderPrint({
+    cat("We are currently working to add this R-code snippet - please check in few days")
     cat("\n")
   })
   
@@ -5248,17 +5249,127 @@ cat("\n")
   })
 
   
-  # # # # # R-Snipets to do # # # # # 
+  # # # # # R-Snipets # # # # # 
   output$R_histo_ui <- renderUI({
-    if(input$R_hist_chk == F){
+    if(input$R_histo_chk == F){
       return()}
-    if(input$R_hist_chk == T){
+    if(input$R_histo_chk == T){
       verbatimTextOutput("R_histo")}
   })
   
   output$R_histo <- renderPrint({
-    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("#R code for plotting histogram and testing for normal distribution:")
     cat("\n")
+    cat("\n")
+    cat("# 'my_his_data' is the data created depending on your choice of data (raw data/data curated by r2 fitting curves/data with missing values removed/data with outliers removed), dependent variables, and independent variables.")
+    cat("\n")
+    cat("\n")
+    if (input$Histo_data == "raw data") {
+      cat("my_his_data <- my_data")
+    }
+    if (input$Histo_data == "missing values removed data") {
+      cat("my_his_data <- my_data_nona")
+    }
+    if (input$Histo_data == "r2 fitted curves curated data") {
+      cat("my_his_data <- curve_data")
+    }
+    if (input$Histo_data == "r2 fitted curves curated data with missing values removed") {
+      cat("my_his_data <-curve_data_nona")
+    }
+    if (input$Histo_data == "outliers removed data") {
+      cat("my_his_data <- no_outl_data")
+    }  
+    cat("\n")
+    cat("\n")
+    cat("#Make sure your dependent variable is numeric")
+    cat("\n")
+    cat("my_his_data$HisDV <- as.numeric(my_his_data$", input$HisDV,")")
+    cat("\n")
+    cat("\n")
+    cat("#Make sure your independent variable is a factor")
+    cat("\n")
+    cat("my_his_data$HisIV <- as.factor(my_his_data$", input$HisIV,")")
+    
+    if(input$plot_subs==T){
+      cat("\n")
+      cat("\n")
+      cat("#Since you chose to subset the data based on",input$subsetdata_choice, "_", input$subsetdata_uniquechoice, "we will subset my_his_data based on this group.")
+      cat("\n")
+      cat("my_his_data <-subset(my_his_data, my_his_data$", input$subsetdata_choice, "==", input$subsetdata_uniquechoice,")")
+    }
+    
+    if(input$plot_facet ==T){
+      if (input$HistType == "Histogram with counts on y-axis") {
+        cat("\n")
+        cat("\n")
+        cat("#For 'Histogram with counts on y-axis'")
+        cat("\n")
+        cat("\n")
+        cat("#Make sure you have the library (ggplot2) needed for the ggplot function")
+        cat("\n")
+        cat("library(ggplot2)")
+        cat("\n")
+        cat("fit <- ggplot(my_his_data, aes(x=my_his_data$HisDV, fill=my_his_data$HisIV)) + xlab(names(my_his_data$HisDV)) + geom_histogram(size=0.6, alpha=0.3, col='black') + labs(fill=names(my_his_data$HisIV))")
+        cat("\n")
+        cat("\n")
+        cat("#Since you chose to split the graph by",input$Plotfacet_choice,"you need to use facet_wrap by that variable.") 
+        cat("\n")
+        cat("fit <- fit + facet_wrap(~", input$Plotfacet_choice,")")
+        cat("\n")
+        cat("fit")
+      }
+      
+      if (input$HistType == "Histogram with density on y-axis" ) {
+        cat("\n")
+        cat("\n")
+        cat("#For 'Histogram with density on y-axis'")
+        cat("\n")
+        cat("\n")
+        cat("#Make sure you have the library (ggplot2) needed for the ggplot function")
+        cat("\n")
+        cat("library(ggplot2)")
+        cat("\n")
+        cat("fit <- ggplot(my_his_data, aes(x=my_his_data$HisDV, fill=my_his_data$HisIV)) + xlab(names(my_his_data$HisDV))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data$HisIV))")
+        cat("\n")
+        cat("\n")
+        cat("#Since you chose to split the graph by", input$Plotfacet_choice, "you need to use facet_wrap by that variable.")
+        cat("\n")
+        cat("fit <- fit + facet_wrap(~", input$Plotfacet_choice,")")
+        cat("\n")
+        cat("fit")
+      }
+    }
+    
+    if(input$plot_facet ==F){
+      if (input$HistType == "Histogram with counts on y-axis") {
+        cat("\n")
+        cat("\n")
+        cat("#For 'Histogram with counts on y-axis'")
+        cat("\n")
+        cat("\n")
+        cat("#Make sure you have the library (ggplot2) needed for the ggplot function")
+        cat("\n")
+        cat("library(ggplot2)")
+        cat("\n")
+        cat ("fit <- ggplot(my_his_data, aes(x=my_his_data$HisDV,fill=my_his_data$HisIV)) + xlab(names(my_his_data$HisDV)) + geom_histogram(size=0.6, alpha=0.3, col='black') + labs(fill=names(my_his_data$HisDV))")
+        cat("\n")
+        cat("fit")
+      }
+      if (input$HistType == "Histogram with density on y-axis" ) {
+        cat("\n")
+        cat("\n")
+        cat("#For 'Histogram with density on y-axis'")
+        cat("\n")
+        cat("\n")
+        cat("#Make sure you have the library (ggplot2) needed for the ggplot function")
+        cat("\n")
+        cat("library(ggplot2)")
+        cat("\n")
+        cat("fit <- ggplot(my_his_data, aes(x=my_his_data$HisDV, fill=my_his_data$HisIV)) + xlab(names(my_his_data$HisDV))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data$HisIV))")
+        cat("\n")
+        cat("fit")
+      }
+    }
   })
   
   output$download_HistPlot <- downloadHandler(
@@ -5376,12 +5487,12 @@ cat("\n")
     groupedIV<-input$HisIV
     
     if(input$plot_facet ==T){
-    groupedFacet<-input$Plotfacet_choice
-    my_shapiro_data$combinedTID<-paste(my_shapiro_data[,groupedIV], my_shapiro_data[,groupedFacet], sep="_")
-    my_shapiro_data$combinedTID<-as.factor(my_shapiro_data$combinedTID)}
+      groupedFacet<-input$Plotfacet_choice
+      my_shapiro_data$combinedTID<-paste(my_shapiro_data[,groupedIV], my_shapiro_data[,groupedFacet], sep="_")
+      my_shapiro_data$combinedTID<-as.factor(my_shapiro_data$combinedTID)}
     
     else{
-     shapiroIV<-input$HisIV
+      shapiroIV<-input$HisIV
     }
     
     if(input$plot_subs==T){
@@ -5392,7 +5503,7 @@ cat("\n")
     
     
     if(input$plot_facet ==T){
-     
+      
       m_Trows<-length(levels(my_shapiro_data$combinedTID))
       facetting_shapiro<-rep(NA, m_Trows)
       interpret_shapiro<-rep(NA,m_Trows)
@@ -5417,10 +5528,10 @@ cat("\n")
       list_sig_shapiro<- as.vector(sig_shapiro[,1])
       
       if(input$plot_subs==T){
-      if(length(list_sig_shapiro)>0){
-      cat("The data on",input$subsetdata_choice, input$subsetdata_uniquechoice, "for",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "do(es) not show the normal distribution in the following samples:")
-      cat("\n")
-      cat(list_sig_shapiro, sep=", ")
+        if(length(list_sig_shapiro)>0){
+          cat("The data on",input$subsetdata_choice, input$subsetdata_uniquechoice, "for",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "do(es) not show the normal distribution in the following samples:")
+          cat("\n")
+          cat(list_sig_shapiro, sep=", ")
         }
         else{
           cat("The data on",input$subsetdata_choice, input$subsetdata_uniquechoice, "for",input$HisDV, "sub-grouped by", input$HisIV, "and", input$Plotfacet_choice, "show(s) normal distribution in all samples.")
@@ -5472,14 +5583,14 @@ cat("\n")
       
       if(input$plot_subs==T){
         if(length(list_sig_shapiro)>0){
-        cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and subsetted by", input$subsetdata_choice, input$subsetdata_uniquechoice, "do(es) NOT have a normal distribution.")
+          cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "and subsetted by", input$subsetdata_choice, input$subsetdata_uniquechoice, "do(es) NOT have a normal distribution.")
         }
         else{
           cat("For", input$HisDV, "with sub-grouping by", input$HisIV, "and subsetted by", input$subsetdata_choice, input$subsetdata_uniquechoice, "all samples have a normal distribution.")
         }}
       if(input$plot_subs==F){
         if(length(list_sig_shapiro)>0){
-        cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "do(es) NOT have a normal distribution.")}
+          cat(cat(list_sig_shapiro, sep=", "), "for", input$HisDV, "with sub-grouping by", input$HisIV, "do(es) NOT have a normal distribution.")}
         else{
           cat("For", input$HisDV, "with sub-grouping by", input$HisIV, "all samples have a normal distribution.")
         }}
@@ -10525,7 +10636,7 @@ cat("\n")
     KMC_data_table_for_matrix()
   })
   
-  # # # # # R-Snipets to do # # # # # 
+  # # # # # R-Snipets # # # # # 
   output$R_Kclu_res_ui <- renderUI({
     if(input$R_Kclu_res_chk == F){
       return()}
@@ -10535,6 +10646,7 @@ cat("\n")
   
   output$R_Kclu_res <- renderPrint({
     cat("#R code for K means clustering:")
+    cat("\n")
     cat("\n")
     cat("# Make sure you have installed theses packages and loaded the corresponding libraries: 'factoextra','NbClust', and 'ggplot2'.")
     cat("\n")
@@ -10569,7 +10681,7 @@ cat("\n")
       cat("\n")
     }
     
-    
+    cat("\n")
     cat("#Prepare Data")
     cat("\n")
     cat("# K means will not take missing data, so either use 'na.omit' or impute data. For simplification purposes we use 'na.omit'")
@@ -10602,6 +10714,7 @@ cat("\n")
     #  object <- KMC_data()
     
     if(input$KMC_subset_Q == T){
+      cat("\n")
       cat("KMC_data$split <- KMC_data[,'",input$KMC_trait_sub,"']")
       cat("\n")
       cat("the_one <- '",input$KMC_trait_sub_spec,"'")
@@ -10611,7 +10724,7 @@ cat("\n")
     }
     
     if(input$KMC_use_means == T){
-      
+      cat("\n")
       cat("pheno<-paste('",input$KMC_pheno,"','mean', sep = '.')")
       cat("\n")
       cat("sel <- subset(KMC_data, select=c('",paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,pheno, sep="', '"),"'))")
@@ -10619,11 +10732,12 @@ cat("\n")
     }
     
     if(input$KMC_use_means == F){
-      
+      cat("\n")
       cat("sel <- subset(KMC_data, select=c('",paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,input$KMC_pheno, sep="', '"),"'))")
       cat("\n")
       
     }
+    cat("\n")
     cat("#To move only the numerical data into a new matrix:")
     cat("\n")
     cat("beginCol <-
@@ -10632,7 +10746,7 @@ cat("\n")
                           input$SelectTime,
                           input$SelectID, sep = "', '"),"')) + 1")
     cat("\n")
-    
+    cat("\n")
     cat("endCol <- ncol(sel)")
     cat("\n")
     
@@ -10642,12 +10756,13 @@ cat("\n")
     cat("\n") 
     
     if(input$KMCluster_scale_Q == T){
+      cat("\n")
       cat("# When using variables with different units of measurement, it is highly reccomendable to scale your data prior to analysis.")
       cat("\n")
       cat("KMC_matrix <- scale(KMC_matrix) # standardize variables")
       cat("\n")     
     }   
-    
+    cat("\n")
     cat("#K means clustering:")
     cat("\n")
     cat("set.seed(20)")
@@ -10960,6 +11075,7 @@ cat("\n")
   output$R_Kclu_opt <- renderPrint({
     cat("#R code for determining the optimal number of K means clusters")
     cat("\n")
+    cat("\n")
     cat("#Load the neccessary libraries:")
     cat("# Make sure you have installed theses packages and loaded the corresponding libraries: 'factoextra','NbClust', and 'ggplot2'.")
     cat("\n")
@@ -10994,7 +11110,7 @@ cat("\n")
       cat("\n")
     }
     
-    
+    cat("\n")
     cat("#Prepare Data")
     cat("\n")
     cat("# K means will not take missing data, so either use 'na.omit' or impute data. For simplification purposes we use 'na.omit'")
@@ -11017,7 +11133,7 @@ cat("\n")
     }
     
     if(input$KMC_use_means == F){
-      
+      cat("\n")
       cat("KMC_data <- subset(KMC_data_type, select=c('",paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID, input$SelectDV, sep="', '"),"'))")
       cat("\n")          
     }
@@ -11027,6 +11143,7 @@ cat("\n")
     #  object <- KMC_data()
     
     if(input$KMC_subset_Q == T){
+      cat("\n")
       cat("KMC_data$split <- KMC_data[,'",input$KMC_trait_sub,"']")
       cat("\n")
       cat("the_one <- '",input$KMC_trait_sub_spec,"'")
@@ -11036,7 +11153,7 @@ cat("\n")
     }
     
     if(input$KMC_use_means == T){
-      
+      cat("\n")
       cat("pheno<-paste('",input$KMC_pheno,"','mean', sep = '.')")
       cat("\n")
       cat("sel <- subset(KMC_data, select=c('",paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,pheno, sep="', '"),"'))")
@@ -11044,11 +11161,12 @@ cat("\n")
     }
     
     if(input$KMC_use_means == F){
-      
+      cat("\n")
       cat("sel <- subset(KMC_data, select=c('",paste(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID,input$KMC_pheno, sep="', '"),"'))")
       cat("\n")
       
     }
+    cat("\n")
     cat("#To move only the numerical data into a new matrix:")
     cat("\n")
     cat("beginCol <-
@@ -11067,6 +11185,7 @@ cat("\n")
     cat("\n") 
     
     if(input$KMCluster_scale_Q == T){
+      cat("\n")
       cat("# When using variables with different units of measurement, it is highly recommendable to scale your data prior to analysis.")
       cat("\n")
       cat("KMC_matrix <- scale(KMC_matrix) # standardize variables")
@@ -11097,7 +11216,7 @@ cat("\n")
         max.nc = 10, method = 'kmeans')")
     cat("\n")
     cat("fviz_nbclust(nb)")
-    
+    cat("\n")
   })
   
   
@@ -11333,7 +11452,10 @@ cat("\n")
   })
   
   output$R_Kclu_bar <- renderPrint({
-    cat("# One way of visualising k means clustering of your data is using bar plots. To plot your data and the assigned clusters, first select a variable.")
+    cat("#R code for visualizing K-means clustering using bar plots:")
+    cat("\n")
+    cat("\n")
+    cat("# To plot your data and the assigned clusters, first select a variable.")
     cat("\n")
     cat("listIV<-c('", paste(input$SelectGeno, input$SelectIV, input$SelectTime, sep="', '"), "')")
     cat("\n")
@@ -11614,6 +11736,9 @@ cat("\n")
   })
   
   output$R_Kclu_scat <- renderPrint({
+    cat("#R code for visualizing K means clustering using scatter plots:")
+    cat("\n")
+    cat("\n")
     cat("Another, more common, way of visualising k means clustering of your data is using scatter plots. To plot your data and the assigned clusters:")
     cat("\n")
     
@@ -12228,9 +12353,470 @@ cat("\n")
   })
   
   output$R_heri <- renderPrint({
-    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("#R code for estimating broad-sense heritability:")
     cat("\n")
+    cat("\n")
+    cat("#For calculating broad-sense heritability, we will use 'lmer' function from the package 'lme4', so make sure you load the package and the library")
+    cat("\n")
+    cat("library(lme4)")
+    cat("\n")
+    cat("# 'Herit_data_type' is the data created depending on your choice of data (raw data/data curated by r2 fitting curves/data with missing values removed/data with outliers removed), dependent variables, and independent variables.")
+    cat("\n")
+    if (input$Herit_data == "raw data") {
+      cat("heritdata2 <- my_data")
+      cat("\n")
+    }
+    if (input$Herit_data == "missing values removed data") {
+      cat("heritdata2 <- my_data_nona")
+      cat("\n")
+    }
+    if (input$Herit_data == "r2 fitted curves curated data") {
+      cat("heritdata2 <- curve_data")
+      cat("\n")
+    }
+    if (input$Herit_data == "r2 fitted curves curated data with missing values removed") {
+      cat("heritdata2 <-curve_data_nona")
+      cat("\n")
+    }
+    if (input$Herit_data == "outliers removed data") {
+      cat("heritdata2 <- no_outl_data")
+      cat("\n")
+    }
+    
+    
+    if(input$herit_split == T){
+      cat("#Since you decided to subset the data by", input$Heritsplit_choice_spec, "_", input$Heritsplit_choice, ", subset the data accordingly")
+      cat("\n")
+      cat("#Create a variable for", input$Heritsplit_choice_spec, "of", input$Heritsplit_choice)
+      cat("\n")
+      cat("the_one <-", input$Heritsplit_choice_spec)
+      cat("\n")
+      cat("heritdata2$splito <- heritdata2$",input$Heritsplit_choice)
+      cat("\n")
+      cat("#Subset the data")
+      cat("\n")
+      cat("heritdata2 <- subset(heritdata2, heritdata2$splito == the_one)")
+      cat("\n")
+    }
+    cat("#Create a variable for the replication number")
+    cat("\n")
+    cat("Repnum<-as.numeric(", input$RepID,")")
+    cat("\n")
+    
+    if(input$herit_split == T){
+      cat("#The data was subsetted per", input$Heritsplit_choice, " - displaying results for ", input$Heritsplit_choice, input$Heritsplit_choice_spec)
+      cat("\n")
+    }
+    
+    if(input$herit_facet == F){
+      if(input$SelectYear != "none" & input$SelectLocation != "none")  {
+        cat("heritdata_na <- subset(heritdata2, select = c(",input$HeritabDV,",", input$SelectGeno, ",", input$SelectYear, ",", input$SelectLocation,"))")
+        cat("\n")
+        cat("heritdata<-na.omit(heritdata_na)")
+        cat("\n")
+        cat("Year<-heritdata$",input$SelectYear)
+        cat("\n")
+        cat("#Create a variable for the Year/experimental batch number")
+        cat("\n")
+        cat("Yearnum<-as.numeric(length(unique(Year)))")
+        cat("\n")
+        cat("Location<-heritdata$", input$SelectLocation)
+        cat("\n")
+        cat("#Create a variable for the Location number")
+        cat("\n")
+        cat("Locationnum<-as.numeric(length(unique(Location)))")
+        cat("\n")
+        cat("#Create a variable for the Genotype/Accession")
+        cat("\n")
+        cat("Accession <- heritdata$",input$SelectGeno)
+        cat("\n")
+        cat("HeritDV <-heritdata$",input$HeritabDV)
+        cat("\n")
+        cat("#Fitting a linear model with Genotype, Year, Location, and the interactions as random.")
+        cat("\n")
+        cat("heritfit<- lmer(HeritDV~ 1 + (1 | Accession) + (1 | Year) + (1 | Location) + (1 | Accession:Location) + (1| Accession:Year) + (1 | Accession:Year:Location), data=heritdata)")
+        cat("\n")
+        cat("#Extracting the variance components from the model.")
+        cat("\n")
+        cat("heritvar<-VarCorr(heritfit)")
+        cat("\n")
+        cat("heritvar1<-as.data.frame(heritvar)")
+        cat("\n")
+        cat("heritvariance<- heritvar1$vcov")
+        cat("\n")
+        cat("#Calculating broad-sense heritability based on the variance components")
+        cat("\n")
+        cat("heritability<-(heritvariance[4]/ (heritvariance[4] + (heritvariance[2]/(Yearnum))+ (heritvariance[3]/(Locationnum)) + (heritvariance[7]/(Yearnum*Locationnum*Repnum))))*100")
+        cat("\n")
+        cat("#Round heritability values to 2 digits")
+        cat("\n")
+        cat("heritability2<- round(heritability, digits=2)")
+        cat("\n")
+      }
+      
+      if(input$SelectYear != "none" & input$SelectLocation == "none")  {
+        cat("heritdata_na <- subset(heritdata2, select = c(",input$HeritabDV,",", input$SelectGeno, ",", input$SelectYear,"))")
+        cat("\n")
+        cat("heritdata<-na.omit(heritdata_na)")
+        cat("\n")
+        cat("Year<-heritdata$",input$SelectYear)
+        cat("\n")
+        cat("#Create a variable for the Year/Experimental batch number")
+        cat("\n")
+        cat("Yearnum<-as.numeric(length(unique(Year)))")
+        cat("\n")
+        cat("#Create a variable for  Accession/Genotype")
+        cat("\n")
+        cat("Accession <- heritdata$",input$SelectGeno)
+        cat("\n")
+        cat("HeritDV <-heritdata$",input$HeritabDV)
+        cat("\n")
+        cat("#Fitting a linear model with Genotype, Year, and the interactions as random.")
+        cat("\n")
+        cat("heritfit<- lmer(HeritDV ~ 1 + (1 | Accession ) + (1 | Year) + (1| Accession:Year), data=heritdata)")
+        cat("\n")
+        cat("#Extracting the variance components from the model.")
+        cat("\n")
+        cat("heritvar<-VarCorr(heritfit)")
+        cat("\n")
+        cat("heritvar1<-as.data.frame(heritvar)")
+        cat("\n")
+        cat("heritvariance<- heritvar1$vcov")
+        cat("\n")
+        cat("#Calculating broad-sense heritability based on the variance components")
+        cat("\n")
+        cat("heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Yearnum) + (heritvariance[4]/(Yearnum*Repnum))))*100")
+        cat("\n")
+        cat("#Round heritability values to 2 digits")
+        cat("\n")
+        cat("heritability2<- round(heritability, digits=2)")
+        cat("\n")
+      }
+      
+      if(input$SelectLocation != "none" & input$SelectYear == "none"){
+        cat("heritdata_na <- subset(heritdata2, select = c(",input$HeritabDV,",",input$SelectGeno, input$SelectLocation,"))")
+        cat("\n")
+        cat("heritdata<-na.omit(heritdata_na)")
+        cat("\n")
+        cat("Location<-heritdata$",input$SelectLocation)
+        cat("\n")
+        cat("#Create a variable for the Location number")
+        cat("\n")
+        cat("Locationnum<-as.numeric(length(unique(Location)))")
+        cat("\n")
+        cat("#Create a variable for Accession/Genotype number")
+        cat("\n")
+        cat("Accession <- heritdata$",input$SelectGeno)
+        cat("\n")
+        cat("HeritDV <-heritdata$",input$HeritabDV)
+        cat("\n")
+        cat("#Fitting a linear model with Genotype, Location, and the interactions as random.")
+        cat("\n")
+        cat("heritfit<- lmer(HeritDV~ 1 + (1 | Accession ) + (1 | Location) + (1| Accession:Location), data=heritdata)")
+        cat("\n")
+        cat("#Extracting the variance components from the model.")
+        cat("\n")
+        cat("heritvar<-VarCorr(heritfit)")
+        cat("\n")
+        cat("heritvar1<-as.data.frame(heritvar)")
+        cat("heritvariance<- heritvar1$vcov")
+        cat("\n")
+        cat("#Calculating broad-sense heritability based on the variance components")
+        cat("\n")
+        cat("heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Locationnum) + (heritvariance[4]/(Locationnum*Repnum))))*100")
+        cat("\n")
+        cat("#Round heritability values to 2 digits")
+        cat("\n")
+        cat("heritability2<- round(heritability, digits=2)")
+        cat("\n")
+      }
+      
+      
+      if(input$SelectLocation == "none" & input$SelectYear == "none")  {
+        cat("heritdata_na <- subset(heritdata2, select = c(",input$HeritabDV,",",input$SelectGeno,"))")
+        cat("\n")
+        cat("heritdata<-na.omit(heritdata_na)")
+        cat("\n")
+        cat("#Create a variable for Accession/Genotype")
+        cat("\n")
+        cat("Accession <- heritdata$",input$SelectGeno)
+        cat("\n")
+        cat("HeritDV <-heritdata$",input$HeritabDV)
+        cat("\n")
+        cat("#Fitting a linear model with Genotype as random.")
+        cat("\n")
+        cat("heritfit<- lmer(HeritDV ~ 1 + (1 | Accession ), data=heritdata)")
+        cat("\n")
+        cat("#Extracting the variance components from the model.")
+        cat("\n")
+        cat("heritvar<-VarCorr(heritfit)")
+        cat("\n")
+        cat("heritvar1<-as.data.frame(heritvar)")
+        cat("\n")
+        cat("heritvariance<- heritvar1$vcov")
+        cat("\n")
+        cat("#Calculating broad-sense heritability based on the variance components")
+        cat("\n")
+        cat("heritability<-(heritvariance[1]/ (heritvariance[1] + (heritvariance[2]/(Repnum))))*100")
+        cat("\n")
+        cat("#Round heritability values to 2 digits")
+        cat("\n")
+        cat("heritability2<- round(heritability, digits=2)")
+        cat("\n")
+      }
+      
+      cat("#The model used is:")
+      cat("\n")
+      cat("print(heritfit@call)")
+      cat("\n")
+      cat("print(heritvar)")
+      cat("\n")
+      cat("#Print the value of the broad sense heritability:")
+      cat("\n")
+      cat("cat(heritability2, '%')")
+      cat("\n")
+    }
+    
+    if(input$herit_facet == T){
+      if(input$SelectYear != "none" & input$SelectLocation != "none")  {
+        cat("heritdata_na <- subset(heritdata2, select = c(",input$HeritabDV,",", input$SelectGeno,",",input$Heritfacet_choice, ",",input$SelectYear,",",input$SelectLocation,"))")
+        cat("\n")
+        cat("heritdata<-na.omit(heritdata_na)")
+        cat("\n")
+        cat("heritdata$facet_herit<-heritdata$",input$Heritfacet_choice)
+        cat("\n")
+        cat("for (i in unique (heritdata$facet_herit)){")
+        cat("\n")
+        cat("heritdatasub<-subset(heritdata, facet_herit==i)")
+        cat("\n")
+        cat("Year<-heritdatasub$",input$SelectYear)
+        cat("\n")
+        cat("#Create a variable for the Year/Experimental batch number")
+        cat("\n")
+        cat("Yearnum<-as.numeric(length(unique(Year)))")
+        cat("\n")
+        cat("#Create a variable for the Location number")
+        cat("\n")
+        cat("Location<-heritdatasub$",input$SelectLocation)
+        cat("\n")
+        cat("Locationnum<-as.numeric(length(unique(Location)))")
+        cat("\n")
+        cat("#Create a variable for Accession/Genotype")
+        cat("\n")
+        cat("Accession <- heritdatasub$",input$SelectGeno)
+        cat("\n")
+        cat("HeritDV <-heritdatasub$",input$HeritabDV)
+        cat("\n")
+        cat("#Fitting a linear model with Genotype, Year, Location, and the interactions as random.")
+        cat("\n")
+        cat("heritfit<- lmer(HeritDV~ 1 + (1 | Accession) + (1 | Year) + (1 | Location) + (1 | Accession:Location) + (1| Accession:Year) + (1 | Accession:Year:Location), data=heritdatasub)")
+        cat("\n")
+        cat("#Extracting the variance components from the model.")
+        cat("\n")
+        cat("heritvar<-VarCorr(heritfit)")
+        cat("\n")
+        cat("heritvar1<-as.data.frame(heritvar)")
+        cat("\n")
+        cat("heritvariance<- heritvar1$vcov")
+        cat("\n")
+        cat("#Calculating broad-sense heritability based on the variance components")
+        cat("\n")
+        cat("heritability<-(heritvariance[4]/ (heritvariance[4] + (heritvariance[2]/(Yearnum))+ (heritvariance[3]/(Locationnum)) + (heritvariance[7]/(Yearnum*Locationnum*Repnum))))*100")
+        cat("\n")
+        cat("#Round heritability values to 2 digits")
+        cat("\n")
+        cat("heritability2<- round(heritability, digits=2)")
+        cat("\n")
+        cat("print(i)")
+        cat("\n")
+        cat("cat('The model used is:')")
+        cat("\n")
+        cat("print(heritfit@call)")
+        cat("\n")
+        cat("print(heritvar)")
+        cat("\n")
+        cat("#Print the value of the broad sense heritability:")
+        cat("\n")
+        cat("cat(heritability2, '%')")
+        cat("\n")
+        cat("}")
+        cat("\n")
+      }
+      
+      if(input$SelectYear != "none" & input$SelectLocation == "none")  {
+        cat("heritdata_na <- subset(heritdata2, select = c(",input$HeritabDV,",",input$SelectGeno,",",input$Heritfacet_choice,",", input$SelectYear,"))")
+        cat("\n")
+        cat("heritdata<-na.omit(heritdata_na)")
+        cat("\n")
+        cat("heritdata$facet_herit<-heritdata[,",input$Heritfacet_choice,"]")
+        cat("\n")
+        cat("for (i in unique (heritdata$facet_herit)){")
+        cat("\n")
+        cat("heritdatasub<-subset(heritdata, facet_herit==i)")
+        cat("\n")
+        cat("Year<-heritdatasub$",input$SelectYear)
+        cat("\n")
+        cat("#Create a variable for the Year/Experimental batch number")
+        cat("\n")
+        cat("Yearnum<-as.numeric(length(unique(Year)))")
+        cat("\n")
+        cat("#Create a variable for Accession")
+        cat("\n")
+        cat("Accession <- heritdatasub$",input$SelectGeno)
+        cat("\n")
+        cat("HeritDV <-heritdatasub$",input$HeritabDV)
+        cat("\n")
+        cat("#Fitting a linear model with Genotype, Year, and the interactions as random.")
+        cat("\n")
+        cat("heritfit<- lmer(HeritDV ~ 1 + (1 | Accession ) + (1 | Year) + (1| Accession:Year), data=heritdatasub)")
+        cat("\n")
+        cat("#Extracting the variance components from the model.")
+        cat("\n")
+        cat("heritvar<-VarCorr(heritfit)")
+        cat("\n")
+        cat("heritvar1<-as.data.frame(heritvar)")
+        cat("\n")
+        cat("heritvariance<- heritvar1$vcov")
+        cat("\n")
+        cat("#Calculating broad-sense heritability based on the variance components")
+        cat("\n")
+        cat("heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Yearnum) + (heritvariance[4]/(Yearnum*Repnum))))*100")
+        cat("\n")
+        cat("#Round heritability values to 2 digits")
+        cat("\n")
+        cat("heritability2<- round(heritability, digits=2)")
+        cat("\n")
+        cat("print(i)")
+        cat("\n")
+        cat("cat('The model used is:')")
+        cat("\n")
+        cat("print(heritfit@call)")
+        cat("\n")
+        cat("print(heritvar)")
+        cat("\n")
+        cat("#Print the value of the broad sense heritability:")
+        cat("\n")
+        cat("cat(heritability2, '%')")
+        cat("\n")
+        cat("}")
+      }
+      
+      if(input$SelectLocation != "none" & input$SelectYear == "none"){
+        cat("heritdata_na <- subset(heritdata2, select = c(",input$HeritabDV,",",input$SelectGeno,",",input$Heritfacet_choice, ",",input$SelectLocation,"))")
+        cat("\n")
+        cat("heritdata<-na.omit(heritdata_na)")
+        cat("\n")
+        cat("heritdata$facet_herit<-heritdata$",input$Heritfacet_choice)
+        cat("\n")
+        cat("for (i in unique (heritdata$facet_herit)){")
+        cat("\n")
+        cat("heritdatasub<-subset(heritdata, facet_herit==i)")
+        cat("\n")
+        cat("Location<-heritdatasub$",input$SelectLocation)
+        cat("\n")
+        cat("#Create a variable for the Location number")
+        cat("\n")
+        cat("Locationnum<-as.numeric(length(unique(Location)))")
+        cat("\n")
+        cat("#Create a variable for Accession/Genotype")
+        cat("\n")
+        cat("Accession <- heritdatasub$",input$SelectGeno)
+        cat("\n")
+        cat("HeritDV <-heritdatasub$",input$HeritabDV)
+        cat("\n")
+        cat("#Fitting a linear model with Genotype, Location, and the interactions as random.")
+        cat("\n")
+        cat("heritfit<- lmer(HeritDV~ 1 + (1 | Accession ) + (1 | Location) + (1| Accession:Location), data=heritdatasub)")
+        cat("\n")
+        cat("#Extracting the variance components from the model.")
+        cat("\n")
+        cat("heritvar<-VarCorr(heritfit)")
+        cat("\n")
+        cat("heritvar1<-as.data.frame(heritvar)")
+        cat("\n")
+        cat("heritvariance<- heritvar1$vcov")
+        cat("\n")
+        cat("#Calculating broad-sense heritability based on the variance components")
+        cat("\n")
+        cat("heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Locationnum) + (heritvariance[4]/(Locationnum*Repnum))))*100")
+        cat("\n")
+        cat("#Round heritability values to 2 digits")
+        cat("\n")
+        cat("heritability2<- round(heritability, digits=2)")
+        cat("\n")
+        cat("print(i)")
+        cat("\n")
+        cat("cat('The model used is:')")
+        cat("\n")
+        cat("print(heritfit@call)")
+        cat("\n")
+        cat("print(heritvar)")
+        cat("\n")
+        cat("#Print the value of the broad sense heritability:")
+        cat("\n")
+        cat("cat(heritability2, '%')")
+        cat("\n")
+        cat("}")
+        cat("\n")
+      }
+      
+      if(input$SelectLocation == "none" & input$SelectYear == "none")  {
+        cat("heritdata_na <- subset(heritdata2, select = c(",input$HeritabDV,",",input$SelectGeno,",",input$Heritfacet_choice,"))")
+        cat("\n")
+        cat("heritdata<-na.omit(heritdata_na)")
+        cat("\n")
+        cat("#Create a column that contains the", input$Heritfacet_choice)
+        cat("\n")
+        cat("heritdata$facet_herit<-heritdata$",input$Heritfacet_choice)
+        cat("\n")
+        cat("for (i in unique (heritdata$facet_herit)){")
+        cat("\n")
+        cat("heritdatasub<-subset(heritdata, facet_herit==i)")
+        cat("\n")
+        cat("#Create a variable for Accession/Genotype")
+        cat("\n")
+        cat("Accession <- heritdatasub$",input$SelectGeno)
+        cat("\n")
+        cat("HeritDV <-heritdatasub$",input$HeritabDV)
+        cat("\n")
+        cat("#Fitting a linear model with Genotype as random.")
+        cat("\n")
+        cat("heritfit<- lmer(HeritDV ~ 1 + (1 | Accession ), data=heritdatasub)")
+        cat("\n")
+        cat("#Extracting the variance components from the model.")
+        cat("\n")
+        cat("heritvar<-VarCorr(heritfit)")
+        cat("\n")
+        cat("heritvar1<-as.data.frame(heritvar)")
+        cat("\n")
+        cat("heritvariance<- heritvar1$vcov")
+        cat("\n")
+        cat("#Calculating broad-sense heritability based on the variance components")
+        cat("\n")
+        cat("heritability<-(heritvariance[1]/ (heritvariance[1] + (heritvariance[2]/(Repnum))))*100")
+        cat("\n")
+        cat("#Round heritability values to 2 digits")
+        cat("\n")
+        cat("heritability2<- round(heritability, digits=2)")
+        cat("\n")
+        cat("print(i)")
+        cat("\n")
+        cat("cat('The model used is:')")
+        cat("\n")
+        cat("print(heritfit@call)")
+        cat("\n")
+        cat("print(heritvar)")
+        cat("\n")
+        cat("#Print the value of the broad sense heritability:") 
+        cat("\n")
+        cat("cat(heritability2, '%')")
+        cat("\n")
+        cat("}")
+        cat("\n")
+      }
+    }
   })
+  
   
    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - >>  Quantile Analysis in 10th TAB <<- - - - - - - - - - - - - - - -
@@ -12934,7 +13520,7 @@ cat("\n")
       )
   })
   
-  # # # # # R-Snipets to do # # # # # 
+  # # # # # R-Snipets # # # # # 
   output$R_QR_plot_ui <- renderUI({
     if(input$R_QR_plot_chk == F){
       return()}
