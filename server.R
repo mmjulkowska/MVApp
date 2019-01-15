@@ -4550,8 +4550,303 @@ cat("\n")
   })
   
   output$R_out_y_graph <- renderPrint({
-    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("# The code to use in R:")
     cat("\n")
+    cat("\n")
+    cat("# First - let's decide on which data to use:")
+    cat("\n")
+    cat("\n")
+    if(input$Outlier_on_data == "raw data"){
+      cat("temp <- my_data")}
+    if(input$Outlier_on_data == "r2 fitted curves curated data"){
+      cat("temp <- curve_data")}
+    if(input$Outlier_on_data == "missing values removed data"){  
+      cat("temp <- my_data_nona")}
+    if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+      cat("temp <- curve_data_nona")}
+    cat("\n")
+    cat("\n")
+    cat("# Then we need to select specific genotypes to plot (particularly handy if you have more than 12 genotypes)")
+    cat("\n")
+    cat("\n")
+    
+    
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      cat("from_sub <- subset(temp, temp$colorek %in% c('", input$Outl_spec_color, "'))")
+      cat("\n")}
+    
+    if(input$Outl_col_select_order == "Order of the trait (increasing)"){
+      cat("Select the column containing genotypes")
+      cat("\n")
+      cat("temp$colorek <- temp[,", input$SelectGeno, "]")
+      cat("\n")
+      cat("temp_sub <- subset(temp, select = c('colorek',", input$DV_graph_outliers, "))")
+      cat("\n")
+      cat("names(temp_sub)[2] <- 'pheno'")
+      cat("\n")
+      cat("\n")
+      cat("# Calculate the average phenotype per genotype which can be used to sort your genotypes from small to big (or other way around)")
+      cat("\n")
+      cat("temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)")
+      cat("\n")
+      cat("\n")
+      cat("from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  ")
+      cat("\n")
+      cat("min <- as.numeric(as.character(", input$Outl_col_portion, "))")
+      cat("\n")
+      cat("max <- as.numeric(as.character(", input$Outl_col_portion,")) + (", input$Outl_col_number, " -1)")
+      cat("\n")
+      cat("super_lista <- as.character(from_sort$colorek[min:max])")
+      cat("\n")
+      cat("from_sub <- subset(temp, temp$colorek %in% super_lista)")
+      cat("\n")
+      cat("\n")
+      cat("dropski <- c('colorek')")
+      cat("\n")
+      cat("from_sub <- from_sub[, !(names(from_sub) %in% dropski)]")
+      cat("\n")
+    }
+    
+    if(input$Outl_col_select_order == "Order of the trait (decreasing)"){
+      cat("Select the column containing genotypes")
+      cat("\n")
+      cat("temp$colorek <- temp[,", input$SelectGeno, "]")
+      cat("\n")
+      cat("temp_sub <- subset(temp, select = c('colorek',", input$DV_graph_outliers, "))")
+      cat("\n")
+      cat("names(temp_sub)[2] <- 'pheno'")
+      cat("\n")
+      cat("\n")
+      cat("# Calculate the average phenotype per genotype which can be used to sort your genotypes from small to big (or other way around)")
+      cat("\n")
+      cat("temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)")
+      cat("\n")
+      cat("\n")
+      cat("from_sort <- temp_sum[order(temp_sum$pheno.mean),]  ")
+      cat("\n")
+      cat("min <- as.numeric(as.character('", input$Outl_col_portion, "'))")
+      cat("\n")
+      cat("max <- as.numeric(as.character('", input$Outl_col_portion,'")) + ("', input$Outl_col_number, "' -1)")
+      cat("\n")
+      cat("super_lista <- as.character(from_sort$colorek[min:max])")
+      cat("\n")
+      cat("from_sub <- subset(temp, temp$colorek %in% super_lista)")
+      cat("\n")
+      cat("\n")
+      cat("dropski <- c('colorek')")
+      cat("\n")
+      cat("from_sub <- from_sub[, !(names(from_sub) %in% dropski)]")
+      cat("\n")
+    }
+    cat("\n")
+    cat("# Then we need to determine which columns are going to be used as independent variables to plot the data")
+    cat("\n")
+    cat("outl <- subset(from_sub, select=c('", input$IV_outliers, "', '", input$DV_graph_outliers, "'))")
+    cat("\n")
+    cat("lista <- '", input$IV_outliers, "'")
+    cat("\n")
+    if(input$outlier_facet == T){
+      cat("listb <- '", input$Facet_choice, "'")
+      cat("\n")
+      cat("outl$listb <- outl[,'",input$Facet_choice, "']")
+      cat("\n")
+      cat("lista <- setdiff(lista, listb)")
+      cat("\n")
+      cat("\n")}
+    
+    if(input$outlier_colour == T){
+      cat("listx <- '", input$Colour_choice, "'")
+      cat("\n")
+      cat("outl$listx <- outl[,'", input$Colour_choice, "']")
+      cat("\n")
+      cat("\n")
+    }
+    
+    cat("phenotype <-'", input$DV_graph_outliers, "'")
+    cat("\n")
+    cat("outl$pheno <- outl[,'", input$DV_graph_outliers, "']")
+    cat("\n")
+    cat("\n")
+    cat("# Combine all the Independent Variables into one variable for plotting:")
+    cat("\n")
+    cat("outl$id_test <- do.call(paste,c(outl[lista], sep = '_'))")
+    cat("\n")
+    cat("\n")
+    
+    if(input$outlier_graph_type == "bar graph"){
+      cat("outl$pheno <- as.numeric(outl$pheno)")
+      cat("\n")
+      if(input$outlier_colour == T) {
+        if(input$outlier_facet == F){
+          cat("out_sum <- summaryBy(pheno ~ listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })")
+          cat("\n")
+          cat("list_temp <- c(lista, listx)")
+          cat("\n")
+          cat("out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))")
+          cat("\n")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))")
+          cat("\n")
+        }
+        if(input$outlier_facet == T){
+          cat("out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  ")
+          cat("\n")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))")
+          cat("\n")
+        }}
+      
+      if(input$outlier_colour == F){
+        if(input$outlier_facet == T){
+          cat("out_sum <- summaryBy(pheno ~ id_test + listb, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  ")
+          cat("\n")
+          cat("list_temp <- c(lista, listx)")
+          cat("\n")
+          cat("out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))")
+          cat("\n")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))")
+          cat("\n")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))")
+          cat("\n")
+        }
+        if(input$outlier_facet == F){
+          cat("out_sum <- summaryBy(pheno ~ id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })")
+          cat("\n")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))")
+          cat("\n")
+        }
+      }
+      cat("\n")
+      cat("# Indicate that you want to plot a bar graph")
+      cat("\n")
+      cat("taka <- taka + geom_bar(stat='identity', position=position_dodge(1))")
+      cat("\n")
+      cat("\n")
+      cat("# Determine what the error bars will represent:")
+      cat("\n")
+      
+      if(input$out_error_bar == "Standard Deviation"){
+        cat("taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.s, ymax=pheno.m+pheno.s), position=position_dodge(1))")
+        cat("\n")
+        cat("\n")}
+      if(input$out_error_bar == "Standard Error"){
+        cat("taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.se, ymax=pheno.m+pheno.se), position=position_dodge(1))")
+        cat("\n")
+        cat("\n")}
+    }
+    
+    
+    if(input$outlier_graph_type == "box plot"){
+      if(input$outlier_colour == T){
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))")
+        cat("\n")
+      }
+      else{
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno))   ")
+        cat("\n")
+      }
+      cat("# Indicate that you want to plot a box plot")
+      cat("taka <- taka + geom_boxplot(position='dodge')")
+      cat("\n")
+      cat("\n")
+    }
+    
+    if(input$outlier_graph_type == "box plot + jitter"){
+      if(input$outlier_colour == T){
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))")
+        cat("\n")
+      }
+      else{
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno))   ")
+        cat("\n")
+      }
+      cat("# Indicate that you want to plot a box plot with jitter")
+      cat("\n")
+      cat("taka <- taka + geom_boxplot(position='dodge') +  geom_jitter(position=position_jitter(0.2))")
+      cat("\n")
+      cat("\n")
+    }
+    
+    
+    if(input$outlier_graph_type == "scatter plot"){
+      
+      if(input$outlier_colour == T){
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))    ")
+        cat("\n")
+      }
+      else{
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno))      ")
+        cat("\n")
+      }
+      cat("# Indicate that you want to plot a scatter plot")
+      cat("\n")
+      cat("taka <- taka + geom_point(position=position_dodge(1))")
+      cat("\n")
+      cat("\n")
+    }
+    
+    if(input$outlier_graph_type == "violin plot"){
+      if(input$outlier_colour == T){
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))")
+        cat("\n")
+      }
+      else{
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno))   ")
+        cat("\n")
+      }
+      cat("# Indicate that you want to plot a violin plot")
+      cat("\n")
+      cat("taka <- taka + geom_violin(position='dodge', trim = F)")
+      cat("\n")
+      cat("\n")
+    }
+    
+    if(input$outlier_graph_type == "violin plot + jitter"){
+      if(input$outlier_colour == T){
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))")
+        cat("\n")
+      }
+      else{
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno))  ") 
+        cat("\n")
+      }
+      cat("\n")
+      cat("# Indicate that you want to plot a violin plot with jitter")
+      cat("\n")
+      cat("taka <- taka + geom_violin(position='dodge', trim = F) +  geom_jitter(position=position_jitter(0.2))")
+      cat("\n")
+      cat("\n")
+    }
+    
+    if(input$outlier_facet == T){
+      cat("# Facet the graph:")
+      cat("\n")
+      cat("taka <- taka + facet_wrap(~listb, ncol='", input$out_graph_facet_col, "', scale = '", input$out_facet_scale, "')")
+      cat("\n")}
+      
+      if(input$Select_outl_background == T){
+        cat("taka <- taka + theme_minimal()")
+        cat("\n")}
+    
+      if(input$Select_outl_maj_grid == T){
+        cat("taka <- taka + theme(panel.grid.major = element_blank())")
+        cat("\n")}
+      
+      cat("taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))")
+      cat("\n")
+      cat("taka <- taka + xlab('')")
+      cat("\n")
+      cat("taka <- taka + ylab('", input$DV_graph_outliers, "')")
+      cat("\n")
+      
+      if(input$outlier_colour == T){
+        cat("taka <- taka + theme(legend.title=element_blank())")
+        cat("\n")
+        cat("\n")
+      }
+      cat("#Print the graph:")
+      cat("\n")
+      cat("taka")
+      cat("\n")
+      
   })
   
   
@@ -4823,8 +5118,293 @@ cat("\n")
   })
   
   output$R_out_n_graph <- renderPrint({
-    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("# The code to use in R:")
     cat("\n")
+    cat("\n")
+    cat("# First - let's load the outlier free data (calculated in the >> Outlier test<< tab)")
+    cat("\n")
+    cat("\n")
+    cat("temp <- no_out_data")
+    cat("\n")
+    cat("\n")
+    cat("# Then we need to select specific genotypes to plot (particularly handy if you have more than 12 genotypes)")
+    cat("\n")
+    cat("\n")
+    
+    
+    if(input$Outl_col_select_order == "Chose samples to plot"){
+      cat("from_sub <- subset(temp, temp$colorek %in% c('", input$Outl_spec_color, "'))")
+      cat("\n")}
+    
+    if(input$Outl_col_select_order == "Order of the trait (increasing)"){
+      cat("Select the column containing genotypes")
+      cat("\n")
+      cat("temp$colorek <- temp[,", input$SelectGeno, "]")
+      cat("\n")
+      cat("temp_sub <- subset(temp, select = c('colorek',", input$DV_graph_outliers, "))")
+      cat("\n")
+      cat("names(temp_sub)[2] <- 'pheno'")
+      cat("\n")
+      cat("\n")
+      cat("# Calculate the average phenotype per genotype which can be used to sort your genotypes from small to big (or other way around)")
+      cat("\n")
+      cat("temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)")
+      cat("\n")
+      cat("\n")
+      cat("from_sort <- temp_sum[order(-temp_sum$pheno.mean),]  ")
+      cat("\n")
+      cat("min <- ", input$Outl_col_portion)
+      cat("\n")
+      cat("max <-", input$Outl_col_portion, "+ (", input$Outl_col_number, " -1)")
+      cat("\n")
+      cat("super_lista <- as.character(from_sort$colorek[min:max])")
+      cat("\n")
+      cat("from_sub <- subset(temp, temp$colorek %in% super_lista)")
+      cat("\n")
+      cat("\n")
+      cat("dropski <- c('colorek')")
+      cat("\n")
+      cat("from_sub <- from_sub[, !(names(from_sub) %in% dropski)]")
+      cat("\n")
+    }
+    
+    if(input$Outl_col_select_order == "Order of the trait (decreasing)"){
+      cat("Select the column containing genotypes")
+      cat("\n")
+      cat("temp$colorek <- temp[,", input$SelectGeno, "]")
+      cat("\n")
+      cat("temp_sub <- subset(temp, select = c('colorek',", input$DV_graph_outliers, "))")
+      cat("\n")
+      cat("names(temp_sub)[2] <- 'pheno'")
+      cat("\n")
+      cat("\n")
+      cat("# Calculate the average phenotype per genotype which can be used to sort your genotypes from small to big (or other way around)")
+      cat("\n")
+      cat("temp_sum <- summaryBy(pheno ~  colorek, data = temp_sub)")
+      cat("\n")
+      cat("\n")
+      cat("from_sort <- temp_sum[order(temp_sum$pheno.mean),]  ")
+      cat("\n")
+      cat("min <- ", input$Outl_col_portion)
+      cat("\n")
+      cat("max <- ", input$Outl_col_portion," + (", input$Outl_col_number, " -1)")
+      cat("\n")
+      cat("super_lista <- as.character(from_sort$colorek[min:max])")
+      cat("\n")
+      cat("from_sub <- subset(temp, temp$colorek %in% super_lista)")
+      cat("\n")
+      cat("\n")
+      cat("dropski <- c('colorek')")
+      cat("\n")
+      cat("from_sub <- from_sub[, !(names(from_sub) %in% dropski)]")
+      cat("\n")
+    }
+    cat("\n")
+    cat("# Then we need to determine which columns are going to be used as independent variables to plot the data")
+    cat("\n")
+    cat("outl <- subset(from_sub, select=c('", input$IV_outliers, "', '", input$DV_graph_outliers, "'))")
+    cat("\n")
+    cat("lista <- '", input$IV_outliers, "'")
+    cat("\n")
+    if(input$outlier_facet == T){
+      cat("listb <- '", input$Facet_choice, "'")
+      cat("\n")
+      cat("outl$listb <- outl[,'",input$Facet_choice, "']")
+      cat("\n")
+      cat("lista <- setdiff(lista, listb)")
+      cat("\n")
+      cat("\n")}
+    
+    if(input$outlier_colour == T){
+      cat("listx <- '", input$Colour_choice, "'")
+      cat("\n")
+      cat("outl$listx <- outl[,'", input$Colour_choice, "']")
+      cat("\n")
+      cat("\n")
+    }
+    
+    cat("phenotype <-'", input$DV_graph_outliers, "'")
+    cat("\n")
+    cat("outl$pheno <- outl[,'", input$DV_graph_outliers, "']")
+    cat("\n")
+    cat("\n")
+    cat("# Combine all the Independent Variables into one variable for plotting:")
+    cat("\n")
+    cat("outl$id_test <- do.call(paste,c(outl[lista], sep = '_'))")
+    cat("\n")
+    cat("\n")
+    
+    if(input$outlier_graph_type == "bar graph"){
+      cat("outl$pheno <- as.numeric(outl$pheno)")
+      cat("\n")
+      if(input$outlier_colour == T) {
+        if(input$outlier_facet == F){
+          cat("out_sum <- summaryBy(pheno ~ listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })")
+          cat("\n")
+          cat("list_temp <- c(lista, listx)")
+          cat("\n")
+          cat("out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))")
+          cat("\n")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))")
+          cat("\n")
+        }
+        if(input$outlier_facet == T){
+          cat("out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  ")
+          cat("\n")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))")
+          cat("\n")
+        }}
+      
+      if(input$outlier_colour == F){
+        if(input$outlier_facet == T){
+          cat("out_sum <- summaryBy(pheno ~ id_test + listb, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  ")
+          cat("\n")
+          cat("list_temp <- c(lista, listx)")
+          cat("\n")
+          cat("out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))")
+          cat("\n")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))")
+          cat("\n")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))")
+          cat("\n")
+        }
+        if(input$outlier_facet == F){
+          cat("out_sum <- summaryBy(pheno ~ id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })")
+          cat("\n")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))")
+          cat("\n")
+        }
+      }
+      cat("\n")
+      cat("# Indicate that you want to plot a bar graph")
+      cat("\n")
+      cat("taka <- taka + geom_bar(stat='identity', position=position_dodge(1))")
+      cat("\n")
+      cat("\n")
+      cat("# Determine what the error bars will represent:")
+      cat("\n")
+      
+      if(input$out_error_bar == "Standard Deviation"){
+        cat("taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.s, ymax=pheno.m+pheno.s), position=position_dodge(1))")
+        cat("\n")
+        cat("\n")}
+      if(input$out_error_bar == "Standard Error"){
+        cat("taka <- taka + geom_errorbar(aes(ymin=pheno.m-pheno.se, ymax=pheno.m+pheno.se), position=position_dodge(1))")
+        cat("\n")
+        cat("\n")}
+    }
+    
+    
+    if(input$outlier_graph_type == "box plot"){
+      if(input$outlier_colour == T){
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))")
+        cat("\n")
+      }
+      else{
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno))   ")
+        cat("\n")
+      }
+      cat("# Indicate that you want to plot a box plot")
+      cat("taka <- taka + geom_boxplot(position='dodge')")
+      cat("\n")
+      cat("\n")
+    }
+    
+    if(input$outlier_graph_type == "box plot + jitter"){
+      if(input$outlier_colour == T){
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))")
+        cat("\n")
+      }
+      else{
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno))   ")
+        cat("\n")
+      }
+      cat("# Indicate that you want to plot a box plot with jitter")
+      cat("\n")
+      cat("taka <- taka + geom_boxplot(position='dodge') +  geom_jitter(position=position_jitter(0.2))")
+      cat("\n")
+      cat("\n")
+    }
+    
+    
+    if(input$outlier_graph_type == "scatter plot"){
+      
+      if(input$outlier_colour == T){
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))    ")
+        cat("\n")
+      }
+      else{
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno))      ")
+        cat("\n")
+      }
+      cat("# Indicate that you want to plot a scatter plot")
+      cat("\n")
+      cat("taka <- taka + geom_point(position=position_dodge(1))")
+      cat("\n")
+      cat("\n")
+    }
+    
+    if(input$outlier_graph_type == "violin plot"){
+      if(input$outlier_colour == T){
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))")
+        cat("\n")
+      }
+      else{
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno))   ")
+        cat("\n")
+      }
+      cat("# Indicate that you want to plot a violin plot")
+      cat("\n")
+      cat("taka <- taka + geom_violin(position='dodge', trim = F)")
+      cat("\n")
+      cat("\n")
+    }
+    
+    if(input$outlier_graph_type == "violin plot + jitter"){
+      if(input$outlier_colour == T){
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))")
+        cat("\n")
+      }
+      else{
+        cat("taka <- ggplot(outl, aes(x = id_test, y= pheno))  ") 
+        cat("\n")
+      }
+      cat("\n")
+      cat("# Indicate that you want to plot a violin plot with jitter")
+      cat("\n")
+      cat("taka <- taka + geom_violin(position='dodge', trim = F) +  geom_jitter(position=position_jitter(0.2))")
+      cat("\n")
+      cat("\n")
+    }
+    
+    if(input$outlier_facet == T){
+      cat("# Facet the graph:")
+      cat("\n")
+      cat("taka <- taka + facet_wrap(~listb, ncol='", input$out_graph_facet_col, "', scale = '", input$out_facet_scale, "')")
+      cat("\n")}
+      
+      if(input$Select_outl_background == T){
+        cat("taka <- taka + theme_minimal()")
+        cat("\n")}
+      if(input$Select_outl_maj_grid == T){
+        cat("taka <- taka + theme(panel.grid.major = element_blank())")
+        cat("\n")}
+      
+      cat("taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))")
+      cat("\n")
+      cat("taka <- taka + xlab('')")
+      cat("\n")
+      cat("taka <- taka + ylab('", input$DV_graph_outliers, "')")
+      cat("\n")
+      
+      if(input$outlier_colour == T){
+        cat("taka <- taka + theme(legend.title=element_blank())")
+        cat("\n")
+        cat("\n")
+      }
+      cat("#Print the graph:")
+      cat("\n")
+      cat("taka")
   })
   
   
