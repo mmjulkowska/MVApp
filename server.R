@@ -5841,7 +5841,7 @@ cat("\n")
     cat("#R code for plotting histogram and testing for normal distribution:")
     cat("\n")
     cat("\n")
-    cat("# 'my_his_data' is the data created depending on your choice of data (raw data/data curated by r2 fitting curves/data with missing values removed/data with outliers removed), dependent variables, and independent variables.")
+    cat("# First let's upload the selected data:")
     cat("\n")
     cat("\n")
     if (input$Histo_data == "raw data") {
@@ -6717,15 +6717,117 @@ cat("\n")
   })
   
   # # # # # R-Snipets to do # # # # # 
-  output$R_var_ui <- renderUI({
-    if(input$R_var_chk == F){
+   output$R_var_ui <- renderUI({
+    if(input$R_var_check == F){
       return()}
-    if(input$R_var_chk == T){
+    if(input$R_var_check == T){
       verbatimTextOutput("R_var")}
   })
   
   output$R_var <- renderPrint({
-    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("#R code for testing for equal variance:")
+    cat("\n")
+    cat("\n")
+    cat("# First - let's pick which data to use")
+    cat("\n")
+    cat("\n")
+    if (input$Histo_data == "raw data") {
+      cat("my_his_data <- my_data")
+    }
+    if (input$Histo_data == "missing values removed data") {
+      cat("my_his_data <- my_data_nona")
+    }
+    if (input$Histo_data == "r2 fitted curves curated data") {
+      cat("my_his_data <- curve_data")
+    }
+    if (input$Histo_data == "r2 fitted curves curated data with missing values removed") {
+      cat("my_his_data <-curve_data_nona")
+    }
+    if (input$Histo_data == "outliers removed data") {
+      cat("my_his_data <- no_outl_data")
+    }  
+    
+    cat("\n")
+    cat("\n")
+    cat("# Select the columns that will be used in this analysis from the chosen dataset:")
+    cat("\n")
+    cat("\n")
+    cat("my_his_data<-subset(my_his_data, select = c('", input$HisDV, "','", input$HisIV, "','", input$Plotfacet_choice, "','", input$subsetdata_choiceVar, "'))")
+    cat("\n")
+    cat("\n")
+    cat("#Make sure your dependent variable is numeric")
+    cat("\n")
+    cat("my_his_data[,",input$HisDV,"] <- as.numeric(as.character(my_his_data[,", input$HisDV, "]))")
+    cat("\n")
+    cat("\n")
+    cat("#Make sure your independent variable is understood by R as factor:")
+    cat("\n")
+    cat("my_his_data[,2]<-as.factor(my_his_data[,2])")
+    cat("\n")
+    cat("# Make sure to identify which phenotype you are looking for")
+    cat("\n")
+    cat("phenoski <-", input$HisDV)
+    cat("\n")
+    cat("idski <-", input$HisIV)
+    cat("\n")
+    cat("\n")
+    
+    if(input$plot_subsVar==T){
+      cat("# If you are subsetting the data prior to analysis you must subset the original dataset like this:")
+      cat("\n")
+      cat("my_his_data$subsetIVLev<-my_his_data[,4]")
+      cat("\n")
+      cat("uniquechoiceIVLev <- ", input$subsetdata_uniquechoiceVar)
+      cat("\n")
+      cat("my_his_data <-subset(my_his_data, my_his_data$subsetIVLev == uniquechoiceIVLev)")
+      cat("\n")
+      cat("\n")}
+    
+    
+    if(input$plot_facet ==T){
+      cat("# If you want to further split the dataset - by facetting it further - we need to further subset the data")
+      cat("\n")
+      cat("my_his_data$facetIV<-my_his_data[,", input$Plotfacet_choice, "]")
+      cat("\n")
+      cat("my_his_data <- subset(my_his_data, my_his_data$facetIV == '", input$Show_subset_for_HovPlot, "')")
+      cat("\n")
+      cat("\n")}
+    
+    cat("# Once you have all the data ready, you can do a Bartlett test for homogeneity of varince")
+    cat("\n")
+    cat("fit_bartlett<-bartlett.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)")
+    cat("\n")
+    cat("\n")
+    cat("# You can examine the Bartlett test results by typing:")
+    cat("\n")
+    cat("print(fit_bartlett)")
+    cat("\n")
+    cat("\n")
+    cat("# To extract only the p-value from the test - type the following:")
+    cat("\n")
+    cat("pvalue_bartlett<-signif(fit_bartlett[[3]],5)")
+    cat("\n")
+    cat("pvalue_bartlett")
+    cat("\n")
+    cat("\n")
+    cat("# If the p-value is smaller than your chosen threshold (at this moment you selected ", input$Chosenthreshold, "), you can assume that the variances are equal.")
+    cat("\n")
+    cat("\n")
+    cat("\n")
+    cat("# To create plot:")
+    cat("\n")
+    cat("id <- my_his_data[,", input$HisIV, "]")
+    cat("\n")
+    cat("pheno <- my_his_data[,", input$HisDV, "]")
+    cat("\n")
+    cat("\n")
+    cat("# and then finally we use hovPlot function from HH library to create the plot")
+    cat("\n")
+    cat("hovPlot.bf(pheno, id,  ")
+    cat("\n")
+    cat("       y.name = phenoski,")
+    cat("\n")
+    cat("       group.name = idski)")
     cat("\n")
   })
   
@@ -6987,8 +7089,117 @@ cat("\n")
   })
   
   output$R_ttest <- renderPrint({
-    cat("We are currently working to add this R-code snippet - please check in few days")
+    cat("#R code for performing t-test / KS test:")
     cat("\n")
+    cat("\n")
+    cat("# First - let's pick which data to use")
+    cat("\n")
+    cat("\n")
+    if (input$Histo_data == "raw data") {
+      cat("data <- my_data")
+    }
+    if (input$Histo_data == "missing values removed data") {
+      cat("data <- my_data_nona")
+    }
+    if (input$Histo_data == "r2 fitted curves curated data") {
+      cat("data <- curve_data")
+    }
+    if (input$Histo_data == "r2 fitted curves curated data with missing values removed") {
+      cat("data <-curve_data_nona")
+    }
+    if (input$Histo_data == "outliers removed data") {
+      cat("data <- no_outl_data")
+    } 
+    cat("\n")
+    cat("\n")
+    cat("# Then - let's put all the variables to be used as independent variable in one element:")
+    cat("\n")
+    cat("subset_lista <- '", input$OT_grouping_IVskis, "'")
+    cat("\n")
+    cat("id_lista <- c('", input$SelectGeno, "','" , input$SelectIV, "','", input$SelectTime, "')")
+    cat("\n")
+    cat("id_lista2 <- setdiff(id_lista, subset_lista)")
+    cat("\n")
+    cat("data$subset_id <- do.call(paste,c(data[c(subset_lista)], sep='_'))")
+    cat("\n")
+    cat("# Pick which subsets you want to compare")
+    cat("\n")
+    cat("real_list <- ", input$OT_compareski)
+    cat("\n")
+    cat("data_sub <- data[data$subset_id %in% real_list,]")
+    cat("\n")
+    cat("# Pick the phenotype you want to use:")
+    cat("\n")
+    cat("data_sub$chosen_DV <- data_sub[,", input$HisDV, "]")
+    cat("\n")
+    cat("data_sub$sample_id <- data_sub$subset_id ")
+    cat("\n")
+    cat("\n")
+    
+    if(input$OT_testski == "One sample t-test"){
+      cat("# For one sample t-test use:")
+      cat("\n")
+      cat("testski <- t.test(data_sub$chosen_DV, mu = ", input$OT_muski, ")")
+      cat("\n")
+      cat("\n")
+      cat("# Extract the p-value by typing:")
+      cat("\n")
+      cat("testski$p.value")
+      cat("\n")
+      cat("\n")
+      cat("# Extract the degrees of freedom by typing:")
+      cat("\n")
+      cat("testski$parameter[[1]]")
+      cat("\n")
+      cat("\n")
+    }
+    
+    if(input$OT_testski == "Two sample t-test"){
+      cat("# For two sample t-test use:")
+        cat("\n")
+        cat("testski <- t.test(data_sub$chosen_DV ~ data_sub$sample_id, var.equal = T)")
+        cat("\n")
+        cat("\n")
+        cat("# Extract the p-value by typing:")
+          cat("\n")
+          cat("testski$p.value")
+          cat("\n")
+          cat("\n")
+          cat("# Extract the degrees of freedom by typing:")
+            cat("\n")
+            cat("testski$parameter[[1]]")
+            cat("\n")
+            cat("\n")
+    }
+    
+    if(input$OT_testski == "Kolmogorov-Smirnov test"){
+      cat("# For Kolmogorov-Smirnov test use:")
+      cat("\n")
+      cat("x <- subset(data_sub, data_sub$sample_id == data_sub$subset_id[1])")
+      cat("\n")
+      cat("y <- subset(data_sub, data_sub$sample_id == data_sub$subset_id[2])")
+      cat("\n")
+      cat("\n")
+      cat("# Extract the p-value by typing:" )
+        cat("\n")
+        cat("ks.test(x$chosen_DV, y$chosen_DV)$p.value")
+        cat("\n")
+        cat("\n")
+    }
+    
+    cat("\n")
+    cat("# For plotting the graph use the following commands (requires loaded ggplot2 library):")
+    cat("\n")
+    cat("\n")  
+    cat("bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, fill = sample_id))")
+    cat("\n")
+    cat("bencki <- bencki + geom_boxplot()")
+    cat("\n")
+    cat("bencki <- bencki + xlab(", input$OT_grouping_IVskis, ")")
+    cat("\n")
+    cat("bencki <- bencki + ylab(", input$HisDV, ")")
+    cat("\n")
+    cat("bencki")
   })
   
   output$OT_graph_download_ui <- renderUI({
