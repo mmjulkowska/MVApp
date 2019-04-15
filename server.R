@@ -2479,6 +2479,8 @@ function(input, output, session) {
     cat("\n")
     cat("The", input$model_graph_plot, "representing", input$model_trait_plot, "of", input$ModelPheno, "estimated using using", model, "from", input$ModelSum_data, "calculated using", days_num, input$SelectTime,". The average number of replicates is", round(reps, digits=2),".")
     cat(" The figure was created using raw data.")
+    if(input$model_graph_plot == "scatter plot"){
+      cat(" The black lines represent the sample mean value.")}
     if(input$ModelSum_data == "r2 fitted curves curated data"){
       cat(" The data was additionally curated based on the fit of the", model,"to observed data (r2). The samples with r2 below", input$rsq_limit, "were eliminated from the dataset.")}
     cat(" Different colors indicate different", input$model_color_plot, ".")
@@ -2583,14 +2585,15 @@ function(input, output, session) {
     
     if(input$model_graph_plot == "box plot + jitter"){
       benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
-      benc <- benc + geom_boxplot() + geom_jitter(position=position_jitter(0.2))
+      benc <- benc + geom_boxplot() + geom_quasirandom(alpha = 0.6)
       benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
     }
     
     if(input$model_graph_plot == "scatter plot"){
       benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
-      benc <- benc + geom_point()
+      benc <- benc + geom_quasirandom(alpha = 0.6)
+      benc <- benc + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
       
       
       benc <- benc + facet_wrap(~ facet, scale = input$Select_model_facet_sc)
@@ -2606,7 +2609,7 @@ function(input, output, session) {
     
     if(input$model_graph_plot == "violin plot + jitter"){
       benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
-      benc <- benc + geom_violin(trim = F) + geom_jitter(position=position_jitter(0.2))
+      benc <- benc + geom_violin(trim = F) + geom_quasirandom(alpha = 0.6)
       benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
     }
@@ -2781,7 +2784,7 @@ function(input, output, session) {
       if(input$model_graph_plot == "box plot + jitter"){
         cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
         cat("\n")
-        cat("benc <- benc + geom_boxplot() + geom_jitter(position=position_jitter(0.2))")
+        cat("benc <- benc + geom_boxplot() + geom_quasirandom(alpha = 0.6)")
         cat("\n")
         cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
         cat("\n")}
@@ -2789,7 +2792,9 @@ function(input, output, session) {
       if(input$model_graph_plot == "scatter plot"){
         cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
         cat("\n")
-        cat("benc <- benc + geom_point()")
+        cat("benc <- benc + geom_quasirandom(alpha = 0.6)")
+        cat("\n")
+        cat("benc <- benc + + stat_summary(fun.y=mean, geom='point', shape=95, size=10, color='black', fill='black')")
         cat("\n")
         cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
         cat("\n")}
@@ -2805,7 +2810,7 @@ function(input, output, session) {
       if(input$model_graph_plot == "violin plot + jitter"){
         cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
         cat("\n")
-        cat("benc <- benc + geom_violin(trim = F) + geom_jitter(position=position_jitter(0.2))")
+        cat("benc <- benc + geom_violin(trim = F) + geom_quasirandom(alpha = 0.6)")
         cat("\n")
         cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
         cat("\n")}
@@ -4435,7 +4440,7 @@ function(input, output, session) {
         taka <- ggplot(outl, aes(x = id_test, y= pheno))   
       }
       
-      taka <- taka + geom_boxplot(position="dodge") +  geom_jitter(position=position_jitter(0.2))
+      taka <- taka + geom_boxplot(position="dodge") + geom_quasirandom(alpha = 0.6)
       #taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)
     }
     
@@ -4449,7 +4454,8 @@ function(input, output, session) {
         taka <- ggplot(outl, aes(x = id_test, y= pheno))      
       }
       
-      taka <- taka + geom_point(position=position_dodge(1))
+      taka <- taka + geom_quasirandom(alpha = 0.6)
+      taka <- taka + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
       #taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)
     }
     
@@ -4473,7 +4479,7 @@ function(input, output, session) {
         taka <- ggplot(outl, aes(x = id_test, y= pheno))   
       }
       
-      taka <- taka + geom_violin(position="dodge", trim = F) +  geom_jitter(position=position_jitter(0.2))
+      taka <- taka + geom_violin(position="dodge", trim = F) + geom_quasirandom(alpha = 0.6)
       #taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)
     }
     
@@ -4760,7 +4766,7 @@ function(input, output, session) {
       }
       cat("# Indicate that you want to plot a box plot with jitter")
       cat("\n")
-      cat("taka <- taka + geom_boxplot(position='dodge') +  geom_jitter(position=position_jitter(0.2))")
+      cat("taka <- taka + geom_boxplot(position='dodge') + geom_quasirandom(alpha = 0.6)")
       cat("\n")
       cat("\n")
     }
@@ -4779,6 +4785,10 @@ function(input, output, session) {
       cat("# Indicate that you want to plot a scatter plot")
       cat("\n")
       cat("taka <- taka + geom_point(position=position_dodge(1))")
+      cat("\n")
+      cat("# Include the mean indicator")
+      cat("\n")
+      cat("taka <- taka + stat_summary(fun.y=mean, geom='point', shape=95, size=10, color='black', fill='black')")
       cat("\n")
       cat("\n")
     }
@@ -4811,7 +4821,7 @@ function(input, output, session) {
       cat("\n")
       cat("# Indicate that you want to plot a violin plot with jitter")
       cat("\n")
-      cat("taka <- taka + geom_violin(position='dodge', trim = F) +  geom_jitter(position=position_jitter(0.2))")
+      cat("taka <- taka + geom_violin(position='dodge', trim = F) + geom_quasirandom(alpha = 0.6)")
       cat("\n")
       cat("\n")
     }
@@ -4914,7 +4924,8 @@ function(input, output, session) {
       cat(" The data was curated based on fitting the", input$model ,"function and the samples where goodness of fit (r2) was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
     if(input$outlier_colour == T){
       cat(" Different colors indicate different", color_by, "-s.")}
-    
+    if(input$outlier_graph_type == "scatter plot"){
+      cat(" The black lines represent the sample mean value.")}
     if(input$outlier_graph_type == "bar graph"){
       cat(" The bars represent the mean value of the ", phenotype, "and the error bars represent", error_bar,".")}
   })
@@ -5024,7 +5035,7 @@ function(input, output, session) {
       else{
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno)) 
       }
-      jaka <- jaka + geom_boxplot(position="dodge") +  geom_jitter(position=position_jitter(0.2))}
+      jaka <- jaka + geom_boxplot(position="dodge") + geom_quasirandom(alpha = 0.6)}
     
     if(input$outlier_graph_type == "scatter plot"){
       if(input$outlier_colour == T){
@@ -5034,7 +5045,8 @@ function(input, output, session) {
       else{
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
       }
-      jaka <- jaka + geom_point(position=position_dodge(1))
+      jaka <- jaka + geom_quasirandom(alpha = 0.6)
+      jaka <- jaka + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
     }
     
     if(input$outlier_graph_type == "violin plot"){
@@ -5057,7 +5069,7 @@ function(input, output, session) {
       }
       
       #jaka <- jaka + scale_fill_brewer(palette = input$Select_outl_color_sc)
-      jaka <- jaka + geom_violin(position="dodge", trim = F) +  geom_jitter(position=position_jitter(0.2))}
+      jaka <- jaka + geom_violin(position="dodge", trim = F) +  + geom_quasirandom(alpha = 0.6)}
     
     if(input$outlier_facet == T){
       jaka <- jaka + facet_wrap(~listb, ncol=3, scale = input$out_facet_scale)}
@@ -5321,7 +5333,7 @@ function(input, output, session) {
       }
       cat("# Indicate that you want to plot a box plot with jitter")
       cat("\n")
-      cat("taka <- taka + geom_boxplot(position='dodge') +  geom_jitter(position=position_jitter(0.2))")
+      cat("taka <- taka + geom_boxplot(position='dodge') + geom_quasirandom(alpha = 0.6)")
       cat("\n")
       cat("\n")
     }
@@ -5339,8 +5351,11 @@ function(input, output, session) {
       }
       cat("# Indicate that you want to plot a scatter plot")
       cat("\n")
-      cat("taka <- taka + geom_point(position=position_dodge(1))")
+      cat("taka <- taka + geom_quasirandom(alpha = 0.6)")
       cat("\n")
+      cat("# Include the mean indicator")
+      cat("\n")
+      cat("taka <- taka + stat_summary(fun.y=mean, geom='point', shape=95, size=10, color='black', fill='black')")
       cat("\n")
     }
     
@@ -5372,7 +5387,7 @@ function(input, output, session) {
       cat("\n")
       cat("# Indicate that you want to plot a violin plot with jitter")
       cat("\n")
-      cat("taka <- taka + geom_violin(position='dodge', trim = F) +  geom_jitter(position=position_jitter(0.2))")
+      cat("taka <- taka + geom_violin(position='dodge', trim = F) + geom_quasirandom(alpha = 0.6)")
       cat("\n")
       cat("\n")
     }
@@ -5467,6 +5482,8 @@ function(input, output, session) {
       cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
     if(input$outlier_colour == T){
       cat(" Different colors indicate different", color_by, "-s.")}
+    if(input$outlier_graph_type == "scatter plot"){
+      cat(" The black lines represent the sample mean value.")}
     if(input$outlier_graph_type == "bar graph"){
       cat(" The bars represent the mean value of the ", phenotype, "and the error bars represent", error_bar,".")}
   })
@@ -7567,18 +7584,19 @@ function(input, output, session) {
       box_graph <- box_graph + geom_boxplot()}
     
     if(input$ANOVA_graph_type == "box plot + jitter"){
-      box_graph <- box_graph + geom_boxplot() + geom_jitter(position=position_jitter(0.2))}
+      box_graph <- box_graph + geom_boxplot() + geom_quasirandom(alpha = 0.6)}
     
     if(input$ANOVA_graph_type == "violin plot"){
       box_graph <- box_graph + geom_violin(trim = F)
     }
     
     if(input$ANOVA_graph_type == "violin plot + jitter"){
-      box_graph <- box_graph + geom_violin(trim = F) + geom_jitter(position=position_jitter(0.2))  
+      box_graph <- box_graph + geom_violin(trim = F) + geom_quasirandom(alpha = 0.6)  
     }
     
     if(input$ANOVA_graph_type == "scatter plot"){
-      box_graph <- box_graph + geom_point() 
+      box_graph <- box_graph + geom_quasirandom(alpha = 0.6)
+      box_graph <- box_graph + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
     }
     
     box_graph <- box_graph + theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -10543,7 +10561,34 @@ function(input, output, session) {
     clust_t_cor = cor(clust_t_matrix,method="pearson")
     clust_t_dist = dist(clust_t_cor)
     clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
-    heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
+    if(input$HHeatMap_col == "blue-to-red"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "blue-to-green"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2green(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "ygobb"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=ygobb(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "matlab-like"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=matlab.like(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "matlab-like2"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=matlab.like2(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "magenta-to-green"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=magenta2green(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "cyan-to-yellow"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=cyan2yellow(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "blue-to-yellow"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2yellow(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "green-to-red"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=green2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "cm-colors"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=cm.colors(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "topo-colors"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=topo.colors(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "heat-colors"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=heat.colors(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "terrain-colors"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=terrain.colors(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+    if(input$HHeatMap_col == "rainbow"){
+      heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=rainbow(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
   })
   
   output$HotHeatMap <- renderPlot({
