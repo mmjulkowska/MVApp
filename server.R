@@ -303,13 +303,13 @@ function(input, output, session) {
       return ()
     } else
       My_list <- setdiff(input$SelectSpatial, input$SpatialX)
-      tagList(
-        selectizeInput(
-          inputId = "SpatialY",
-          label = "Spatial Variable 2",
-          choices = My_list,
-          multiple = T
-        ))
+    tagList(
+      selectizeInput(
+        inputId = "SpatialY",
+        label = "Spatial Variable 2",
+        choices = My_list,
+        multiple = T
+      ))
   })
   
   output$Spatial_facet_Q <- renderUI({
@@ -326,8 +326,8 @@ function(input, output, session) {
       return ()
     } else
       numericInput("Spatial_threshold", 
-                     label = "p-value threshold:",
-                     value = 0.05)
+                   label = "p-value threshold:",
+                   value = 0.05)
   })
   
   output$Spatial_facet <- renderUI({
@@ -336,13 +336,13 @@ function(input, output, session) {
       return ()}
     else
       My_list <- setdiff(input$SelectSpatial, c(input$SpatialX, input$SpatialY))
-      tagList(
-        selectizeInput(
-          inputId = "SpatialF",
-          label = "Split by",
-          choices = My_list,
-          multiple = F
-        ))
+    tagList(
+      selectizeInput(
+        inputId = "SpatialF",
+        label = "Split by",
+        choices = My_list,
+        multiple = F
+      ))
   })
   
   output$Spatial_subset_Q <- renderUI({
@@ -372,7 +372,7 @@ function(input, output, session) {
         (input$SpatialCheck == FALSE) | (input$Subset_spatial_Q == FALSE)) {
       return ()}
     else
-    subset_lista <- input$Spatial_sub
+      subset_lista <- input$Spatial_sub
     data <- my_data()
     data$subset_id <- data[,subset_lista]
     the_list <- unique(data$subset_id)
@@ -406,7 +406,7 @@ function(input, output, session) {
       benc_data$sub <- benc_data[,subski]
       this_I_want <- input$SSpaSub
       benc_data <- subset(benc_data, benc_data$sub == this_I_want)
-      }
+    }
     
     Mr_x <- input$SpatialX
     Mr_y <- input$SpatialY
@@ -414,17 +414,17 @@ function(input, output, session) {
     
     
     if(length(Mr_x) > 1){
-    var1_temp <- subset(benc_data, select=c(Mr_x))
-    var1_temp$var1 <- do.call(paste, c(var1_temp, sep="_"))
-    benc_data$Var_1 <- var1_temp$var1}
+      var1_temp <- subset(benc_data, select=c(Mr_x))
+      var1_temp$var1 <- do.call(paste, c(var1_temp, sep="_"))
+      benc_data$Var_1 <- var1_temp$var1}
     if(length(Mr_x) < 2){
       benc_data$Var_1 <- benc_data[,Mr_x]
     }
     
     if(length(Mr_y) > 1){
-    var2_temp <- subset(benc_data, select=c(Mr_y))
-    var2_temp$var2 <- do.call(paste, c(var2_temp, sep="_"))
-    benc_data$Var_2 <- var2_temp$var2}
+      var2_temp <- subset(benc_data, select=c(Mr_y))
+      var2_temp$var2 <- do.call(paste, c(var2_temp, sep="_"))
+      benc_data$Var_2 <- var2_temp$var2}
     if(length(Mr_y) < 2){
       benc_data$Var_2 <- benc_data[,Mr_y]
     }
@@ -463,25 +463,25 @@ function(input, output, session) {
   
   
   output$var_viz_download <- renderUI({  
-  if(is.null(VarViz())){
-    return()}
-  else
-    downloadButton("Download_spatial", label="Download plot")
-})
+    if(is.null(VarViz())){
+      return()}
+    else
+      downloadButton("Download_spatial", label="Download plot")
+  })
   
   output$Download_spatial <- downloadHandler(
-      filename = function(){paste("Spatial variation of", input$SpatialPheno, " MVApp.pdf") },
-      content <- function(file){
-        pdf(file)
-        
-        benc_data <- VarViz()
-        x_lab <- input$SpatialX
-        y_lab <- input$SpatialY
-        becki <- qplot(data = benc_data, Var_1, Var_2, fill=resp, geom="tile", ylab=y_lab, xlab=x_lab)
-        print(becki)
-        dev.off()
-        })
-
+    filename = function(){paste("Spatial variation of", input$SpatialPheno, " MVApp.pdf") },
+    content <- function(file){
+      pdf(file)
+      
+      benc_data <- VarViz()
+      x_lab <- input$SpatialX
+      y_lab <- input$SpatialY
+      becki <- qplot(data = benc_data, Var_1, Var_2, fill=resp, geom="tile", ylab=y_lab, xlab=x_lab)
+      print(becki)
+      dev.off()
+    })
+  
   output$Spatial_warning <- renderUI({
     if(input$SpatialCheck == F){
       verbatimTextOutput("Spatial_warning_message")}
@@ -496,7 +496,7 @@ function(input, output, session) {
     cat("You did not select a column containing spatial information element - therefore analysis of spatial variation is not possible.")
     cat("\n")
     cat("To perform spatial analysis - please go back to >>Upload your data<< tab to select columns containing spatial information") 
-    })
+  })
   
   
   output$R_spatial <- renderPrint({
@@ -612,14 +612,14 @@ function(input, output, session) {
     cat("summary(amod)")
     
   })
-      
+  
   
   output$var_viz_ANOVA_report <- renderPrint({
     
     tresik <- as.numeric(as.character(input$Spatial_threshold))
-
+    
     fraka <- VarViz()
-
+    
     amod <- aov(resp ~ Var_1 + Var_2 + Var_1*Var_2, data = fraka)
     
     cat("If spatial components have a significant effect on your data, you should consider performing spatial correction.")
@@ -665,14 +665,14 @@ function(input, output, session) {
   })
   
   output$Legend_Spatial_plot <- renderPrint({
-      cat("# # # > > > Figure legend: < < < # # #")
-      cat("\n")
-      cat("\n")
-      cat("The tile plot representing the distribution of", input$SpatialPheno,"across", input$SpatialX, "and", input$SpatialY, ".")
-      cat("")
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    cat("The tile plot representing the distribution of", input$SpatialPheno,"across", input$SpatialX, "and", input$SpatialY, ".")
+    cat("")
   })
   
- 
+  
   
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - >> MODELING IN 3rd TAB << - - - - - - - - - - - - -
@@ -1042,199 +1042,199 @@ function(input, output, session) {
     cat("super_temp3 <- subset(super_temp2, super_temp2[, 3] == things_to_model[i, 3])")
     cat("\n")
     cat("\n")
-      if (input$model == "lin") {
-    cat("# For the linear model we fit linear model with time vs. the response (phenotype)")
-    cat("\n")   
-    cat("fit_lin <- lm(super_temp3[, 5] ~ super_temp3[, 4])")
-    cat("\n")   
-    cat("# Extract the coefficients:")
-    cat("\n")   
-    cat("things_to_model[i, 4] <- coefficients(fit_lin)[2]")
-    cat("\n")   
-    cat("things_to_model[i, 5] <- coefficients(fit_lin)[1]")
-    cat("\n")   
-    cat("things_to_model[i, 6] <- summary(fit_lin)$r.squared")
-    cat("\n")   
-    cat("\n")   
-    cat("# And re-name the columns into more informative variables:")
-    cat("\n")   
-    cat("colnames(things_to_model)[4] <- 'DELTA'")
-    cat("\n")   
-    cat("colnames(things_to_model)[5] <- 'INTERCEPT'")
-    cat("\n")   
-    cat("colnames(things_to_model)[6] <- 'r_squared'")
-      }
-      
-      if (input$model == "quad") {
-    cat("# For the quadratic model we fit linear model with time vs. the transformed response (phenotype)")
-    cat("\n")
-    cat("super_temp3$transformed <- sqrt(super_temp3[, 5])")
-    cat("\n")
-    cat("fit_quad <- lm(super_temp3$transformed ~ super_temp3[, 4])")
-    cat("\n")
-    cat("# As we transformed the phenotype with square root function,")
-    cat("\n")
-    cat("# now we need to transform the coefficient of the model back to their original state") 
-    cat("\n")
-    cat("# and save them in our things_to_model data frame:")
-    cat("\n")
-    cat("things_to_model[i, 4] <- (coefficients(fit_quad)[2]) ^ 2")
-    cat("\n")
-    cat("things_to_model[i, 5] <- (coefficients(fit_quad)[1]) ^ 2")
-    cat("\n")
-    cat("things_to_model[i, 6] <- summary(fit_quad)$r.squared")
-    cat("\n")
-    cat("# And re-name the columns into more informative variables:")
-    cat("\n")   
-    cat("colnames(things_to_model)[4] <- 'DELTA'")
-    cat("\n")   
-    cat("colnames(things_to_model)[5] <- 'INTERCEPT'")
-    cat("\n")   
-    cat("colnames(things_to_model)[6] <- 'r_squared'")
+    if (input$model == "lin") {
+      cat("# For the linear model we fit linear model with time vs. the response (phenotype)")
+      cat("\n")   
+      cat("fit_lin <- lm(super_temp3[, 5] ~ super_temp3[, 4])")
+      cat("\n")   
+      cat("# Extract the coefficients:")
+      cat("\n")   
+      cat("things_to_model[i, 4] <- coefficients(fit_lin)[2]")
+      cat("\n")   
+      cat("things_to_model[i, 5] <- coefficients(fit_lin)[1]")
+      cat("\n")   
+      cat("things_to_model[i, 6] <- summary(fit_lin)$r.squared")
+      cat("\n")   
+      cat("\n")   
+      cat("# And re-name the columns into more informative variables:")
+      cat("\n")   
+      cat("colnames(things_to_model)[4] <- 'DELTA'")
+      cat("\n")   
+      cat("colnames(things_to_model)[5] <- 'INTERCEPT'")
+      cat("\n")   
+      cat("colnames(things_to_model)[6] <- 'r_squared'")
     }
-      
-      if (input$model == "exp") {
-        cat("# For the exponential model we fit linear model with time vs. the transformed response (phenotype)")
-        cat("\n")
-        cat("super_temp3$transformed <- log(super_temp3[, 5])")
-        cat("\n")
-        cat("fit_exp <- lm(super_temp3$transformed ~ super_temp3[, 4])")
-        cat("\n")
-        cat("# Extract the coefficients:")     
-        cat("\n")
-        cat("things_to_model[i, 4] <- coefficients(fit_exp)[2]")
-        cat("\n")
-        cat("things_to_model[i, 5] <- coefficients(fit_exp)[1]")
-        cat("\n")
-        cat("things_to_model[i, 6] <- summary(fit_exp)$r.squared")
-        cat("\n")
-        cat("# And re-name the columns into more informative variables:")
-        cat("\n")   
-        cat("colnames(things_to_model)[4] <- 'DELTA'")
-        cat("\n")   
-        cat("colnames(things_to_model)[5] <- 'INTERCEPT'")
-        cat("\n")   
-        cat("colnames(things_to_model)[6] <- 'r_squared'")
-      }
-      
-      if (input$model == "sqr") {
-        cat("# For the square root model we fit linear model with time vs. the transformed response (phenotype)")
-        cat("\n")
-        cat("super_temp3$transformed <- (super_temp3[, 5]) ^ 2")
-        cat("\n")
-        cat("fit_quad <- lm(super_temp3$transformed ~ super_temp3[, 4])")
-        cat("\n")
-        cat("# As we transformed the phenotype with square root function,")
-        cat("\n")
-        cat("# now we need to transform the coefficient of the model back to their original state") 
-        cat("\n")
-        cat("# and save them in our things_to_model data frame:")
-        cat("\n")
-        cat("things_to_model[i, 4] <- sqrt(coefficients(fit_sq)[2])")
-        cat("\n")
-        cat("things_to_model[i, 5] <- sqrt(coefficients(fit_sq)[1])")
-        cat("\n")
-        cat("things_to_model[i, 6] <- summary(fit_sq)$r.squared")
-        cat("\n")
-        cat("# And re-name the columns into more informative variables:")
-        cat("\n")   
-        cat("colnames(things_to_model)[4] <- 'DELTA'")
-        cat("\n")   
-        cat("colnames(things_to_model)[5] <- 'INTERCEPT'")
-        cat("\n")   
-        cat("colnames(things_to_model)[6] <- 'r_squared'")
-      }
     
-      if (input$model == "cubic") {
-        cat("# For the cubic splines we fit linear model with time and response (phenotype) using the user-determined knots")
-        cat("\n")
-        cat("knot <- ",input$cubic_knots)
-        cat("\n")
-        cat("# This formula is a bit more prone to buggs - so it is better rename the columns containing time and phenotype")
-        cat("\n")
-        cat("colnames(super_temp3)[4] <- 'time'")
-        cat("\n")
-        cat("colnames(super_temp3)[5] <- 'phenotype'")
-        cat("\n")
-        cat("# And fit the model:")
-        cat("\n")
-        cat("fit_cub <- lm(phenotype ~ bs(time, knots=knot), data=super_temp3)")
-        cat("\n")
-        cat("# Then - let's add all the model coefficients into our modeling table:")
-        cat("\n")
-        cat("for(e in 1:length(fit_cub$coef)){")
-        cat("\n")
-        cat("  things_to_model[i,(3+e)] <- fit_cub$coef[[e]]}")
-        cat("\n")
-        cat("# And the model fit:")
-        cat("things_to_model[i,(4+length(fit_cub$coef))] <- summary(fit_cub)$r.squared")
-        cat("\n")
-        cat("# And re-name the columns into more informative variables:")
-        cat("\n")   
-        cat("colnames(things_to_model)[4] <- 'INTERCEPT'")
-        cat("\n")   
-        cat("for(f in 2:length(fit_cub$coef)){")
-        cat("\n")   
-        cat("  colnames(things_to_model)[3+f] <- paste('Coef',f,sep='_')}")
-        cat("\n")   
-        cat("colnames(things_to_model)[(4+length(fit_cub$coef))] <- 'r_squared'")
-      }
+    if (input$model == "quad") {
+      cat("# For the quadratic model we fit linear model with time vs. the transformed response (phenotype)")
+      cat("\n")
+      cat("super_temp3$transformed <- sqrt(super_temp3[, 5])")
+      cat("\n")
+      cat("fit_quad <- lm(super_temp3$transformed ~ super_temp3[, 4])")
+      cat("\n")
+      cat("# As we transformed the phenotype with square root function,")
+      cat("\n")
+      cat("# now we need to transform the coefficient of the model back to their original state") 
+      cat("\n")
+      cat("# and save them in our things_to_model data frame:")
+      cat("\n")
+      cat("things_to_model[i, 4] <- (coefficients(fit_quad)[2]) ^ 2")
+      cat("\n")
+      cat("things_to_model[i, 5] <- (coefficients(fit_quad)[1]) ^ 2")
+      cat("\n")
+      cat("things_to_model[i, 6] <- summary(fit_quad)$r.squared")
+      cat("\n")
+      cat("# And re-name the columns into more informative variables:")
+      cat("\n")   
+      cat("colnames(things_to_model)[4] <- 'DELTA'")
+      cat("\n")   
+      cat("colnames(things_to_model)[5] <- 'INTERCEPT'")
+      cat("\n")   
+      cat("colnames(things_to_model)[6] <- 'r_squared'")
+    }
+    
+    if (input$model == "exp") {
+      cat("# For the exponential model we fit linear model with time vs. the transformed response (phenotype)")
+      cat("\n")
+      cat("super_temp3$transformed <- log(super_temp3[, 5])")
+      cat("\n")
+      cat("fit_exp <- lm(super_temp3$transformed ~ super_temp3[, 4])")
+      cat("\n")
+      cat("# Extract the coefficients:")     
+      cat("\n")
+      cat("things_to_model[i, 4] <- coefficients(fit_exp)[2]")
+      cat("\n")
+      cat("things_to_model[i, 5] <- coefficients(fit_exp)[1]")
+      cat("\n")
+      cat("things_to_model[i, 6] <- summary(fit_exp)$r.squared")
+      cat("\n")
+      cat("# And re-name the columns into more informative variables:")
+      cat("\n")   
+      cat("colnames(things_to_model)[4] <- 'DELTA'")
+      cat("\n")   
+      cat("colnames(things_to_model)[5] <- 'INTERCEPT'")
+      cat("\n")   
+      cat("colnames(things_to_model)[6] <- 'r_squared'")
+    }
+    
+    if (input$model == "sqr") {
+      cat("# For the square root model we fit linear model with time vs. the transformed response (phenotype)")
+      cat("\n")
+      cat("super_temp3$transformed <- (super_temp3[, 5]) ^ 2")
+      cat("\n")
+      cat("fit_quad <- lm(super_temp3$transformed ~ super_temp3[, 4])")
+      cat("\n")
+      cat("# As we transformed the phenotype with square root function,")
+      cat("\n")
+      cat("# now we need to transform the coefficient of the model back to their original state") 
+      cat("\n")
+      cat("# and save them in our things_to_model data frame:")
+      cat("\n")
+      cat("things_to_model[i, 4] <- sqrt(coefficients(fit_sq)[2])")
+      cat("\n")
+      cat("things_to_model[i, 5] <- sqrt(coefficients(fit_sq)[1])")
+      cat("\n")
+      cat("things_to_model[i, 6] <- summary(fit_sq)$r.squared")
+      cat("\n")
+      cat("# And re-name the columns into more informative variables:")
+      cat("\n")   
+      cat("colnames(things_to_model)[4] <- 'DELTA'")
+      cat("\n")   
+      cat("colnames(things_to_model)[5] <- 'INTERCEPT'")
+      cat("\n")   
+      cat("colnames(things_to_model)[6] <- 'r_squared'")
+    }
+    
+    if (input$model == "cubic") {
+      cat("# For the cubic splines we fit linear model with time and response (phenotype) using the user-determined knots")
+      cat("\n")
+      cat("knot <- ",input$cubic_knots)
+      cat("\n")
+      cat("# This formula is a bit more prone to buggs - so it is better rename the columns containing time and phenotype")
+      cat("\n")
+      cat("colnames(super_temp3)[4] <- 'time'")
+      cat("\n")
+      cat("colnames(super_temp3)[5] <- 'phenotype'")
+      cat("\n")
+      cat("# And fit the model:")
+      cat("\n")
+      cat("fit_cub <- lm(phenotype ~ bs(time, knots=knot), data=super_temp3)")
+      cat("\n")
+      cat("# Then - let's add all the model coefficients into our modeling table:")
+      cat("\n")
+      cat("for(e in 1:length(fit_cub$coef)){")
+      cat("\n")
+      cat("  things_to_model[i,(3+e)] <- fit_cub$coef[[e]]}")
+      cat("\n")
+      cat("# And the model fit:")
+      cat("things_to_model[i,(4+length(fit_cub$coef))] <- summary(fit_cub)$r.squared")
+      cat("\n")
+      cat("# And re-name the columns into more informative variables:")
+      cat("\n")   
+      cat("colnames(things_to_model)[4] <- 'INTERCEPT'")
+      cat("\n")   
+      cat("for(f in 2:length(fit_cub$coef)){")
+      cat("\n")   
+      cat("  colnames(things_to_model)[3+f] <- paste('Coef',f,sep='_')}")
+      cat("\n")   
+      cat("colnames(things_to_model)[(4+length(fit_cub$coef))] <- 'r_squared'")
+    }
+    
+    if(input$model == "smooth"){
       
-      if(input$model == "smooth"){
-        
-         if(input$spline_df == "user defined"){
-          cat("# For the smooth splines we need to include the degrees of freedom")
-          cat("\n")
-          cat("degree <- '", input$model_smoothski_df,"'")
-          cat("# And fit the smooth-sline using the smooth.spline function:")
-          cat("\n")
-          cat("fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], df=degree)")}
-        if(input$spline_df == "automatic"){
-          cat("# For the smooth splines we are using the smooth.spline function:")
-          cat("\n")
-          cat("fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], cv=T)")}
+      if(input$spline_df == "user defined"){
+        cat("# For the smooth splines we need to include the degrees of freedom")
         cat("\n")
-        cat("# Then - let's add all the model coefficients into our modeling table:")
+        cat("degree <- '", input$model_smoothski_df,"'")
+        cat("# And fit the smooth-sline using the smooth.spline function:")
         cat("\n")
-        cat("for(e in 1:length(fit_smooth$fit$coef)){")
+        cat("fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], df=degree)")}
+      if(input$spline_df == "automatic"){
+        cat("# For the smooth splines we are using the smooth.spline function:")
         cat("\n")
-        cat("  things_to_model[i,(3+e)] <- fit_smooth$fit$coef[e]}")
-        cat("\n")
-        cat("# As the smooth.spline function does not automatically calculate predicted values")
-        cat("\n")
-        cat("# we have to calculate them ourselves:")
-        cat("\n")
-        cat("for(g in 1:length(unique(super_temp3[,4]))){")
-        cat("\n")
-        cat("  super_temp3[g,6] <- predict(fit_smooth, unique(super_temp3[,4])[g])$y}")
-        cat("\n")
-        cat("# Based on predicted values now we can calculate the R2:")
-        cat("\n")
-        cat("x <- super_temp3[,6]")
-        cat("\n")
-        cat("y <- super_temp3[,5]")
-        cat("\n")
-        cat("test <- data.frame(x,y)")
-        cat("\n")
-        cat("rsq <- cor(test,method='pearson')[1,2]^2")
-        cat("\n")
-        cat("# Then we can simply add it to the table:")
-        cat("\n")
-        cat("things_to_model[i,(4 + e)] <- rsq")
-        cat("\n")
-        cat("colnames(things_to_model)[4 + e] <- 'r_squared'")
-        cat("\n")
-        cat("things_to_model[i,(5+e)] <- fit_smooth$df")
-        cat("\n")
-        cat("colnames(things_to_model)[5 + e] <- 'df'")
-        cat("\n")
-        cat("# And re-name the columns into more informative variables:")
-        cat("\n")
-        cat("super_temp$predict  ")
-        cat("\n")
-        cat("for(f in 1:length(fit_smooth$fit$coef)){")
-        cat("\n")
-        cat(" colnames(things_to_model)[3+f] <- paste('Coef',f,sep='_')}")}
+        cat("fit_smooth <- smooth.spline(x = super_temp3[, 4], y = super_temp3[, 5], cv=T)")}
+      cat("\n")
+      cat("# Then - let's add all the model coefficients into our modeling table:")
+      cat("\n")
+      cat("for(e in 1:length(fit_smooth$fit$coef)){")
+      cat("\n")
+      cat("  things_to_model[i,(3+e)] <- fit_smooth$fit$coef[e]}")
+      cat("\n")
+      cat("# As the smooth.spline function does not automatically calculate predicted values")
+      cat("\n")
+      cat("# we have to calculate them ourselves:")
+      cat("\n")
+      cat("for(g in 1:length(unique(super_temp3[,4]))){")
+      cat("\n")
+      cat("  super_temp3[g,6] <- predict(fit_smooth, unique(super_temp3[,4])[g])$y}")
+      cat("\n")
+      cat("# Based on predicted values now we can calculate the R2:")
+      cat("\n")
+      cat("x <- super_temp3[,6]")
+      cat("\n")
+      cat("y <- super_temp3[,5]")
+      cat("\n")
+      cat("test <- data.frame(x,y)")
+      cat("\n")
+      cat("rsq <- cor(test,method='pearson')[1,2]^2")
+      cat("\n")
+      cat("# Then we can simply add it to the table:")
+      cat("\n")
+      cat("things_to_model[i,(4 + e)] <- rsq")
+      cat("\n")
+      cat("colnames(things_to_model)[4 + e] <- 'r_squared'")
+      cat("\n")
+      cat("things_to_model[i,(5+e)] <- fit_smooth$df")
+      cat("\n")
+      cat("colnames(things_to_model)[5 + e] <- 'df'")
+      cat("\n")
+      cat("# And re-name the columns into more informative variables:")
+      cat("\n")
+      cat("super_temp$predict  ")
+      cat("\n")
+      cat("for(f in 1:length(fit_smooth$fit$coef)){")
+      cat("\n")
+      cat(" colnames(things_to_model)[3+f] <- paste('Coef',f,sep='_')}")}
     cat("\n")
     cat("\n")
     cat("# Then we need to close the loop (from 'for (i in 1:nrow(things_to_model)) {'))")
@@ -1249,7 +1249,7 @@ function(input, output, session) {
     cat("# Or save it as '.csv' file by typing:")
     cat("\n")
     cat("write.csv(things_to_model,'my_model.csv')")
-    })
+  })
   
   
   good_r2 <- reactive({
@@ -1675,25 +1675,25 @@ function(input, output, session) {
     if(input$Select_model_type_plot == "multiple plots"){
       docelowy <- example_model()
       real_list <- unique(docelowy$lista)
-    cat("wish_list <- c(", paste("'", real_list,"',"), ")")  
-    cat("\n")
-    cat("# As you ant to plot multiple graphs - make sure that they are arranged neatly:")
-    cat("\n")
-    cat("par(mfrow=c(2,5))")
-    cat("\n")  
-    cat("# Loop the graphs:")
-    cat("\n")  
-    cat("for(i in 1:length(wish_list)){")
-    cat("\n")  
-    cat("model_data2 <- subset(model_data, temodel_datamp$selection == wish_list[i])")
-    cat("\n")
-    cat("\n")}
+      cat("wish_list <- c(", paste("'", real_list,"',"), ")")  
+      cat("\n")
+      cat("# As you ant to plot multiple graphs - make sure that they are arranged neatly:")
+      cat("\n")
+      cat("par(mfrow=c(2,5))")
+      cat("\n")  
+      cat("# Loop the graphs:")
+      cat("\n")  
+      cat("for(i in 1:length(wish_list)){")
+      cat("\n")  
+      cat("model_data2 <- subset(model_data, temodel_datamp$selection == wish_list[i])")
+      cat("\n")
+      cat("\n")}
     
     if(input$Select_model_type_plot == "single plot"){
-    cat("model_data2 <- subset(model_data, temodel_datamp$selection == '", input$Model_graph_fit_select_multi,"')")
-    cat("\n")
-    cat("\n")}
-
+      cat("model_data2 <- subset(model_data, temodel_datamp$selection == '", input$Model_graph_fit_select_multi,"')")
+      cat("\n")
+      cat("\n")}
+    
     if(input$model == "lin"){
       cat("# It is easier when you have the columns that you need saved as objects:")
       cat("\n")
@@ -2100,7 +2100,7 @@ function(input, output, session) {
             title <- paste(real_list[i], " r2 = ", round(rski,4), sep="")            
             plot(super_temp[,5] ~ super_temp[,4], main = title, ylab = input$ModelPheno, xlab = input$SelectTime)
             lines(fit_smooth, col="purple", lwd=2)
-                      }
+          }
         }
       }
       dev.off()
@@ -2109,12 +2109,12 @@ function(input, output, session) {
   
   output$Model_warning_message <- renderUI({
     if(input$TimeCheck == F){
-     return(verbatimTextOutput("Fit_warning_message"))}
+      return(verbatimTextOutput("Fit_warning_message"))}
     if(input$IdCheck == F){
       return(verbatimTextOutput("Fit_warning_message"))}
     else
       return()
-    })
+  })
   
   output$Model_download_button <- renderUI({
     if(is.null(Model_temp_data())){
@@ -2649,10 +2649,10 @@ function(input, output, session) {
     cat("temp <- things_to_model")
     cat("\n")
     if(input$ModelSum_data == "r2 fitted curves curated data"){
-    cat("# Select only the samples with R-square above the threshold:")
-    cat("\n")  
-    cat("temp <- subset(temp, temp$r_squared > ", input$rsq_limit, ")")
-    cat("\n")
+      cat("# Select only the samples with R-square above the threshold:")
+      cat("\n")  
+      cat("temp <- subset(temp, temp$r_squared > ", input$rsq_limit, ")")
+      cat("\n")
     }
     cat("temp[,", input$SelectID, "] <- NULL")
     cat("\n")
@@ -2739,96 +2739,96 @@ function(input, output, session) {
       cat("benc <- benc + geom_bar(stat = 'identity', position=position_dodge(1))")
       cat("\n")
       if(input$model_error_plot == "Standard Error"){
-      cat("benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))")
-      cat("\n")
+        cat("benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))")
+        cat("\n")
       }
       if(input$model_error_plot == "Standard Deviation"){
-      cat("benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))")
-      cat("\n")
+        cat("benc <- benc + geom_errorbar(aes(ymin = value.median - value.sd, ymax =value.median + value.sd), position=position_dodge(1))")
+        cat("\n")
       }
       cat("benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) ")
       cat("\n")}
     else{
-    cat("\n")
-    cat("# Need to reshape the data to specify which independent variables we will use for comparison and which ones will be used for facetting:")
-    cat("\n")
-    cat("temp_melt <- melt(from_sub, id=c('", input$ModelIV, "', '", input$ModelSubIV, "'))")
-    cat("\n")
-    cat("melt_sub <- subset(temp_melt, temp_melt$variable == ", input$model_trait_plot, ")")
-    cat("\n")
-    cat("melt_sub$id <- paste(melt_sub[,", input$ModelIV, "], melt_sub[,", input$ModelSubIV, "], sep='_')")
-    cat("\n")
-    cat("melt_sub$color <- melt_sub[,", input$model_color_plot, "]")
-    cat("\n")
-    cat("melt_sub$facet <- melt_sub[,", input$model_facet_plot, "]")
-    cat("\n")
-    cat("no <- c(", input$ModelIV, ", ", input$ModelSubIV, ")")
-    cat("\n")
-    cat("no_fac <- setdiff(no, ", input$model_facet_plot, ")")
-    cat("\n")
-    cat("melt_sub$no_facet <- paste(melt_sub[,no_fac], sep='_')")
-    cat("\n")
-    cat("\n")
-    
-    if(input$model_graph_plot == "box plot"){
-      cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
       cat("\n")
-      cat("benc <- benc + geom_boxplot()")
+      cat("# Need to reshape the data to specify which independent variables we will use for comparison and which ones will be used for facetting:")
       cat("\n")
-      cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
-      cat("\n")}
-    
-    if(input$model_graph_plot == "box plot + jitter"){
-      cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+      cat("temp_melt <- melt(from_sub, id=c('", input$ModelIV, "', '", input$ModelSubIV, "'))")
       cat("\n")
-      cat("benc <- benc + geom_boxplot() + geom_jitter(position=position_jitter(0.2))")
+      cat("melt_sub <- subset(temp_melt, temp_melt$variable == ", input$model_trait_plot, ")")
       cat("\n")
-      cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
-      cat("\n")}
-    
-    if(input$model_graph_plot == "scatter plot"){
-      cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+      cat("melt_sub$id <- paste(melt_sub[,", input$ModelIV, "], melt_sub[,", input$ModelSubIV, "], sep='_')")
       cat("\n")
-      cat("benc <- benc + geom_point()")
+      cat("melt_sub$color <- melt_sub[,", input$model_color_plot, "]")
       cat("\n")
-      cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
-      cat("\n")}
-    
-    if(input$model_graph_plot == "violin plot"){
-      cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+      cat("melt_sub$facet <- melt_sub[,", input$model_facet_plot, "]")
       cat("\n")
-      cat("benc <- benc + geom_violin(trim = F)")
+      cat("no <- c(", input$ModelIV, ", ", input$ModelSubIV, ")")
       cat("\n")
-      cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
-      cat("\n")}
-    
-    if(input$model_graph_plot == "violin plot + jitter"){
-      cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+      cat("no_fac <- setdiff(no, ", input$model_facet_plot, ")")
       cat("\n")
-      cat("benc <- benc + geom_violin(trim = F) + geom_jitter(position=position_jitter(0.2))")
+      cat("melt_sub$no_facet <- paste(melt_sub[,no_fac], sep='_')")
       cat("\n")
-      cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
-      cat("\n")}
-    
-    if(input$Select_model_background == T){
-      cat("benc <- benc + theme_minimal()")
-      cat("\n")}
-    if(input$Select_model_maj_grid == T){
-      cat("benc <- benc + theme(panel.grid.major = element_blank())")
-      cat("\n")}
-    cat("benc <- benc + ylab('", input$model_trait_plot, "')")
-    cat("\n")
-    cat("benc <- benc + xlab('", input$model_color_plot, "')")
-    cat("\n")
-    cat("benc <- benc + guides(fill=guide_legend(title= '", input$model_color_plot, "'))")
-    cat("\n")
-    cat("benc <- benc + theme(axis.text.x = element_text(angle = 90, hjust = 1))")
-    cat("\n")
-    cat("benc <- benc + xlab('')")
-    cat("\n")
-    cat("benc <- benc + ylab('", input$model_trait_plot,"')")
-    cat("\n")
-    "benc"
+      cat("\n")
+      
+      if(input$model_graph_plot == "box plot"){
+        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+        cat("\n")
+        cat("benc <- benc + geom_boxplot()")
+        cat("\n")
+        cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
+        cat("\n")}
+      
+      if(input$model_graph_plot == "box plot + jitter"){
+        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+        cat("\n")
+        cat("benc <- benc + geom_boxplot() + geom_jitter(position=position_jitter(0.2))")
+        cat("\n")
+        cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
+        cat("\n")}
+      
+      if(input$model_graph_plot == "scatter plot"){
+        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+        cat("\n")
+        cat("benc <- benc + geom_point()")
+        cat("\n")
+        cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
+        cat("\n")}
+      
+      if(input$model_graph_plot == "violin plot"){
+        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+        cat("\n")
+        cat("benc <- benc + geom_violin(trim = F)")
+        cat("\n")
+        cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
+        cat("\n")}
+      
+      if(input$model_graph_plot == "violin plot + jitter"){
+        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+        cat("\n")
+        cat("benc <- benc + geom_violin(trim = F) + geom_jitter(position=position_jitter(0.2))")
+        cat("\n")
+        cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
+        cat("\n")}
+      
+      if(input$Select_model_background == T){
+        cat("benc <- benc + theme_minimal()")
+        cat("\n")}
+      if(input$Select_model_maj_grid == T){
+        cat("benc <- benc + theme(panel.grid.major = element_blank())")
+        cat("\n")}
+      cat("benc <- benc + ylab('", input$model_trait_plot, "')")
+      cat("\n")
+      cat("benc <- benc + xlab('", input$model_color_plot, "')")
+      cat("\n")
+      cat("benc <- benc + guides(fill=guide_legend(title= '", input$model_color_plot, "'))")
+      cat("\n")
+      cat("benc <- benc + theme(axis.text.x = element_text(angle = 90, hjust = 1))")
+      cat("\n")
+      cat("benc <- benc + xlab('')")
+      cat("\n")
+      cat("benc <- benc + ylab('", input$model_trait_plot,"')")
+      cat("\n")
+      "benc"
     }
     cat("\n")
     cat("\n")
@@ -2857,23 +2857,23 @@ function(input, output, session) {
     cat("  out_tukey<-as.data.frame(out$groups)")
     cat("\n")
     cat("  out_tukey$x<-row.names(out_tukey)")
-      cat("\n")
+    cat("\n")
     cat("  n_name<-rep(h, length(levels(subset_melt_ski$color)))")
-      cat("\n")
+    cat("\n")
     cat("  out_tukey_n<-as.data.frame(cbind(out_tukey, n_name))")
-      cat("\n")
+    cat("\n")
     cat("  colnames(out_tukey_n)[4] <- '", input$model_facet_plot, "'")
-      cat("\n")
+    cat("\n")
     cat("  colnames(out_tukey_n)[3] <- '", input$model_color_plot, "'")
-      cat("\n")
+    cat("\n")
     cat("  colnames(out_tukey_n)[1] <- '", input$model_trait_plot, "'")
-      cat("\n")
+    cat("\n")
     cat("  out_tukey_f<-out_tukey_n[c(4,3,2,1)]")
-      cat("\n")
+    cat("\n")
     cat("  print(as.data.frame(out_tukey_f))")
-      cat("\n")
+    cat("\n")
     
-    })
+  })
   
   
   output$model_comparison_plotski <- renderPlotly({
@@ -3008,7 +3008,7 @@ function(input, output, session) {
       if(input$What_happens_to_outliers == "removed together with entire row"){
         max_out <- length(input$SelectDV)
         min_out <- 1
-      sliderInput("outlier_cutoff", "Remove the samples which are characterized as an outlier in at least ... traits:", min_out, max_out, value = 2, step = 1)}  
+        sliderInput("outlier_cutoff", "Remove the samples which are characterized as an outlier in at least ... traits:", min_out, max_out, value = 2, step = 1)}  
     }
   })
   
@@ -3650,206 +3650,206 @@ function(input, output, session) {
     cat("# Put all of your phenotypes in the list:")
     cat("\n")  
     if(input$Out_pheno_single_multi == "All phenotypes"){
-    cat("pheno_list <- c('", paste(input$SelectDV, sep="', '"),"')")  }
+      cat("pheno_list <- c('", paste(input$SelectDV, sep="', '"),"')")  }
     if(input$Out_pheno_single_multi == "Single phenotype"){
       cat("pheno_list <- c('", input$DV_outliers,"')") }
     if(input$Out_pheno_single_multi == "Some phenotypes"){
       cat("pheno_list <- c('", paste(input$DV_outliers,sep="', '"),"')") }
     cat("\n") 
-      cat("for(i in 1:length(pheno_list)){")
-      cat("\n")  
-      cat(  "out_select <- subset(use_this, select=c('id_test', pheno_list[i]))")
-      cat("\n")  
-      cat("out_select$pheno <- out_select[,(pheno_list[i])]")
-      cat("\n")  
-      
-      if(input$outlier_method == "1.5*IQR away from the mean (default)"){
-        cat("bad_stuff <- boxplot(out_select$pheno ~ out_select$id_test)$out")
-        cat("\n")
-        cat("# loop to add outliers to the main table:")
-        cat("\n")
-        cat("for(f in 1:nrow(use_this)){")
-        cat("\n")
-        cat("  if(out_select$pheno[f] %in% bad_stuff){")
-        cat("\n")
-        cat("  use_this$outlier[f] <- TRUE}")
-        cat("\n")
-        cat("  else{")
-        cat("\n")
-        cat("    use_this$outlier[f] <- FALSE}")
-        cat("\n")}
-      
-      if(input$outlier_method == "Cook's Distance"){
-        cat("  mod <- lm(out_select$pheno ~ out_select$id_test)")
-        cat("\n")
-        cat("cooksd <- cooks.distance(mod)")
-        cat("\n")
-        cat("use_this$outlier <- cooksd > 4*mean(cooksd)")
-        cat("\n")}
-      
-      if(input$outlier_method == "Bonferonni outlier test"){
-        cat("mod <- lm(out_select$pheno ~ out_select$id_test)")
-        cat("\n")
-        cat("baddies <- car::outlierTest(mod)")
-        cat("\n")
-        cat("bad_stuff <- names(baddies[[1]])")
-        cat("\n")
-        cat("bad_tuff <- as.numeric(bad_stuff)")
-        cat("\n")
-        cat("use_this$outlier <- FALSE")
-        cat("\n")
-        cat("use_this[bad_stuff,]$outlier <- TRUE")
-        cat("\n")
-      }
-      if(input$outlier_method == "1xStDev from the median"){
-        cat("out_sum <- summaryBy(pheno ~ id_test, data = out_select, FUN=function(x) {c(median = median(x), sd = sd(x))})")
-        cat("\n")
-        cat("out_sum$min <- (out_sum$pheno.median - (1*out_sum$pheno.sd))")
-        cat("\n")
-        cat("out_sum$max <- (out_sum$pheno.median + (1*out_sum$pheno.sd))")
-        cat("\n")
-        cat("out_sum <- subset(out_sum, select=c('id_test', 'min', 'max'))")
-        cat("\n")
-        cat("# Merge with your original data to set min-max range for all of your ID-subsets:")
-        cat("\n")
-        cat("out_select <- merge(out_select, out_sum, by='id_test')")
-        cat("\n")
-        cat("\n")
-        cat("# Loop to recognize if individual values are outside of your min-max range:")
-        cat("\n")
-        cat("for(e in 1:nrow(out_select)){")
-        cat("\n")
-        cat("  if(out_select$pheno[e] > out_select$max[e]){")
-        cat("\n")
-        cat("    use_this$outlier[e] <- TRUE}")
-        cat("\n")
-        cat("  if(out_select$pheno[e] < out_select$min[e]){")
-        cat("\n")
-        cat("    use_this$outlier[e] <- TRUE}")
-        cat("\n")
-        cat("  else{")
-        cat("\n")
-        cat("    use_this$outlier[e] <- FALSE}}")
-        cat("\n")
-        cat("\n")
-        cat("# Drop the columns you dont need anymore")
-        cat("\n")
-        cat("drops <- c('min', 'max')")
-        cat("\n")
-        cat("use_this <- use_this[, !(names(use_this) %in% drops)]")}
-      
-        if(input$outlier_method == "2xStDev from the median"){
-          cat("out_sum <- summaryBy(pheno ~ id_test, data = out_select, FUN=function(x) {c(median = median(x), sd = sd(x))})")
-          cat("\n")
-          cat("out_sum$min <- (out_sum$pheno.median - (2*out_sum$pheno.sd))")
-          cat("\n")
-          cat("out_sum$max <- (out_sum$pheno.median + (2*out_sum$pheno.sd))")
-          cat("\n")
-          cat("out_sum <- subset(out_sum, select=c('id_test', 'min', 'max'))")
-          cat("\n")
-          cat("# Merge with your original data to set min-max range for all of your ID-subsets:")
-          cat("\n")
-          cat("out_select <- merge(out_select, out_sum, by='id_test')")
-          cat("\n")
-          cat("\n")
-          cat("# Loop to recognize if individual values are outside of your min-max range:")
-          cat("\n")
-          cat("for(e in 1:nrow(out_select)){")
-          cat("\n")
-          cat("  if(out_select$pheno[e] > out_select$max[e]){")
-          cat("\n")
-          cat("    use_this$outlier[e] <- TRUE}")
-          cat("\n")
-          cat("  if(out_select$pheno[e] < out_select$min[e]){")
-          cat("\n")
-          cat("    use_this$outlier[e] <- TRUE}")
-          cat("\n")
-          cat("  else{")
-          cat("\n")
-          cat("    use_this$outlier[e] <- FALSE}}")
-          cat("\n")
-          cat("\n")
-          cat("# Drop the columns you dont need anymore")
-          cat("\n")
-          cat("drops <- c('min', 'max')")
-          cat("\n")
-          cat("use_this <- use_this[, !(names(use_this) %in% drops)]")}
-        
-        if(input$outlier_method == "2.5xStDev from the median"){
-          cat("out_sum <- summaryBy(pheno ~ id_test, data = out_select, FUN=function(x) {c(median = median(x), sd = sd(x))})")
-          cat("\n")
-          cat("out_sum$min <- (out_sum$pheno.median - (2.5*out_sum$pheno.sd))")
-          cat("\n")
-          cat("out_sum$max <- (out_sum$pheno.median + (2.5*out_sum$pheno.sd))")
-          cat("\n")
-          cat("out_sum <- subset(out_sum, select=c('id_test', 'min', 'max'))")
-          cat("\n")
-          cat("# Merge with your original data to set min-max range for all of your ID-subsets:")
-          cat("\n")
-          cat("out_select <- merge(out_select, out_sum, by='id_test')")
-          cat("\n")
-          cat("\n")
-          cat("# Loop to recognize if individual values are outside of your min-max range:")
-          cat("\n")
-          cat("for(e in 1:nrow(out_select)){")
-          cat("\n")
-          cat("  if(out_select$pheno[e] > out_select$max[e]){")
-          cat("\n")
-          cat("    use_this$outlier[e] <- TRUE}")
-          cat("\n")
-          cat("  if(out_select$pheno[e] < out_select$min[e]){")
-          cat("\n")
-          cat("    use_this$outlier[e] <- TRUE}")
-          cat("\n")
-          cat("  else{")
-          cat("\n")
-          cat("    use_this$outlier[e] <- FALSE}}")
-          cat("\n")
-          cat("\n")
-          cat("# Drop the columns you dont need anymore")
-          cat("\n")
-          cat("drops <- c('min', 'max')")
-          cat("\n")
-          cat("use_this <- use_this[, !(names(use_this) %in% drops)]")}
-        
-        if(input$outlier_method == "3xStDev from the median"){
-          cat("out_sum <- summaryBy(pheno ~ id_test, data = out_select, FUN=function(x) {c(median = median(x), sd = sd(x))})")
-          cat("\n")
-          cat("out_sum$min <- (out_sum$pheno.median - (3*out_sum$pheno.sd))")
-          cat("\n")
-          cat("out_sum$max <- (out_sum$pheno.median + (3*out_sum$pheno.sd))")
-          cat("\n")
-          cat("out_sum <- subset(out_sum, select=c('id_test', 'min', 'max'))")
-          cat("\n")
-          cat("# Merge with your original data to set min-max range for all of your ID-subsets:")
-          cat("\n")
-          cat("out_select <- merge(out_select, out_sum, by='id_test')")
-          cat("\n")
-          cat("\n")
-          cat("# Loop to recognize if individual values are outside of your min-max range:")
-          cat("\n")
-          cat("for(e in 1:nrow(out_select)){")
-          cat("\n")
-          cat("  if(out_select$pheno[e] > out_select$max[e]){")
-          cat("\n")
-          cat("    use_this$outlier[e] <- TRUE}")
-          cat("\n")
-          cat("  if(out_select$pheno[e] < out_select$min[e]){")
-          cat("\n")
-          cat("    use_this$outlier[e] <- TRUE}")
-          cat("\n")
-          cat("  else{")
-          cat("\n")
-          cat("    use_this$outlier[e] <- FALSE}}")
-          cat("\n")
-          cat("\n")
-          cat("# Drop the columns you dont need anymore")
-          cat("\n")
-          cat("drops <- c('min', 'max')")
-          cat("\n")
-          cat("use_this <- use_this[, !(names(use_this) %in% drops)]")}
+    cat("for(i in 1:length(pheno_list)){")
+    cat("\n")  
+    cat(  "out_select <- subset(use_this, select=c('id_test', pheno_list[i]))")
+    cat("\n")  
+    cat("out_select$pheno <- out_select[,(pheno_list[i])]")
+    cat("\n")  
+    
+    if(input$outlier_method == "1.5*IQR away from the mean (default)"){
+      cat("bad_stuff <- boxplot(out_select$pheno ~ out_select$id_test)$out")
+      cat("\n")
+      cat("# loop to add outliers to the main table:")
+      cat("\n")
+      cat("for(f in 1:nrow(use_this)){")
+      cat("\n")
+      cat("  if(out_select$pheno[f] %in% bad_stuff){")
+      cat("\n")
+      cat("  use_this$outlier[f] <- TRUE}")
+      cat("\n")
+      cat("  else{")
+      cat("\n")
+      cat("    use_this$outlier[f] <- FALSE}")
+      cat("\n")}
+    
+    if(input$outlier_method == "Cook's Distance"){
+      cat("  mod <- lm(out_select$pheno ~ out_select$id_test)")
+      cat("\n")
+      cat("cooksd <- cooks.distance(mod)")
+      cat("\n")
+      cat("use_this$outlier <- cooksd > 4*mean(cooksd)")
+      cat("\n")}
+    
+    if(input$outlier_method == "Bonferonni outlier test"){
+      cat("mod <- lm(out_select$pheno ~ out_select$id_test)")
+      cat("\n")
+      cat("baddies <- car::outlierTest(mod)")
+      cat("\n")
+      cat("bad_stuff <- names(baddies[[1]])")
+      cat("\n")
+      cat("bad_tuff <- as.numeric(bad_stuff)")
+      cat("\n")
+      cat("use_this$outlier <- FALSE")
+      cat("\n")
+      cat("use_this[bad_stuff,]$outlier <- TRUE")
+      cat("\n")
+    }
+    if(input$outlier_method == "1xStDev from the median"){
+      cat("out_sum <- summaryBy(pheno ~ id_test, data = out_select, FUN=function(x) {c(median = median(x), sd = sd(x))})")
+      cat("\n")
+      cat("out_sum$min <- (out_sum$pheno.median - (1*out_sum$pheno.sd))")
+      cat("\n")
+      cat("out_sum$max <- (out_sum$pheno.median + (1*out_sum$pheno.sd))")
+      cat("\n")
+      cat("out_sum <- subset(out_sum, select=c('id_test', 'min', 'max'))")
+      cat("\n")
+      cat("# Merge with your original data to set min-max range for all of your ID-subsets:")
+      cat("\n")
+      cat("out_select <- merge(out_select, out_sum, by='id_test')")
       cat("\n")
       cat("\n")
+      cat("# Loop to recognize if individual values are outside of your min-max range:")
+      cat("\n")
+      cat("for(e in 1:nrow(out_select)){")
+      cat("\n")
+      cat("  if(out_select$pheno[e] > out_select$max[e]){")
+      cat("\n")
+      cat("    use_this$outlier[e] <- TRUE}")
+      cat("\n")
+      cat("  if(out_select$pheno[e] < out_select$min[e]){")
+      cat("\n")
+      cat("    use_this$outlier[e] <- TRUE}")
+      cat("\n")
+      cat("  else{")
+      cat("\n")
+      cat("    use_this$outlier[e] <- FALSE}}")
+      cat("\n")
+      cat("\n")
+      cat("# Drop the columns you dont need anymore")
+      cat("\n")
+      cat("drops <- c('min', 'max')")
+      cat("\n")
+      cat("use_this <- use_this[, !(names(use_this) %in% drops)]")}
+    
+    if(input$outlier_method == "2xStDev from the median"){
+      cat("out_sum <- summaryBy(pheno ~ id_test, data = out_select, FUN=function(x) {c(median = median(x), sd = sd(x))})")
+      cat("\n")
+      cat("out_sum$min <- (out_sum$pheno.median - (2*out_sum$pheno.sd))")
+      cat("\n")
+      cat("out_sum$max <- (out_sum$pheno.median + (2*out_sum$pheno.sd))")
+      cat("\n")
+      cat("out_sum <- subset(out_sum, select=c('id_test', 'min', 'max'))")
+      cat("\n")
+      cat("# Merge with your original data to set min-max range for all of your ID-subsets:")
+      cat("\n")
+      cat("out_select <- merge(out_select, out_sum, by='id_test')")
+      cat("\n")
+      cat("\n")
+      cat("# Loop to recognize if individual values are outside of your min-max range:")
+      cat("\n")
+      cat("for(e in 1:nrow(out_select)){")
+      cat("\n")
+      cat("  if(out_select$pheno[e] > out_select$max[e]){")
+      cat("\n")
+      cat("    use_this$outlier[e] <- TRUE}")
+      cat("\n")
+      cat("  if(out_select$pheno[e] < out_select$min[e]){")
+      cat("\n")
+      cat("    use_this$outlier[e] <- TRUE}")
+      cat("\n")
+      cat("  else{")
+      cat("\n")
+      cat("    use_this$outlier[e] <- FALSE}}")
+      cat("\n")
+      cat("\n")
+      cat("# Drop the columns you dont need anymore")
+      cat("\n")
+      cat("drops <- c('min', 'max')")
+      cat("\n")
+      cat("use_this <- use_this[, !(names(use_this) %in% drops)]")}
+    
+    if(input$outlier_method == "2.5xStDev from the median"){
+      cat("out_sum <- summaryBy(pheno ~ id_test, data = out_select, FUN=function(x) {c(median = median(x), sd = sd(x))})")
+      cat("\n")
+      cat("out_sum$min <- (out_sum$pheno.median - (2.5*out_sum$pheno.sd))")
+      cat("\n")
+      cat("out_sum$max <- (out_sum$pheno.median + (2.5*out_sum$pheno.sd))")
+      cat("\n")
+      cat("out_sum <- subset(out_sum, select=c('id_test', 'min', 'max'))")
+      cat("\n")
+      cat("# Merge with your original data to set min-max range for all of your ID-subsets:")
+      cat("\n")
+      cat("out_select <- merge(out_select, out_sum, by='id_test')")
+      cat("\n")
+      cat("\n")
+      cat("# Loop to recognize if individual values are outside of your min-max range:")
+      cat("\n")
+      cat("for(e in 1:nrow(out_select)){")
+      cat("\n")
+      cat("  if(out_select$pheno[e] > out_select$max[e]){")
+      cat("\n")
+      cat("    use_this$outlier[e] <- TRUE}")
+      cat("\n")
+      cat("  if(out_select$pheno[e] < out_select$min[e]){")
+      cat("\n")
+      cat("    use_this$outlier[e] <- TRUE}")
+      cat("\n")
+      cat("  else{")
+      cat("\n")
+      cat("    use_this$outlier[e] <- FALSE}}")
+      cat("\n")
+      cat("\n")
+      cat("# Drop the columns you dont need anymore")
+      cat("\n")
+      cat("drops <- c('min', 'max')")
+      cat("\n")
+      cat("use_this <- use_this[, !(names(use_this) %in% drops)]")}
+    
+    if(input$outlier_method == "3xStDev from the median"){
+      cat("out_sum <- summaryBy(pheno ~ id_test, data = out_select, FUN=function(x) {c(median = median(x), sd = sd(x))})")
+      cat("\n")
+      cat("out_sum$min <- (out_sum$pheno.median - (3*out_sum$pheno.sd))")
+      cat("\n")
+      cat("out_sum$max <- (out_sum$pheno.median + (3*out_sum$pheno.sd))")
+      cat("\n")
+      cat("out_sum <- subset(out_sum, select=c('id_test', 'min', 'max'))")
+      cat("\n")
+      cat("# Merge with your original data to set min-max range for all of your ID-subsets:")
+      cat("\n")
+      cat("out_select <- merge(out_select, out_sum, by='id_test')")
+      cat("\n")
+      cat("\n")
+      cat("# Loop to recognize if individual values are outside of your min-max range:")
+      cat("\n")
+      cat("for(e in 1:nrow(out_select)){")
+      cat("\n")
+      cat("  if(out_select$pheno[e] > out_select$max[e]){")
+      cat("\n")
+      cat("    use_this$outlier[e] <- TRUE}")
+      cat("\n")
+      cat("  if(out_select$pheno[e] < out_select$min[e]){")
+      cat("\n")
+      cat("    use_this$outlier[e] <- TRUE}")
+      cat("\n")
+      cat("  else{")
+      cat("\n")
+      cat("    use_this$outlier[e] <- FALSE}}")
+      cat("\n")
+      cat("\n")
+      cat("# Drop the columns you dont need anymore")
+      cat("\n")
+      cat("drops <- c('min', 'max')")
+      cat("\n")
+      cat("use_this <- use_this[, !(names(use_this) %in% drops)]")}
+    cat("\n")
+    cat("\n")
     cat("# for each phenotype - we have to remember to change the column name from outlier to specific_outlier")
     cat("\n")
     cat("# otherwise we might forget which trait was used to identify inividual outlier sets :) ")
@@ -3880,8 +3880,8 @@ function(input, output, session) {
     cat("}")
     cat("\n")  
     cat("\n")  
-cat("# Then create the dataset with outliers kicked-out:")       
-cat("\n")  
+    cat("# Then create the dataset with outliers kicked-out:")       
+    cat("\n")  
     if(input$What_happens_to_outliers == "replaced by NA"){
       cat("for(i in 1:length(pheno_lista)){")
       cat("\n")  
@@ -4079,7 +4079,7 @@ cat("\n")
   
   output$Outlier_report <- renderPrint({
     message_of_the_outliers()
-     })
+  })
   
   # Outlier free data (and table)
   Outlier_free_data <- eventReactive(input$Go_outliers,{
@@ -4234,8 +4234,8 @@ cat("\n")
       dataTableOutput("Outlier_table_only_if")
     }
   })
-    
-    
+  
+  
   output$Outlier_table_only_if <- renderDataTable({
     
     progress <- Progress$new(session, min=1, max=15)
@@ -4821,32 +4821,32 @@ cat("\n")
       cat("\n")
       cat("taka <- taka + facet_wrap(~listb, ncol='", input$out_graph_facet_col, "', scale = '", input$out_facet_scale, "')")
       cat("\n")}
-      
-      if(input$Select_outl_background == T){
-        cat("taka <- taka + theme_minimal()")
-        cat("\n")}
     
-      if(input$Select_outl_maj_grid == T){
-        cat("taka <- taka + theme(panel.grid.major = element_blank())")
-        cat("\n")}
-      
-      cat("taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))")
+    if(input$Select_outl_background == T){
+      cat("taka <- taka + theme_minimal()")
+      cat("\n")}
+    
+    if(input$Select_outl_maj_grid == T){
+      cat("taka <- taka + theme(panel.grid.major = element_blank())")
+      cat("\n")}
+    
+    cat("taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))")
+    cat("\n")
+    cat("taka <- taka + xlab('')")
+    cat("\n")
+    cat("taka <- taka + ylab('", input$DV_graph_outliers, "')")
+    cat("\n")
+    
+    if(input$outlier_colour == T){
+      cat("taka <- taka + theme(legend.title=element_blank())")
       cat("\n")
-      cat("taka <- taka + xlab('')")
       cat("\n")
-      cat("taka <- taka + ylab('", input$DV_graph_outliers, "')")
-      cat("\n")
-      
-      if(input$outlier_colour == T){
-        cat("taka <- taka + theme(legend.title=element_blank())")
-        cat("\n")
-        cat("\n")
-      }
-      cat("#Print the graph:")
-      cat("\n")
-      cat("taka")
-      cat("\n")
-      
+    }
+    cat("#Print the graph:")
+    cat("\n")
+    cat("taka")
+    cat("\n")
+    
   })
   
   
@@ -5015,15 +5015,15 @@ cat("\n")
       else{
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))}
       jaka <- jaka + geom_boxplot(position="dodge")}
-      
-      if(input$outlier_graph_type == "box plot + jitter"){
-        if(input$outlier_colour == T){
-          jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
-          jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
-        }
-        else{
-          jaka <- ggplot(clean_data, aes(x = id_test, y= pheno)) 
-        }
+    
+    if(input$outlier_graph_type == "box plot + jitter"){
+      if(input$outlier_colour == T){
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+        jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
+      }
+      else{
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno)) 
+      }
       jaka <- jaka + geom_boxplot(position="dodge") +  geom_jitter(position=position_jitter(0.2))}
     
     if(input$outlier_graph_type == "scatter plot"){
@@ -5036,28 +5036,28 @@ cat("\n")
       }
       jaka <- jaka + geom_point(position=position_dodge(1))
     }
+    
+    if(input$outlier_graph_type == "violin plot"){
+      if(input$outlier_colour == T){
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+        jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
+      }
+      else{
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
+      }
+      jaka <- jaka + geom_violin(position="dodge", trim = F)}
+    
+    if(input$outlier_graph_type == "violin plot + jitter"){
+      if(input$outlier_colour == T){
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+        jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
+      }
+      else{
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno)) 
+      }
       
-      if(input$outlier_graph_type == "violin plot"){
-        if(input$outlier_colour == T){
-          jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
-          jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
-        }
-        else{
-          jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
-        }
-        jaka <- jaka + geom_violin(position="dodge", trim = F)}
-        
-        if(input$outlier_graph_type == "violin plot + jitter"){
-          if(input$outlier_colour == T){
-            jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
-            jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
-          }
-          else{
-            jaka <- ggplot(clean_data, aes(x = id_test, y= pheno)) 
-          }
-          
-          #jaka <- jaka + scale_fill_brewer(palette = input$Select_outl_color_sc)
-          jaka <- jaka + geom_violin(position="dodge", trim = F) +  geom_jitter(position=position_jitter(0.2))}
+      #jaka <- jaka + scale_fill_brewer(palette = input$Select_outl_color_sc)
+      jaka <- jaka + geom_violin(position="dodge", trim = F) +  geom_jitter(position=position_jitter(0.2))}
     
     if(input$outlier_facet == T){
       jaka <- jaka + facet_wrap(~listb, ncol=3, scale = input$out_facet_scale)}
@@ -5382,29 +5382,29 @@ cat("\n")
       cat("\n")
       cat("taka <- taka + facet_wrap(~listb, ncol='", input$out_graph_facet_col, "', scale = '", input$out_facet_scale, "')")
       cat("\n")}
-      
-      if(input$Select_outl_background == T){
-        cat("taka <- taka + theme_minimal()")
-        cat("\n")}
-      if(input$Select_outl_maj_grid == T){
-        cat("taka <- taka + theme(panel.grid.major = element_blank())")
-        cat("\n")}
-      
-      cat("taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))")
+    
+    if(input$Select_outl_background == T){
+      cat("taka <- taka + theme_minimal()")
+      cat("\n")}
+    if(input$Select_outl_maj_grid == T){
+      cat("taka <- taka + theme(panel.grid.major = element_blank())")
+      cat("\n")}
+    
+    cat("taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))")
+    cat("\n")
+    cat("taka <- taka + xlab('')")
+    cat("\n")
+    cat("taka <- taka + ylab('", input$DV_graph_outliers, "')")
+    cat("\n")
+    
+    if(input$outlier_colour == T){
+      cat("taka <- taka + theme(legend.title=element_blank())")
       cat("\n")
-      cat("taka <- taka + xlab('')")
       cat("\n")
-      cat("taka <- taka + ylab('", input$DV_graph_outliers, "')")
-      cat("\n")
-      
-      if(input$outlier_colour == T){
-        cat("taka <- taka + theme(legend.title=element_blank())")
-        cat("\n")
-        cat("\n")
-      }
-      cat("#Print the graph:")
-      cat("\n")
-      cat("taka")
+    }
+    cat("#Print the graph:")
+    cat("\n")
+    cat("taka")
   })
   
   
@@ -5479,7 +5479,7 @@ cat("\n")
       downloadButton("downl_no_outliers_graph", "Download plot")    
   })
   
- 
+  
   
   output$downl_no_outliers_graph <- downloadHandler(
     filename = function(){paste("Plot with outliers excluded based on ",input$Out_pheno_single_multi,"(", input$DV_outliers ,"), identified with", input$outlier_method, "MVApp.pdf")},
@@ -5723,7 +5723,7 @@ cat("\n")
   })
   
   
- 
+  
   output$Plotfacets <- renderUI({
     if(is.null(ItemList())){
       return()
@@ -5763,8 +5763,8 @@ cat("\n")
       return()
     }
     if(input$plot_subs == T){
-         if(input$plot_facet==T){
-           subs_list <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), c(input$HisIV,input$Plotfacet_choice))}
+      if(input$plot_facet==T){
+        subs_list <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), c(input$HisIV,input$Plotfacet_choice))}
       
       if(input$plot_facet==F){
         subs_list <- setdiff(c(input$SelectGeno, input$SelectIV, input$SelectTime), c(input$HisIV))}
@@ -5805,29 +5805,29 @@ cat("\n")
     if(input$plot_facet ==T){
       my_his_data$facetIV<-my_his_data[,3]
     }
-  
+    
     if(input$plot_facet ==T){
-        if (input$HistType == "Histogram with counts on y-axis") {
-          fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
-          fit <- fit + facet_wrap(~facetIV)
-        }
-        if (input$HistType == "Histogram with density on y-axis" ) {
-          fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
-          fit <- fit + facet_wrap(~facetIV)}
-        }
-
+      if (input$HistType == "Histogram with counts on y-axis") {
+        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
+        fit <- fit + facet_wrap(~facetIV)
+      }
+      if (input$HistType == "Histogram with density on y-axis" ) {
+        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
+        fit <- fit + facet_wrap(~facetIV)}
+    }
+    
     if(input$plot_facet ==F){
-        if (input$HistType == "Histogram with counts on y-axis") {
-          fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
-        }
-        if (input$HistType == "Histogram with density on y-axis" ) {
-          fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
-        }
+      if (input$HistType == "Histogram with counts on y-axis") {
+        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1])) + geom_histogram(size=0.6, alpha=0.3, col="black") + labs(fill=names(my_his_data[2]))
+      }
+      if (input$HistType == "Histogram with density on y-axis" ) {
+        fit <- ggplot(my_his_data, aes(x=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[1]))  + geom_density(alpha = 0.3) + labs(fill=names(my_his_data[2]))
+      }
     }
     
     fit
   })
-
+  
   
   # # # # # R-Snipets # # # # # 
   output$R_histo_ui <- renderUI({
@@ -5999,8 +5999,8 @@ cat("\n")
     cat("\n")
     if(input$plot_facet == T){
       if(input$HistType == "Histogram with density on y-axis"){
-      cat("The plot represents the estimated Kernel density (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed for different", which_hist_IV, "are represented with different colors.")
-        }
+        cat("The plot represents the estimated Kernel density (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed for different", which_hist_IV, "are represented with different colors.")
+      }
       if(input$HistType == "Histogram with counts on y-axis"){
         cat("The plot represents the number of counts (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed for different", which_hist_IV, "are represented with different colors and are stacked on top of each other.")   
       }
@@ -6016,12 +6016,12 @@ cat("\n")
     if(input$plot_facet == F){
       if(input$HistType == "Histogram with density on y-axis"){
         cat("The plot represents the estimated Kernel density (y-axis) of values observed for", which_hist_DV, " (x-axis). The colors represent different groups of", which_hist_IV,".")
-        }
+      }
       if(input$HistType == "Histogram with counts on y-axis"){
         cat("The plot represents the number of counts (y-axis) of values observed for", which_hist_DV, " (x-axis). The values observed in individual", which_hist_IV, " are represented with different colors and are stacked on top of each other.")   
       }
       if(input$plot_subs == T){
-      cat(" The figure was made using", which_hist_data, "subsetted for",input$subsetdata_choice,"(",input$subsetdata_uniquechoice,").")  
+        cat(" The figure was made using", which_hist_data, "subsetted for",input$subsetdata_choice,"(",input$subsetdata_uniquechoice,").")  
       }  
       
       if(input$plot_subs == F) {
@@ -6417,57 +6417,57 @@ cat("\n")
     which_plotfacets<-input$Plotfacet_choice
     which_pvalue<-input$Chosenthreshold
     
-      cat("# # # > > > Figure legend: < < < # # #")
-      cat("\n")
-      cat("\n")
-      if(input$plot_facet == T){
-        if(input$plot_subs==T){
-          cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "and", which_plotfacets, "using", which_hist_data, ". The data is subsetted for",input$subsetdata_choice,"(",input$subsetdata_uniquechoice,").")  
-        }
-        if(input$plot_subs==F){
-          cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "and", which_plotfacets, "using", which_hist_data,".")  
-        }}
-      
-      if(input$plot_facet == F){
-        if(input$plot_subs==T){
-       cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "using", which_hist_data,". The data is subsetted for",input$subsetdata_choice,"(",input$subsetdata_uniquechoice,").")  
-        }
-        if(input$plot_subs==F){
+    cat("# # # > > > Figure legend: < < < # # #")
+    cat("\n")
+    cat("\n")
+    if(input$plot_facet == T){
+      if(input$plot_subs==T){
+        cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "and", which_plotfacets, "using", which_hist_data, ". The data is subsetted for",input$subsetdata_choice,"(",input$subsetdata_uniquechoice,").")  
+      }
+      if(input$plot_subs==F){
+        cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "and", which_plotfacets, "using", which_hist_data,".")  
+      }}
+    
+    if(input$plot_facet == F){
+      if(input$plot_subs==T){
+        cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "using", which_hist_data,". The data is subsetted for",input$subsetdata_choice,"(",input$subsetdata_uniquechoice,").")  
+      }
+      if(input$plot_subs==F){
         cat("The plot represents the QQ plot of", which_hist_DV, ". The plots are split by", which_hist_IV, "using", which_hist_data,".")  
       }}
-      cat(" The x-axis represents normal theoretical quantiles, and the y-axis represents sample quantiles.") 
-      cat( "The red line represents the best fit between the expected and observed values. Departures from the line (except in the tails) are indicative of a lack of normality.")
-      cat(" The figure was made using ", input$Histo_data, ".")
+    cat(" The x-axis represents normal theoretical quantiles, and the y-axis represents sample quantiles.") 
+    cat( "The red line represents the best fit between the expected and observed values. Departures from the line (except in the tails) are indicative of a lack of normality.")
+    cat(" The figure was made using ", input$Histo_data, ".")
+    
+    # Data curation:
+    if(input$Go_outliers == T){
       
-      # Data curation:
-      if(input$Go_outliers == T){
-        
-        if(input$Out_pheno_single_multi == "Some phenotypes"){
-          which_ones <- input$DV_outliers
-        }
-        if(input$Out_pheno_single_multi == "Single phenotype"){
-          which_ones <- input$DV_outliers
-        }}
-      
-      # Data curation:
-      if(input$Histo_data == "outliers removed data"){    
-        cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
-        if(input$Out_pheno_single_multi == "Single phenotype"){
-          cat(" (", which_ones, ").")}
-        if(input$Out_pheno_single_multi == "Some phenotypes"){
-          cat(" (", which_ones, ").")}
-        else{
-          cat(".")}
-        
-        if(input$What_happens_to_outliers == "removed together with entire row"){
-          cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
-        if(input$What_happens_to_outliers == "replaced by NA"){
-          cat(" The individual values characterized as outliers are replaced by empty cells.")}
-        if(input$Outlier_on_data == "r2 fitted curves curated data"){
-          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
-        if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
-          cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        which_ones <- input$DV_outliers
       }
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        which_ones <- input$DV_outliers
+      }}
+    
+    # Data curation:
+    if(input$Histo_data == "outliers removed data"){    
+      cat(" The outliers are characterized using", input$outlier_method, "method for", input$Out_pheno_single_multi)
+      if(input$Out_pheno_single_multi == "Single phenotype"){
+        cat(" (", which_ones, ").")}
+      if(input$Out_pheno_single_multi == "Some phenotypes"){
+        cat(" (", which_ones, ").")}
+      else{
+        cat(".")}
+      
+      if(input$What_happens_to_outliers == "removed together with entire row"){
+        cat(" The sample is characterized as an outlier when it is classified as such in at least ", input$outlier_cutoff, " traits. The samples that are characterized as outlier in", input$outlier_cutoff, "are removed from the analysis.")}
+      if(input$What_happens_to_outliers == "replaced by NA"){
+        cat(" The individual values characterized as outliers are replaced by empty cells.")}
+      if(input$Outlier_on_data == "r2 fitted curves curated data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+      if(input$Outlier_on_data == "r2 fitted and missing values removed data"){
+        cat(" The data was additionally curated based on r2 using", input$model ,"and the samples where with r2 was below", input$rsq_limit, " cut-off limit were eliminated from the dataset. ")}
+    }
   }) 
   
   # = = = = = = = >> Testing Equal Variances << = = = = = = = = = = # 
@@ -6543,12 +6543,12 @@ cat("\n")
       colnames(temp_bartlett) <- c("", "p_value", paste("The variances between ", input$HisIV, " groups are:", sep=""))
       
       if(input$plot_subsVar==F){
-      cat(paste("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, " for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
+        cat(paste("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, " for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
       }
       if(input$plot_subsVar==T){
         cat(paste("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, " for each ", input$Plotfacet_choice, " for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " is:", "\n", "\n", sep=""))
       }
-        print(temp_bartlett, row.names=FALSE)
+      print(temp_bartlett, row.names=FALSE)
     }
     
     if(input$plot_facet ==F){ 
@@ -6559,14 +6559,14 @@ cat("\n")
       pvalue_bartlett<-signif(fit_bartlett[[3]],5) #result of bartlett is a list with 3rd element the p-value
       cat("HOMOGENEITY OF VARIANCE ANALYSIS", "\n")
       if(input$plot_subsVar==F){
-      cat("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, " is ", pvalue_bartlett, ".", "\n", sep="")
+        cat("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, " is ", pvalue_bartlett, ".", "\n", sep="")
       }
-        if(input$plot_subsVar==T){
+      if(input$plot_subsVar==T){
         cat("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, "for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " is ", pvalue_bartlett, ".", "\n", sep="")
-        }
+      }
       if (pvalue_bartlett < as.numeric(as.character(input$Chosenthreshold) )) {
         if(input$plot_subsVar==F){
-        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are EQUAL.", sep="")
+          cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are EQUAL.", sep="")
         }
         if(input$plot_subsVar==T){
           cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " are EQUAL.", sep="")
@@ -6574,11 +6574,11 @@ cat("\n")
         }
       } else {
         if(input$plot_subsVar==F){
-        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are NOT equal.", sep="")
+          cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are NOT equal.", sep="")
         }
         if(input$plot_subsVar==T){
-       cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " are NOT equal.", sep="")
-      }
+          cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " are NOT equal.", sep="")
+        }
       }
     }
   })
@@ -6588,7 +6588,7 @@ cat("\n")
   # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
   #   "fdr", "none")
   
-    ##Levene test
+  ##Levene test
   output$Levene <- renderPrint({
     my_his_data<-Histo_data_type()[,c(input$HisDV,input$HisIV,input$Plotfacet_choice,input$subsetdata_choiceVar)]
     my_his_data[,input$HisDV] <- as.numeric(as.character(my_his_data[,input$HisDV]))
@@ -6623,15 +6623,15 @@ cat("\n")
       colnames(temp_levene) <- c("", "p_value", paste("The variances between ", input$HisIV, " groups are:", sep=""))
       
       if(input$plot_subsVar==F){
-      cat(paste("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
+        cat(paste("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
       }
       
       if(input$plot_subsVar==T){
         cat(paste("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, "for each ", input$Plotfacet_choice, " for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " is:", "\n", "\n", sep=""))
       }
-        
-        
-        print(temp_levene, row.names=FALSE)
+      
+      
+      print(temp_levene, row.names=FALSE)
     }
     
     if(input$plot_facet ==F){ 
@@ -6644,14 +6644,14 @@ cat("\n")
       
       if (pvalue_levene < as.numeric(as.character(input$Chosenthreshold))) {
         if(input$plot_subsVar==F){
-        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are EQUAL.", sep="")
+          cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are EQUAL.", sep="")
         }
         if(input$plot_subsVar==T){
-        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar," are EQUAL.", sep="")
+          cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar," are EQUAL.", sep="")
         }
       } else {
         if(input$plot_subsVar==F){
-        cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are NOT equal.", sep="")
+          cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are NOT equal.", sep="")
         }
         if(input$plot_subsVar==T){
           cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " are NOT equal.", sep="")
@@ -6717,7 +6717,7 @@ cat("\n")
   })
   
   # # # # # R-Snipets to do # # # # # 
-   output$R_var_ui <- renderUI({
+  output$R_var_ui <- renderUI({
     if(input$R_var_check == F){
       return()}
     if(input$R_var_check == T){
@@ -6865,15 +6865,15 @@ cat("\n")
         id <- my_his_data[,input$HisIV]
         pheno <- my_his_data[,input$HisDV]
         var <- hovPlot.bf(pheno, id,  ## x is the response variable
-                   y.name = phenoski,
-                   group.name = idski)
+                          y.name = phenoski,
+                          group.name = idski)
       }
       else{
         id <- my_his_data[,input$HisIV]
         pheno <- my_his_data[,input$HisDV]
         var <- hovPlot.bf(pheno, id,  ## x is the response variable
-                   y.name = phenoski,
-                   group.name = idski)
+                          y.name = phenoski,
+                          group.name = idski)
       }
       print(var)
       dev.off()
@@ -6896,10 +6896,10 @@ cat("\n")
     which_hist_data <- input$Histo_data
     which_hist_DV<-input$HisDV
     which_main_IV <- input$HisIV
-      if(input$plot_facet == T){
+    if(input$plot_facet == T){
       second_IV <- input$Plotfacet_choice
       which_second_IV <- input$Show_subset_for_HovPlot
-      }
+    }
     if(input$plot_subsVar == T){
       third_IV <- input$subsetdata_choiceVar
       which_third_IV <- input$subsetdata_uniquechoiceVar
@@ -7156,20 +7156,20 @@ cat("\n")
     
     if(input$OT_testski == "Two sample t-test"){
       cat("# For two sample t-test use:")
-        cat("\n")
-        cat("testski <- t.test(data_sub$chosen_DV ~ data_sub$sample_id, var.equal = T)")
-        cat("\n")
-        cat("\n")
-        cat("# Extract the p-value by typing:")
-          cat("\n")
-          cat("testski$p.value")
-          cat("\n")
-          cat("\n")
-          cat("# Extract the degrees of freedom by typing:")
-            cat("\n")
-            cat("testski$parameter[[1]]")
-            cat("\n")
-            cat("\n")
+      cat("\n")
+      cat("testski <- t.test(data_sub$chosen_DV ~ data_sub$sample_id, var.equal = T)")
+      cat("\n")
+      cat("\n")
+      cat("# Extract the p-value by typing:")
+      cat("\n")
+      cat("testski$p.value")
+      cat("\n")
+      cat("\n")
+      cat("# Extract the degrees of freedom by typing:")
+      cat("\n")
+      cat("testski$parameter[[1]]")
+      cat("\n")
+      cat("\n")
     }
     
     if(input$OT_testski == "Kolmogorov-Smirnov test"){
@@ -7181,10 +7181,10 @@ cat("\n")
       cat("\n")
       cat("\n")
       cat("# Extract the p-value by typing:" )
-        cat("\n")
-        cat("ks.test(x$chosen_DV, y$chosen_DV)$p.value")
-        cat("\n")
-        cat("\n")
+      cat("\n")
+      cat("ks.test(x$chosen_DV, y$chosen_DV)$p.value")
+      cat("\n")
+      cat("\n")
     }
     
     cat("\n")
@@ -7408,14 +7408,14 @@ cat("\n")
       #colnames(temp_anova) <- c("", "p_value", "p_value corrected")
       
       if(input$plot_subsANOVA == F){
-      cat(paste("The p-value of the ", input$Sig_diff_test, " test between different ", input$HisIV, " for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
+        cat(paste("The p-value of the ", input$Sig_diff_test, " test between different ", input$HisIV, " for each ", input$Plotfacet_choice, " is:", "\n", "\n", sep=""))
       }
       
       if(input$plot_subsANOVA == T){
         cat(paste("The p-value of the ", input$Sig_diff_test, " test between different ", input$HisIV, " for each ", input$Plotfacet_choice, " for ",input$subsetdata_choiceANOVA, input$subsetdata_uniquechoiceANOVA ," is:", "\n", "\n", sep=""))
       }
-        
-        print(temp_anova, row.names=FALSE)
+      
+      print(temp_anova, row.names=FALSE)
     }
     
     if(input$plot_facet ==F){ 
@@ -7425,7 +7425,7 @@ cat("\n")
         pvalue_ANOVA<-signif(summary(fit_anova)[[1]][[1,"Pr(>F)"]],5)
         cat("ANOVA", "\n")
         if(input$plot_subsANOVA==F){
-        cat(paste("The p-value of the ANOVA test between different ", input$HisIV, " is ", round(pvalue_ANOVA,4), ".", "\n", "\n", sep=""))}
+          cat(paste("The p-value of the ANOVA test between different ", input$HisIV, " is ", round(pvalue_ANOVA,4), ".", "\n", "\n", sep=""))}
         
         if(input$plot_subsANOVA==T){
           cat(paste("The p-value of the ANOVA test between different ", input$HisIV, " for ", input$subsetdata_choiceANOVA, " ", input$subsetdata_uniquechoiceANOVA, " is ", round(pvalue_ANOVA,4), ".", "\n", "\n", sep=""))}
@@ -7440,7 +7440,7 @@ cat("\n")
         fit_anova <- kruskal.test(my_his_data[,1] ~ my_his_data[,2], data=my_his_data)
         cat("Kruskal-Wallis test", "\n")
         if(input$plot_subsANOVA == T){
-        cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, " is ", round(fit_anova$p.value,4), ".", "\n", "\n", sep=""))
+          cat(paste("The p-value of the Kruskal-Wallis test between different ", input$HisIV, " is ", round(fit_anova$p.value,4), ".", "\n", "\n", sep=""))
         }
         
         if(input$plot_subsANOVA == T){
@@ -7565,7 +7565,7 @@ cat("\n")
     
     if(input$ANOVA_graph_type == "box plot"){
       box_graph <- box_graph + geom_boxplot()}
-      
+    
     if(input$ANOVA_graph_type == "box plot + jitter"){
       box_graph <- box_graph + geom_boxplot() + geom_jitter(position=position_jitter(0.2))}
     
@@ -7760,8 +7760,8 @@ cat("\n")
       subs_listchoiceANOVA <- subset(Histo_data_type(), select= input$TW_ANOVA_Sub_trait) %>% unique()
       tagList(
         selectizeInput("TW_ANOVA_Sub_UniqueChoice", 
-                    label = "Subset group to subset the data",
-                    choices = c(subs_listchoiceANOVA)
+                       label = "Subset group to subset the data",
+                       choices = c(subs_listchoiceANOVA)
         ))
     }
   })
@@ -7770,12 +7770,12 @@ cat("\n")
   
   TW_ANOVA <- reactive({
     mydata <- Histo_data_type()
-   
+    
     if(input$plot_sub_TWANOVA==T){
       mydata$WTF <- mydata[,input$TW_ANOVA_Sub_trait]
       the_one <- input$TW_ANOVA_Sub_UniqueChoice
       mydata <-subset(mydata, mydata$WTF == the_one)}
-   
+    
     pheno <- as.numeric(as.character(mydata[,input$HisDV]))
     iv1 <- as.factor(mydata[,input$TW_ANOVA_IV1])
     iv2 <- as.factor(mydata[,input$TW_ANOVA_IV2])
@@ -7800,7 +7800,7 @@ cat("\n")
       iv2 <- as.factor(mydata[,input$TW_ANOVA_IV2])
       
       show_it <- interaction.plot(iv1, iv2, pheno, ylab = input$HisDV, trace.label = input$TW_ANOVA_IV2, xlab = input$TW_ANOVA_IV1)
-    
+      
       print(show_it)
       dev.off()
     })  
@@ -7899,7 +7899,7 @@ cat("\n")
     }
   })
   
- 
+  
   
   TW_ANOVA_rep <- reactive({
     mydata <- Histo_data_type()
@@ -7931,19 +7931,19 @@ cat("\n")
     for (i in 1:15) {
       progress$set(value = i)}
     
-      mydata <- Histo_data_type()
-      
-      if(input$plot_sub_TWANOVA==T){
-        mydata$WTF <- mydata[,input$TW_ANOVA_Sub_trait]
-        the_one <- input$TW_ANOVA_Sub_UniqueChoice
-        mydata <-subset(mydata, mydata$WTF == the_one)}
-      
-      pheno <- as.numeric(as.character(mydata[,input$HisDV]))
-      iv1 <- as.factor(mydata[,input$TW_ANOVA_IV1])
-      iv2 <- as.factor(mydata[,input$TW_ANOVA_IV2])
-      
-      resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
-      plot(resultados$fitted, resultados$res, xlab = "Fitted", ylab = "Residuals", main="Residual plot")
+    mydata <- Histo_data_type()
+    
+    if(input$plot_sub_TWANOVA==T){
+      mydata$WTF <- mydata[,input$TW_ANOVA_Sub_trait]
+      the_one <- input$TW_ANOVA_Sub_UniqueChoice
+      mydata <-subset(mydata, mydata$WTF == the_one)}
+    
+    pheno <- as.numeric(as.character(mydata[,input$HisDV]))
+    iv1 <- as.factor(mydata[,input$TW_ANOVA_IV1])
+    iv2 <- as.factor(mydata[,input$TW_ANOVA_IV2])
+    
+    resultados = lm(pheno ~ iv1 + iv2 + iv1*iv2)
+    plot(resultados$fitted, resultados$res, xlab = "Fitted", ylab = "Residuals", main="Residual plot")
   })
   
   
@@ -8251,7 +8251,7 @@ cat("\n")
       df <- na.omit(df)
       df0<- nrow(df)}
     
-      df0
+    df0
   })
   
   
@@ -8290,7 +8290,7 @@ cat("\n")
       }
       
       if(input$cor_sig_show == F){
-       biggie <-  corrplot(
+        biggie <-  corrplot(
           cor(df0, method = input$corMethod),
           method = input$corrplotMethod,
           type = input$corType,
@@ -8548,18 +8548,18 @@ cat("\n")
   })
   
   output$scatter_shapeby <- renderUI({
-       if (input$scatter_shape ==F) {
-       return ()
-     } else
-       tagList(
-         selectizeInput(
-           inputId = "scatter_shaper",
-           label = "Shape the plot by:",
-           choices = c(input$SelectIV, input$SelectGeno, input$SelectTime),
-           multiple = F
-         )
-       )
-   })
+    if (input$scatter_shape ==F) {
+      return ()
+    } else
+      tagList(
+        selectizeInput(
+          inputId = "scatter_shaper",
+          label = "Shape the plot by:",
+          choices = c(input$SelectIV, input$SelectGeno, input$SelectTime),
+          multiple = F
+        )
+      )
+  })
   
   output$Corr_scatter_trait_select <- renderUI({
     if(input$corr_scatter_sub == F){
@@ -8589,15 +8589,15 @@ cat("\n")
   ########### need if condition on the color and shape factor!!!##########
   scatter_cor <- reactive({
     my_data <- data.frame(cor_data_type())
-   
-   if(input$corr_scatter_sub == T){
+    
+    if(input$corr_scatter_sub == T){
       my_data$sub_trait <- my_data[,input$corr_scatter_trait]
       amazeballs <- input$corr_scatter_specific
       my_data <- subset(my_data, my_data$sub_trait == amazeballs)
-   }
+    }
     if(input$scatter_shape == T){
       my_data$shaper <- my_data[,input$scatter_shaper]
-      }
+    }
     
     id_fiers <- c(input$SelectGeno, input$SelectIV, input$SelectTime, input$SelectID)
     my_data[,input$Color] <- as.factor(my_data[,input$Color])
@@ -8616,26 +8616,26 @@ cat("\n")
     }
     scatman <- scatman + stat_cor(aes(color = input$Color))
     
-      if(input$corr_add_lm == T){
-        if(input$corr_shade_lm == F){
-          if(input$corr_extend_lm == F){
-            scatman <- scatman + geom_smooth(method=lm, se = F)}
-          if(input$corr_extend_lm == T){
-            scatman <- scatman + geom_smooth(method=lm, se=F, fullrange = T)}}
-        if(input$corr_shade_lm == T){
-          if(input$corr_extend_lm == F){
-            scatman <- scatman + geom_smooth(method=lm, se = T)}
-          if(input$corr_extend_lm == T){
-            scatman <- scatman + geom_smooth(method=lm, se=T, fullrange = T)}
-        }}
-      
-      if(input$corr_add_margin == T){
-          scatman <- scatman + geom_rug()}
+    if(input$corr_add_lm == T){
+      if(input$corr_shade_lm == F){
+        if(input$corr_extend_lm == F){
+          scatman <- scatman + geom_smooth(method=lm, se = F)}
+        if(input$corr_extend_lm == T){
+          scatman <- scatman + geom_smooth(method=lm, se=F, fullrange = T)}}
+      if(input$corr_shade_lm == T){
+        if(input$corr_extend_lm == F){
+          scatman <- scatman + geom_smooth(method=lm, se = T)}
+        if(input$corr_extend_lm == T){
+          scatman <- scatman + geom_smooth(method=lm, se=T, fullrange = T)}
+      }}
     
-      scatman <- scatman + xlab(input$Pheno1)
-      scatman <- scatman + ylab(input$Pheno2)
-      
-      scatman
+    if(input$corr_add_margin == T){
+      scatman <- scatman + geom_rug()}
+    
+    scatman <- scatman + xlab(input$Pheno1)
+    scatman <- scatman + ylab(input$Pheno2)
+    
+    scatman
   })
   
   
@@ -8763,7 +8763,7 @@ cat("\n")
   
   
   # Legend ----------------------------------------------------------
- 
+  
   output$scatter_legend_show <- renderUI({
     if(input$show_scatter_legend == F){
       return()
@@ -8844,14 +8844,14 @@ cat("\n")
   })
   
   output$PCA_Select_pheno <- renderUI({
-      tagList(
-        selectizeInput(
-          inputId = "PCA_pheno",
-          label = "Traits for PCA",
-          choices = c(input$SelectDV),
-          multiple = T
-        )
+    tagList(
+      selectizeInput(
+        inputId = "PCA_pheno",
+        label = "Traits for PCA",
+        choices = c(input$SelectDV),
+        multiple = T
       )
+    )
   })
   output$PCA_subset_trait <- renderUI({
     if(input$PCA_data_subset == F){
@@ -9320,7 +9320,7 @@ cat("\n")
         if(input$Out_pheno_single_multi == "Single phenotype"){
           which_ones <- input$DV_outliers
         }
-        }
+      }
       
       #Contrib_table <-  PCA_contrib_var()
       #Variance_explained <- Contrib_table[input$Which_PC_contrib,2]
@@ -9335,7 +9335,7 @@ cat("\n")
       cat(" PCA was performed on", input$PCA_data, "using the following traits: (", input$PCA_pheno,").")
       
       if(input$PCA_data_subset == T) {
-      cat(" The data was subsetted for" , input$PCA_subset_T, "and the shown PCA represents samples that belong to the subset ", input$PCA_subset_S, ".")
+        cat(" The data was subsetted for" , input$PCA_subset_T, "and the shown PCA represents samples that belong to the subset ", input$PCA_subset_S, ".")
       }
       # cat(" PC", input$Which_PC_contrib, " explains ", Variance_explained, "% of the observed variance.") ###  Didn't work :/
       
@@ -11174,7 +11174,7 @@ cat("\n")
   )
   
   
-   # = = = = = = = = = = = = = = >>> K MEANS CLUSTERING <<< =  = = = = = = = = = = = = = = = = #
+  # = = = = = = = = = = = = = = >>> K MEANS CLUSTERING <<< =  = = = = = = = = = = = = = = = = #
   
   # input gadgets:
   # Message
@@ -11301,10 +11301,10 @@ cat("\n")
       data$splito <- data[,input$KMC_trait_sub]
       
       tagList(
-      selectizeInput("KMC_trait_sub_spec",
-                     label = "Subset by Independent Variable:",
-                     choices = c(as.character(unique(data$splito))),
-                     multiple = F))
+        selectizeInput("KMC_trait_sub_spec",
+                       label = "Subset by Independent Variable:",
+                       choices = c(as.character(unique(data$splito))),
+                       multiple = F))
     }
     else{
       return()
@@ -12058,7 +12058,7 @@ cat("\n")
       downloadButton("downl_KMC_test", label="Download data")
   })  
   
- 
+  
   
   output$downl_KMC_test <- downloadHandler(
     filename = paste("K-means clustering with K=", input$kmclusters, " using", input$KMCluster_data,"subsetted for", input$KMC_trait_sub, "(", input$KMC_trait_sub_spec, ") MVApp.csv"),
@@ -12252,12 +12252,12 @@ cat("\n")
     cat("\n")
     
     if(input$KMC_split_barplot == T){
-    cat("facet<-'",input$facet_KMC_barplot,"'")
-    cat("\n")
-    cat("listNonSel<-setdiff(listIV,facet)")
-    cat("\n") 
-    cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listNonSel)], sep='_'))")
-    cat("\n")
+      cat("facet<-'",input$facet_KMC_barplot,"'")
+      cat("\n")
+      cat("listNonSel<-setdiff(listIV,facet)")
+      cat("\n") 
+      cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listNonSel)], sep='_'))")
+      cat("\n")
     }
     if(input$KMC_split_barplot == F){
       cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listIV)], sep='_'))")
@@ -12538,12 +12538,12 @@ cat("\n")
     cat("\n")
     
     if(input$KMC_split_scatterplot == T){
-    cat("facet<-'",input$facet_KMC_plot,"'")
-    cat("\n")
-    cat("listNonSel<-setdiff(listIV,facet)")
-    cat("\n")
-    cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listNonSel)], sep='_'))")
-    cat("\n")
+      cat("facet<-'",input$facet_KMC_plot,"'")
+      cat("\n")
+      cat("listNonSel<-setdiff(listIV,facet)")
+      cat("\n")
+      cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listNonSel)], sep='_'))")
+      cat("\n")
     }
     if(input$KMC_split_scatterplot == F){
       cat("KMC_data$id <- do.call(paste, c(KMC_data[c(listIV)], sep='_'))")
@@ -12777,7 +12777,7 @@ cat("\n")
     if(input$herit_split == T){
       lista <- c(input$SelectIV, input$SelectTime, input$SelectID)
       if(input$herit_facet == T){
-      lista <- setdiff(lista, input$Heritfacet_choice)}
+        lista <- setdiff(lista, input$Heritfacet_choice)}
       
       tagList(
         selectInput("Heritsplit_choice", "Subset the data by:",
@@ -12888,8 +12888,8 @@ cat("\n")
         heritvar<-VarCorr(heritfit) 
         heritvar1<-as.data.frame(heritvar)
         heritvariance<- heritvar1$vcov
-        heritability<-(heritvariance[4]/ (heritvariance[4] + (heritvariance[2]/(Yearnum))+ (heritvariance[3]/(Locationnum)) + (heritvariance[7]/(Yearnum*Locationnum*Repnum))))*100
-        heritability2<- round(heritability, digits=2)
+        heritability<-(heritvariance[4]/ (heritvariance[4] + (heritvariance[2]/(Yearnum))+ (heritvariance[3]/(Locationnum)) + (heritvariance[7]/(Yearnum*Locationnum*Repnum))))
+        heritability2<- round(heritability, digits=4)
       }  
       
       if(input$SelectYear != "none" & input$SelectLocation == "none")  { 
@@ -12910,8 +12910,8 @@ cat("\n")
         heritvar<-VarCorr(heritfit)
         heritvar1<-as.data.frame(heritvar)
         heritvariance<- heritvar1$vcov
-        heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Yearnum) + (heritvariance[4]/(Yearnum*Repnum))))*100
-        heritability2<- round(heritability, digits=2)
+        heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Yearnum) + (heritvariance[4]/(Yearnum*Repnum))))
+        heritability2<- round(heritability, digits=4)
       }  
       
       if(input$SelectLocation != "none" & input$SelectYear == "none"){
@@ -12932,8 +12932,8 @@ cat("\n")
         heritvar<-VarCorr(heritfit) 
         heritvar1<-as.data.frame(heritvar)
         heritvariance<- heritvar1$vcov
-        heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Locationnum) + (heritvariance[4]/(Locationnum*Repnum))))*100
-        heritability2<- round(heritability, digits=2)
+        heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Locationnum) + (heritvariance[4]/(Locationnum*Repnum))))
+        heritability2<- round(heritability, digits=4)
       }
       
       
@@ -12946,8 +12946,8 @@ cat("\n")
         heritvar<-VarCorr(heritfit) 
         heritvar1<-as.data.frame(heritvar)
         heritvariance<- heritvar1$vcov
-        heritability<-(heritvariance[1]/ (heritvariance[1] + (heritvariance[2]/(Repnum))))*100
-        heritability2<- round(heritability, digits=2)
+        heritability<-(heritvariance[1]/ (heritvariance[1] + (heritvariance[2]/(Repnum))))
+        heritability2<- round(heritability, digits=4)
       }  
       
       cat("The model used is:")
@@ -12956,7 +12956,7 @@ cat("\n")
       cat("\n")
       print(heritvar)
       cat("\n")
-      cat(paste("Broad sense heritability is:", heritability2, "%", sep=" "))
+      cat(paste("Broad sense heritability is:", heritability2, sep=" "))
     }
     
     if(input$herit_facet == T){
@@ -12982,8 +12982,8 @@ cat("\n")
           heritvar<-VarCorr(heritfit) 
           heritvar1<-as.data.frame(heritvar)
           heritvariance<- heritvar1$vcov
-          heritability<-(heritvariance[4]/ (heritvariance[4] + (heritvariance[2]/(Yearnum))+ (heritvariance[3]/(Locationnum)) + (heritvariance[7]/(Yearnum*Locationnum*Repnum))))*100
-          heritability2<- round(heritability, digits=2)
+          heritability<-(heritvariance[4]/ (heritvariance[4] + (heritvariance[2]/(Yearnum))+ (heritvariance[3]/(Locationnum)) + (heritvariance[7]/(Yearnum*Locationnum*Repnum))))
+          heritability2<- round(heritability, digits=4)
           cat("\n")
           cat("\n")
           cat("For ")
@@ -13005,7 +13005,7 @@ cat("\n")
           cat("\n")
           print(heritvar)
           cat("\n")
-          cat(paste("Broad sense heritability is:", heritability2, "%", sep=" "))
+          cat(paste("Broad sense heritability is:", heritability2, sep=" "))
           cat("\n")
           
         }
@@ -13029,8 +13029,8 @@ cat("\n")
           heritvar<-VarCorr(heritfit)
           heritvar1<-as.data.frame(heritvar)
           heritvariance<- heritvar1$vcov
-          heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Yearnum) + (heritvariance[4]/(Yearnum*Repnum))))*100
-          heritability2<- round(heritability, digits=2)
+          heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Yearnum) + (heritvariance[4]/(Yearnum*Repnum))))
+          heritability2<- round(heritability, digits=4)
           
           cat("\n")
           cat("\n")
@@ -13048,7 +13048,7 @@ cat("\n")
           cat("\n")
           print(heritvar)
           cat("\n")
-          cat(paste("Broad sense heritability is:", heritability2, "%", sep=" "))
+          cat(paste("Broad sense heritability is:", heritability2, sep=" "))
           cat("\n")
         }
       }
@@ -13070,8 +13070,8 @@ cat("\n")
           heritvar<-VarCorr(heritfit) 
           heritvar1<-as.data.frame(heritvar)
           heritvariance<- heritvar1$vcov
-          heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Locationnum) + (heritvariance[4]/(Locationnum*Repnum))))*100
-          heritability2<- round(heritability, digits=2)
+          heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Locationnum) + (heritvariance[4]/(Locationnum*Repnum))))
+          heritability2<- round(heritability, digits=4)
           
           cat("\n")
           cat("\n")
@@ -13089,7 +13089,7 @@ cat("\n")
           cat("\n")
           print(heritvar)
           cat("\n")
-          cat(paste("Broad sense heritability is:", heritability2, "%", sep=" "))
+          cat(paste("Broad sense heritability is:", heritability2, sep=" "))
           cat("\n")
           
         }
@@ -13112,8 +13112,8 @@ cat("\n")
           heritvar<-VarCorr(heritfit) 
           heritvar1<-as.data.frame(heritvar)
           heritvariance<- heritvar1$vcov
-          heritability<-(heritvariance[1]/ (heritvariance[1] + (heritvariance[2]/(Repnum))))*100
-          heritability2<- round(heritability, digits=2)
+          heritability<-(heritvariance[1]/ (heritvariance[1] + (heritvariance[2]/(Repnum))))
+          heritability2<- round(heritability, digits=4)
           
           cat("\n")
           cat("\n")
@@ -13126,7 +13126,7 @@ cat("\n")
           cat("\n")
           print(heritvar)
           cat("\n")
-          cat(paste("Broad sense heritability is:", heritability2, "%", sep=" "))
+          cat(paste("Broad sense heritability is:", heritability2, sep=" "))
           cat("\n")
         }
       }
@@ -13237,11 +13237,11 @@ cat("\n")
         cat("\n")
         cat("#Calculating broad-sense heritability based on the variance components")
         cat("\n")
-        cat("heritability<-(heritvariance[4]/ (heritvariance[4] + (heritvariance[2]/(Yearnum))+ (heritvariance[3]/(Locationnum)) + (heritvariance[7]/(Yearnum*Locationnum*Repnum))))*100")
+        cat("heritability<-(heritvariance[4]/ (heritvariance[4] + (heritvariance[2]/(Yearnum))+ (heritvariance[3]/(Locationnum)) + (heritvariance[7]/(Yearnum*Locationnum*Repnum))))")
         cat("\n")
-        cat("#Round heritability values to 2 digits")
+        cat("#Round heritability values to 4 digits")
         cat("\n")
-        cat("heritability2<- round(heritability, digits=2)")
+        cat("heritability2<- round(heritability, digits=4)")
         cat("\n")
       }
       
@@ -13276,11 +13276,11 @@ cat("\n")
         cat("\n")
         cat("#Calculating broad-sense heritability based on the variance components")
         cat("\n")
-        cat("heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Yearnum) + (heritvariance[4]/(Yearnum*Repnum))))*100")
+        cat("heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Yearnum) + (heritvariance[4]/(Yearnum*Repnum))))")
         cat("\n")
-        cat("#Round heritability values to 2 digits")
+        cat("#Round heritability values to 4 digits")
         cat("\n")
-        cat("heritability2<- round(heritability, digits=2)")
+        cat("heritability2<- round(heritability, digits=4)")
         cat("\n")
       }
       
@@ -13314,11 +13314,11 @@ cat("\n")
         cat("\n")
         cat("#Calculating broad-sense heritability based on the variance components")
         cat("\n")
-        cat("heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Locationnum) + (heritvariance[4]/(Locationnum*Repnum))))*100")
+        cat("heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Locationnum) + (heritvariance[4]/(Locationnum*Repnum))))")
         cat("\n")
-        cat("#Round heritability values to 2 digits")
+        cat("#Round heritability values to 4 digits")
         cat("\n")
-        cat("heritability2<- round(heritability, digits=2)")
+        cat("heritability2<- round(heritability, digits=4)")
         cat("\n")
       }
       
@@ -13412,11 +13412,11 @@ cat("\n")
         cat("\n")
         cat("#Calculating broad-sense heritability based on the variance components")
         cat("\n")
-        cat("heritability<-(heritvariance[4]/ (heritvariance[4] + (heritvariance[2]/(Yearnum))+ (heritvariance[3]/(Locationnum)) + (heritvariance[7]/(Yearnum*Locationnum*Repnum))))*100")
+        cat("heritability<-(heritvariance[4]/ (heritvariance[4] + (heritvariance[2]/(Yearnum))+ (heritvariance[3]/(Locationnum)) + (heritvariance[7]/(Yearnum*Locationnum*Repnum))))")
         cat("\n")
-        cat("#Round heritability values to 2 digits")
+        cat("#Round heritability values to 4 digits")
         cat("\n")
-        cat("heritability2<- round(heritability, digits=2)")
+        cat("heritability2<- round(heritability, digits=4)")
         cat("\n")
         cat("print(i)")
         cat("\n")
@@ -13471,11 +13471,11 @@ cat("\n")
         cat("\n")
         cat("#Calculating broad-sense heritability based on the variance components")
         cat("\n")
-        cat("heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Yearnum) + (heritvariance[4]/(Yearnum*Repnum))))*100")
+        cat("heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Yearnum) + (heritvariance[4]/(Yearnum*Repnum))))")
         cat("\n")
-        cat("#Round heritability values to 2 digits")
+        cat("#Round heritability values to 4 digits")
         cat("\n")
-        cat("heritability2<- round(heritability, digits=2)")
+        cat("heritability2<- round(heritability, digits=4)")
         cat("\n")
         cat("print(i)")
         cat("\n")
@@ -13529,11 +13529,11 @@ cat("\n")
         cat("\n")
         cat("#Calculating broad-sense heritability based on the variance components")
         cat("\n")
-        cat("heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Locationnum) + (heritvariance[4]/(Locationnum*Repnum))))*100")
+        cat("heritability<-(heritvariance[2]/ (heritvariance[2] + (heritvariance[1]/Locationnum) + (heritvariance[4]/(Locationnum*Repnum))))")
         cat("\n")
-        cat("#Round heritability values to 2 digits")
+        cat("#Round heritability values to 4 digits")
         cat("\n")
-        cat("heritability2<- round(heritability, digits=2)")
+        cat("heritability2<- round(heritability, digits=4)")
         cat("\n")
         cat("print(i)")
         cat("\n")
@@ -13584,11 +13584,11 @@ cat("\n")
         cat("\n")
         cat("#Calculating broad-sense heritability based on the variance components")
         cat("\n")
-        cat("heritability<-(heritvariance[1]/ (heritvariance[1] + (heritvariance[2]/(Repnum))))*100")
+        cat("heritability<-(heritvariance[1]/ (heritvariance[1] + (heritvariance[2]/(Repnum))))")
         cat("\n")
-        cat("#Round heritability values to 2 digits")
+        cat("#Round heritability values to 4 digits")
         cat("\n")
-        cat("heritability2<- round(heritability, digits=2)")
+        cat("heritability2<- round(heritability, digits=4)")
         cat("\n")
         cat("print(i)")
         cat("\n")
@@ -13608,8 +13608,7 @@ cat("\n")
     }
   })
   
-  
-   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - >>  Quantile Analysis in 10th TAB <<- - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ##select dataset
@@ -14044,7 +14043,7 @@ cat("\n")
       verbatimTextOutput("R_QR_table")}
   })
   
-
+  
   output$R_QR_table <- renderPrint({
     cat("# The code to use in R:")
     cat("\n")
@@ -14065,14 +14064,14 @@ cat("\n")
     cat("\n")  
     
     cat("temp <-
-      subset(
+        subset(
         QA_final_data_display(),
         select = c(
         '", input$QA_subset,"',
         '",input$ResponsePheno,"',
         '",input$ExplanatoryPheno,"'
         )
-    )")
+        )")
     cat("\n")
     cat("\n")
     cat("# Subsetting the data to fit different quantile regression models")
@@ -14082,12 +14081,12 @@ cat("\n")
     cat("things_to_model_QA <- unique(temp[sub_set])")
     cat("\n")
     cat("\n")
-   
+    
     cat("# Setting the quantile levels")
     cat("\n") 
     cat("tau = c(0.25,0.5,0.75)")
     cat("\n")
-        
+    
     cat("fit_qr=list()")
     cat("\n")
     cat("\n")
@@ -14106,7 +14105,7 @@ cat("\n")
         colnames(super_temp2)[1]= 'y'
         fit_qr[[i]] <- rq(y ~  . , data = super_temp2, tau = tau)
         
-        }")
+  }")
     cat("\n")
     cat("\n")  
     
@@ -14116,13 +14115,13 @@ cat("\n")
     cat("\n")
     cat("things_to_model_QA <- unique(temp[sub_set])")
     cat("\n")
-        
-        
+    
+    
     cat("things_to_model_QA$subsetid= do.call(paste,c(things_to_model_QA['",input$QA_subset,"'], sep='_'))")
     cat("\n")
     cat("index= which('",input$QA_subset_S,"' == things_to_model_QA$subsetid )")
     cat("\n")
-        
+    
     cat("tempexpl <-
         subset(
         QA_final_data_display(),
@@ -14221,8 +14220,8 @@ cat("\n")
     cat("\n")
     cat("return(tablesum)")
     cat("\n")
-  
-})
+    
+    })
   
   output$table_download_button <- renderUI({
     #if(is.null(Model_est_QA())){
@@ -14236,6 +14235,185 @@ cat("\n")
     content <- function(file) {
       write.csv(Calculate_table(), file)}
   )
+  
+  
+  
+  
+  ### adding results of ordinary least squares
+  
+  
+  ##printing the significant variables for the three quantile levels for the particular choosen subset
+  output$significant_variables_ols <- renderPrint({
+    if(input$OLS_chk == F){
+      return()}
+    
+    if(input$OLS_chk == T){
+      temp <-
+        subset(
+          QA_final_data_display(),
+          select = c(
+            input$QA_subset,
+            input$ResponsePheno,
+            input$ExplanatoryPheno
+          )
+        )
+      sub_set <- input$QA_subset
+      things_to_model_QA <- unique(temp[sub_set])
+      
+      fit_lm=list()
+      
+      for (i in 1:nrow(things_to_model_QA)) {
+        if(ncol(things_to_model_QA)==1){
+          super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+          
+        } else 
+        {
+          super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+          
+        } 
+        super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+        colnames(super_temp2)[1]= "y"
+        fit_lm[[i]] <- lm(y ~  . , data = super_temp2)
+        
+      }
+      
+      sub_set <- input$QA_subset
+      things_to_model_QA <- unique(temp[sub_set])
+      
+      things_to_model_QA$subsetid= do.call(paste,c(things_to_model_QA[input$QA_subset], sep="_"))
+      index= which(input$QA_subset_S == things_to_model_QA$subsetid )
+      
+      
+      summary= summary(fit_lm[[index]])
+      
+      ## if no significant variable then display "None", no need to show whether Intercept is significant or not
+      
+      df_sum= data.frame(rownames(summary$coef),as.matrix(summary$coef))
+      significant_df=data.frame(df_sum[df_sum[,5] <= 0.05, ])[,1]
+      if(length(significant_df)==0) {significant_df ="None"} else if(significant_df[1] == "(Intercept)") {significant_df =significant_df[-1]} else {significant_df= significant_df}
+      if(length(significant_df)==0) {significant_df ="None"}
+      
+      
+      cat(paste("The variables significant are:"))
+      cat("\n")
+      cat(paste(significant_df, collapse = ", "))
+    }  
+  })
+  
+  output$significant_ols_ui <- renderUI({
+    if(input$OLS_chk == F){
+      return()}
+    if(input$OLS_chk == T){
+      verbatimTextOutput("significant_variables_ols")}
+  })
+  
+  Calculate_table_ols <- eventReactive(input$Go_data, {
+    if(input$OLS_chk == F){
+      return()}
+    
+    if(input$OLS_chk == T){
+      temp <-
+        subset(
+          QA_final_data_display(),
+          select = c(
+            input$QA_subset,
+            input$ResponsePheno,
+            input$ExplanatoryPheno
+          )
+        )
+      sub_set <- input$QA_subset
+      things_to_model_QA <- unique(temp[sub_set])
+      fit_lm=list()
+      
+      for (i in 1:nrow(things_to_model_QA)) {
+        if(ncol(things_to_model_QA)==1){
+          super_temp <- subset(temp, temp[, 1] == things_to_model_QA[i, 1])
+          
+        } else 
+        {
+          super_temp <- subset(temp, (temp[, 1] == things_to_model_QA[i,1]) & (temp[, 2] == things_to_model_QA[i,2]))
+          
+        } 
+        super_temp2= super_temp[,-c(1:ncol(things_to_model_QA))]
+        colnames(super_temp2)[1]= "y"
+        fit_lm[[i]] <- lm(y ~  . , data = super_temp2)
+        
+      }
+      
+      sub_set <- input$QA_subset
+      things_to_model_QA <- unique(temp[sub_set])
+      
+      
+      things_to_model_QA$subsetid= do.call(paste,c(things_to_model_QA[input$QA_subset], sep="_"))
+      index= which(input$QA_subset_S == things_to_model_QA$subsetid )
+      
+      tempexpl <-
+        subset(
+          QA_final_data_display(),
+          select = c(
+            input$ExplanatoryPheno
+          )
+        )
+      
+      summary = summary(fit_lm[[1]])
+      tablesum = data.frame(cbind(round(coef(summary)[,"Estimate"], digits = 4), round(coef(summary)[,"Pr(>|t|)"], digits = 4), rep(things_to_model_QA$subsetid[1],ncol(tempexpl))))
+      
+      for(i in 2:nrow(things_to_model_QA)){
+        summary = summary(fit_lm[[i]])
+        tablesum = rbind(tablesum,data.frame(cbind(round(coef(summary)[,"Estimate"], digits = 4), round(coef(summary)[,"Pr(>|t|)"], digits = 4), rep(things_to_model_QA$subsetid[i],ncol(tempexpl)))))
+        
+      }
+      
+      colnames(tablesum)[1] = "Coefficient value"
+      colnames(tablesum)[2] = "p-value"
+      colnames(tablesum)[3] = "Subset"
+      rownames(tablesum) = NULL
+      variable_names = rep(c("Intercept",colnames(tempexpl)), times=nrow(things_to_model_QA) )
+      tablesum = cbind(variable_names, tablesum)
+      colnames(tablesum)[1] = "Variable"
+      return(tablesum)
+    }
+  })
+  
+  
+  output$table_download_button_ols <- renderUI({
+    if(input$OLS_chk == F){
+      return()}
+    if(input$OLS_chk == T){
+      downloadButton("Download_table_data_ols", label="Download modelled data for OLS")
+    }
+  })  
+  
+  output$Download_table_data_ols <- downloadHandler(
+    filename = paste("Modelled data from OLS using MVApp.csv"),
+    content <- function(file) {
+      write.csv(Calculate_table_ols(), file)}
+  )
+  
+  
+  
+  output$Result_table_ols <- renderDataTable({
+    
+    if(input$OLS_chk == F){
+      return()}
+    if(input$OLS_chk == T){
+      progress <- Progress$new(session, min=1, max=15)
+      on.exit(progress$close())
+      
+      progress$set(message = 'Table calculation in progress',
+                   detail = 'Please wait')
+      
+      for (i in 1:15) {
+        progress$set(value = i)}
+      
+      if(is.null(Calculate_table_ols())){
+        return()}
+      else
+        Calculate_table_ols()
+    }
+  })
+  
+  
   
   ################## plots of quantile model ##################################
   
@@ -14382,7 +14560,7 @@ cat("\n")
   }")
     cat("\n")
     
-        
+    
     cat("\n")
     cat("# Subsetting and grouping the plots")
     
@@ -14455,7 +14633,7 @@ cat("\n")
         bty = 'n',xpd=NA,cex=1)
         ")
     cat("\n")
-  })
+    })
   
   # Plots - single 
   QA_plot_single <- reactive({
@@ -14937,6 +15115,6 @@ cat("\n")
     
   })
   
-
+  
   # end of the script
-}
+  }
