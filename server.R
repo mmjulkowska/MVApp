@@ -7553,6 +7553,26 @@ function(input, output, session) {
     }
   })
   
+  output$ANOVA_alt_x <- renderUI(
+    if(input$ANOVA_x_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("ANOVA_alt_x_txt", "Enter x-label here:")
+    })
+  
+  output$ANOVA_alt_y <- renderUI(
+    if(input$ANOVA_y_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("ANOVA_alt_y_txt", "Enter y-label here:")
+    })
+  
+  output$ANOVA_tit <- renderUI(
+    if(input$ANOVA_tit_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("ANOVA_tit_txt", "Enter title here:")
+    })
   
   #the margin needs to be fixed to be able to see the y-lab
   BoxANOVA <- reactive({
@@ -7572,19 +7592,42 @@ function(input, output, session) {
       my_his_data$facetIV<-my_his_data[,input$Plotfacet_choice]}
     
     if(input$plot_facet ==T){
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) 
-      box_graph<- box_graph + facet_wrap(~facetIV) + scale_fill_discrete(names(my_his_data[2]))
+      if(input$ANOVA_order == "default"){
+        box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) }
+      if(input$ANOVA_order == "increasing mean"){
+        box_graph <- ggplot(my_his_data, aes(x=fct_reorder(my_his_data[,2], my_his_data[,1], fun = mean), y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1]))}
+      if(input$ANOVA_order == "increasing median"){
+        box_graph <- ggplot(my_his_data, aes(x=fct_reorder(my_his_data[,2], my_his_data[,1], fun = median), y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1]))}
+      if(input$ANOVA_order == "decreasing mean"){
+        box_graph <- ggplot(my_his_data, aes(x=fct_reorder(my_his_data[,2], my_his_data[,1], fun = mean, .desc = TRUE), y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1]))}
+      if(input$ANOVA_order == "decreasing median"){
+        box_graph <- ggplot(my_his_data, aes(x=fct_reorder(my_his_data[,2], my_his_data[,1], fun = median, .desc = TRUE), y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1]))}
+     
+       box_graph<- box_graph + facet_wrap(~facetIV) + scale_fill_discrete(names(my_his_data[2]))
     }
+    
     else{
-      box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) 
+      if(input$ANOVA_order == "default"){
+        box_graph <- ggplot(my_his_data, aes(x=my_his_data[,2], y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1]))}
+      if(input$ANOVA_order == "increasing mean"){
+        box_graph <- ggplot(my_his_data, aes(x=fct_reorder(my_his_data[,2], my_his_data[,1], fun = mean), y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) }
+      if(input$ANOVA_order == "increasing median"){
+        box_graph <- ggplot(my_his_data, aes(x=fct_reorder(my_his_data[,2], my_his_data[,1], fun = median), y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) }
+      if(input$ANOVA_order == "decreasing mean"){
+        box_graph <- ggplot(my_his_data, aes(x=fct_reorder(my_his_data[,2], my_his_data[,1], fun = mean, .desc = TRUE), y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) }
+      if(input$ANOVA_order == "decreasing median"){
+        box_graph <- ggplot(my_his_data, aes(x=fct_reorder(my_his_data[,2], my_his_data[,1], fun = median, .desc = TRUE), y=my_his_data[,1], fill=my_his_data[,2])) + xlab(names(my_his_data[2])) + ylab(names(my_his_data[1])) }
+      
       box_graph<- box_graph + scale_fill_discrete(names(my_his_data[2]))
     }
     
     if(input$ANOVA_graph_type == "box plot"){
-      box_graph <- box_graph + geom_boxplot()}
+      box_graph <- box_graph + geom_boxplot()
+    }
     
     if(input$ANOVA_graph_type == "box plot + jitter"){
-      box_graph <- box_graph + geom_boxplot() + geom_beeswarm(alpha = 0.6)}
+      box_graph <- box_graph + geom_boxplot() + geom_beeswarm(alpha = 0.6)
+      }
     
     if(input$ANOVA_graph_type == "violin plot"){
       box_graph <- box_graph + geom_violin(trim = F)
@@ -7598,6 +7641,21 @@ function(input, output, session) {
       box_graph <- box_graph + geom_beeswarm(alpha = 0.6)
       box_graph <- box_graph + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
     }
+    
+    if(input$ANOVA_color != "default"){
+      box_graph <- box_graph + scale_fill_brewer(palette = input$ANOVA_color)}
+    
+    if(input$ANOVA_legend == TRUE){
+      box_graph <- box_graph + theme(legend.position = "none")}
+    
+    if(input$ANOVA_x_q == TRUE){
+      box_graph <- box_graph + xlab(input$ANOVA_alt_x_txt)}
+    
+    if(input$ANOVA_y_q == TRUE){
+      box_graph <- box_graph + ylab(input$ANOVA_alt_y_txt)}
+    
+    if(input$ANOVA_tit_q == TRUE){
+      box_graph <- box_graph + ggtitle(input$ANOVA_tit_txt)}
     
     box_graph <- box_graph + theme(axis.text.x = element_text(angle = 90, hjust = 1))
     box_graph
