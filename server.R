@@ -119,7 +119,8 @@ function(input, output, session) {
     
     if (is.null(input$your_data)) {
       return(NULL)
-    } else{
+    } 
+    else{
       test <- read.csv(input$your_data$datapath)
       test
     }
@@ -145,13 +146,12 @@ function(input, output, session) {
       sraka_nona <- sraka[complete.cases(sraka),]
       na_numbers <- nrow(sraka) - nrow(sraka_nona)
       sentence <- paste("Your selected data contains ", dim(sraka)[1], " rows and ", dim(sraka)[2], " columns. There are ", na_numbers, " rows containins missing values.")
-      return(sentence)
-    }
+      return(sentence)}
   })
   
   # Table in the Tab2 - main window - selected variables by the user
   my_data <- eventReactive(input$Go_Data, {
-    d2 = read.csv(input$your_data$datapath)
+      d2 = read.csv(input$your_data$datapath)  
     
     if(input$TimeCheck == F & input$SpatialCheck == F & input$IdCheck == F){
       my_data <- subset(d2, select=c(input$SelectGeno, input$SelectIV, input$SelectDV))}
@@ -2555,7 +2555,7 @@ function(input, output, session) {
       temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
       temp_sum$color <- temp_sum[,input$model_color_plot]
       temp_sum$facet <- temp_sum[,input$model_facet_plot]
-      benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, fill = color))
+      benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, color = color))
       benc <- benc + geom_bar(stat = "identity", position=position_dodge(1))
       if(input$model_error_plot == "Standard Error"){
         benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))
@@ -2577,22 +2577,22 @@ function(input, output, session) {
     melt_sub$no_facet <- paste(melt_sub[,no_fac], sep="_")
     
     if(input$model_graph_plot == "box plot"){
-      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))
       benc <- benc + geom_boxplot()
       benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
     }
     
     if(input$model_graph_plot == "box plot + jitter"){
-      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
-      benc <- benc + geom_boxplot() + geom_quasirandom(alpha = 0.6)
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))
+      benc <- benc + geom_boxplot() + geom_beeswarm(alpha = 0.6)
       benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
     }
     
     if(input$model_graph_plot == "scatter plot"){
-      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
-      benc <- benc + geom_quasirandom(alpha = 0.6)
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))
+      benc <- benc + geom_beeswarm(alpha = 0.6)
       benc <- benc + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
       
       
@@ -2601,15 +2601,15 @@ function(input, output, session) {
     }
     
     if(input$model_graph_plot == "violin plot"){
-      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))
       benc <- benc + geom_violin(trim = F)
       benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
     }
     
     if(input$model_graph_plot == "violin plot + jitter"){
-      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
-      benc <- benc + geom_violin(trim = F) + geom_quasirandom(alpha = 0.6)
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))
+      benc <- benc + geom_violin(trim = F) + geom_beeswarm(alpha = 0.6)
       benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
     }
@@ -2737,7 +2737,7 @@ function(input, output, session) {
       cat("\n")
       cat("# And now let's make the graph! :) ")
       cat("\n")
-      cat("benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, fill = color))")
+      cat("benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, color = color))")
       cat("\n")
       cat("benc <- benc + geom_bar(stat = 'identity', position=position_dodge(1))")
       cat("\n")
@@ -2774,7 +2774,7 @@ function(input, output, session) {
       cat("\n")
       
       if(input$model_graph_plot == "box plot"){
-        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))")
         cat("\n")
         cat("benc <- benc + geom_boxplot()")
         cat("\n")
@@ -2782,17 +2782,17 @@ function(input, output, session) {
         cat("\n")}
       
       if(input$model_graph_plot == "box plot + jitter"){
-        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))")
         cat("\n")
-        cat("benc <- benc + geom_boxplot() + geom_quasirandom(alpha = 0.6)")
+        cat("benc <- benc + geom_boxplot() + geom_beeswarm(alpha = 0.6)")
         cat("\n")
         cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
         cat("\n")}
       
       if(input$model_graph_plot == "scatter plot"){
-        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))")
         cat("\n")
-        cat("benc <- benc + geom_quasirandom(alpha = 0.6)")
+        cat("benc <- benc + geom_beeswarm(alpha = 0.6)")
         cat("\n")
         cat("benc <- benc + + stat_summary(fun.y=mean, geom='point', shape=95, size=10, color='black', fill='black')")
         cat("\n")
@@ -2800,7 +2800,7 @@ function(input, output, session) {
         cat("\n")}
       
       if(input$model_graph_plot == "violin plot"){
-        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))")
         cat("\n")
         cat("benc <- benc + geom_violin(trim = F)")
         cat("\n")
@@ -2808,9 +2808,9 @@ function(input, output, session) {
         cat("\n")}
       
       if(input$model_graph_plot == "violin plot + jitter"){
-        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))")
+        cat("benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))")
         cat("\n")
-        cat("benc <- benc + geom_violin(trim = F) + geom_quasirandom(alpha = 0.6)")
+        cat("benc <- benc + geom_violin(trim = F) + geom_beeswarm(alpha = 0.6)")
         cat("\n")
         cat("benc <- benc + facet_wrap(~facet, scale = '", input$Select_model_facet_sc, "') ")
         cat("\n")}
@@ -4386,12 +4386,12 @@ function(input, output, session) {
           out_sum <- summaryBy(pheno ~ listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })
           list_temp <- c(lista, listx)
           out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
-          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, color = listx))
           #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
         }
         if(input$outlier_facet == T){
           out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, color = listx))
         }}
       
       
@@ -4400,7 +4400,7 @@ function(input, output, session) {
           out_sum <- summaryBy(pheno ~ id_test + listb, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
           list_temp <- c(lista, listx)
           out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
-          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, color = listx))
           
           taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))
         }
@@ -4440,7 +4440,7 @@ function(input, output, session) {
         taka <- ggplot(outl, aes(x = id_test, y= pheno))   
       }
       
-      taka <- taka + geom_boxplot(position="dodge") + geom_quasirandom(alpha = 0.6)
+      taka <- taka + geom_boxplot(position="dodge") + geom_beeswarm(alpha = 0.6)
       #taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)
     }
     
@@ -4454,7 +4454,7 @@ function(input, output, session) {
         taka <- ggplot(outl, aes(x = id_test, y= pheno))      
       }
       
-      taka <- taka + geom_quasirandom(alpha = 0.6)
+      taka <- taka + geom_beeswarm(alpha = 0.6)
       taka <- taka + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
       #taka <- taka + scale_color_brewer(palette = input$Select_outl_color_sc)
     }
@@ -4479,7 +4479,7 @@ function(input, output, session) {
         taka <- ggplot(outl, aes(x = id_test, y= pheno))   
       }
       
-      taka <- taka + geom_violin(position="dodge", trim = F) + geom_quasirandom(alpha = 0.6)
+      taka <- taka + geom_violin(position="dodge", trim = F) + geom_beeswarm(alpha = 0.6)
       #taka <- taka + scale_fill_brewer(palette = input$Select_outl_color_sc)
     }
     
@@ -4690,13 +4690,13 @@ function(input, output, session) {
           cat("\n")
           cat("out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))")
           cat("\n")
-          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, color = listx))")
           cat("\n")
         }
         if(input$outlier_facet == T){
           cat("out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  ")
           cat("\n")
-          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, color = listx))")
           cat("\n")
         }}
       
@@ -4708,7 +4708,7 @@ function(input, output, session) {
           cat("\n")
           cat("out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))")
           cat("\n")
-          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, color = listx))")
           cat("\n")
           cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))")
           cat("\n")
@@ -4766,7 +4766,7 @@ function(input, output, session) {
       }
       cat("# Indicate that you want to plot a box plot with jitter")
       cat("\n")
-      cat("taka <- taka + geom_boxplot(position='dodge') + geom_quasirandom(alpha = 0.6)")
+      cat("taka <- taka + geom_boxplot(position='dodge') + geom_beeswarm(alpha = 0.6)")
       cat("\n")
       cat("\n")
     }
@@ -4821,7 +4821,7 @@ function(input, output, session) {
       cat("\n")
       cat("# Indicate that you want to plot a violin plot with jitter")
       cat("\n")
-      cat("taka <- taka + geom_violin(position='dodge', trim = F) + geom_quasirandom(alpha = 0.6)")
+      cat("taka <- taka + geom_violin(position='dodge', trim = F) + geom_beeswarm(alpha = 0.6)")
       cat("\n")
       cat("\n")
     }
@@ -4991,12 +4991,12 @@ function(input, output, session) {
       if(input$outlier_colour == T) {
         if(input$outlier_facet == F){
           clean_sum <- summaryBy(pheno ~ listx + id_test, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, fill = listx))
+          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, color = listx))
           #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
         }
         if(input$outlier_facet == T){
           clean_sum <- summaryBy(pheno ~ id_test + listx + listb, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, fill = listx))
+          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, color = listx))
         }}
       
       if(input$outlier_colour == F){
@@ -5035,7 +5035,7 @@ function(input, output, session) {
       else{
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno)) 
       }
-      jaka <- jaka + geom_boxplot(position="dodge") + geom_quasirandom(alpha = 0.6)}
+      jaka <- jaka + geom_boxplot(position="dodge") + geom_beeswarm(alpha = 0.6)}
     
     if(input$outlier_graph_type == "scatter plot"){
       if(input$outlier_colour == T){
@@ -5045,7 +5045,7 @@ function(input, output, session) {
       else{
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))   
       }
-      jaka <- jaka + geom_quasirandom(alpha = 0.6)
+      jaka <- jaka + geom_beeswarm(alpha = 0.6)
       jaka <- jaka + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
     }
     
@@ -5069,7 +5069,7 @@ function(input, output, session) {
       }
       
       #jaka <- jaka + scale_fill_brewer(palette = input$Select_outl_color_sc)
-      jaka <- jaka + geom_violin(position="dodge", trim = F) +  + geom_quasirandom(alpha = 0.6)}
+      jaka <- jaka + geom_violin(position="dodge", trim = F) +  + geom_beeswarm(alpha = 0.6)}
     
     if(input$outlier_facet == T){
       jaka <- jaka + facet_wrap(~listb, ncol=3, scale = input$out_facet_scale)}
@@ -5257,13 +5257,13 @@ function(input, output, session) {
           cat("\n")
           cat("out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))")
           cat("\n")
-          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, color = listx))")
           cat("\n")
         }
         if(input$outlier_facet == T){
           cat("out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  ")
           cat("\n")
-          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, color = listx))")
           cat("\n")
         }}
       
@@ -5275,7 +5275,7 @@ function(input, output, session) {
           cat("\n")
           cat("out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))")
           cat("\n")
-          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))")
+          cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, color = listx))")
           cat("\n")
           cat("taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))")
           cat("\n")
@@ -5333,7 +5333,7 @@ function(input, output, session) {
       }
       cat("# Indicate that you want to plot a box plot with jitter")
       cat("\n")
-      cat("taka <- taka + geom_boxplot(position='dodge') + geom_quasirandom(alpha = 0.6)")
+      cat("taka <- taka + geom_boxplot(position='dodge') + geom_beeswarm(alpha = 0.6)")
       cat("\n")
       cat("\n")
     }
@@ -5351,7 +5351,7 @@ function(input, output, session) {
       }
       cat("# Indicate that you want to plot a scatter plot")
       cat("\n")
-      cat("taka <- taka + geom_quasirandom(alpha = 0.6)")
+      cat("taka <- taka + geom_beeswarm(alpha = 0.6)")
       cat("\n")
       cat("# Include the mean indicator")
       cat("\n")
@@ -5387,7 +5387,7 @@ function(input, output, session) {
       cat("\n")
       cat("# Indicate that you want to plot a violin plot with jitter")
       cat("\n")
-      cat("taka <- taka + geom_violin(position='dodge', trim = F) + geom_quasirandom(alpha = 0.6)")
+      cat("taka <- taka + geom_violin(position='dodge', trim = F) + geom_beeswarm(alpha = 0.6)")
       cat("\n")
       cat("\n")
     }
@@ -7090,7 +7090,7 @@ function(input, output, session) {
     data_sub$chosen_DV <- data_sub[,input$HisDV]
     data_sub$sample_id <- data_sub$subset_id
     
-    bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, fill = sample_id))
+    bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, color = sample_id))
     bencki <- bencki + geom_boxplot()
     bencki <- bencki + xlab(input$OT_grouping_IVskis)
     bencki <- bencki + ylab(input$HisDV)
@@ -7208,7 +7208,7 @@ function(input, output, session) {
     cat("# For plotting the graph use the following commands (requires loaded ggplot2 library):")
     cat("\n")
     cat("\n")  
-    cat("bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, fill = sample_id))")
+    cat("bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, color = sample_id))")
     cat("\n")
     cat("bencki <- bencki + geom_boxplot()")
     cat("\n")
@@ -7240,7 +7240,7 @@ function(input, output, session) {
       data_sub$chosen_DV <- data_sub[,input$HisDV]
       data_sub$sample_id <- data_sub$subset_id
       
-      bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, fill = sample_id))
+      bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, color = sample_id))
       bencki <- bencki + geom_boxplot()
       bencki <- bencki + xlab(input$OT_grouping_IVskis)
       bencki <- bencki + ylab(input$HisDV)
@@ -7584,18 +7584,18 @@ function(input, output, session) {
       box_graph <- box_graph + geom_boxplot()}
     
     if(input$ANOVA_graph_type == "box plot + jitter"){
-      box_graph <- box_graph + geom_boxplot() + geom_quasirandom(alpha = 0.6)}
+      box_graph <- box_graph + geom_boxplot() + geom_beeswarm(alpha = 0.6)}
     
     if(input$ANOVA_graph_type == "violin plot"){
       box_graph <- box_graph + geom_violin(trim = F)
     }
     
     if(input$ANOVA_graph_type == "violin plot + jitter"){
-      box_graph <- box_graph + geom_violin(trim = F) + geom_quasirandom(alpha = 0.6)  
+      box_graph <- box_graph + geom_violin(trim = F) + geom_beeswarm(alpha = 0.6)  
     }
     
     if(input$ANOVA_graph_type == "scatter plot"){
-      box_graph <- box_graph + geom_quasirandom(alpha = 0.6)
+      box_graph <- box_graph + geom_beeswarm(alpha = 0.6)
       box_graph <- box_graph + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
     }
     
@@ -7672,19 +7672,23 @@ function(input, output, session) {
     cat("\n")
     if(input$plot_facet == T){
       if(input$plot_subsANOVA==T){
-        cat("The plot represents the boxplot of", which_hist_DV, "by", which_hist_IV, "split by", which_plotfacets,".",  "The data used is", which_hist_data, "subsetted by",input$subsetdata_choiceANOVA,input$subsetdata_uniquechoiceANOVA,".")  
+        cat("The graph represents the", input$ANOVA_graph_type, "of the" , which_hist_DV, "by", which_hist_IV, "split by", which_plotfacets,".",  "The data used is", which_hist_data, "subsetted by",input$subsetdata_choiceANOVA,input$subsetdata_uniquechoiceANOVA,".")  
       }
       if(input$plot_subsANOVA==F){
-        cat("The plot represents the boxplot of", which_hist_DV, "by", which_hist_IV, "split by", which_plotfacets, ".", "The data used is", which_hist_data,".")  
+        cat("The graph represents the", input$ANOVA_graph_type, "of the" , which_hist_DV, "by", which_hist_IV, "split by", which_plotfacets, ".", "The data used is", which_hist_data,".")  
       }}
     
     if(input$plot_facet == F){
       if(input$plot_subsANOVA==T){
-        cat("The plot represents the boxplot of", which_hist_DV, "by", which_hist_IV, ". The data used is", which_hist_data,"subsetted by",input$subsetdata_choice,input$subsetdata_uniquechoice,".")  
+        cat("The graph represents the", input$ANOVA_graph_type, "of the" , which_hist_DV, "by", which_hist_IV, ". The data used is", which_hist_data,"subsetted by",input$subsetdata_choice,input$subsetdata_uniquechoice,".")  
       }
       if(input$plot_subsANOVA==F){
-        cat("The plot represents the boxplot of", which_hist_DV,  "by", which_hist_IV, ". The data used is", which_hist_data,".")  
+        cat("The graph represents the", input$ANOVA_graph_type, "of the" , which_hist_DV,  "by", which_hist_IV, ". The data used is", which_hist_data,".")  
       }}
+    
+    if(input$ANOVA_graph_type == "scatter plot"){
+      cat("The black lines represent sample mean value. ")
+    }
     
     
     # Data curation:
@@ -12231,7 +12235,7 @@ function(input, output, session) {
       df <- barplotData()
       df$cluster <-as.factor(df$cluster)
       if(input$KMC_split_barplot == F){
-        p <- ggplot(df, aes(x =reorder(id,-df[,input$KMC_trait_to_plot])  , y = df[,input$KMC_trait_to_plot], fill = cluster) )+ 
+        p <- ggplot(df, aes(x =reorder(id,-df[,input$KMC_trait_to_plot])  , y = df[,input$KMC_trait_to_plot], color = cluster) )+ 
           geom_bar(stat="identity")+xlab(" ") +ylab(" ") +
           theme(axis.text.x = element_text(angle = 90, hjust = 1))}
       if(input$KMC_split_barplot == T){
@@ -12239,7 +12243,7 @@ function(input, output, session) {
           ungroup() %>%
           arrange(df[,input$facet_KMC_barplot],-df[,input$KMC_trait_to_plot]) %>%
           mutate(.r=row_number())
-        p <- ggplot(df, aes(x =.r,y = df[,input$KMC_trait_to_plot], fill = cluster) )+ 
+        p <- ggplot(df, aes(x =.r,y = df[,input$KMC_trait_to_plot], color = cluster) )+ 
           geom_bar(stat="identity")+xlab(" ") +ylab(" ") +
           theme(axis.text.x = element_text(angle = 90, hjust = 1))
         p<-p + facet_wrap(~ df[,input$facet_KMC_barplot], scale = input$Select_KMC_barplot_sc)+ scale_x_continuous(breaks=df$.r,labels=df$id)}
@@ -12311,7 +12315,7 @@ function(input, output, session) {
     
     if(input$KMC_use_means == T){
       if(input$KMC_split_barplot == F){
-        cat("p <- ggplot(KMC_data, aes(x =reorder(id,-KMC_data[,'",input$KMC_trait_to_plot,"']) , y = KMC_data[,'",input$KMC_trait_to_plot,"'], fill = cluster) )+")
+        cat("p <- ggplot(KMC_data, aes(x =reorder(id,-KMC_data[,'",input$KMC_trait_to_plot,"']) , y = KMC_data[,'",input$KMC_trait_to_plot,"'], color = cluster) )+")
         cat("\n")
         cat("geom_bar(stat='identity')+xlab(' ') +ylab(' ') +")
         cat("\n")
@@ -12326,7 +12330,7 @@ function(input, output, session) {
         cat("\n")
         cat("mutate(.r=row_number())")
         cat("\n")
-        cat("p <- ggplot(KMC_data, aes(x =.r,y = KMC_data[,'",input$KMC_trait_to_plot,"'], fill = cluster) )+")
+        cat("p <- ggplot(KMC_data, aes(x =.r,y = KMC_data[,'",input$KMC_trait_to_plot,"'], color = cluster) )+")
         cat("\n")
         cat("geom_bar(stat='identity')+xlab(' ') +ylab(' ') +")
         cat("\n")
