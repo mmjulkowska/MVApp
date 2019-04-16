@@ -1,5 +1,5 @@
 # install the missing packages - this can last some time for the first time you run the App
-list.of.packages <- c("quantreg","NbClust", "pvclust","MASS","ggpubr", "magrittr", "ggrepel", "lme4", "HH", "Hmisc", "splitstackshape", "car", "wesanderson", "agricolae", "splines", "data.table", "multcompView", "gplots","RColorBrewer","colorRamps","multcomp","ggplot2", "DT", "shinythemes", "plotly", "doBy", "reshape", "reshape2", "plotrix", "corrplot", "tidyverse", "FactoMineR", "devtools", "factoextra", "missMDA", "dplyr", "ggbeeswarm", "ggridges")
+list.of.packages <- c("quantreg","NbClust", "pvclust","MASS","ggpubr", "magrittr", "ggrepel", "lme4", "HH", "Hmisc", "splitstackshape", "car", "wesanderson", "agricolae", "splines", "data.table", "multcompView", "gplots","RColorBrewer","colorRamps","multcomp","ggplot2", "DT", "shinythemes", "plotly", "doBy", "reshape", "reshape2", "plotrix", "corrplot", "tidyverse", "FactoMineR", "devtools", "factoextra", "missMDA", "dplyr", "ggbeeswarm", "ggridges", "cowplot")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 
@@ -44,4 +44,4 @@ library("NbClust")
 library("quantreg")
 library("ggbeeswarm")
 library("ggridges")
-
+library("cowplot")
