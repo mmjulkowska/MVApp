@@ -2511,6 +2511,42 @@ function(input, output, session) {
       write.csv(temp_sum, file)}
   )
   
+  
+  output$model_y_lim_min <- renderUI(
+    if(input$model_y_lim_q == FALSE){
+      return(NULL)}
+    else{
+      numericInput("model_y_lim_min_go", "Enter minimum y-axis value:", value = 0) 
+    })
+  
+  output$model_y_lim_max <- renderUI(
+    if(input$model_y_lim_q == FALSE){
+      return(NULL)}
+    else{
+      numericInput("model_y_lim_max_go", "Enter maximum y-axis value:", value = 10) 
+    })
+  
+  output$model_alt_x <- renderUI(
+    if(input$model_x_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("model_alt_x_txt", "Enter x-label here:")
+    })
+  
+  output$model_alt_y <- renderUI(
+    if(input$model_y_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("model_alt_y_txt", "Enter y-label here:")
+    })
+  
+  output$model_tit_ui <- renderUI(
+    if(input$model_tit_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("model_tit_txt", "Enter title here:")
+    })
+  
   # - - - - - - - >> GRAPHS <<- - - - - - - - - - - - 
   
   
@@ -2555,7 +2591,7 @@ function(input, output, session) {
       temp_sum <- summaryBy(value ~  ., data = temp_melt, FUN=function(x) {c(median = median(x), sd = sd(x), se = std.error(x))})
       temp_sum$color <- temp_sum[,input$model_color_plot]
       temp_sum$facet <- temp_sum[,input$model_facet_plot]
-      benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, color = color))
+      benc <- ggplot(data = temp_sum, aes(x = color, y = value.median, fill = color))
       benc <- benc + geom_bar(stat = "identity", position=position_dodge(1))
       if(input$model_error_plot == "Standard Error"){
         benc <- benc + geom_errorbar(aes(ymin = value.median - value.se, ymax =value.median + value.se), position=position_dodge(1))
@@ -2577,21 +2613,21 @@ function(input, output, session) {
     melt_sub$no_facet <- paste(melt_sub[,no_fac], sep="_")
     
     if(input$model_graph_plot == "box plot"){
-      benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
       benc <- benc + geom_boxplot()
       benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
     }
     
     if(input$model_graph_plot == "box plot + jitter"){
-      benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
       benc <- benc + geom_boxplot() + geom_beeswarm(alpha = 0.6)
       benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
     }
     
     if(input$model_graph_plot == "scatter plot"){
-      benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
       benc <- benc + geom_beeswarm(alpha = 0.6)
       benc <- benc + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
       
@@ -2601,32 +2637,44 @@ function(input, output, session) {
     }
     
     if(input$model_graph_plot == "violin plot"){
-      benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
       benc <- benc + geom_violin(trim = F)
       benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
     }
     
     if(input$model_graph_plot == "violin plot + jitter"){
-      benc <- ggplot(data = melt_sub, aes(x= color, y = value, color = color))
+      benc <- ggplot(data = melt_sub, aes(x= color, y = value, fill = color))
       benc <- benc + geom_violin(trim = F) + geom_beeswarm(alpha = 0.6)
       benc <- benc + facet_wrap(~facet, scale = input$Select_model_facet_sc) 
       # benc <- benc + scale_fill_brewer(palette = input$Select_model_color_sc)
     }
-    
-    if(input$Select_model_background == T){
-      benc <- benc + theme_minimal()}
-    if(input$Select_model_maj_grid == T){
-      benc <- benc + theme(panel.grid.major = element_blank())}
-    
-    benc <- benc + ylab(input$model_trait_plot)
-    benc <- benc + xlab(input$model_color_plot)
     
     benc <- benc + guides(fill=guide_legend(title= input$model_color_plot))
     
     benc <- benc + theme(axis.text.x = element_text(angle = 90, hjust = 1))
     benc <- benc + xlab("")
     benc <- benc + ylab(input$model_trait_plot)
+    
+    if(input$model_color_palette != "default"){
+      benc <- benc + scale_fill_brewer(palette = input$model_color_palette)}
+    
+    if(input$model_legend == TRUE){
+      benc <- benc + theme(legend.position = "none")}
+    
+    if(input$model_x_q == TRUE){
+      benc <- benc + xlab(input$model_alt_x_txt)}
+    
+    if(input$model_y_q == TRUE){
+      benc <- benc + ylab(input$model_alt_y_txt)}
+    
+    if(input$model_tit_q == TRUE){
+      benc <- benc + ggtitle(input$model_tit_txt)}
+    
+    if(input$model_y_lim_q == TRUE){
+      minimal <- as.numeric(input$model_y_lim_min_go)
+      maximal <- as.numeric(input$model_y_lim_max_go)
+      benc <- benc + ylim(minimal, maximal)}
     
     benc
   })
@@ -3106,25 +3154,7 @@ function(input, output, session) {
         ))
   })
   
-  output$Select_outlier_background_color_to_plot <- renderUI({
-    if(is.null(input$Go_outliers)){
-      return()}
-    else{
-      tagList(
-        checkboxInput(
-          inputId = "Select_outl_background",
-          label = "Remove background"))}
-  })
   
-  output$Select_outlier_maj_grid_to_plot <- renderUI({
-    if(is.null(input$Go_outliers)){
-      return()}
-    else{
-      tagList(
-        checkboxInput(
-          inputId = "Select_outl_maj_grid",
-          label = "Remove major grid lines"))}
-  })
   
   # - - - - - - - - - - - - - >>  MAIN CALCULATIONS << - - - - - - - - - - - - - -
   
@@ -3984,6 +4014,42 @@ function(input, output, session) {
         step = input$Outl_col_number)}
   }) 
   
+  output$OUT_y_lim_min <- renderUI(
+    if(input$OUT_y_lim_q == FALSE){
+      return(NULL)}
+    else{
+      numericInput("OUT_y_lim_min_go", "Enter minimum y-axis value:", value = 0) 
+    })
+  
+  output$OUT_y_lim_max <- renderUI(
+    if(input$OUT_y_lim_q == FALSE){
+      return(NULL)}
+    else{
+      numericInput("OUT_y_lim_max_go", "Enter maximum y-axis value:", value = 10) 
+    })
+  
+  output$OUT_alt_x <- renderUI(
+    if(input$OUT_x_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("OUT_alt_x_txt", "Enter x-label here:")
+    })
+  
+  output$OUT_alt_y <- renderUI(
+    if(input$OUT_y_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("OUT_alt_y_txt", "Enter y-label here:")
+    })
+  
+  output$OUT_tit_ui <- renderUI(
+    if(input$OUT_tit_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("OUT_tit_txt", "Enter title here:")
+    })
+  
+  
   # - - - - - - - - - - - - - >>  OUTPUT TABLES / GRAPHS / DOWNLOAD BUTTONS << - - - - - - - - - - - - - -
   
   # Table with outliers marked out
@@ -4386,12 +4452,12 @@ function(input, output, session) {
           out_sum <- summaryBy(pheno ~ listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })
           list_temp <- c(lista, listx)
           out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
-          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, color = listx))
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
           #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
         }
         if(input$outlier_facet == T){
           out_sum <- summaryBy(pheno ~ listb + listx + id_test, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, color = listx))
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
         }}
       
       
@@ -4400,7 +4466,7 @@ function(input, output, session) {
           out_sum <- summaryBy(pheno ~ id_test + listb, data = outl, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
           list_temp <- c(lista, listx)
           out_sum$id_test <- do.call(paste,c(out_sum[list_temp]))
-          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, color = listx))
+          taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m, fill = listx))
           
           taka <- ggplot(out_sum, aes(x = id_test, y= pheno.m))
         }
@@ -4422,7 +4488,7 @@ function(input, output, session) {
     
     if(input$outlier_graph_type == "box plot"){
       if(input$outlier_colour == T){
-        taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))
+        taka <- ggplot(outl, aes(x = id_test, y= pheno, fill = listx))
       }
       else{
         taka <- ggplot(outl, aes(x = id_test, y= pheno))   
@@ -4434,7 +4500,7 @@ function(input, output, session) {
     
     if(input$outlier_graph_type == "box plot + jitter"){
       if(input$outlier_colour == T){
-        taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))
+        taka <- ggplot(outl, aes(x = id_test, y= pheno, fill = listx))
       }
       else{
         taka <- ggplot(outl, aes(x = id_test, y= pheno))   
@@ -4448,7 +4514,7 @@ function(input, output, session) {
     if(input$outlier_graph_type == "scatter plot"){
       
       if(input$outlier_colour == T){
-        taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))    
+        taka <- ggplot(outl, aes(x = id_test, y= pheno, fill = listx))    
       }
       else{
         taka <- ggplot(outl, aes(x = id_test, y= pheno))      
@@ -4461,7 +4527,7 @@ function(input, output, session) {
     
     if(input$outlier_graph_type == "violin plot"){
       if(input$outlier_colour == T){
-        taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))
+        taka <- ggplot(outl, aes(x = id_test, y= pheno, fill = listx))
       }
       else{
         taka <- ggplot(outl, aes(x = id_test, y= pheno))   
@@ -4473,7 +4539,7 @@ function(input, output, session) {
     
     if(input$outlier_graph_type == "violin plot + jitter"){
       if(input$outlier_colour == T){
-        taka <- ggplot(outl, aes(x = id_test, y= pheno, color = listx))
+        taka <- ggplot(outl, aes(x = id_test, y= pheno, fill = listx))
       }
       else{
         taka <- ggplot(outl, aes(x = id_test, y= pheno))   
@@ -4486,14 +4552,29 @@ function(input, output, session) {
     if(input$outlier_facet == T){
       taka <- taka + facet_wrap(~listb, ncol=input$out_graph_facet_col, scale = input$out_facet_scale)}
     
-    if(input$Select_outl_background == T){
-      taka <- taka + theme_minimal()}
-    if(input$Select_outl_maj_grid == T){
-      taka <- taka + theme(panel.grid.major = element_blank())}
-    
     taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
     taka <- taka + xlab("")
     taka <- taka + ylab(input$DV_graph_outliers)
+    
+    if(input$OUT_color_palette != "default"){
+      taka <- taka + scale_fill_brewer(palette = input$OUT_color_palette)}
+    
+    if(input$OUT_legend == TRUE){
+      taka <- taka + theme(legend.position = "none")}
+    
+    if(input$OUT_x_q == TRUE){
+      taka <- taka + xlab(input$OUT_alt_x_txt)}
+    
+    if(input$OUT_y_q == TRUE){
+      taka <- taka + ylab(input$OUT_alt_y_txt)}
+    
+    if(input$OUT_tit_q == TRUE){
+      taka <- taka + ggtitle(input$OUT_tit_txt)}
+    
+    if(input$OUT_y_lim_q == TRUE){
+      minimal <- as.numeric(input$OUT_y_lim_min_go)
+      maximal <- as.numeric(input$OUT_y_lim_max_go)
+      taka <- taka + ylim(minimal, maximal)}
     
     if(input$outlier_colour == T){
       taka <- taka + theme(legend.title=element_blank())
@@ -4832,14 +4913,6 @@ function(input, output, session) {
       cat("taka <- taka + facet_wrap(~listb, ncol='", input$out_graph_facet_col, "', scale = '", input$out_facet_scale, "')")
       cat("\n")}
     
-    if(input$Select_outl_background == T){
-      cat("taka <- taka + theme_minimal()")
-      cat("\n")}
-    
-    if(input$Select_outl_maj_grid == T){
-      cat("taka <- taka + theme(panel.grid.major = element_blank())")
-      cat("\n")}
-    
     cat("taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))")
     cat("\n")
     cat("taka <- taka + xlab('')")
@@ -4991,12 +5064,12 @@ function(input, output, session) {
       if(input$outlier_colour == T) {
         if(input$outlier_facet == F){
           clean_sum <- summaryBy(pheno ~ listx + id_test, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, color = listx))
+          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, fill = listx))
           #taka <- taka + guides(fill=guide_legend(title=input$outlier_colour))
         }
         if(input$outlier_facet == T){
           clean_sum <- summaryBy(pheno ~ id_test + listx + listb, data = clean_data, FUN = function(x) { c(m = mean(x), s = sd(x), se = std.error(x)) })  
-          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, color = listx))
+          jaka <- ggplot(clean_sum, aes(x = id_test, y= pheno.m, fill = listx))
         }}
       
       if(input$outlier_colour == F){
@@ -5021,7 +5094,7 @@ function(input, output, session) {
     
     if(input$outlier_graph_type == "box plot"){
       if(input$outlier_colour == T){
-        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, fill = listx)) 
         jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))}
       else{
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno))}
@@ -5029,7 +5102,7 @@ function(input, output, session) {
     
     if(input$outlier_graph_type == "box plot + jitter"){
       if(input$outlier_colour == T){
-        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, fill = listx)) 
         jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
       }
       else{
@@ -5039,7 +5112,7 @@ function(input, output, session) {
     
     if(input$outlier_graph_type == "scatter plot"){
       if(input$outlier_colour == T){
-        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, fill = listx)) 
         jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
       }
       else{
@@ -5051,7 +5124,7 @@ function(input, output, session) {
     
     if(input$outlier_graph_type == "violin plot"){
       if(input$outlier_colour == T){
-        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, fill = listx)) 
         jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
       }
       else{
@@ -5061,14 +5134,13 @@ function(input, output, session) {
     
     if(input$outlier_graph_type == "violin plot + jitter"){
       if(input$outlier_colour == T){
-        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, color = listx)) 
+        jaka <- ggplot(clean_data, aes(x = id_test, y= pheno, fill = listx)) 
         jaka <- jaka + guides(fill=guide_legend(title=input$outlier_colour))
       }
       else{
         jaka <- ggplot(clean_data, aes(x = id_test, y= pheno)) 
       }
       
-      #jaka <- jaka + scale_fill_brewer(palette = input$Select_outl_color_sc)
       jaka <- jaka + geom_violin(position="dodge", trim = F) +  + geom_beeswarm(alpha = 0.6)}
     
     if(input$outlier_facet == T){
@@ -5078,17 +5150,33 @@ function(input, output, session) {
       jaka <- jaka + theme(legend.title=element_blank())
     }
     
-    if(input$Select_outl_background == T){
-      jaka <- jaka + theme_minimal()}
-    if(input$Select_outl_maj_grid == T){
-      jaka <- jaka + theme(panel.grid.major = element_blank())}
-    
+
     if(input$outlier_colour == T){
       jaka <- jaka + guides(fill=guide_legend(title=listx))}
     
     jaka <- jaka + theme(axis.text.x = element_text(angle = 90, hjust = 1))
     jaka <- jaka + xlab("")
     jaka <- jaka + ylab(input$DV_graph_outliers)
+    
+    if(input$OUT_color_palette != "default"){
+      jaka <- jaka + scale_fill_brewer(palette = input$OUT_color_palette)}
+    
+    if(input$OUT_legend == TRUE){
+      jaka <- jaka + theme(legend.position = "none")}
+    
+    if(input$OUT_x_q == TRUE){
+      jaka <- jaka + xlab(input$OUT_alt_x_txt)}
+    
+    if(input$OUT_y_q == TRUE){
+      jaka <- jaka + ylab(input$OUT_alt_y_txt)}
+    
+    if(input$OUT_tit_q == TRUE){
+      jaka <- jaka + ggtitle(input$OUT_tit_txt)}
+    
+    if(input$OUT_y_lim_q == TRUE){
+      minimal <- as.numeric(input$OUT_y_lim_min_go)
+      maximal <- as.numeric(input$OUT_y_lim_max_go)
+      jaka <- jaka + ylim(minimal, maximal)}
     
     jaka
   })
@@ -5398,13 +5486,7 @@ function(input, output, session) {
       cat("taka <- taka + facet_wrap(~listb, ncol='", input$out_graph_facet_col, "', scale = '", input$out_facet_scale, "')")
       cat("\n")}
     
-    if(input$Select_outl_background == T){
-      cat("taka <- taka + theme_minimal()")
-      cat("\n")}
-    if(input$Select_outl_maj_grid == T){
-      cat("taka <- taka + theme(panel.grid.major = element_blank())")
-      cat("\n")}
-    
+
     cat("taka <- taka + theme(axis.text.x = element_text(angle = 90, hjust = 1))")
     cat("\n")
     cat("taka <- taka + xlab('')")
@@ -7020,6 +7102,41 @@ function(input, output, session) {
       return()}
   })
   
+  output$ttest_tit_ui <- renderUI({
+    if(input$ttest_tit_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("ttest_tit_txt", "Enter title here:")}
+  })
+  
+  output$ttest_y_lim_min <- renderUI(
+    if(input$ttest_y_lim_q == FALSE){
+      return(NULL)}
+    else{
+      numericInput("ttest_y_lim_min_go", "Enter minimum y-axis value:", value = 0) 
+    })
+  
+  output$ttest_y_lim_max <- renderUI(
+    if(input$ttest_y_lim_q == FALSE){
+      return(NULL)}
+    else{
+      numericInput("ttest_y_lim_max_go", "Enter maximum y-axis value:", value = 10) 
+    })
+  
+  output$ttest_alt_x <- renderUI(
+    if(input$ttest_x_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("ttest_alt_x_txt", "Enter x-label here:")
+    })
+  
+  output$ttest_alt_y <- renderUI(
+    if(input$ttest_y_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("ttest_alt_y_txt", "Enter y-label here:")
+    })
+  
   
   output$OT_test_results <- renderPrint({
     if(is.null(OTG())){
@@ -7090,11 +7207,54 @@ function(input, output, session) {
     data_sub$chosen_DV <- data_sub[,input$HisDV]
     data_sub$sample_id <- data_sub$subset_id
     
-    bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, color = sample_id))
-    bencki <- bencki + geom_boxplot()
+    bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, fill = sample_id))
+    
+    if(input$ttest_graph_type == "box plot"){
+      bencki <- bencki + geom_boxplot()  
+    }
+    
+    if(input$ttest_graph_type == "scatter plot"){
+      bencki <- bencki + geom_beeswarm(alpha = 0.6)
+      bencki <- bencki + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
+    }
+    
+    if(input$ttest_graph_type == "box plot + jitter"){
+      bencki <- bencki + geom_boxplot() + geom_beeswarm(alpha = 0.6)
+    }
+    
+    if(input$ttest_graph_type == "violin plot"){
+      bencki <- bencki + geom_violin(trim = F)
+    }
+    
+    if(input$ttest_graph_type == "violin plot + jitter"){
+      bencki <- bencki + geom_violin(trim = F) + geom_beeswarm(alpha = 0.6)  
+    }
+    
     bencki <- bencki + xlab(input$OT_grouping_IVskis)
     bencki <- bencki + ylab(input$HisDV)
-    bencki
+    
+    if(input$ttest_legend == TRUE){
+      bencki <- bencki + theme(legend.position = "none")}
+    
+    if(input$ttest_x_q == TRUE){
+      bencki <- bencki + xlab(input$ttest_alt_x_txt)}
+    
+    if(input$ttest_y_q == TRUE){
+      bencki <- bencki + ylab(input$ttest_alt_y_txt)}
+    
+    if(input$ttest_tit_q == TRUE){
+      bencki <- bencki + ggtitle(input$ttest_tit_txt)}
+    
+    if(input$ttest_y_lim_q == TRUE){
+      minimal <- as.numeric(input$ttest_y_lim_min_go)
+      maximal <- as.numeric(input$ttest_y_lim_max_go)
+      bencki <- bencki + ylim(minimal, maximal)}
+    
+    if(input$ttest_color_palette != "default"){
+      my_palette <- input$ttest_color_palette
+      bencki <- bencki + scale_fill_brewer(palette = my_palette)}
+    
+      bencki
   })
   
   # # # # # R-Snipets to do # # # # # 
@@ -7230,6 +7390,7 @@ function(input, output, session) {
     filename = function(){paste("Plot for ", input$OT_testski, " comparing ", input$OT_compareski, "using", input$Histo_data, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
+      
       subset_lista <- input$OT_grouping_IVskis
       id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
       id_lista2 <- setdiff(id_lista, subset_lista)
@@ -7240,10 +7401,52 @@ function(input, output, session) {
       data_sub$chosen_DV <- data_sub[,input$HisDV]
       data_sub$sample_id <- data_sub$subset_id
       
-      bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, color = sample_id))
-      bencki <- bencki + geom_boxplot()
+      bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, fill = sample_id))
+      
+      if(input$ttest_graph_type == "box plot"){
+        bencki <- bencki + geom_boxplot()  
+      }
+      
+      if(input$ttest_graph_type == "scatter plot"){
+        bencki <- bencki + geom_beeswarm(alpha = 0.6)
+        bencki <- bencki + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
+      }
+      
+      if(input$ttest_graph_type == "box plot + jitter"){
+        bencki <- bencki + geom_boxplot() + geom_beeswarm(alpha = 0.6)
+      }
+      
+      if(input$ttest_graph_type == "violin plot"){
+        bencki <- bencki + geom_violin(trim = F)
+      }
+      
+      if(input$ttest_graph_type == "violin plot + jitter"){
+        bencki <- bencki + geom_violin(trim = F) + geom_beeswarm(alpha = 0.6)  
+      }
+      
       bencki <- bencki + xlab(input$OT_grouping_IVskis)
       bencki <- bencki + ylab(input$HisDV)
+      
+      if(input$ttest_legend == TRUE){
+        bencki <- bencki + theme(legend.position = "none")}
+      
+      if(input$ttest_x_q == TRUE){
+        bencki <- bencki + xlab(input$ttest_alt_x_txt)}
+      
+      if(input$ttest_y_q == TRUE){
+        bencki <- bencki + ylab(input$ttest_alt_y_txt)}
+      
+      if(input$ttest_tit_q == TRUE){
+        bencki <- bencki + ggtitle(input$ttest_tit_txt)}
+      
+      if(input$ttest_y_lim_q == TRUE){
+        minimal <- as.numeric(input$ttest_y_lim_min_go)
+        maximal <- as.numeric(input$ttest_y_lim_max_go)
+        bencki <- bencki + ylim(minimal, maximal)}
+      
+      if(input$ttest_color_palette != "default"){
+        my_palette <- input$ttest_color_palette
+        bencki <- bencki + scale_fill_brewer(palette = my_palette)}
       
       print(bencki)
       dev.off()
@@ -7553,6 +7756,20 @@ function(input, output, session) {
     }
   })
   
+  output$ANOVA_y_lim_min <- renderUI(
+    if(input$ANOVA_y_lim_q == FALSE){
+      return(NULL)}
+    else{
+      numericInput("ANOVA_y_lim_min_go", "Enter minimum y-axis value:", value = 0) 
+    })
+  
+  output$ANOVA_y_lim_max <- renderUI(
+    if(input$ANOVA_y_lim_q == FALSE){
+      return(NULL)}
+    else{
+      numericInput("ANOVA_y_lim_max_go", "Enter maximum y-axis value:", value = 10) 
+    })
+  
   output$ANOVA_alt_x <- renderUI(
     if(input$ANOVA_x_q == FALSE){
       return(NULL)}
@@ -7573,6 +7790,7 @@ function(input, output, session) {
     else{
       textInput("ANOVA_tit_txt", "Enter title here:")
     })
+  
   
   #the margin needs to be fixed to be able to see the y-lab
   BoxANOVA <- reactive({
@@ -7656,6 +7874,11 @@ function(input, output, session) {
     
     if(input$ANOVA_tit_q == TRUE){
       box_graph <- box_graph + ggtitle(input$ANOVA_tit_txt)}
+    
+    if(input$ANOVA_y_lim_q == TRUE){
+      minimal <- as.numeric(input$ANOVA_y_lim_min_go)
+      maximal <- as.numeric(input$ANOVA_y_lim_max_go)
+      box_graph <- box_graph + ylim(minimal, maximal)}
     
     box_graph <- box_graph + theme(axis.text.x = element_text(angle = 90, hjust = 1))
     box_graph
@@ -10790,7 +11013,34 @@ function(input, output, session) {
       clust_t_cor = cor(clust_t_matrix,method="pearson")
       clust_t_dist = dist(clust_t_cor)
       clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
-      hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
+      if(input$HHeatMap_col == "blue-to-red"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "blue-to-green"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2green(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "ygobb"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=ygobb(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "matlab-like"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=matlab.like(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "matlab-like2"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=matlab.like2(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "magenta-to-green"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=magenta2green(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "cyan-to-yellow"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=cyan2yellow(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "blue-to-yellow"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2yellow(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "green-to-red"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=green2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "cm-colors"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=cm.colors(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "topo-colors"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=topo.colors(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "heat-colors"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=heat.colors(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "terrain-colors"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=terrain.colors(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "rainbow"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=rainbow(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
       print(hhm)
       dev.off()
     })
