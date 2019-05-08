@@ -7020,6 +7020,41 @@ function(input, output, session) {
       return()}
   })
   
+  output$ttest_tit_ui <- renderUI({
+    if(input$ttest_tit_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("ttest_tit_txt", "Enter title here:")}
+  })
+  
+  output$ttest_y_lim_min <- renderUI(
+    if(input$ttest_y_lim_q == FALSE){
+      return(NULL)}
+    else{
+      numericInput("ttest_y_lim_min_go", "Enter minimum y-axis value:", value = 0) 
+    })
+  
+  output$ttest_y_lim_max <- renderUI(
+    if(input$ttest_y_lim_q == FALSE){
+      return(NULL)}
+    else{
+      numericInput("ttest_y_lim_max_go", "Enter maximum y-axis value:", value = 10) 
+    })
+  
+  output$ttest_alt_x <- renderUI(
+    if(input$ttest_x_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("ttest_alt_x_txt", "Enter x-label here:")
+    })
+  
+  output$ttest_alt_y <- renderUI(
+    if(input$ttest_y_q == FALSE){
+      return(NULL)}
+    else{
+      textInput("ttest_alt_y_txt", "Enter y-label here:")
+    })
+  
   
   output$OT_test_results <- renderPrint({
     if(is.null(OTG())){
@@ -7090,11 +7125,54 @@ function(input, output, session) {
     data_sub$chosen_DV <- data_sub[,input$HisDV]
     data_sub$sample_id <- data_sub$subset_id
     
-    bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, color = sample_id))
-    bencki <- bencki + geom_boxplot()
+    bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, fill = sample_id))
+    
+    if(input$ttest_graph_type == "box plot"){
+      bencki <- bencki + geom_boxplot()  
+    }
+    
+    if(input$ttest_graph_type == "scatter plot"){
+      bencki <- bencki + geom_beeswarm(alpha = 0.6)
+      bencki <- bencki + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
+    }
+    
+    if(input$ttest_graph_type == "box plot + jitter"){
+      bencki <- bencki + geom_boxplot() + geom_beeswarm(alpha = 0.6)
+    }
+    
+    if(input$ttest_graph_type == "violin plot"){
+      bencki <- bencki + geom_violin(trim = F)
+    }
+    
+    if(input$ttest_graph_type == "violin plot + jitter"){
+      bencki <- bencki + geom_violin(trim = F) + geom_beeswarm(alpha = 0.6)  
+    }
+    
     bencki <- bencki + xlab(input$OT_grouping_IVskis)
     bencki <- bencki + ylab(input$HisDV)
-    bencki
+    
+    if(input$ttest_legend == TRUE){
+      bencki <- bencki + theme(legend.position = "none")}
+    
+    if(input$ttest_x_q == TRUE){
+      bencki <- bencki + xlab(input$ttest_alt_x_txt)}
+    
+    if(input$ttest_y_q == TRUE){
+      bencki <- bencki + ylab(input$ttest_alt_y_txt)}
+    
+    if(input$ttest_tit_q == TRUE){
+      bencki <- bencki + ggtitle(input$ttest_tit_txt)}
+    
+    if(input$ttest_y_lim_q == TRUE){
+      minimal <- as.numeric(input$ttest_y_lim_min_go)
+      maximal <- as.numeric(input$ttest_y_lim_max_go)
+      bencki <- bencki + ylim(minimal, maximal)}
+    
+    if(input$ttest_color_palette != "default"){
+      my_palette <- input$ttest_color_palette
+      bencki <- bencki + scale_fill_brewer(palette = my_palette)}
+    
+      bencki
   })
   
   # # # # # R-Snipets to do # # # # # 
@@ -7230,6 +7308,7 @@ function(input, output, session) {
     filename = function(){paste("Plot for ", input$OT_testski, " comparing ", input$OT_compareski, "using", input$Histo_data, "MVApp.pdf")},
     content = function(file) {
       pdf(file)
+      
       subset_lista <- input$OT_grouping_IVskis
       id_lista <- c(input$SelectGeno, input$SelectIV, input$SelectTime)
       id_lista2 <- setdiff(id_lista, subset_lista)
@@ -7241,9 +7320,51 @@ function(input, output, session) {
       data_sub$sample_id <- data_sub$subset_id
       
       bencki <- ggplot(data_sub, aes(x = sample_id, y = chosen_DV, color = sample_id))
-      bencki <- bencki + geom_boxplot()
+      
+      if(input$ttest_graph_type == "box plot"){
+        bencki <- bencki + geom_boxplot()  
+      }
+      
+      if(input$ttest_graph_type == "scatter plot"){
+        bencki <- bencki + geom_beeswarm(alpha = 0.6)
+        bencki <- bencki + stat_summary(fun.y=mean, geom="point", shape=95, size=10, color="black", fill="black")
+      }
+      
+      if(input$ttest_graph_type == "box plot + jitter"){
+        bencki <- bencki + geom_boxplot() + geom_beeswarm(alpha = 0.6)
+      }
+      
+      if(input$ttest_graph_type == "violin plot"){
+        bencki <- bencki + geom_violin(trim = F)
+      }
+      
+      if(input$ttest_graph_type == "violin plot + jitter"){
+        bencki <- bencki + geom_violin(trim = F) + geom_beeswarm(alpha = 0.6)  
+      }
+      
       bencki <- bencki + xlab(input$OT_grouping_IVskis)
       bencki <- bencki + ylab(input$HisDV)
+      
+      if(input$ttest_legend == TRUE){
+        bencki <- bencki + theme(legend.position = "none")}
+      
+      if(input$ttest_x_q == TRUE){
+        bencki <- bencki + xlab(input$ttest_alt_x_txt)}
+      
+      if(input$ttest_y_q == TRUE){
+        bencki <- bencki + ylab(input$ttest_alt_y_txt)}
+      
+      if(input$ttest_tit_q == TRUE){
+        bencki <- bencki + ggtitle(input$ttest_tit_txt)}
+      
+      if(input$ttest_y_lim_q == TRUE){
+        minimal <- as.numeric(input$ttest_y_lim_min_go)
+        maximal <- as.numeric(input$ttest_y_lim_max_go)
+        bencki <- bencki + ylim(minimal, maximal)}
+      
+      if(input$ttest_color_palette != "default"){
+        my_palette <- input$ttest_color_palette
+        bencki <- bencki + scale_fill_brewer(palette = my_palette)}
       
       print(bencki)
       dev.off()
@@ -7553,6 +7674,20 @@ function(input, output, session) {
     }
   })
   
+  output$ANOVA_y_lim_min <- renderUI(
+    if(input$ANOVA_y_lim_q == FALSE){
+      return(NULL)}
+    else{
+      numericInput("ANOVA_y_lim_min_go", "Enter minimum y-axis value:", value = 0) 
+    })
+  
+  output$ANOVA_y_lim_max <- renderUI(
+    if(input$ANOVA_y_lim_q == FALSE){
+      return(NULL)}
+    else{
+      numericInput("ANOVA_y_lim_max_go", "Enter maximum y-axis value:", value = 10) 
+    })
+  
   output$ANOVA_alt_x <- renderUI(
     if(input$ANOVA_x_q == FALSE){
       return(NULL)}
@@ -7573,6 +7708,7 @@ function(input, output, session) {
     else{
       textInput("ANOVA_tit_txt", "Enter title here:")
     })
+  
   
   #the margin needs to be fixed to be able to see the y-lab
   BoxANOVA <- reactive({
@@ -7656,6 +7792,11 @@ function(input, output, session) {
     
     if(input$ANOVA_tit_q == TRUE){
       box_graph <- box_graph + ggtitle(input$ANOVA_tit_txt)}
+    
+    if(input$ANOVA_y_lim_q == TRUE){
+      minimal <- as.numeric(input$ANOVA_y_lim_min_go)
+      maximal <- as.numeric(input$ANOVA_y_lim_max_go)
+      box_graph <- box_graph + ylim(minimal, maximal)}
     
     box_graph <- box_graph + theme(axis.text.x = element_text(angle = 90, hjust = 1))
     box_graph
@@ -10790,7 +10931,34 @@ function(input, output, session) {
       clust_t_cor = cor(clust_t_matrix,method="pearson")
       clust_t_dist = dist(clust_t_cor)
       clust_t_clust = hclust(clust_t_dist, method=input$Cluster_method)
-      hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)
+      if(input$HHeatMap_col == "blue-to-red"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "blue-to-green"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2green(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "ygobb"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=ygobb(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "matlab-like"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=matlab.like(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "matlab-like2"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=matlab.like2(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "magenta-to-green"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=magenta2green(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "cyan-to-yellow"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=cyan2yellow(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "blue-to-yellow"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=blue2yellow(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "green-to-red"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=green2red(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "cm-colors"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=cm.colors(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "topo-colors"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=topo.colors(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "heat-colors"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=heat.colors(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "terrain-colors"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=terrain.colors(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
+      if(input$HHeatMap_col == "rainbow"){
+        hhm <- heatmap.2(clust_t_matrix, Colv=as.dendrogram(clust_t_clust), col=rainbow(100),scale=c("row"),density.info="none",trace="none", cexRow=0.7)}
       print(hhm)
       dev.off()
     })
