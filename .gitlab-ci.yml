@@ -1,0 +1,11 @@
+---
+stages:
+  - test
+
+
+test:
+  stage: test
+  tags:
+    - dind
+  script:
+    - docker info
