@@ -13,3 +13,5 @@ deploy:
   script:
     - sudo cp -rf * /srv/shiny-server/MVApp/
     - sudo chown -R shiny:shiny /srv/shiny-server/MVApp/
+  only:
+    - master
