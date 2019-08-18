@@ -11,5 +11,5 @@ deploy:
   before_script:
     - hostname
     - sudo mkdir -p /srv/shiny-server/MVApp
-  scripts:
+  script:
     - sudo cp -rf * /srv/shiny-server/MVApp/
