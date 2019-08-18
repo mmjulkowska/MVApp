@@ -1,17 +1,15 @@
 ---
 stages:
-  - test
+  - deploy
 
 
-test:
-  stage: test
+deploy:
+  stage: deploy
+  image: ubuntu:latest
   tags:
-    - dind
-  image: docker:latest
-  services:
-    - docker:dind
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
-  script:
-    - docker info
+    - cthciadm
+  before_script:
+    - hostname
+    - sudo mkdir -p /srv/shiny-server/MVApp
+  scripts:
+    - sudo cp -rf * /srv/shiny-server/MVApp/
