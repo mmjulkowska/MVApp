@@ -5,12 +5,11 @@ stages:
 
 deploy:
   stage: deploy
-  image: ubuntu:latest
   tags:
-    - cthciadm
+    - shiny
   before_script:
     - hostname
     - sudo mkdir -p /srv/shiny-server/MVApp
   script:
     - sudo cp -rf * /srv/shiny-server/MVApp/
-    - sudo chown -R 999:999 /srv/shiny-server/MVApp/
+    - sudo chown -R shiny:shiny /srv/shiny-server/MVApp/
