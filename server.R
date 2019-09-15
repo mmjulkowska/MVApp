@@ -6192,7 +6192,7 @@ function(input, output, session) {
         facetting_shapiro[i]<-i
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
-        if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
+        if (shapirotest$p.value > as.numeric(as.character(input$Chosenthreshold)) ) {
           interpret_shapiro[i]<-"Data is NOT normally distributed"
         } else {
           interpret_shapiro[i]<-"Data is NORMALLY distributed"
@@ -6246,7 +6246,7 @@ function(input, output, session) {
         facetting_shapiro[i]<-i
         shapirotest<-shapiro.test(subsetted_shapiro[,1])
         shapiro_pvalue[i]<-signif(shapirotest$p.value,5)
-        if (shapirotest$p.value < as.numeric(as.character(input$Chosenthreshold)) ) {
+        if (shapirotest$p.value > as.numeric(as.character(input$Chosenthreshold)) ) {
           interpret_shapiro[i]<-"Data is NOT normally distributed"
         } else {
           interpret_shapiro[i]<-"Data is NORMALLY distributed"
