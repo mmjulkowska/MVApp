@@ -1,0 +1,20 @@
+---
+version: '3.7'
+services:
+  shiny:
+    image: gitregistry.kaust.edu.sa/tirc-infrastructure/external-projects/mvapp:latest
+    container_name: shiny-mvapp
+    restart: always
+    volumes:
+      - ./logs:/var/log
+    networks:
+      - web
+    labels:
+      - "traefik.docker.network=traefik-web"
+      - "traefik.frontend.rule=Host:mvapp-staging.kaust.edu.sa"
+      - "traefik.enable=true"
+
+networks:
+  web:
+    name: traefik-web
+    external: true
