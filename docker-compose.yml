@@ -11,7 +11,7 @@ services:
       - web
     labels:
       - "traefik.docker.network=traefik-web"
-      - "traefik.frontend.rule=Host:mvapp-staging.kaust.edu.sa"
+      - "traefik.frontend.rule=Host:mvapp.kaust.edu.sa"
       - "traefik.enable=true"
 
 networks:
