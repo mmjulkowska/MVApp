@@ -1,17 +1,84 @@
 ---
+variables:
+    SHARED_PATH: "/containers/external-projects"
+    PROJECT_NAME: "dc-mvapp"
+
 stages:
+  - test
+  - push
   - deploy
 
+dockerfile:
+    stage: test
+    tags:
+        - dind
+        - development
+    image: hadolint/hadolint:latest-debian
+    services:
+        - docker:dind
+    script:
+        - hadolint --ignore DL3007 --ignore DL3008 --ignore DL3013 --ignore DL3025 Dockerfile
+
+docker-compose:
+    stage: test
+    tags:
+        - dind
+        - development
+    image: ubuntu:latest
+    services:
+        - docker:dind
+    before_script:
+        - apt update && apt install -y curl
+        - curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        - chmod +x /usr/local/bin/docker-compose
+    script:
+        - docker-compose config
+
+.dockerimage:
+    stage: push
+    tags:
+        - dind
+        - development
+    image: docker:latest
+    services:
+        - docker:dind
+    variables:
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    before_script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    script:
+        - docker pull "$CI_REGISTRY_IMAGE:latest" || true
+        - docker build --cache-from "$CI_REGISTRY_IMAGE:latest" -t "$CI_REGISTRY_IMAGE:$CI_PIPELINE_IID" .
+        - docker push "$CI_REGISTRY_IMAGE:$CI_PIPELINE_IID"
+
+development:
+    extends: .dockerimage
+    except:
+        - master
+
+production:
+    extends: .dockerimage
+    after_script:
+        - docker tag "$CI_REGISTRY_IMAGE:$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE:latest"
+        - docker push "$CI_REGISTRY_IMAGE:latest"
+    only:
+        - master
 
 deploy:
   stage: deploy
   tags:
-    - shiny
+    - shell
+    - production
   before_script:
-    - hostname
-    - sudo mkdir -p /srv/shiny-server/MVApp
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
-    - sudo cp -rf * /srv/shiny-server/MVApp/
-    - sudo chown -R shiny:shiny /srv/shiny-server/MVApp/
+    - docker ps
+    - mkdir -p ${SHARED_PATH}/${PROJECT_NAME}/
+    - cp -rf * ${SHARED_PATH}/${PROJECT_NAME}/
+    - export COMPOSE_PROJECT_NAME=${PROJECT_NAME}
+    - cd ${SHARED_PATH}/${PROJECT_NAME}/
+    - docker-compose pull
+    - docker-compose up -d
   only:
     - master
