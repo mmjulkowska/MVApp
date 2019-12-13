@@ -6663,7 +6663,7 @@ function(input, output, session) {
       if(input$plot_subsVar==T){
         cat("The p-value of the Bartlett test of homogeneity of variances between different ", input$HisIV, "for ", input$subsetdata_choiceVar, input$subsetdata_uniquechoiceVar, " is ", pvalue_bartlett, ".", "\n", sep="")
       }
-      if (pvalue_bartlett < as.numeric(as.character(input$Chosenthreshold) )) {
+      if (pvalue_bartlett > as.numeric(as.character(input$Chosenthreshold) )) {
         if(input$plot_subsVar==F){
           cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are EQUAL.", sep="")
         }
@@ -6741,7 +6741,7 @@ function(input, output, session) {
       cat("HOMOGENEITY OF VARIANCE ANALYSIS", "\n")
       cat("The p-value of the Levene test of homogeneity of variances between different ", input$HisIV, " is ", pvalue_levene, ".", "\n", sep="")
       
-      if (pvalue_levene < as.numeric(as.character(input$Chosenthreshold))) {
+      if (pvalue_levene > as.numeric(as.character(input$Chosenthreshold))) {
         if(input$plot_subsVar==F){
           cat("Based on your chosen p-value threshold, the variances between ", input$HisIV, " groups are EQUAL.", sep="")
         }
