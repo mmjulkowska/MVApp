@@ -17,14 +17,17 @@ COPY global.R /tmp
 RUN sed -n '/# Load all the libraries/,$p' /tmp/global.R > /srv/shiny-server/global.R
 
 ## ADD files from repo to path 
-COPY www/bullshit_out.jpg server.R ui.R /srv/shiny-server/
+COPY server.R ui.R /srv/shiny-server/
+WORKDIR /srv/shiny-server/www
+COPY www/bullshit_out.jpg .
+WORKDIR /
 RUN chown -R shiny:shiny /srv/shiny-server/
 
 ## Add config files
 COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
 COPY shiny-server.sh /usr/bin/shiny-server.sh
 
-#Install R libraries
+## Install R libraries
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN R -e "install.packages($(grep 'list.of.packages <-' /tmp/global.R | cut -f 2 -d '-'))"
 
