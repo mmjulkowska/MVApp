@@ -17,7 +17,7 @@ COPY global.R /tmp
 RUN sed -n '/# Load all the libraries/,$p' /tmp/global.R > /srv/shiny-server/global.R
 
 ## ADD files from repo to path 
-COPY server.R ui.R /srv/shiny-server/
+COPY www/bullshit_out.jpg server.R ui.R /srv/shiny-server/
 RUN chown -R shiny:shiny /srv/shiny-server/
 
 ## Add config files
