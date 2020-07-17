@@ -22,7 +22,7 @@ fluidPage(
         "Julkowska, M.M., Saade, S., Gao, G., Morton, M.J.L., Awlia, M., Tester, M.A., MVApp.pre-release_v2.0 mmjulkowska/MVApp: MVApp.pre-release_v2.0, DOI: 10.5281/zenodo.1067974",
         br(), br(),
         "The example dataset is available ", a("here", href = "https://drive.google.com/file/d/0B08MX6N7rXcZX0xQamtweUZCbDQ/view?usp=sharing", target = "_blank"),br(), br(),
-        "If you have any problems / questions / ", span("suggestions how we can improve MVApp so that YOU can do your analysis smoother", style="color:red") ,"- or simply you would like to tell us how amazing the MVApp is - please contact ",span("Magdalena.Julkowska@kaust.edu.sa", style="color:blue")
+        "If you have any problems / questions / ", span("suggestions how we can improve MVApp so that YOU can do your analysis smoother", style="color:red") ,"- or simply you would like to tell us how amazing the MVApp is - please contact ",span("mmj55@cornell.edu", style="color:blue")
       ),
       mainPanel(
         h2("About the MVApp"),
